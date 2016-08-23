@@ -10,7 +10,7 @@ using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
 #endregion
 
-namespace Revit_PCF_Importer
+namespace GeneralStability
 {
     [Transaction(TransactionMode.Manual)]
     class App : IExternalApplication
@@ -49,8 +49,8 @@ namespace Revit_PCF_Importer
 
         private void AddMenu(UIControlledApplication application)
         {
-            RibbonPanel rvtRibbonPanel = application.CreateRibbonPanel("PCF Tools");
-            PushButtonData data = new PushButtonData("PCFImporter", "Revit PCF Importer", ExecutingAssemblyPath, "Revit_PCF_Importer.FormCaller");
+            RibbonPanel rvtRibbonPanel = application.CreateRibbonPanel("MyRevitAddins");
+            PushButtonData data = new PushButtonData("GeneralStability", "General Stability", ExecutingAssemblyPath, "Revit_PCF_Importer.FormCaller");
             data.ToolTip = pcfImporterButtonToolTip;
             //data.Image = NewBitmapImage(exe, "PCF_Functions.ImgPcfExport16.png");
             //data.LargeImage = NewBitmapImage(exe, "PCF_Functions.ImgPcfExport32.png");
