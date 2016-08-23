@@ -15,7 +15,7 @@ namespace Revit_PCF_Importer
     [Transaction(TransactionMode.Manual)]
     class App : IExternalApplication
     {
-        public const string pcfImporterButtonToolTip = "Import PCF piping data into Revit";
+        public const string pcfImporterButtonToolTip = "General Stability";
 
         //Method to get the button image
         BitmapImage NewBitmapImage(Assembly a, string imageName)
