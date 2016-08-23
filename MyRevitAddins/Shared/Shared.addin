@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<RevitAddIns>
+  <AddIn Type="Command">
+    <Text>Command Shared</Text>
+    <Description>Some description for Shared</Description>
+    <Assembly>Shared.dll</Assembly>
+    <FullClassName>Shared.Command</FullClassName>
+    <ClientId>d095efa0-db4b-424a-ab51-ac2787aba458</ClientId>
+    <VendorId>com.typepad.thebuildingcoder</VendorId>
+    <VendorDescription>The Building Coder, http://thebuildingcoder.typepad.com</VendorDescription>
+  </AddIn>
+  <AddIn Type="Application">
+    <Name>Application Shared</Name>
+    <Assembly>Shared.dll</Assembly>
+    <FullClassName>Shared.App</FullClassName>
+    <ClientId>3226b5e3-bf14-4ea0-846d-b45f5911a296</ClientId>
+    <VendorId>com.typepad.thebuildingcoder</VendorId>
+    <VendorDescription>The Building Coder, http://thebuildingcoder.typepad.com</VendorDescription>
+  </AddIn>
+</RevitAddIns>
