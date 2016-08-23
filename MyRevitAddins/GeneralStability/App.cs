@@ -64,9 +64,9 @@ namespace GeneralStability
             {
                 try
                 {
-                    PCF_Importer_form fm = new PCF_Importer_form(commandData, ref message);
+                    GeneralStabilityForm fm = new GeneralStabilityForm(commandData, ref message);
                     fm.ShowDialog();
-                    Properties.Settings.Default.Save();
+                    //Properties.Settings.Default.Save();
                     fm.Close();
                     return Result.Succeeded;
                 }
