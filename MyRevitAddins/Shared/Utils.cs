@@ -23,7 +23,7 @@ using System.Collections;
 
 namespace Shared
 {
-    class Util
+    public class Util
     {
         #region Geometrical Comparison
         //const double _eps = 1.0e-9; //Original tolerance
