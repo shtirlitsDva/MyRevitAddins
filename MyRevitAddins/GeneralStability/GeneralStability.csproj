@@ -65,7 +65,6 @@
     <Compile Include="GeneralStabilityForm.Designer.cs">
       <DependentUpon>GeneralStabilityForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="PCF_FileReader.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
