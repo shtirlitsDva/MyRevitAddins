@@ -50,7 +50,7 @@ namespace GeneralStability
         private void AddMenu(UIControlledApplication application)
         {
             RibbonPanel rvtRibbonPanel = application.CreateRibbonPanel("MyRevitAddins");
-            PushButtonData data = new PushButtonData("GeneralStability", "General Stability", ExecutingAssemblyPath, "Revit_PCF_Importer.FormCaller");
+            PushButtonData data = new PushButtonData("GeneralStability", "General Stability", ExecutingAssemblyPath, "GeneralStability.FormCaller");
             data.ToolTip = pcfImporterButtonToolTip;
             //data.Image = NewBitmapImage(exe, "PCF_Functions.ImgPcfExport16.png");
             //data.LargeImage = NewBitmapImage(exe, "PCF_Functions.ImgPcfExport32.png");
@@ -66,7 +66,7 @@ namespace GeneralStability
                 {
                     GeneralStabilityForm fm = new GeneralStabilityForm(commandData, ref message);
                     fm.ShowDialog();
-                    //Properties.Settings.Default.Save();
+                    Properties.Settings.Default.Save();
                     fm.Close();
                     return Result.Succeeded;
                 }

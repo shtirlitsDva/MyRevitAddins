@@ -39,13 +39,6 @@
     <StartProgram>$(ProgramW6432)\Autodesk\Revit 2017\Revit.exe</StartProgram>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="automation">
-      <HintPath>..\..\..\..\Programs\Mathcad\Mathcad 15\automation.dll</HintPath>
-    </Reference>
-    <Reference Include="interop.mathcad">
-      <HintPath>..\..\..\..\Programs\Mathcad\Mathcad 15\interop.mathcad.dll</HintPath>
-      <EmbedInteropTypes>True</EmbedInteropTypes>
-    </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="RevitAPI">
       <HintPath>..\..\..\..\Programs\IDSP17\Revit 2017\RevitAPI.dll</HintPath>
@@ -65,7 +58,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App.cs" />
-    <Compile Include="Command.cs" />
     <Compile Include="GeneralStabilityForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -73,6 +65,11 @@
       <DependentUpon>GeneralStabilityForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Content Include="GeneralStability.addin" />
@@ -89,24 +86,22 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <COMReference Include="BUTTONLib">
-      <Guid>{01350040-1122-11DB-9380-000D56C6051A}</Guid>
+    <COMReference Include="Mathcad">
+      <Guid>{A86F3A06-7127-4E0F-BCAF-56D15FA57AC4}</Guid>
       <VersionMajor>1</VersionMajor>
-      <VersionMinor>3</VersionMinor>
+      <VersionMinor>0</VersionMinor>
       <Lcid>0</Lcid>
       <WrapperTool>tlbimp</WrapperTool>
       <Isolated>False</Isolated>
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </COMReference>
-    <COMReference Include="stdole">
-      <Guid>{00020430-0000-0000-C000-000000000046}</Guid>
-      <VersionMajor>2</VersionMajor>
-      <VersionMinor>0</VersionMinor>
-      <Lcid>0</Lcid>
-      <WrapperTool>primary</WrapperTool>
-      <Isolated>False</Isolated>
-      <EmbedInteropTypes>True</EmbedInteropTypes>
-    </COMReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

@@ -12,16 +12,17 @@ using Autodesk.Revit.UI;
 using Form = System.Windows.Forms.Form;
 using Mathcad;
 using Shared;
+using mySettings = GeneralStability.Properties.Settings;
 
 namespace GeneralStability
 {
     public partial class GeneralStabilityForm : Form
     {
-        public static ExternalCommandData _commandData;
-        public static UIApplication _uiapp;
-        public static UIDocument _uidoc;
-        public static Document _doc;
-        public string _message;
+        private static ExternalCommandData _commandData;
+        private static UIApplication _uiapp;
+        private static UIDocument _uidoc;
+        private static Document _doc;
+        private string _message;
 
         public GeneralStabilityForm(ExternalCommandData cData, ref string message)
         {
@@ -31,54 +32,60 @@ namespace GeneralStability
             _uidoc = _uiapp.ActiveUIDocument;
             _doc = _uidoc.Document;
             _message = message;
+
+            //Init interface info boxes
+            textBox1.Text = mySettings.Default._worksheetPath;
+            textBox2.Text = mySettings.Default.debugFilePath;
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
-            string filePath;
-
             if (openFileDialog1.ShowDialog() == DialogResult.OK)
             {
                 //Get file path
-                filePath = openFileDialog1.FileName;
-                Mathcad.Application mc = new Mathcad.Application();
-                Mathcad.Worksheets wk;
-                Mathcad.Worksheet ws;
+                string filePath = openFileDialog1.FileName;
+                textBox1.Text = filePath;
+                mySettings.Default._worksheetPath = filePath;
+            }
+        }
 
-                mc.Visible = true;
+        private void button2_Click(object sender, EventArgs e)
+        {
+            mc = new Mathcad.Application {Visible = true};
+            wk = mc.Worksheets;
+            ws = wk.Open(mySettings.Default._worksheetPath);
 
-                wk = mc.Worksheets;
-                ws = wk.Open(filePath);
-                
+            try
+            {
 
-                try
-                {
-                    ws.SetValue("ina", 1000);
-                    ws.SetValue("inb", 500);
-                    ws.Recalculate();
-                    var result = ws.GetValue("ab") as Mathcad.INumericValue;
-                    Util.InfoMsg(result.Real.ToString());
 
-                    var result2 = ws.GetValue("test3");
+            }
+            catch (Exception ex)
+            {
+                Cleanup();
+                Console.WriteLine(ex);
+                Util.InfoMsg(ex.Message);
+            }
+            Cleanup();
+        }
 
-                    var out1 = result2 as Mathcad.
-                    Util.InfoMsg(out1.UnitsXML);
+        private void Cleanup()
+        {
+            ws.Close(Mathcad.MCSaveOption.mcSaveChanges);
+            mc.Quit(MCSaveOption.mcSaveChanges);
+            System.Runtime.InteropServices.Marshal.ReleaseComObject(wk);
+            System.Runtime.InteropServices.Marshal.ReleaseComObject(ws);
+            System.Runtime.InteropServices.Marshal.ReleaseComObject(mc);
+        }
 
-                }
-                catch (Exception ex)
-                {
-                    System.Runtime.InteropServices.Marshal.ReleaseComObject(wk);
-                    System.Runtime.InteropServices.Marshal.ReleaseComObject(ws);
-                    System.Runtime.InteropServices.Marshal.ReleaseComObject(mc);
-                    Console.WriteLine(ex);
-                    Util.InfoMsg(ex.Message);
-                }
-
-                ws.Close(Mathcad.MCSaveOption.mcSaveChanges);
-                mc.Quit(MCSaveOption.mcSaveChanges);
-                System.Runtime.InteropServices.Marshal.ReleaseComObject(wk);
-                System.Runtime.InteropServices.Marshal.ReleaseComObject(ws);
-                System.Runtime.InteropServices.Marshal.ReleaseComObject(mc);
+        private void button3_Click(object sender, EventArgs e)
+        {
+            if (openFileDialog2.ShowDialog() == DialogResult.OK)
+            {
+                //Get file path
+                string filePath = openFileDialog2.FileName;
+                textBox2.Text = filePath;
+                mySettings.Default.debugFilePath= filePath;
             }
         }
     }
