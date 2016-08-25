@@ -11,6 +11,7 @@ using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
 using Form = System.Windows.Forms.Form;
 using Mathcad;
+using MathcadAutomationPrivate;
 using Shared;
 using mySettings = GeneralStability.Properties.Settings;
 using op = Shared.Output;
@@ -27,9 +28,15 @@ namespace GeneralStability
         private string _message;
         private string _debugFilePath;
 
+        //Declare the Mathcad Elements
+        Mathcad.Application mc;
+        Mathcad.Worksheets wk;
+        Mathcad.Worksheet ws;
+
         public GeneralStabilityForm(ExternalCommandData cData, ref string message)
         {
             InitializeComponent();
+
             _commandData = cData;
             _uiapp = _commandData.Application;
             _uidoc = _uiapp.ActiveUIDocument;
@@ -64,32 +71,56 @@ namespace GeneralStability
             wk = mc.Worksheets;
             ws = wk.Open(mySettings.Default._worksheetPath);
 
+            int rows, cols;
+
             try
             {
-                RevitInteraction.InteractWithRevit(doc);
+                InteractionRevit ir = new InteractionRevit(doc);
 
-                Regions regions = ws.Regions;
-                foreach (Region reg in regions)
+                double[] matrix = new double[ir.WallsAlong.Count];
+
+                for (int i = 0; i < ir.WallsAlong.Count; i++)
                 {
-                    var type = reg.GetType();
-                    
-                    StringBuilder sb = new StringBuilder();
-
-                    sb.Append(type.FullName);
-                    sb.AppendLine();
-
-                    op.WriteDebugFile(_debugFilePath, sb);
+                    FamilyInstance fi = ir.WallsAlong[i];
+                    LocationCurve loc = fi.Location as LocationCurve;
+                    double length = Util.FootToMeter(loc.Curve.Length);
+                    matrix[i] = length;
                 }
 
-                var value = ws.GetValue("i.x") as IMatrixValue;
+                //rows = ir.WallsAlong.Count;
+                //cols = 1;
+
+                //NumericValue member = matrix.GetElement(0, 0) as NumericValue;
+
+                //for (int i = 0; i < rows; i++)
+                //{
+                //    for (int j = 0; j < cols; j++)
+                //    {
+                //        LocationCurve loc = ir.WallsAlong[i].Location as LocationCurve;
+                //        double length = Util.FootToMeter(loc.Curve.Length);
+
+                //        member.Real = length;
+
+                //        matrix.SetElement(i, j, member);
+                //    }
+                //}
+
+                ws.SetValue("i.x", matrix);
+
+                ws.Recalculate();
+                ws.Save();
+
+                //Regions regions = ws.Regions;
+
+                var value = ws.GetValue("i.x") as MatrixValue;
 
                 StringBuilder sb2 = new StringBuilder();
 
                 sb2.Append(value.AsString);
                 sb2.AppendLine();
 
-                int rows = value.Rows;
-                int cols = value.Cols;
+                rows = value.Rows;
+                cols = value.Cols;
 
                 for (int i = 0; i < rows; i++)
                 {
@@ -100,7 +131,6 @@ namespace GeneralStability
                         sb2.AppendLine();
                     }
                 }
-
                 op.WriteDebugFile(_debugFilePath, sb2);
             }
             catch (Exception ex)
@@ -118,8 +148,8 @@ namespace GeneralStability
 
         private void Cleanup()
         {
-            ws.Close(Mathcad.MCSaveOption.mcSaveChanges);
-            mc.Quit(MCSaveOption.mcSaveChanges);
+            //ws.Close(Mathcad.MCSaveOption.mcSaveChanges);
+            //mc.Quit(MCSaveOption.mcSaveChanges);
             System.Runtime.InteropServices.Marshal.ReleaseComObject(wk);
             System.Runtime.InteropServices.Marshal.ReleaseComObject(ws);
             System.Runtime.InteropServices.Marshal.ReleaseComObject(mc);

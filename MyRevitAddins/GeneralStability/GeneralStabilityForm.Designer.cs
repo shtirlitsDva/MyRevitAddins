@@ -20,11 +20,6 @@
             base.Dispose(disposing);
         }
 
-        //Declare the Mathcad Elements
-        Mathcad.Application mc;
-        Mathcad.Worksheets wk;
-        Mathcad.Worksheet ws;
-
         #region Windows Form Designer generated code
 
         /// <summary>

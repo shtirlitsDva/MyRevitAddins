@@ -438,6 +438,14 @@ namespace Shared
         }
 
         /// <summary>
+        /// Convert a given length in feet to metres.
+        /// </summary>
+        public static double FootToMeter(double length)
+        {
+            return length * _convertFootToMeter;
+        }
+
+        /// <summary>
         /// Convert a given length in millimetres to feet.
         /// </summary>
         public static double MmToFoot(double length)

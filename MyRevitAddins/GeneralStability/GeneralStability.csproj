@@ -71,7 +71,7 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
-    <Compile Include="RevitInteraction.cs" />
+    <Compile Include="InteractionRevit.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="GeneralStability.addin" />
@@ -92,6 +92,15 @@
       <Guid>{A86F3A06-7127-4E0F-BCAF-56D15FA57AC4}</Guid>
       <VersionMajor>1</VersionMajor>
       <VersionMinor>0</VersionMinor>
+      <Lcid>0</Lcid>
+      <WrapperTool>tlbimp</WrapperTool>
+      <Isolated>False</Isolated>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </COMReference>
+    <COMReference Include="MathcadAutomationPrivate">
+      <Guid>{EB26A1CE-6F1E-482E-96C0-38A6106BB0B4}</Guid>
+      <VersionMajor>1</VersionMajor>
+      <VersionMinor>2</VersionMinor>
       <Lcid>0</Lcid>
       <WrapperTool>tlbimp</WrapperTool>
       <Isolated>False</Isolated>
