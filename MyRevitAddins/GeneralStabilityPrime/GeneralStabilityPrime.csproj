@@ -41,6 +41,10 @@
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="PresentationCore" />
+    <Reference Include="Ptc.MathcadPrime.Automation">
+      <HintPath>..\..\..\..\Programs\Mathcad\Prime 3.1\Mathcad Prime 3.1\Ptc.MathcadPrime.Automation.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="RevitAPI">
       <HintPath>..\..\..\..\Programs\IDSP17\Revit 2017\RevitAPI.dll</HintPath>
       <Private>False</Private>

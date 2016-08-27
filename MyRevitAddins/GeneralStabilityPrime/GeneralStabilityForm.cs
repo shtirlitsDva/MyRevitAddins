@@ -9,11 +9,10 @@ using System.Windows.Forms;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
 using Form = System.Windows.Forms.Form;
-using Mathcad;
+using Mathcad = Ptc.MathcadPrime.Automation;
 using Shared;
 using mySettings = GeneralStability.Properties.Settings;
 using op = Shared.Output;
-using Region = Mathcad.Region;
 
 namespace GeneralStability
 {
