@@ -1,4 +1,6 @@
-﻿namespace GeneralStability
+﻿using Mathcad = Ptc.MathcadPrime.Automation;
+
+namespace GeneralStability
 {
     partial class GeneralStabilityForm
     {

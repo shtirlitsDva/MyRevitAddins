@@ -5,8 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
-using Mathcad;
-using MathcadAutomationPrivate;
+using Mathcad = Ptc.MathcadPrime.Automation;
 using Shared;
 using mySettings = GeneralStability.Properties.Settings;
 using con = Shared.Conversion;
@@ -19,7 +18,7 @@ namespace GeneralStability
     {
         private readonly string _debugFilePath = mySettings.Default.debugFilePath;
 
-        public InteractionMathcad(Document doc, Worksheet ws)
+        public InteractionMathcad(Document doc, Mathcad.IMathcadPrimeWorksheet ws)
         {
             int rows, cols;
 
@@ -27,53 +26,148 @@ namespace GeneralStability
 
             try
             {
-                System.Type objType = System.Type.GetTypeFromProgID("Mathcad.MatrixValue");
+                StringBuilder wsSb = new StringBuilder();
+                wsSb.Append(ws.FullName);
+                wsSb.AppendLine();
+                wsSb.Append(ws.Inputs.Count);
+                wsSb.AppendLine();
+                wsSb.Append(ws.IsReadOnly);
+                wsSb.AppendLine();
+                wsSb.Append(ws.Modified);
+                wsSb.AppendLine();
+                wsSb.Append(ws.Name);
+                wsSb.AppendLine();
+                wsSb.Append(ws.Outputs.Count);
+                wsSb.AppendLine();
 
-                dynamic comObject = System.Activator.CreateInstance(objType);
+                Mathcad.IMathcadPrimeInputs inputs = ws.Inputs;
+                Mathcad.IMathcadPrimeOutputs outputs = ws.Outputs;
 
-                rows = ir.WallsAlong.Count;
-                cols = 1;
-
-                for (int i = 0; i < rows; i++)
+                wsSb.Append("Outputs");
+                wsSb.AppendLine();
+                for (var i = 0; i < inputs.Count; i++)
                 {
-                    for (int j = 0; j < cols; j++)
-                    {
-                        LocationCurve loc = ir.WallsAlong[i].Location as LocationCurve;
-                        double length = ut.FootToMeter(loc.Curve.Length);
-
-                        NumericValue member = new NumericValue();
-                        member.Real = length;
-
-                        comObject.SetElement(i, j, member);
-                    }
+                    var input = inputs.GetAliasByIndex(i);
+                    wsSb.Append(input);
+                    wsSb.AppendLine();
                 }
 
-                ws.SetValue("i.x", comObject);
-            
-                ws.Recalculate();
+                wsSb.Append("Inputs");
+                wsSb.AppendLine();
+                for (var i = 0; i < outputs.Count; i++)
+                {
+                    var output = outputs.GetAliasByIndex(i);
+                    wsSb.Append(output);
+                    wsSb.AppendLine();
+                }
+
+
+                op.WriteDebugFile(_debugFilePath, wsSb);
+
+                //System.Type objType = System.Type.GetTypeFromProgID("Mathcad.MatrixValue");
+
+                //dynamic comObject = System.Activator.CreateInstance(objType);
+
+                //rows = ir.WallsAlong.Count;
+                //cols = 1;
+
+                //for (int i = 0; i < rows; i++)
+                //{
+                //    for (int j = 0; j < cols; j++)
+                //    {
+                //        LocationCurve loc = ir.WallsAlong[i].Location as LocationCurve;
+                //        double length = ut.FootToMeter(loc.Curve.Length);
+
+                //        NumericValue member = new NumericValue();
+                //        member.Real = length;
+
+                //        comObject.SetElement(i, j, member);
+                //    }
+                //}
+
+                //ws.SetValue("i.x", comObject);
+
+                //ws.Recalculate();
+
+                ////Regions regions = ws.Regions;
+
+                //var value = ws.GetValue("i.x") as MatrixValue;
+
+                //StringBuilder sb2 = new StringBuilder();
+
+                //sb2.Append(value.AsString);
+                //sb2.AppendLine();
+
+                //rows = value.Rows;
+                //cols = value.Cols;
+
+                //for (int i = 0; i < rows; i++)
+                //{
+                //    for (int j = 0; j < cols; j++)
+                //    {
+                //        INumericValue numval = value.GetElement(i, j);
+                //        sb2.Append(numval.Real.ToString());
+                //        sb2.AppendLine();
+                //    }
+                //}
+                //op.WriteDebugFile(_debugFilePath, sb2);
+                //double[] matrix = new double[ir.WallsAlong.Count];
+
+                //for (int i = 0; i < ir.WallsAlong.Count; i++)
+                //{
+                //    FamilyInstance fi = ir.WallsAlong[i];
+                //    LocationCurve loc = fi.Location as LocationCurve;
+                //    double length = Util.FootToMeter(loc.Curve.Length);
+                //    matrix[i] = length;
+                //}
+
+                //rows = ir.WallsAlong.Count;
+                //cols = 1;
+
+                //NumericValue member = matrix.GetElement(0, 0) as NumericValue;
+
+                //for (int i = 0; i < rows; i++)
+                //{
+                //    for (int j = 0; j < cols; j++)
+                //    {
+                //        LocationCurve loc = ir.WallsAlong[i].Location as LocationCurve;
+                //        double length = Util.FootToMeter(loc.Curve.Length);
+
+                //        member.Real = length;
+
+                //        matrix.SetElement(i, j, member);
+                //    }
+                //}
+
+
+
+                //ws.SetValue("i.x", matrix);
+
+                //ws.Recalculate();
+                //ws.Save();
 
                 //Regions regions = ws.Regions;
-            
-                var value = ws.GetValue("i.x") as MatrixValue;
 
-                StringBuilder sb2 = new StringBuilder();
+                //var value = ws.GetValue("i.x") as MatrixValue;
 
-                sb2.Append(value.AsString);
-                sb2.AppendLine();
+                //StringBuilder sb2 = new StringBuilder();
 
-                rows = value.Rows;
-                cols = value.Cols;
+                //sb2.Append(value.AsString);
+                //sb2.AppendLine();
 
-                for (int i = 0; i < rows; i++)
-                {
-                    for (int j = 0; j < cols; j++)
-                    {
-                        INumericValue numval = value.GetElement(i, j);
-                        sb2.Append(numval.Real.ToString());
-                        sb2.AppendLine();
-                    }
-                }
-                op.WriteDebugFile(_debugFilePath, sb2);
+                //rows = value.Rows;
+                //cols = value.Cols;
+
+                //for (int i = 0; i < rows; i++)
+                //{
+                //    for (int j = 0; j < cols; j++)
+                //    {
+                //        INumericValue numval = value.GetElement(i, j);
+                //        sb2.Append(numval.Real.ToString());
+                //        sb2.AppendLine();
+                //    }
+                //}
+                //op.WriteDebugFile(_debugFilePath, sb2);
             }
             catch (Exception ex)
             {

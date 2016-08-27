@@ -26,9 +26,7 @@ namespace GeneralStability
         private string _debugFilePath;
 
         //Declare the Mathcad Elements
-        Mathcad.Application mc;
-        Mathcad.Worksheets wk;
-        Mathcad.Worksheet ws;
+        Mathcad.ApplicationCreator app;
 
         public GeneralStabilityForm(ExternalCommandData cData, ref string message)
         {
@@ -64,71 +62,13 @@ namespace GeneralStability
 
         private void button2_Click(object sender, EventArgs e)
         {
-            mc = new Mathcad.Application {Visible = true};
-            wk = mc.Worksheets;
-            ws = wk.Open(mySettings.Default._worksheetPath);
-
-            int rows, cols;
-
             try
             {
-                InteractionRevit ir = new InteractionRevit(doc);
-
-                double[] matrix = new double[ir.WallsAlong.Count];
-
-                for (int i = 0; i < ir.WallsAlong.Count; i++)
-                {
-                    FamilyInstance fi = ir.WallsAlong[i];
-                    LocationCurve loc = fi.Location as LocationCurve;
-                    double length = Util.FootToMeter(loc.Curve.Length);
-                    matrix[i] = length;
-                }
-
-                //rows = ir.WallsAlong.Count;
-                //cols = 1;
-
-                //NumericValue member = matrix.GetElement(0, 0) as NumericValue;
-
-                //for (int i = 0; i < rows; i++)
-                //{
-                //    for (int j = 0; j < cols; j++)
-                //    {
-                //        LocationCurve loc = ir.WallsAlong[i].Location as LocationCurve;
-                //        double length = Util.FootToMeter(loc.Curve.Length);
-
-                //        member.Real = length;
-
-                //        matrix.SetElement(i, j, member);
-                //    }
-                //}
-
-                ws.SetValue("i.x", matrix);
-
-                ws.Recalculate();
-                ws.Save();
-
-                //Regions regions = ws.Regions;
-
-                var value = ws.GetValue("i.x") as MatrixValue;
-
-                StringBuilder sb2 = new StringBuilder();
-
-                sb2.Append(value.AsString);
-                sb2.AppendLine();
-
-                rows = value.Rows;
-                cols = value.Cols;
-
-                for (int i = 0; i < rows; i++)
-                {
-                    for (int j = 0; j < cols; j++)
-                    {
-                        INumericValue numval = value.GetElement(i, j);
-                        sb2.Append(numval.Real.ToString());
-                        sb2.AppendLine();
-                    }
-                }
-                op.WriteDebugFile(_debugFilePath, sb2);
+                var appCreate = new Mathcad.ApplicationCreatorClass();
+                app = (Mathcad.ApplicationCreator) appCreate;
+                var ws = app.Open(mySettings.Default._worksheetPath);
+                
+                InteractionMathcad interactionMathcad = new InteractionMathcad(doc, ws);
             }
             catch (Exception ex)
             {
@@ -138,18 +78,17 @@ namespace GeneralStability
                 exSb.Append(ex.Message);
                 exSb.AppendLine();
                 op.WriteDebugFile(_debugFilePath,exSb);
+                app.CloseAll(Mathcad.SaveOption.spDiscardChanges);
+                Cleanup();
                 //Util.InfoMsg(ex.Message);
             }
+            app.CloseAll(Mathcad.SaveOption.spSaveChanges);
             Cleanup();
         }
 
         private void Cleanup()
         {
-            //ws.Close(Mathcad.MCSaveOption.mcSaveChanges);
-            //mc.Quit(MCSaveOption.mcSaveChanges);
-            System.Runtime.InteropServices.Marshal.ReleaseComObject(wk);
-            System.Runtime.InteropServices.Marshal.ReleaseComObject(ws);
-            System.Runtime.InteropServices.Marshal.ReleaseComObject(mc);
+            System.Runtime.InteropServices.Marshal.ReleaseComObject(app);
         }
 
         private void button3_Click(object sender, EventArgs e)
