@@ -21,6 +21,7 @@ namespace GeneralStability
         public InteractionMathcad(Document doc, Mathcad.IMathcadPrimeWorksheet ws)
         {
             int rows, cols;
+            Mathcad.IMathcadPrimeMatrix matrix;
 
             InteractionRevit ir = new InteractionRevit(doc);
 
@@ -30,20 +31,23 @@ namespace GeneralStability
 
                 //Walls along first
                 cols = 1; rows = ir.WallsAlong.Count;
-                Mathcad.IMathcadPrimeMatrix matrix = ws3.CreateMatrix(rows, cols);
-
+                //Init the i variable
+                ws3.SetRealValue("numberWallsAlong", rows, "");
+                //Length of walls along: lx
+                matrix = ws3.CreateMatrix(rows, cols);
                 for (int i = 0; i < rows; i++)
                 {
                     for (int j = 0; j < cols; j++)
                     {
-                        LocationCurve loc = ir.WallsAlong[i].Location as LocationCurve;
-                        double length = ut.FootToMeter(loc.Curve.Length);
-                        op.WriteDebugFile(_debugFilePath, length.ToString());
+                        
+                        
                         matrix.SetMatrixElement(i, j, length);
                     }
                 }
+                ws3.SetMatrixValue("lx", matrix, "m");
 
-                ws3.SetMatrixValue("ix", matrix, "m");
+                //Distance from Origo to the wall centreline: y
+
 
 
                 #region Development
