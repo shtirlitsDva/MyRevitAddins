@@ -75,6 +75,19 @@ namespace Shared
                 w.Close();
             }
         }
+
+        public static void WriteDebugFile(string filePath, string whatToWrite)
+        {
+            //// Clear the output file
+            //System.IO.File.WriteAllBytes(filePath, new byte[0]);
+
+            //// Write to output file
+            using (StreamWriter w = File.AppendText(filePath))
+            {
+                w.Write(whatToWrite);
+                w.Close();
+            }
+        }
     }
 
     public class Conversion

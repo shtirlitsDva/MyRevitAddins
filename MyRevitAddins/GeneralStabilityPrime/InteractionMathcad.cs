@@ -26,43 +26,64 @@ namespace GeneralStability
 
             try
             {
-                StringBuilder wsSb = new StringBuilder();
-                wsSb.Append(ws.FullName);
-                wsSb.AppendLine();
-                wsSb.Append(ws.Inputs.Count);
-                wsSb.AppendLine();
-                wsSb.Append(ws.IsReadOnly);
-                wsSb.AppendLine();
-                wsSb.Append(ws.Modified);
-                wsSb.AppendLine();
-                wsSb.Append(ws.Name);
-                wsSb.AppendLine();
-                wsSb.Append(ws.Outputs.Count);
-                wsSb.AppendLine();
+                Mathcad.IMathcadPrimeWorksheet3 ws3 = (Mathcad.IMathcadPrimeWorksheet3) ws;
 
-                Mathcad.IMathcadPrimeInputs inputs = ws.Inputs;
-                Mathcad.IMathcadPrimeOutputs outputs = ws.Outputs;
+                //Walls along first
+                cols = 1; rows = ir.WallsAlong.Count;
+                Mathcad.IMathcadPrimeMatrix matrix = ws3.CreateMatrix(rows, cols);
 
-                wsSb.Append("Outputs");
-                wsSb.AppendLine();
-                for (var i = 0; i < inputs.Count; i++)
+                for (int i = 0; i < rows; i++)
                 {
-                    var input = inputs.GetAliasByIndex(i);
-                    wsSb.Append(input);
-                    wsSb.AppendLine();
+                    for (int j = 0; j < cols; j++)
+                    {
+                        LocationCurve loc = ir.WallsAlong[i].Location as LocationCurve;
+                        double length = ut.FootToMeter(loc.Curve.Length);
+                        op.WriteDebugFile(_debugFilePath, length.ToString());
+                        matrix.SetMatrixElement(i, j, length);
+                    }
                 }
 
-                wsSb.Append("Inputs");
-                wsSb.AppendLine();
-                for (var i = 0; i < outputs.Count; i++)
-                {
-                    var output = outputs.GetAliasByIndex(i);
-                    wsSb.Append(output);
-                    wsSb.AppendLine();
-                }
+                ws3.SetMatrixValue("ix", matrix, "m");
 
 
-                op.WriteDebugFile(_debugFilePath, wsSb);
+                #region Development
+
+                //StringBuilder wsSb = new StringBuilder();
+                //wsSb.Append(ws.FullName);
+                //wsSb.AppendLine();
+                //wsSb.Append(ws.Inputs.Count);
+                //wsSb.AppendLine();
+                //wsSb.Append(ws.IsReadOnly);
+                //wsSb.AppendLine();
+                //wsSb.Append(ws.Modified);
+                //wsSb.AppendLine();
+                //wsSb.Append(ws.Name);
+                //wsSb.AppendLine();
+                //wsSb.Append(ws.Outputs.Count);
+                //wsSb.AppendLine();
+
+                //Mathcad.IMathcadPrimeInputs inputs = ws.Inputs;
+                //Mathcad.IMathcadPrimeOutputs outputs = ws.Outputs;
+
+                //wsSb.Append("Inputs");
+                //wsSb.AppendLine();
+                //for (var i = 0; i < inputs.Count; i++)
+                //{
+                //    var input = inputs.GetAliasByIndex(i);
+                //    wsSb.Append(input);
+                //    wsSb.AppendLine();
+                //}
+
+                //wsSb.Append("Outputs");
+                //wsSb.AppendLine();
+                //for (var i = 0; i < outputs.Count; i++)
+                //{
+                //    var output = outputs.GetAliasByIndex(i);
+                //    wsSb.Append(output);
+                //    wsSb.AppendLine();
+                //}
+
+                //op.WriteDebugFile(_debugFilePath, wsSb);
 
                 //System.Type objType = System.Type.GetTypeFromProgID("Mathcad.MatrixValue");
 
@@ -168,6 +189,9 @@ namespace GeneralStability
                 //    }
                 //}
                 //op.WriteDebugFile(_debugFilePath, sb2);
+
+                #endregion
+
             }
             catch (Exception ex)
             {

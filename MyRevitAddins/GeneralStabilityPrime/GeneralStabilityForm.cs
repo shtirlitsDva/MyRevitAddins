@@ -66,6 +66,7 @@ namespace GeneralStability
             {
                 var appCreate = new Mathcad.ApplicationCreatorClass();
                 app = (Mathcad.ApplicationCreator) appCreate;
+                app.Visible = true;
                 var ws = app.Open(mySettings.Default._worksheetPath);
                 
                 InteractionMathcad interactionMathcad = new InteractionMathcad(doc, ws);
@@ -82,7 +83,7 @@ namespace GeneralStability
                 Cleanup();
                 //Util.InfoMsg(ex.Message);
             }
-            app.CloseAll(Mathcad.SaveOption.spSaveChanges);
+            //app.CloseAll(Mathcad.SaveOption.spSaveChanges);
             Cleanup();
         }
 
