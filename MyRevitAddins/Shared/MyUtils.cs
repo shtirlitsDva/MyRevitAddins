@@ -149,4 +149,22 @@ namespace Shared
             return Math.PI * angle / 180.0;
         }
     }
+
+    public static class MyExtensions
+    {
+        /// <summary>
+        /// Returns the value converted to meters.
+        /// </summary>
+        /// <param name="number"></param>
+        /// <returns></returns>
+        public static double ToMeters(this Double number)
+        {
+            return Util.FootToMeter(number);
+        }
+
+        public static double ToMillimeters(this Double number)
+        {
+            return Util.FootToMm(number);
+        }
+    }
 }

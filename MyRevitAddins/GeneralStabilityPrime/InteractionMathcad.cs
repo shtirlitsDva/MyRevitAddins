@@ -44,14 +44,7 @@ namespace GeneralStability
                 }
                 ws3.SetMatrixValue("lx", matrix, "m");
 
-                //Distance from Origo to the wall centreline: y
-                StringBuilder wsSb = new StringBuilder();
-                foreach (double y in ir.WallsAlong.Y)
-                {
-                    wsSb.Append(ut.FootToMeter(y));
-                    wsSb.AppendLine();
-                }
-                op.WriteDebugFile(_debugFilePath, wsSb);
+               
 
                 #region Development
 

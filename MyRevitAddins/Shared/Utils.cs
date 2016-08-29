@@ -434,7 +434,7 @@ namespace Shared
         /// </summary>
         public static double FootToMm(double length)
         {
-            return length * _convertFootToMm;
+            return Math.Round(length * _convertFootToMm, 1, MidpointRounding.AwayFromZero);
         }
 
         /// <summary>
@@ -442,7 +442,7 @@ namespace Shared
         /// </summary>
         public static double FootToMeter(double length)
         {
-            return length * _convertFootToMeter;
+            return Math.Round(length * _convertFootToMeter, 4, MidpointRounding.AwayFromZero);
         }
 
         /// <summary>
