@@ -28,8 +28,8 @@ namespace GeneralStability
                 .FirstOrDefault();
             
             //Gather the detail components
-            WallsAlong = new WallData("GS_Stabilizing_Wall: Stabilizing Wall - Along", doc);
-            WallsCross = new WallData("GS_Stabilizing_Wall: Stabilizing Wall - Cross", doc);
+            WallsAlong = new WallData("GS_Stabilizing_Wall: Stabilizing Wall - Along", Origo, doc);
+            WallsCross = new WallData("GS_Stabilizing_Wall: Stabilizing Wall - Cross", Origo, doc);
 
 
 
@@ -38,11 +38,15 @@ namespace GeneralStability
 
         public class WallData
         {
-            private IList<FamilyInstance> WallSymbols { get; }
-            private IList<double> Length { get; }
+            public IList<FamilyInstance> WallSymbols { get; }
+            public IList<double> Length { get; } = new List<double>();
+            public IList<double> X { get; } = new List<double>();
+            public IList<double> Y { get; } = new List<double>();
+            public IList<double> Thickness { get; } = new List<double>();
 
-            public WallData(string familyName, Document doc)
+            public WallData(string familyName, FamilyInstance Origo, Document doc)
             {
+                //Get the relevant wall symbols
                 FilteredElementCollector collector = new FilteredElementCollector(doc);
                 WallSymbols = collector.WherePasses(fi.FamInstOfDetailComp())
                     .WherePasses(fi.ParameterValueFilter(familyName,
@@ -51,13 +55,34 @@ namespace GeneralStability
                     .Cast<FamilyInstance>()
                     .ToList();
 
+                //Determine the length of each wall symbol
                 foreach (FamilyInstance fi in WallSymbols)
                 {
                     LocationCurve loc = fi.Location as LocationCurve;
                     double length = ut.FootToMeter(loc.Curve.Length);
                     Length.Add(length);
                 }
-                
+
+                //Analyze the geometry to get x and y values
+                Transform trf = Origo.GetTransform();
+
+                foreach (FamilyInstance fi in WallSymbols)
+                {
+                    //Get the location points of the wall symbols
+                    LocationCurve loc = fi.Location as LocationCurve;
+                    Curve locCurve = loc.Curve;
+                    XYZ start = locCurve.GetEndPoint(0);
+                    XYZ end = locCurve.GetEndPoint(1);
+
+                    //Transform the points
+                    XYZ tStart = trf.OfPoint(start);
+                    XYZ tEnd = trf.OfPoint(end);
+
+                    //Take advantage of the fact that X or Y is equal
+                    if (tStart.X.Equals(tEnd.X)) X.Add(tStart.X);
+                    else if (tStart.Y.Equals(tEnd.Y)) Y.Add(tStart.Y);
+                    else throw new Exception("No equal coordinates found!!!"); 
+                }
             }
         }
     }

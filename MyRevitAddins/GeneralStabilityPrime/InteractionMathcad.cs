@@ -30,7 +30,7 @@ namespace GeneralStability
                 Mathcad.IMathcadPrimeWorksheet3 ws3 = (Mathcad.IMathcadPrimeWorksheet3) ws;
 
                 //Walls along first
-                cols = 1; rows = ir.WallsAlong.Count;
+                cols = 1; rows = ir.WallsAlong.WallSymbols.Count;
                 //Init the i variable
                 ws3.SetRealValue("numberWallsAlong", rows, "");
                 //Length of walls along: lx
@@ -39,16 +39,19 @@ namespace GeneralStability
                 {
                     for (int j = 0; j < cols; j++)
                     {
-                        
-                        
-                        matrix.SetMatrixElement(i, j, length);
+                        matrix.SetMatrixElement(i, j, ir.WallsAlong.Length[i]);
                     }
                 }
                 ws3.SetMatrixValue("lx", matrix, "m");
 
                 //Distance from Origo to the wall centreline: y
-
-
+                StringBuilder wsSb = new StringBuilder();
+                foreach (double y in ir.WallsAlong.Y)
+                {
+                    wsSb.Append(ut.FootToMeter(y));
+                    wsSb.AppendLine();
+                }
+                op.WriteDebugFile(_debugFilePath, wsSb);
 
                 #region Development
 
