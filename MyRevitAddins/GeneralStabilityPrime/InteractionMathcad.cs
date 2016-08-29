@@ -21,7 +21,6 @@ namespace GeneralStability
         public InteractionMathcad(Document doc, Mathcad.IMathcadPrimeWorksheet ws)
         {
             int rows, cols;
-            Mathcad.IMathcadPrimeMatrix matrix;
 
             InteractionRevit ir = new InteractionRevit(doc);
 
@@ -31,20 +30,50 @@ namespace GeneralStability
 
                 //Walls along first
                 cols = 1; rows = ir.WallsAlong.WallSymbols.Count;
+                
                 //Init the i variable
                 ws3.SetRealValue("numberWallsAlong", rows, "");
-                //Length of walls along: lx
-                matrix = ws3.CreateMatrix(rows, cols);
+                
+                //Set the geometric properties of variables
+                Mathcad.IMathcadPrimeMatrix mLx = ws3.CreateMatrix(rows, cols);
+                Mathcad.IMathcadPrimeMatrix mY = ws3.CreateMatrix(rows, cols);
+                Mathcad.IMathcadPrimeMatrix mBx = ws3.CreateMatrix(rows, cols);
                 for (int i = 0; i < rows; i++)
                 {
                     for (int j = 0; j < cols; j++)
                     {
-                        matrix.SetMatrixElement(i, j, ir.WallsAlong.Length[i]);
+                        mLx.SetMatrixElement(i, j, ir.WallsAlong.Length[i]);
+                        mY.SetMatrixElement(i, j, ir.WallsAlong.Y[i]);
+                        mBx.SetMatrixElement(i, j, ir.WallsAlong.Thickness[i]);
                     }
                 }
-                ws3.SetMatrixValue("lx", matrix, "m");
+                ws3.SetMatrixValue("lx", mLx, "m");
+                ws3.SetMatrixValue("y", mY, "m");
+                ws3.SetMatrixValue("bx", mBx, "mm");
 
-               
+                //Walls across
+                cols = 1; rows = ir.WallsCross.WallSymbols.Count;
+
+                //Init the i variable
+                ws3.SetRealValue("numberWallsCross", rows, "");
+
+                //Set the geometric properties of variables
+                Mathcad.IMathcadPrimeMatrix mLy = ws3.CreateMatrix(rows, cols);
+                Mathcad.IMathcadPrimeMatrix mX = ws3.CreateMatrix(rows, cols);
+                Mathcad.IMathcadPrimeMatrix mBy = ws3.CreateMatrix(rows, cols);
+                for (int i = 0; i < rows; i++)
+                {
+                    for (int j = 0; j < cols; j++)
+                    {
+                        mLy.SetMatrixElement(i, j, ir.WallsAlong.Length[i]);
+                        mX.SetMatrixElement(i, j, ir.WallsAlong.Y[i]);
+                        mBy.SetMatrixElement(i, j, ir.WallsAlong.Thickness[i]);
+                    }
+                }
+                ws3.SetMatrixValue("ly", mLy, "m");
+                ws3.SetMatrixValue("x", mX, "m");
+                ws3.SetMatrixValue("by", mBy, "mm");
+
 
                 #region Development
 
