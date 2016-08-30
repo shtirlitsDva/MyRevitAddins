@@ -103,5 +103,25 @@ namespace GeneralStability
                 mySettings.Default.debugFilePath = filePath;
             }
         }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+
+            using (Transaction trans = new Transaction(doc))
+            {
+                trans.Start("Renumber Wall Symbols");
+                Result result = InteractionRevit.RenumberWallSymbols(doc);
+                if (result == Result.Succeeded)
+                {
+                    trans.Commit();
+                    Util.InfoMsg("Renumber succeeded!");
+                }
+                else
+                {
+                    trans.RollBack();
+                    Util.InfoMsg("Renumber failed!");
+                }
+            }
+        }
     }
 }

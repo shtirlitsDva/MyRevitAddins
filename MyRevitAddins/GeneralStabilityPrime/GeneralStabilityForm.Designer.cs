@@ -37,6 +37,7 @@ namespace GeneralStability
             this.openFileDialog2 = new System.Windows.Forms.OpenFileDialog();
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.textBox2 = new System.Windows.Forms.TextBox();
+            this.button4 = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // button1
@@ -97,6 +98,16 @@ namespace GeneralStability
             this.textBox2.TabIndex = 1;
             this.textBox2.Text = global::GeneralStability.Properties.Settings.Default.debugFilePath;
             // 
+            // button4
+            // 
+            this.button4.Location = new System.Drawing.Point(50, 230);
+            this.button4.Name = "button4";
+            this.button4.Size = new System.Drawing.Size(106, 46);
+            this.button4.TabIndex = 0;
+            this.button4.Text = "Renumber symbols";
+            this.button4.UseVisualStyleBackColor = true;
+            this.button4.Click += new System.EventHandler(this.button4_Click);
+            // 
             // GeneralStabilityForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -105,6 +116,7 @@ namespace GeneralStability
             this.Controls.Add(this.textBox2);
             this.Controls.Add(this.textBox1);
             this.Controls.Add(this.button2);
+            this.Controls.Add(this.button4);
             this.Controls.Add(this.button3);
             this.Controls.Add(this.button1);
             this.Name = "GeneralStabilityForm";
@@ -123,5 +135,6 @@ namespace GeneralStability
         private System.Windows.Forms.Button button3;
         private System.Windows.Forms.OpenFileDialog openFileDialog2;
         private System.Windows.Forms.TextBox textBox2;
+        private System.Windows.Forms.Button button4;
     }
 }
