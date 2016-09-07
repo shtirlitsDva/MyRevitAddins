@@ -30,20 +30,21 @@ namespace GeneralStability
             WallsCross = new WallData("GS_Stabilizing_Wall: Stabilizing Wall - Cross", Origo, doc);
         }
 
+        /// <summary>
+        /// Renumbers the wall symbols by following geometric pattern sorting by y and then x of start point.
+        /// </summary>
+        /// <param name="doc"></param>
+        /// <returns></returns>
         public static Result RenumberWallSymbols(Document doc)
         {
             try
             {
+                //Get the origo family
                 FamilyInstance Origo = GetOrigo(doc);
 
+                //Get and assign number to walls along
                 string name = "GS_Stabilizing_Wall: Stabilizing Wall - Along";
-                FilteredElementCollector collector = new FilteredElementCollector(doc);
-                IList<FamilyInstance> along = collector.WherePasses(fi.FamInstOfDetailComp())
-                    .WherePasses(fi.ParameterValueFilter(name,
-                        BuiltInParameter.SYMBOL_FAMILY_AND_TYPE_NAMES_PARAM))
-                    .Cast<FamilyInstance>()
-                    .ToList();
-
+                IList<FamilyInstance> along = GetWallSymbolsUnordered(name, doc);
                 IList<FamilyInstance> wallsAlongSorted = OrderGeometrically(along, Origo);
 
                 int idx = 0;
@@ -54,13 +55,7 @@ namespace GeneralStability
                 }
 
                 name = "GS_Stabilizing_Wall: Stabilizing Wall - Cross";
-                FilteredElementCollector collector2 = new FilteredElementCollector(doc);
-                IList<FamilyInstance> cross = collector2.WherePasses(fi.FamInstOfDetailComp())
-                    .WherePasses(fi.ParameterValueFilter(name,
-                        BuiltInParameter.SYMBOL_FAMILY_AND_TYPE_NAMES_PARAM))
-                    .Cast<FamilyInstance>()
-                    .ToList();
-
+                IList<FamilyInstance> cross = GetWallSymbolsUnordered(name, doc);
                 IList<FamilyInstance> wallsCrossSorted = OrderGeometrically(cross, Origo);
 
                 idx = 0;
@@ -121,6 +116,16 @@ namespace GeneralStability
                 .WherePasses(fi.ParameterValueFilter("GS_Origo: Origin",
                     BuiltInParameter.SYMBOL_FAMILY_AND_TYPE_NAMES_PARAM)).Cast<FamilyInstance>()
                 .FirstOrDefault();
+        }
+
+        private static IList<FamilyInstance> GetWallSymbolsUnordered(string familyName, Document doc)
+        {
+            FilteredElementCollector collector = new FilteredElementCollector(doc);
+            return collector.WherePasses(fi.FamInstOfDetailComp())
+                .WherePasses(fi.ParameterValueFilter(familyName,
+                    BuiltInParameter.SYMBOL_FAMILY_AND_TYPE_NAMES_PARAM))
+                .Cast<FamilyInstance>()
+                .ToList();
         }
     }
 

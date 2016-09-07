@@ -65,9 +65,9 @@ namespace GeneralStability
                 {
                     for (int j = 0; j < cols; j++)
                     {
-                        mLy.SetMatrixElement(i, j, ir.WallsAlong.Length[i]);
-                        mX.SetMatrixElement(i, j, ir.WallsAlong.Y[i]);
-                        mBy.SetMatrixElement(i, j, ir.WallsAlong.Thickness[i]);
+                        mLy.SetMatrixElement(i, j, ir.WallsCross.Length[i]);
+                        mX.SetMatrixElement(i, j, ir.WallsCross.X[i]);
+                        mBy.SetMatrixElement(i, j, ir.WallsCross.Thickness[i]);
                     }
                 }
                 ws3.SetMatrixValue("ly", mLy, "m");
