@@ -123,5 +123,31 @@ namespace GeneralStability
                 }
             }
         }
+
+        private void button5_Click(object sender, EventArgs e)
+        {
+            using (Transaction trans = new Transaction(doc))
+            {
+                trans.Start("Interaction Revit Debug");
+                InteractionRevit ir = new InteractionRevit(doc);
+
+                //Implement a new routine in ir:
+                //Gather end points of boundary lines and create a face (discard duplicate points beforehand)
+                //Create a routine to split the face in many smaller faces according to the load and geometric composition.
+                //Get the area of the faces and calculate the load according to the area...
+
+                //Result result = InteractionRevit.RenumberWallSymbols(doc);
+                //if (result == Result.Succeeded)
+                //{
+                //    trans.Commit();
+                //    Util.InfoMsg("Renumber succeeded!");
+                //}
+                //else
+                //{
+                //    trans.RollBack();
+                //    Util.InfoMsg("Renumber failed!");
+                //}
+            }
+        }
     }
 }
