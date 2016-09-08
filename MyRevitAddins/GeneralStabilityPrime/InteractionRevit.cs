@@ -19,6 +19,7 @@ namespace GeneralStability
         public FamilyInstance Origo { get; } //Holds the Origo family instance
         public WallData WallsAlong { get; }
         public WallData WallsCross { get; }
+        public BoundaryData BoundaryData { get; }
 
         public InteractionRevit(Document doc)
         {
@@ -28,7 +29,53 @@ namespace GeneralStability
             //Gather the detail components
             WallsAlong = new WallData("GS_Stabilizing_Wall: Stabilizing Wall - Along", Origo, doc);
             WallsCross = new WallData("GS_Stabilizing_Wall: Stabilizing Wall - Cross", Origo, doc);
+
+            //Initialize boundary data
+            BoundaryData = new BoundaryData("GS_Boundary", Origo, doc);
         }
+
+        #region LoadCalculation
+
+        public void CalculateLoads(Document doc)
+        {
+            //Build a direct shape with TessellatedShapeBuilder
+            List<XYZ> args = new List<XYZ>(3);
+
+            var face = new TessellatedFace();
+            //Currently trying to figure out how to sort points CCW and CW
+            //https://en.wikipedia.org/wiki/Curve_orientation#Orientation_of_a_simple_polygon <- Matrices, bleh!..
+
+            //TessellatedShapeBuilder builder = new TessellatedShapeBuilder();
+            ////http://thebuildingcoder.typepad.com/blog/2014/05/directshape-performance-and-minimum-size.html
+            //builder.OpenConnectedFaceSet(false);
+            //args.Add(elementSymbol.CentrePoint.Xyz);
+            //args.Add(elementSymbol.EndPoint1.Xyz);
+            //args.Add(elementSymbol.EndPoint2.Xyz);
+            //builder.AddFace(new TessellatedFace(args, ElementId.InvalidElementId));
+            //builder.CloseConnectedFaceSet();
+            //builder.Build();
+            //TessellatedShapeBuilderResult result = builder.GetBuildResult();
+
+            //var resultList = result.GetGeometricalObjects();
+
+            //var solidShape = resultList[0] as Solid;
+            //Face face = solidShape.Faces.get_Item(0);
+
+            //DirectShape ds = DirectShape.CreateElement(PCFImport.doc, new ElementId(BuiltInCategory.OST_GenericModel));
+            //ds.ApplicationId = "Application id";
+            //ds.ApplicationDataId = "Geometry object id";
+            //ds.Name = "Elbow " + elementSymbol.Position;
+            //DirectShapeOptions dso = ds.GetOptions();
+            //dso.ReferencingOption = DirectShapeReferencingOption.Referenceable;
+            //ds.SetOptions(dso);
+            //ds.SetShape(resultList);
+            //Options options = new Options();
+            //options.ComputeReferences = true;
+            //PCFImport.doc.Regenerate();
+        }
+
+        #endregion
+
 
         /// <summary>
         /// Renumbers the wall symbols by following geometric pattern sorting by y and then x of start point.
@@ -191,6 +238,22 @@ namespace GeneralStability
             }
 
             //op.WriteDebugFile(_debugFilePath, sb);
+        }
+    }
+
+    public class BoundaryData
+    {
+        public IList<CurveElement> BoundaryLines { get; }
+
+        public BoundaryData(string lineName, FamilyInstance Origo, Document doc)
+        {
+            var curveElements = fi.GetElements<CurveElement>(doc);
+
+            BoundaryLines = (from CurveElement cu in curveElements
+                             where cu.LineStyle.Name == lineName
+                             select cu).ToList();
+
+
         }
     }
 }
