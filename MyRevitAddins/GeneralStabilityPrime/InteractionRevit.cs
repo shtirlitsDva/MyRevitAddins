@@ -31,47 +31,46 @@ namespace GeneralStability
             WallsCross = new WallData("GS_Stabilizing_Wall: Stabilizing Wall - Cross", Origo, doc);
 
             //Initialize boundary data
-            BoundaryData = new BoundaryData("GS_Boundary", Origo, doc);
+            BoundaryData = new BoundaryData("GS_Boundary", doc);
         }
 
         #region LoadCalculation
 
-        public void CalculateLoads(Document doc)
+        public Result CalculateLoads(Document doc)
         {
             //Build a direct shape with TessellatedShapeBuilder
-            List<XYZ> args = new List<XYZ>(3);
 
-            var face = new TessellatedFace();
-            //Currently trying to figure out how to sort points CCW and CW
-            //https://en.wikipedia.org/wiki/Curve_orientation#Orientation_of_a_simple_polygon <- Matrices, bleh!..
+            try
+            {
+                TessellatedShapeBuilder builder = new TessellatedShapeBuilder();
+                //http://thebuildingcoder.typepad.com/blog/2014/05/directshape-performance-and-minimum-size.html
+                builder.OpenConnectedFaceSet(false);
+                builder.AddFace(new TessellatedFace(BoundaryData.Vertices, ElementId.InvalidElementId));
+                builder.CloseConnectedFaceSet();
+                builder.Build();
+                TessellatedShapeBuilderResult result = builder.GetBuildResult();
 
-            //TessellatedShapeBuilder builder = new TessellatedShapeBuilder();
-            ////http://thebuildingcoder.typepad.com/blog/2014/05/directshape-performance-and-minimum-size.html
-            //builder.OpenConnectedFaceSet(false);
-            //args.Add(elementSymbol.CentrePoint.Xyz);
-            //args.Add(elementSymbol.EndPoint1.Xyz);
-            //args.Add(elementSymbol.EndPoint2.Xyz);
-            //builder.AddFace(new TessellatedFace(args, ElementId.InvalidElementId));
-            //builder.CloseConnectedFaceSet();
-            //builder.Build();
-            //TessellatedShapeBuilderResult result = builder.GetBuildResult();
+                IList<GeometryObject> resultList = result.GetGeometricalObjects();
 
-            //var resultList = result.GetGeometricalObjects();
+                var solidShape = resultList[0] as Solid;
+                Face face = solidShape.Faces.get_Item(0);
 
-            //var solidShape = resultList[0] as Solid;
-            //Face face = solidShape.Faces.get_Item(0);
-
-            //DirectShape ds = DirectShape.CreateElement(PCFImport.doc, new ElementId(BuiltInCategory.OST_GenericModel));
-            //ds.ApplicationId = "Application id";
-            //ds.ApplicationDataId = "Geometry object id";
-            //ds.Name = "Elbow " + elementSymbol.Position;
-            //DirectShapeOptions dso = ds.GetOptions();
-            //dso.ReferencingOption = DirectShapeReferencingOption.Referenceable;
-            //ds.SetOptions(dso);
-            //ds.SetShape(resultList);
-            //Options options = new Options();
-            //options.ComputeReferences = true;
-            //PCFImport.doc.Regenerate();
+                DirectShape ds = DirectShape.CreateElement(doc, new ElementId(BuiltInCategory.OST_GenericModel));
+                ds.ApplicationId = "Application id";
+                ds.ApplicationDataId = "Geometry object id";
+                ds.Name = "Whole area of analysis";
+                DirectShapeOptions dso = ds.GetOptions();
+                dso.ReferencingOption = DirectShapeReferencingOption.Referenceable;
+                ds.SetOptions(dso);
+                ds.SetShape(resultList);
+                doc.Regenerate();
+                return Result.Succeeded;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Result.Failed;
+            }
         }
 
         #endregion
@@ -244,16 +243,31 @@ namespace GeneralStability
     public class BoundaryData
     {
         public IList<CurveElement> BoundaryLines { get; }
+        public IList<XYZ> Vertices { get; } = new List<XYZ>();
 
-        public BoundaryData(string lineName, FamilyInstance Origo, Document doc)
+        public BoundaryData(string lineName, Document doc)
         {
-            var curveElements = fi.GetElements<CurveElement>(doc);
-
-            BoundaryLines = (from CurveElement cu in curveElements
+            BoundaryLines = (from CurveElement cu in fi.GetElements<CurveElement>(doc)
                              where cu.LineStyle.Name == lineName
                              select cu).ToList();
 
-
+            //Get the end points of boundary lines, but discard duplicates
+            foreach (CurveElement cu in BoundaryLines)
+            {
+                Curve curve = cu.GeometryCurve;
+                //Start point
+                XYZ p1 = curve.GetEndPoint(0);
+                bool containsP1 = Vertices.Any(p => p.IsEqual(p1));
+                if (!containsP1) Vertices.Add(p1);
+                //End point
+                XYZ p2 = curve.GetEndPoint(1);
+                bool containsP2 = Vertices.Any(p => p.IsEqual(p2));
+                if (!containsP2) Vertices.Add(p2);
+            }
+            //I think this statement sorts the points CCW
+            //http://stackoverflow.com/questions/22435397/sort-2d-points-in-a-list-clockwise
+            //http://stackoverflow.com/questions/6996942/c-sharp-sort-list-of-x-y-coordinates-clockwise?rq=1
+            Vertices = Vertices.OrderByDescending(x => Math.Atan2(x.X, x.Y)).Reverse().ToList();
         }
     }
 }

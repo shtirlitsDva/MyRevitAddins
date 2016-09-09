@@ -131,6 +131,8 @@ namespace GeneralStability
                 trans.Start("Interaction Revit Debug");
                 InteractionRevit ir = new InteractionRevit(doc);
 
+                Result result = ir.CalculateLoads(doc);
+                
                 //Implement a new routine in ir:
                 //Gather end points of boundary lines and create a face (discard duplicate points beforehand)
                 //Create a routine to split the face in many smaller faces according to the load and geometric composition.
