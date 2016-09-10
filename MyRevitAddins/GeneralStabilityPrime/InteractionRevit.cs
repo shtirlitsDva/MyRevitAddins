@@ -49,26 +49,28 @@ namespace GeneralStability
                 builder.CloseConnectedFaceSet();
                 builder.Build();
                 TessellatedShapeBuilderResult result = builder.GetBuildResult();
-
                 IList<GeometryObject> resultList = result.GetGeometricalObjects();
-
                 var solidShape = resultList[0] as Solid;
                 Face face = solidShape.Faces.get_Item(0);
 
-                DirectShape ds = DirectShape.CreateElement(doc, new ElementId(BuiltInCategory.OST_GenericModel));
-                ds.ApplicationId = "Application id";
-                ds.ApplicationDataId = "Geometry object id";
-                ds.Name = "Whole area of analysis";
-                DirectShapeOptions dso = ds.GetOptions();
-                dso.ReferencingOption = DirectShapeReferencingOption.Referenceable;
-                ds.SetOptions(dso);
-                ds.SetShape(resultList);
-                doc.Regenerate();
+                face.
+
+
+                //DirectShape ds = DirectShape.CreateElement(doc, new ElementId(BuiltInCategory.OST_GenericModel));
+                //ds.ApplicationId = "Application id";
+                //ds.ApplicationDataId = "Geometry object id";
+                //ds.Name = "Whole area of analysis";
+                //DirectShapeOptions dso = ds.GetOptions();
+                //dso.ReferencingOption = DirectShapeReferencingOption.Referenceable;
+                //ds.SetOptions(dso);
+                //ds.SetShape(resultList);
+                //doc.Regenerate();
                 return Result.Succeeded;
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
+                //throw new Exception(e.Message);
                 return Result.Failed;
             }
         }
@@ -257,17 +259,25 @@ namespace GeneralStability
                 Curve curve = cu.GeometryCurve;
                 //Start point
                 XYZ p1 = curve.GetEndPoint(0);
-                bool containsP1 = Vertices.Any(p => p.IsEqual(p1));
-                if (!containsP1) Vertices.Add(p1);
+                if (!Vertices.Any(p => p.IsEqual(p1))) Vertices.Add(p1);
                 //End point
                 XYZ p2 = curve.GetEndPoint(1);
-                bool containsP2 = Vertices.Any(p => p.IsEqual(p2));
-                if (!containsP2) Vertices.Add(p2);
+                if (!Vertices.Any(p => p.IsEqual(p2))) Vertices.Add(p2);
             }
+
             //I think this statement sorts the points CCW
             //http://stackoverflow.com/questions/22435397/sort-2d-points-in-a-list-clockwise
             //http://stackoverflow.com/questions/6996942/c-sharp-sort-list-of-x-y-coordinates-clockwise?rq=1
-            Vertices = Vertices.OrderByDescending(x => Math.Atan2(x.X, x.Y)).Reverse().ToList();
+
+            double cX = 0, cY = 0;
+
+            //Adds all x and y coords
+            cX = Vertices.Aggregate(cX, (current, pt) => current + pt.X) / Vertices.Count;
+            cY = Vertices.Aggregate(cY, (current, pt) => current + pt.Y) / Vertices.Count;
+            //Define centre point
+            XYZ cp = new XYZ(cX, cY, 0);
+            //Sorts the points -> Works only for convex hulls!
+            Vertices = Vertices.OrderByDescending(pt => Math.Atan2(pt.X - cp.X, pt.Y - cp.Y)).ToList();
         }
     }
 }
