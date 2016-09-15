@@ -42,18 +42,22 @@ namespace GeneralStability
 
             try
             {
-                TessellatedShapeBuilder builder = new TessellatedShapeBuilder();
-                //http://thebuildingcoder.typepad.com/blog/2014/05/directshape-performance-and-minimum-size.html
-                builder.OpenConnectedFaceSet(false);
-                builder.AddFace(new TessellatedFace(BoundaryData.Vertices, ElementId.InvalidElementId));
-                builder.CloseConnectedFaceSet();
-                builder.Build();
-                TessellatedShapeBuilderResult result = builder.GetBuildResult();
-                IList<GeometryObject> resultList = result.GetGeometricalObjects();
-                var solidShape = resultList[0] as Solid;
-                Face face = solidShape.Faces.get_Item(0);
+                Polygon
 
-                face.
+                #region BySplittingFaces (does not work)
+
+                //TessellatedShapeBuilder builder = new TessellatedShapeBuilder();
+                ////http://thebuildingcoder.typepad.com/blog/2014/05/directshape-performance-and-minimum-size.html
+                //builder.OpenConnectedFaceSet(false);
+                //builder.AddFace(new TessellatedFace(BoundaryData.Vertices, ElementId.InvalidElementId));
+                //builder.CloseConnectedFaceSet();
+                //builder.Build();
+                //TessellatedShapeBuilderResult result = builder.GetBuildResult();
+                //IList<GeometryObject> resultList = result.GetGeometricalObjects();
+                //var solidShape = resultList[0] as Solid;
+                //Face face = solidShape.Faces.get_Item(0);
+
+                //face.
 
 
                 //DirectShape ds = DirectShape.CreateElement(doc, new ElementId(BuiltInCategory.OST_GenericModel));
@@ -65,6 +69,9 @@ namespace GeneralStability
                 //ds.SetOptions(dso);
                 //ds.SetShape(resultList);
                 //doc.Regenerate();
+
+                #endregion
+
                 return Result.Succeeded;
             }
             catch (Exception e)
@@ -279,5 +286,10 @@ namespace GeneralStability
             //Sorts the points -> Works only for convex hulls!
             Vertices = Vertices.OrderByDescending(pt => Math.Atan2(pt.X - cp.X, pt.Y - cp.Y)).ToList();
         }
+    }
+
+    public class FiniteElement
+    {
+        public 
     }
 }
