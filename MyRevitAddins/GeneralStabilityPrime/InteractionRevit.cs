@@ -42,7 +42,26 @@ namespace GeneralStability
 
             try
             {
-                Polygon
+                //Get the transform
+                Transform trf = Origo.GetTransform();
+                trf = trf.Inverse;
+
+                //Get the list of boundaries (to simplify the synthax)
+                IList<CurveElement> Bd = BoundaryData.BoundaryLines;
+
+                //The analysis proceeds in steps of 1mm
+                double _1mm = 0.001.ToFeet();
+
+                //Determine the largest X value
+                double Xmax = Bd.Max(x => EndPoint(x, trf).X);
+                //Divide the largest X value by the step value to determine the number iterations
+                int nrOfIterations = (int)Math.Floor(Xmax/_1mm);
+
+                //Iterate through the length of the building analyzing the load
+                for (int i = 0; i < nrOfIterations; i++)
+                {
+                    //Iterate through the length of the building analyzing the load
+                }
 
                 #region BySplittingFaces (does not work)
 
@@ -152,15 +171,38 @@ namespace GeneralStability
         private static XYZ StartPoint(FamilyInstance fi, Transform trf)
         {
             LocationCurve loc = fi.Location as LocationCurve;
+            return trf.OfPoint(loc.Curve.GetEndPoint(0));
+        }
 
-            //Get the end and start points
-            Curve locCurve = loc.Curve;
-            XYZ point = locCurve.GetEndPoint(0);
+        /// <summary>
+        /// Returns the start point of the CurveElement transformed to the reference coordinates.
+        /// </summary>
+        /// <param name="fi">CurveElement such as detail line.</param>
+        /// <param name="trf">Inverse Transform of the reference coordinates.</param>
+        private static XYZ StartPoint(CurveElement fi, Transform trf)
+        {
+            return trf.OfPoint(fi.GeometryCurve.GetEndPoint(0));
+        }
 
-            //Transform the points
-            XYZ tPoint = trf.OfPoint(point);
+        /// <summary>
+        /// Returns the end point of the LocationCurve transformed to the reference coordinates.
+        /// </summary>
+        /// <param name="fi">LocationCurve based FamilyInstance.</param>
+        /// <param name="trf">Inverse Transform of the reference coordinates.</param>
+        private static XYZ EndPoint(FamilyInstance fi, Transform trf)
+        {
+            LocationCurve loc = fi.Location as LocationCurve;
+            return trf.OfPoint(loc.Curve.GetEndPoint(1));
+        }
 
-            return tPoint;
+        /// <summary>
+        /// Returns the end point of the CurveElement transformed to the reference coordinates.
+        /// </summary>
+        /// <param name="fi">CurveElement such as detail line.</param>
+        /// <param name="trf">Inverse Transform of the reference coordinates.</param>
+        private static XYZ EndPoint(CurveElement fi, Transform trf)
+        {
+            return trf.OfPoint(fi.GeometryCurve.GetEndPoint(1));
         }
 
         private static FamilyInstance GetOrigo(Document doc)
@@ -260,6 +302,8 @@ namespace GeneralStability
                              where cu.LineStyle.Name == lineName
                              select cu).ToList();
 
+            #region Collect Vertices
+
             //Get the end points of boundary lines, but discard duplicates
             foreach (CurveElement cu in BoundaryLines)
             {
@@ -285,11 +329,14 @@ namespace GeneralStability
             XYZ cp = new XYZ(cX, cY, 0);
             //Sorts the points -> Works only for convex hulls!
             Vertices = Vertices.OrderByDescending(pt => Math.Atan2(pt.X - cp.X, pt.Y - cp.Y)).ToList();
+
+            #endregion
+
         }
     }
 
     public class FiniteElement
     {
-        public 
+        public
     }
 }

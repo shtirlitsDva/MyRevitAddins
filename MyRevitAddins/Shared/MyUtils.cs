@@ -167,6 +167,11 @@ namespace Shared
             return Util.FootToMm(number);
         }
 
+        public static double ToFeet(this Double number)
+        {
+            return Util.MmToFoot(number);
+        }
+
         public static bool IsEqual(this XYZ p, XYZ q)
         {
             return 0 == Util.Compare(p, q);
