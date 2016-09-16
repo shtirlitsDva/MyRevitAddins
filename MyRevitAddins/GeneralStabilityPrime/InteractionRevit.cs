@@ -20,6 +20,7 @@ namespace GeneralStability
         public WallData WallsAlong { get; }
         public WallData WallsCross { get; }
         public BoundaryData BoundaryData { get; }
+        public LoadData LoadData { get; }
 
         public InteractionRevit(Document doc)
         {
@@ -32,6 +33,9 @@ namespace GeneralStability
 
             //Initialize boundary data
             BoundaryData = new BoundaryData("GS_Boundary", doc);
+
+            //Initialize load data
+            LoadData = new LoadData(doc);
         }
 
         #region LoadCalculation
@@ -55,12 +59,15 @@ namespace GeneralStability
                 //Determine the largest X value
                 double Xmax = Bd.Max(x => EndPoint(x, trf).X);
                 //Divide the largest X value by the step value to determine the number iterations
-                int nrOfIterations = (int)Math.Floor(Xmax/_1mm);
+                int nrOfIterations = (int)Math.Floor(Xmax / _1mm);
+
+                //Current X-step
+
 
                 //Iterate through the length of the building analyzing the load
                 for (int i = 0; i < nrOfIterations; i++)
                 {
-                    //Iterate through the length of the building analyzing the load
+                    //Decided to store the load in LoadArea comments.
                 }
 
                 #region BySplittingFaces (does not work)
@@ -335,8 +342,16 @@ namespace GeneralStability
         }
     }
 
-    public class FiniteElement
+    public class LoadData
     {
-        public
+        public IList<FilledRegion> LoadAreas { get; }
+
+        public LoadData(Document doc)
+        {
+            ViewPlan v = fi.GetViewByName<ViewPlan>("GeneralStability", doc); //<-- this is a "magic" string. TODO: Find a better way to specify the view, maybe by using the current view.
+            
+            LoadAreas = new FilteredElementCollector(doc, v.Id).OfClass(typeof(FilledRegion)).Cast<FilledRegion>().ToList();
+        }
+
     }
 }

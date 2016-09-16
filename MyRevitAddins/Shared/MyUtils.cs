@@ -56,8 +56,19 @@ namespace Shared
         public static IEnumerable<T> GetElements<T>(Document document) where T : Element
         {
             FilteredElementCollector collector = new FilteredElementCollector(document);
-            collector.OfClass(typeof(T));
-            return collector.Cast<T>();
+            return collector.OfClass(typeof(T)).Cast<T>();
+        }
+
+        /// <summary>
+        /// Return a view, specify the type of view and name.
+        /// </summary>
+        /// <typeparam name="T">Type of view needed.</typeparam>
+        /// <param name="name">The name of view needed.</param>
+        /// <param name="doc">Standard Document.</param>
+        /// <returns></returns>
+        public static T GetViewByName<T>(string name, Document doc) where T : Element
+        {
+            return (from v in GetElements<View>(doc) where v != null && !v.IsTemplate && v.Name == name select v as T).FirstOrDefault();
         }
     }
 
