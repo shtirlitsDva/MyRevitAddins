@@ -424,10 +424,9 @@ namespace Shared
         const double _convertFootToMeter
           = _convertFootToMm * 0.001;
 
-        const double _convertCubicFootToCubicMeter
-          = _convertFootToMeter
-          * _convertFootToMeter
-          * _convertFootToMeter;
+        const double _convertSqrFootToSqrMeter = _convertFootToMeter * _convertFootToMeter;
+
+        const double _convertCubicFootToCubicMeter = _convertFootToMeter * _convertFootToMeter * _convertFootToMeter;
 
         /// <summary>
         /// Convert a given length in feet to millimetres.
@@ -467,6 +466,14 @@ namespace Shared
         public static XYZ MmToFoot(XYZ v)
         {
             return v.Divide(_convertFootToMm);
+        }
+
+        /// <summary>
+        /// Convert a given area in square feet to square meters.
+        /// </summary>
+        public static double SqrFootToSqrMeter(double volume)
+        {
+            return volume * _convertSqrFootToSqrMeter;
         }
 
         /// <summary>

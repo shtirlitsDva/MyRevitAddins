@@ -55,8 +55,20 @@ namespace Shared
         /// <returns>The list of elements of the specified type</returns>
         public static IEnumerable<T> GetElements<T>(Document document) where T : Element
         {
-            FilteredElementCollector collector = new FilteredElementCollector(document);
-            return collector.OfClass(typeof(T)).Cast<T>();
+            return new FilteredElementCollector(document).OfClass(typeof(T)).Cast<T>();
+        }
+
+        /// <summary>
+        /// Get the collection of elements of the specified type in a specified view.
+        /// <para>The specified type must derive from Element, or you can use Element but you get everything :)</para>
+        /// </summary>
+        /// <typeparam name="T">The type of element to get</typeparam>
+        /// <param name="document">Standard Document</param>
+        /// <param name="id">The Element Id of the view to query</param>
+        /// <returns>The list of elements of the specified type</returns>
+        public static IEnumerable<T> GetElements<T>(Document document, ElementId id) where T : Element
+        {
+            return new FilteredElementCollector(document, id).OfClass(typeof(T)).Cast<T>();
         }
 
         /// <summary>
@@ -168,19 +180,24 @@ namespace Shared
         /// </summary>
         /// <param name="number"></param>
         /// <returns></returns>
-        public static double ToMeters(this Double number)
+        public static double FtToMeters(this Double number)
         {
             return Util.FootToMeter(number);
         }
 
-        public static double ToMillimeters(this Double number)
+        public static double FtToMillimeters(this Double number)
         {
             return Util.FootToMm(number);
         }
 
-        public static double ToFeet(this Double number)
+        public static double MmToFeet(this Double number)
         {
             return Util.MmToFoot(number);
+        }
+
+        public static double SqrFeetToSqrMeters(this Double number)
+        {
+            return Util.SqrFootToSqrMeter(number);
         }
 
         public static bool IsEqual(this XYZ p, XYZ q)

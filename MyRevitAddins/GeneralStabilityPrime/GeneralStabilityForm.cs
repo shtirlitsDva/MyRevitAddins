@@ -131,7 +131,13 @@ namespace GeneralStability
                 InteractionRevit ir = new InteractionRevit(doc);
 
                 trans.Start("Interaction Revit Debug");
-                Result result = ir.CalculateLoads(doc);
+                var watch = System.Diagnostics.Stopwatch.StartNew();
+                Result result = ir.CalculateLoads(doc, this.textBox3);
+                watch.Stop();
+                TimeSpan time = watch.Elapsed;
+                string text = textBox3.Text;
+                text = text + ". Time: " + time.TotalMinutes+" min, "+time.Seconds+" sec.";
+                textBox3.Text = text;
                 if (result == Result.Succeeded)
                 {
                     trans.Commit();
@@ -142,15 +148,6 @@ namespace GeneralStability
                     trans.RollBack();
                     Util.InfoMsg("Debug failed!");
                 }
-
-
-                //Implement a new routine in ir:
-                //Gather end points of boundary lines and create a face (discard duplicate points beforehand)
-                //Create a routine to split the face in many smaller faces according to the load and geometric composition.
-                //Get the area of the faces and calculate the load according to the area...
-
-                //Result result = InteractionRevit.RenumberWallSymbols(doc);
-
             }
         }
     }

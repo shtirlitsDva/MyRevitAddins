@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using MoreLinq;
 using System.Text;
 using System.Threading.Tasks;
 using Autodesk.Revit.UI;
@@ -11,6 +13,7 @@ using fi = Shared.Filter;
 using ut = Shared.Util;
 using op = Shared.Output;
 using mySettings = GeneralStability.Properties.Settings;
+using TxBox = System.Windows.Forms.TextBox;
 
 namespace GeneralStability
 {
@@ -21,6 +24,7 @@ namespace GeneralStability
         public WallData WallsCross { get; }
         public BoundaryData BoundaryData { get; }
         public LoadData LoadData { get; }
+
 
         public InteractionRevit(Document doc)
         {
@@ -40,70 +44,124 @@ namespace GeneralStability
 
         #region LoadCalculation
 
-        public Result CalculateLoads(Document doc)
+        public Result CalculateLoads(Document doc, TxBox txBox)
         {
-            //Build a direct shape with TessellatedShapeBuilder
-
             try
             {
+                //Reset the load from last run
+                foreach (FamilyInstance fi in WallsAlong.WallSymbols)
+                {
+                    fi.LookupParameter("GS_Load").Set(0);
+                }
+
                 //Get the transform
-                Transform trf = Origo.GetTransform();
-                trf = trf.Inverse;
+                Transform trfO = Origo.GetTransform();
+                Transform trf = trfO.Inverse;
 
                 //Get the list of boundaries (to simplify the synthax)
                 IList<CurveElement> Bd = BoundaryData.BoundaryLines;
 
-                //The analysis proceeds in steps of 1mm
-                double _1mm = 0.001.ToFeet();
+                //The analysis proceeds in steps of 1mm (hardcoded for now)
+                double step = 1.0.MmToFeet(); //<-- a "magic" number. TODO: Implement definition of step size.
 
                 //Determine the largest X value
                 double Xmax = Bd.Max(x => EndPoint(x, trf).X);
-                //Divide the largest X value by the step value to determine the number iterations
-                int nrOfIterations = (int)Math.Floor(Xmax / _1mm);
+                //Divide the largest X value by the step value to determine the number iterations in X direction
+                int nrOfX = (int)Math.Floor(Xmax / step);
 
-                //Current X-step
-
+                //Log
+                int nrI = 0, nrJ = 0, nrTotal = 0;
 
                 //Iterate through the length of the building analyzing the load
-                for (int i = 0; i < nrOfIterations; i++)
+                for (int i = 0; i < nrOfX; i++)
                 {
-                    //Decided to store the load in LoadArea comments.
+                    //Log
+                    nrI = i;
+
+                    //Current x value
+                    double x1 = i * step;
+                    double x2 = (i + 1) * step;
+                    double xC = x1 + step / 2;
+
+                    //Select boundary lines in scope, but make sure Y boundaries are discarded
+                    var boundaryX = from CurveElement cu in Bd
+                                    where StartPoint(cu, trf).X <= xC && EndPoint(cu, trf).X >= xC && !StartPoint(cu, trf).X.Equals(EndPoint(cu, trf).X)
+                                    select cu;
+                    //Determine minimum and maximum Y values
+                    double Ymin = boundaryX.Min(x => StartPoint(x, trf).Y);
+                    double Ymax = boundaryX.Max(x => StartPoint(x, trf).Y);
+
+                    //Determine relevant walls (that means the walls which are crossed by the current X value iteration)
+                    var wallsX = from FamilyInstance fi in WallsAlong.WallSymbols
+                                 where StartPoint(fi, trf).X <= xC && EndPoint(fi, trf).X >= xC
+                                 select fi;
+
+                    //Determine number of iterations in Y direction
+                    int nrOfY = (int)Math.Floor((Ymax - Ymin) / step);
+
+                    //Iterate through the width of the building
+                    for (int j = 0; j < nrOfY; j++)
+                    {
+                        //Log
+                        nrJ = j;
+
+                        //Current y value
+                        double y1 = Ymin + j * step;
+                        double y2 = Ymin + (j + 1) * step;
+                        double yC = y1 + step / 2;
+
+                        //Determine nearest wall
+                        FamilyInstance nearestWall = wallsX.MinBy(x => Math.Abs(StartPoint(x, trf).Y - yC));
+
+                        //Area of finite element
+                        double areaSqrM = ((x2 - x1) * (y2 - y1)).SqrFeetToSqrMeters();
+
+                        //Determine the correct load intensity at the finite element centre point
+                        XYZ cPointInOrigoCoords = new XYZ(xC, yC, 0);
+                        XYZ cPointInGlobalCoords = trfO.OfPoint(cPointInOrigoCoords);
+
+                        double loadIntensity = 0.0;
+
+                        Options options = new Options();
+                        options.ComputeReferences = true;
+                        options.View = LoadData.GS_View;
+
+                        //Determine the intersection between the centre point of finite element and filled region symbolizing the load
+                        foreach (FilledRegion fr in LoadData.LoadAreas)
+                        {
+                            GeometryElement geometryElement = fr.get_Geometry(options);
+                            foreach (GeometryObject go in geometryElement)
+                            {
+                                Solid solid = go as Solid;
+                                Face face = solid.Faces.get_Item(0);
+                                IntersectionResult result = face.Project(cPointInGlobalCoords);
+                                if (result != null)
+                                {
+                                    string rawLoadIntensity = fr.get_Parameter(BuiltInParameter.ALL_MODEL_INSTANCE_COMMENTS).AsString();
+                                    loadIntensity = double.Parse(rawLoadIntensity, CultureInfo.InvariantCulture);
+                                }
+
+                            }
+                        }
+
+                        double force = loadIntensity * areaSqrM;
+
+                        double currentValue = nearestWall.LookupParameter("GS_Load").AsDouble();
+
+                        bool success = nearestWall.LookupParameter("GS_Load").Set(currentValue + force);
+
+                    }
                 }
 
-                #region BySplittingFaces (does not work)
-
-                //TessellatedShapeBuilder builder = new TessellatedShapeBuilder();
-                ////http://thebuildingcoder.typepad.com/blog/2014/05/directshape-performance-and-minimum-size.html
-                //builder.OpenConnectedFaceSet(false);
-                //builder.AddFace(new TessellatedFace(BoundaryData.Vertices, ElementId.InvalidElementId));
-                //builder.CloseConnectedFaceSet();
-                //builder.Build();
-                //TessellatedShapeBuilderResult result = builder.GetBuildResult();
-                //IList<GeometryObject> resultList = result.GetGeometricalObjects();
-                //var solidShape = resultList[0] as Solid;
-                //Face face = solidShape.Faces.get_Item(0);
-
-                //face.
-
-
-                //DirectShape ds = DirectShape.CreateElement(doc, new ElementId(BuiltInCategory.OST_GenericModel));
-                //ds.ApplicationId = "Application id";
-                //ds.ApplicationDataId = "Geometry object id";
-                //ds.Name = "Whole area of analysis";
-                //DirectShapeOptions dso = ds.GetOptions();
-                //dso.ReferencingOption = DirectShapeReferencingOption.Referenceable;
-                //ds.SetOptions(dso);
-                //ds.SetShape(resultList);
-                //doc.Regenerate();
-
-                #endregion
-
+                //Log
+                nrTotal = nrI * nrJ;
+                txBox.Text = nrI + ", " + nrJ + ": " + nrTotal;
                 return Result.Succeeded;
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                //throw new Exception(e.Message);
+                throw new Exception(e.Message);
                 return Result.Failed;
             }
         }
@@ -166,7 +224,7 @@ namespace GeneralStability
             Transform trf = Origo.GetTransform();
             trf = trf.Inverse;
             return (from FamilyInstance fi in listToOrder
-                    orderby StartPoint(fi, trf).Y.ToMeters(), StartPoint(fi, trf).X.ToMeters()
+                    orderby StartPoint(fi, trf).Y.FtToMeters(), StartPoint(fi, trf).X.FtToMeters()
                     select fi).ToList();
         }
 
@@ -267,7 +325,7 @@ namespace GeneralStability
                 LocationCurve loc = fi.Location as LocationCurve;
 
                 //Collect the length of the walls
-                Length.Add(loc.Curve.Length.ToMeters());
+                Length.Add(loc.Curve.Length.FtToMeters());
 
                 //Get the end and start points
                 Curve locCurve = loc.Curve;
@@ -278,11 +336,11 @@ namespace GeneralStability
                 XYZ tStart = trf.OfPoint(start);
                 XYZ tEnd = trf.OfPoint(end);
 
-                double sX = tStart.X.ToMeters(), sY = tStart.Y.ToMeters(), eX = tEnd.X.ToMeters(), eY = tEnd.Y.ToMeters();
+                double sX = tStart.X.FtToMeters(), sY = tStart.Y.FtToMeters(), eX = tEnd.X.FtToMeters(), eY = tEnd.Y.FtToMeters();
 
                 //sb.Append("Wall ("+ sX +","+ sY + ") <> ");
                 //sb.Append("(" + eX + "," + eY + ") <> ");
-                //sb.Append(loc.Curve.Length.ToMeters());
+                //sb.Append(loc.Curve.Length.FtToMeters());
                 //sb.AppendLine();
 
                 //Take advantage of the fact that X or Y is equal
@@ -291,7 +349,7 @@ namespace GeneralStability
                 else throw new Exception("No equal coordinates found!!!\n");
 
                 //Collect the width of the wall from the wall symbol
-                Thickness.Add(fi.LookupParameter("GS_Width").AsDouble().ToMillimeters());
+                Thickness.Add(fi.LookupParameter("GS_Width").AsDouble().FtToMillimeters());
             }
 
             //op.WriteDebugFile(_debugFilePath, sb);
@@ -345,13 +403,16 @@ namespace GeneralStability
     public class LoadData
     {
         public IList<FilledRegion> LoadAreas { get; }
+        public ViewPlan GS_View { get; }
 
         public LoadData(Document doc)
         {
             ViewPlan v = fi.GetViewByName<ViewPlan>("GeneralStability", doc); //<-- this is a "magic" string. TODO: Find a better way to specify the view, maybe by using the current view.
-            
-            LoadAreas = new FilteredElementCollector(doc, v.Id).OfClass(typeof(FilledRegion)).Cast<FilledRegion>().ToList();
+            GS_View = v;
+
+            LoadAreas = fi.GetElements<FilledRegion>(doc, v.Id).ToList();
         }
 
     }
+
 }
