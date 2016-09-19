@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using MoreLinq;
@@ -50,6 +51,8 @@ namespace GeneralStability
             {
                 //Log
                 int nrI = 0, nrJ = 0, nrTotal = 1;
+                StringBuilder sbLog = new StringBuilder();
+
 
                 //Reset the load from last run
                 foreach (FamilyInstance fi in WallsAlong.WallSymbols)
@@ -64,6 +67,26 @@ namespace GeneralStability
                 //Get the list of boundaries (to simplify the synthax)
                 IList<CurveElement> Bd = BoundaryData.BoundaryLines;
 
+                //Get the faces of filled regions
+                //Determine the intersection between the centre point of finite element and filled region symbolizing the load
+                //TODO: Move this access of faces out of the for loop because it accesses them each time.
+                IList<Face> faces = new List<Face>();
+
+                Options options = new Options();
+                options.ComputeReferences = true;
+                options.View = LoadData.GS_View;
+
+                foreach (FilledRegion fr in LoadData.LoadAreas)
+                {
+                    GeometryElement geometryElement = fr.get_Geometry(options);
+                    foreach (GeometryObject go in geometryElement)
+                    {
+                        Solid solid = go as Solid;
+                        Face face = solid.Faces.get_Item(0);
+                        faces.Add(face);
+                    }
+                }
+
                 //The analysis proceeds in steps of 1mm (hardcoded for now)
                 double step = 20.0.MmToFeet(); //<-- a "magic" number. TODO: Implement definition of step size.
 
@@ -77,8 +100,12 @@ namespace GeneralStability
                 //Iterate through the length of the building analyzing the load
                 for (int i = 0; i < nrOfX; i++)
                 {
+                    ////Stopwatch 1
+                    //var watch1 = Stopwatch.StartNew();
+
+                    #region watch1
                     //Debug and optimize
-                    var watch = System.Diagnostics.Stopwatch.StartNew();
+                    //var watch = System.Diagnostics.Stopwatch.StartNew();
 
                     //Current x value
                     double x1 = i * step;
@@ -104,9 +131,24 @@ namespace GeneralStability
                     //Log
                     nrJ = nrOfY;
 
+                    #endregion watch1
+
+                    //watch1.Stop();
+                    //TimeSpan time1 = watch1.Elapsed;
+                    //sbLog.Append(nrTotal + ", 1, " + time1.TotalMilliseconds.ToString(CultureInfo.InvariantCulture) + ", ");
+                    
+                    ////Stopwatch 2
+                    //var watch2 = Stopwatch.StartNew();
+
+                    #region watch2
+
                     //Iterate through the width of the building
                     for (int j = 0; j < nrOfY; j++)
                     {
+                        //Stopwatch 3
+                        var watch3 = Stopwatch.StartNew();
+
+                        #region watch3
                         //Current y value
                         double y1 = Ymin + j * step;
                         double y2 = Ymin + (j + 1) * step;
@@ -123,47 +165,60 @@ namespace GeneralStability
                         XYZ cPointInGlobalCoords = trfO.OfPoint(cPointInOrigoCoords);
 
                         double loadIntensity = 0.0;
+                        #endregion watch3
 
-                        Options options = new Options();
-                        options.ComputeReferences = true;
-                        options.View = LoadData.GS_View;
+                        watch3.Stop();
+                        TimeSpan time3 = watch3.Elapsed;
+                        sbLog.Append(nrTotal + ", 3, " + time3.TotalMilliseconds.ToString(CultureInfo.InvariantCulture) + ", ");
 
-                        //Determine the intersection between the centre point of finite element and filled region symbolizing the load
-                        //TODO: Move this access of faces out of the for loop because it accesses them each time.
-                        foreach (FilledRegion fr in LoadData.LoadAreas)
+                        //Stopwatch 4
+                        var watch4 = Stopwatch.StartNew();
+
+                        #region watch4
+                        for (int f = 0; f < faces.Count; f++)
                         {
-                            GeometryElement geometryElement = fr.get_Geometry(options);
-                            foreach (GeometryObject go in geometryElement)
-                            {
-                                Solid solid = go as Solid;
-                                Face face = solid.Faces.get_Item(0);
-                                IntersectionResult result = face.Project(cPointInGlobalCoords);
-                                if (result != null)
-                                {
-                                    string rawLoadIntensity = fr.get_Parameter(BuiltInParameter.ALL_MODEL_INSTANCE_COMMENTS).AsString();
-                                    loadIntensity = double.Parse(rawLoadIntensity, CultureInfo.InvariantCulture);
-                                }
-
-                            }
+                            IntersectionResult result = faces[f].Project(cPointInGlobalCoords);
+                            if (result == null) continue;
+                            string rawLoadIntensity = LoadData.LoadAreas[f].get_Parameter(BuiltInParameter.ALL_MODEL_INSTANCE_COMMENTS).AsString();
+                            loadIntensity = double.Parse(rawLoadIntensity, CultureInfo.InvariantCulture);
                         }
+                        #endregion watch4
 
+                        watch4.Stop();
+                        TimeSpan time4 = watch4.Elapsed;
+                        sbLog.Append(nrTotal + ", 4, " + time4.TotalMilliseconds.ToString(CultureInfo.InvariantCulture) + ", ");
+
+
+                        //Stopwatch 5
+                        var watch5 = Stopwatch.StartNew();
+
+                        #region watch5
                         double force = loadIntensity * areaSqrM;
 
                         double currentValue = nearestWall.LookupParameter("GS_Load").AsDouble();
 
                         bool success = nearestWall.LookupParameter("GS_Load").Set(currentValue + force);
+                        #endregion watch5
 
-                        //Debug and optimize
-                        watch.Stop();
-                        TimeSpan time = watch.Elapsed;
-                        op.WriteDebugFile(mySettings.Default.debugFilePath, nrTotal + ", " + time.TotalMilliseconds.ToString(CultureInfo.InvariantCulture) + "\n");
+                        watch5.Stop();
+                        TimeSpan time5 = watch5.Elapsed;
+                        sbLog.Append(nrTotal + ", 5, " + time5.TotalMilliseconds.ToString(CultureInfo.InvariantCulture) + "\n");
+                        
                         nrTotal++;
 
                     }
+                    #endregion watch2
+
+                    //watch2.Stop();
+                    //TimeSpan time2 = watch2.Elapsed;
+                    //sbLog.Append(nrTotal + ", 2, " + time2.TotalMilliseconds.ToString(CultureInfo.InvariantCulture) + "\n");
+                    //nrTotal++;
+
                 }
 
                 //Log
                 txBox.Text = nrI + ", " + nrJ + ": " + nrTotal;
+                op.WriteDebugFile(mySettings.Default.debugFilePath, sbLog);
                 return Result.Succeeded;
             }
             catch (Exception e)
