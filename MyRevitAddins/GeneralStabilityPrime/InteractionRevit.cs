@@ -48,6 +48,9 @@ namespace GeneralStability
         {
             try
             {
+                //Log
+                int nrI = 0, nrJ = 0, nrTotal = 1;
+
                 //Reset the load from last run
                 foreach (FamilyInstance fi in WallsAlong.WallSymbols)
                 {
@@ -62,21 +65,20 @@ namespace GeneralStability
                 IList<CurveElement> Bd = BoundaryData.BoundaryLines;
 
                 //The analysis proceeds in steps of 1mm (hardcoded for now)
-                double step = 1.0.MmToFeet(); //<-- a "magic" number. TODO: Implement definition of step size.
+                double step = 20.0.MmToFeet(); //<-- a "magic" number. TODO: Implement definition of step size.
 
                 //Determine the largest X value
                 double Xmax = Bd.Max(x => EndPoint(x, trf).X);
                 //Divide the largest X value by the step value to determine the number iterations in X direction
                 int nrOfX = (int)Math.Floor(Xmax / step);
-
                 //Log
-                int nrI = 0, nrJ = 0, nrTotal = 0;
+                nrI = nrOfX;
 
                 //Iterate through the length of the building analyzing the load
                 for (int i = 0; i < nrOfX; i++)
                 {
-                    //Log
-                    nrI = i;
+                    //Debug and optimize
+                    var watch = System.Diagnostics.Stopwatch.StartNew();
 
                     //Current x value
                     double x1 = i * step;
@@ -99,12 +101,12 @@ namespace GeneralStability
                     //Determine number of iterations in Y direction
                     int nrOfY = (int)Math.Floor((Ymax - Ymin) / step);
 
+                    //Log
+                    nrJ = nrOfY;
+
                     //Iterate through the width of the building
                     for (int j = 0; j < nrOfY; j++)
                     {
-                        //Log
-                        nrJ = j;
-
                         //Current y value
                         double y1 = Ymin + j * step;
                         double y2 = Ymin + (j + 1) * step;
@@ -127,6 +129,7 @@ namespace GeneralStability
                         options.View = LoadData.GS_View;
 
                         //Determine the intersection between the centre point of finite element and filled region symbolizing the load
+                        //TODO: Move this access of faces out of the for loop because it accesses them each time.
                         foreach (FilledRegion fr in LoadData.LoadAreas)
                         {
                             GeometryElement geometryElement = fr.get_Geometry(options);
@@ -150,11 +153,16 @@ namespace GeneralStability
 
                         bool success = nearestWall.LookupParameter("GS_Load").Set(currentValue + force);
 
+                        //Debug and optimize
+                        watch.Stop();
+                        TimeSpan time = watch.Elapsed;
+                        op.WriteDebugFile(mySettings.Default.debugFilePath, nrTotal + ", " + time.TotalMilliseconds.ToString(CultureInfo.InvariantCulture) + "\n");
+                        nrTotal++;
+
                     }
                 }
 
                 //Log
-                nrTotal = nrI * nrJ;
                 txBox.Text = nrI + ", " + nrJ + ": " + nrTotal;
                 return Result.Succeeded;
             }
@@ -407,10 +415,9 @@ namespace GeneralStability
 
         public LoadData(Document doc)
         {
-            ViewPlan v = fi.GetViewByName<ViewPlan>("GeneralStability", doc); //<-- this is a "magic" string. TODO: Find a better way to specify the view, maybe by using the current view.
-            GS_View = v;
+            GS_View = fi.GetViewByName<ViewPlan>("GeneralStability", doc); //<-- this is a "magic" string. TODO: Find a better way to specify the view, maybe by using the current view.
 
-            LoadAreas = fi.GetElements<FilledRegion>(doc, v.Id).ToList();
+            LoadAreas = fi.GetElements<FilledRegion>(doc, GS_View.Id).ToList();
         }
 
     }
