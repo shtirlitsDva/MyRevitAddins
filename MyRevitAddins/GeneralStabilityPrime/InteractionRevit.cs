@@ -127,36 +127,70 @@ namespace GeneralStability
                     //Iterate through the width of the building
                     for (int j = 0; j < nrOfY; j++)
                     {
-                        //Stopwatch 3
-                        var watch3 = Stopwatch.StartNew();
+                        //Optimize
+                        sbLog.Append(nrTotal);
 
-                        #region watch3
+                        #region Stopwatch1
+                        var watch1 = Stopwatch.StartNew();
+
+                        #region watch1
                         //Current y value
                         double y1 = Ymin + j * step;
                         double y2 = Ymin + (j + 1) * step;
                         double yC = y1 + step / 2;
+                        #endregion watch1
 
+                        watch1.Stop();
+                        TimeSpan time1 = watch1.Elapsed;
+                        sbLog.Append(", " + time1.TotalMilliseconds.ToString(CultureInfo.InvariantCulture) + ", ");
+                        #endregion
+
+                        #region Stopwatch2
+                        var watch2 = Stopwatch.StartNew();
+
+                        #region watch2
                         //Determine nearest wall
                         FamilyInstance nearestWall = wallsX.MinBy(x => Math.Abs(StartPoint(x, trf).Y - yC));
+                        #endregion watch2
 
+                        watch2.Stop();
+                        TimeSpan time2 = watch2.Elapsed;
+                        sbLog.Append(", " + time2.TotalMilliseconds.ToString(CultureInfo.InvariantCulture) + ", ");
+                        #endregion
+
+                        #region Stopwatch3
+                        var watch3 = Stopwatch.StartNew();
+
+                        #region watch3
                         //Area of finite element
                         double areaSqrM = ((x2 - x1) * (y2 - y1)).SqrFeetToSqrMeters();
+                        #endregion watch3
 
+                        watch3.Stop();
+                        TimeSpan time3 = watch3.Elapsed;
+                        sbLog.Append(", " + time3.TotalMilliseconds.ToString(CultureInfo.InvariantCulture) + ", ");
+                        #endregion
+
+                        #region Stopwatch4
+                        var watch4 = Stopwatch.StartNew();
+
+                        #region watch4
                         //Determine the correct load intensity at the finite element centre point
                         XYZ cPointInOrigoCoords = new XYZ(xC, yC, 0);
                         XYZ cPointInGlobalCoords = trfO.OfPoint(cPointInOrigoCoords);
 
                         double loadIntensity = 0.0;
-                        #endregion watch3
+                        #endregion watch4
 
-                        watch3.Stop();
-                        TimeSpan time3 = watch3.Elapsed;
-                        sbLog.Append(nrTotal + ", 3, " + time3.TotalMilliseconds.ToString(CultureInfo.InvariantCulture) + ", ");
+                        watch4.Stop();
+                        TimeSpan time4 = watch4.Elapsed;
+                        sbLog.Append(", " + time4.TotalMilliseconds.ToString(CultureInfo.InvariantCulture) + ", ");
+                        #endregion
 
-                        //Stopwatch 4
-                        var watch4 = Stopwatch.StartNew();
+                        #region Stopwatch5
+                        var watch5 = Stopwatch.StartNew();
 
-                        #region watch4
+                        #region watch5
                         for (int f = 0; f < faces.Count; f++)
                         {
                             IntersectionResult result = faces[f].Project(cPointInGlobalCoords);
@@ -164,27 +198,49 @@ namespace GeneralStability
                             string rawLoadIntensity = LoadData.LoadAreas[f].get_Parameter(BuiltInParameter.ALL_MODEL_INSTANCE_COMMENTS).AsString();
                             loadIntensity = double.Parse(rawLoadIntensity, CultureInfo.InvariantCulture);
                         }
-                        #endregion watch4
-
-                        watch4.Stop();
-                        TimeSpan time4 = watch4.Elapsed;
-                        sbLog.Append(nrTotal + ", 4, " + time4.TotalMilliseconds.ToString(CultureInfo.InvariantCulture) + ", ");
-
-
-                        //Stopwatch 5
-                        var watch5 = Stopwatch.StartNew();
-
-                        #region watch5
-                        double force = loadIntensity * areaSqrM;
-
-                        double currentValue = nearestWall.LookupParameter("GS_Load").AsDouble();
-
-                        bool success = nearestWall.LookupParameter("GS_Load").Set(currentValue + force);
                         #endregion watch5
 
                         watch5.Stop();
                         TimeSpan time5 = watch5.Elapsed;
-                        sbLog.Append(nrTotal + ", 5, " + time5.TotalMilliseconds.ToString(CultureInfo.InvariantCulture) + "\n");
+                        sbLog.Append(", " + time5.TotalMilliseconds.ToString(CultureInfo.InvariantCulture) + ", ");
+                        #endregion
+                        
+                        #region Stopwatch6
+                        var watch6 = Stopwatch.StartNew();
+
+                        #region watch6
+                        double force = loadIntensity * areaSqrM;
+                        #endregion watch6
+
+                        watch6.Stop();
+                        TimeSpan time6 = watch6.Elapsed;
+                        sbLog.Append(", " + time6.TotalMilliseconds.ToString(CultureInfo.InvariantCulture) + ", ");
+                        #endregion
+
+                        #region Stopwatch7
+                        var watch7 = Stopwatch.StartNew();
+
+                        #region watch7
+                        double currentValue = nearestWall.LookupParameter("GS_Load").AsDouble();
+                        #endregion watch7
+
+                        watch7.Stop();
+                        TimeSpan time7 = watch7.Elapsed;
+                        sbLog.Append(", " + time7.TotalMilliseconds.ToString(CultureInfo.InvariantCulture) + ", ");
+                        #endregion
+
+                        #region Stopwatch8
+                        var watch8 = Stopwatch.StartNew();
+
+                        #region watch8
+
+                        bool success = nearestWall.LookupParameter("GS_Load").Set(currentValue + force);
+                        #endregion watch8
+
+                        watch8.Stop();
+                        TimeSpan time8 = watch8.Elapsed;
+                        sbLog.Append(", " + time8.TotalMilliseconds.ToString(CultureInfo.InvariantCulture) + ", ");
+                        #endregion
                         
                         nrTotal++;
 
