@@ -127,13 +127,10 @@ namespace GeneralStability
                     //Iterate through the width of the building
                     for (int j = 0; j < nrOfY; j++)
                     {
-                        //Optimize
-                        //sbLog.Append(nrTotal);
+                        //Stopwatch 3
+                        var watch3 = Stopwatch.StartNew();
 
-                        //#region Stopwatch1
-                        //var watch1 = Stopwatch.StartNew();
-
-                        #region watch1
+                        #region watch3
                         //Current y value
                         double y1 = Ymin + j * step;
                         double y2 = Ymin + (j + 1) * step;
@@ -182,17 +179,16 @@ namespace GeneralStability
                         XYZ cPointInGlobalCoords = trfO.OfPoint(cPointInOrigoCoords);
 
                         double loadIntensity = 0.0;
-                        #endregion watch4
+                        #endregion watch3
 
-                        //watch4.Stop();
-                        //TimeSpan time4 = watch4.Elapsed;
-                        //sbLog.Append(", " + time4.TotalMilliseconds.ToString(CultureInfo.InvariantCulture));
-                        //#endregion
+                        watch3.Stop();
+                        TimeSpan time3 = watch3.Elapsed;
+                        sbLog.Append(nrTotal + ", 3, " + time3.TotalMilliseconds.ToString(CultureInfo.InvariantCulture) + ", ");
 
-                        //#region Stopwatch5
-                        //var watch5 = Stopwatch.StartNew();
+                        //Stopwatch 4
+                        var watch4 = Stopwatch.StartNew();
 
-                        #region watch5
+                        #region watch4
                         for (int f = 0; f < faces.Count; f++)
                         {
                             IntersectionResult result = faces[f].Project(cPointInGlobalCoords);
@@ -200,27 +196,18 @@ namespace GeneralStability
                             string rawLoadIntensity = LoadData.LoadAreas[f].get_Parameter(BuiltInParameter.ALL_MODEL_INSTANCE_COMMENTS).AsString();
                             loadIntensity = double.Parse(rawLoadIntensity, CultureInfo.InvariantCulture);
                         }
-                        #endregion watch5
+                        #endregion watch4
 
-                        //watch5.Stop();
-                        //TimeSpan time5 = watch5.Elapsed;
-                        //sbLog.Append(", " + time5.TotalMilliseconds.ToString(CultureInfo.InvariantCulture));
-                        //#endregion
+                        watch4.Stop();
+                        TimeSpan time4 = watch4.Elapsed;
+                        sbLog.Append(nrTotal + ", 4, " + time4.TotalMilliseconds.ToString(CultureInfo.InvariantCulture) + ", ");
 
-                        //#region Stopwatch6
-                        //var watch6 = Stopwatch.StartNew();
 
-                        #region watch6
+                        //Stopwatch 5
+                        var watch5 = Stopwatch.StartNew();
+
+                        #region watch5
                         double force = loadIntensity * areaSqrM;
-                        #endregion watch6
-
-                        //watch6.Stop();
-                        //TimeSpan time6 = watch6.Elapsed;
-                        //sbLog.Append(", " + time6.TotalMilliseconds.ToString(CultureInfo.InvariantCulture));
-                        //#endregion
-
-                        //#region Stopwatch7
-                        //var watch7 = Stopwatch.StartNew();
 
                         #region watch7
                         double currentValue = nearestWall.LookupParameter("GS_Load").AsDouble();
@@ -237,15 +224,12 @@ namespace GeneralStability
                         #region watch8
 
                         bool success = nearestWall.LookupParameter("GS_Load").Set(currentValue + force);
-                        #endregion watch8
+                        #endregion watch5
 
-                        //watch8.Stop();
-                        //TimeSpan time8 = watch8.Elapsed;
-                        //sbLog.Append(", " + time8.TotalMilliseconds.ToString(CultureInfo.InvariantCulture));
-                        //#endregion
-
-                        //sbLog.AppendLine();
-
+                        watch5.Stop();
+                        TimeSpan time5 = watch5.Elapsed;
+                        sbLog.Append(nrTotal + ", 5, " + time5.TotalMilliseconds.ToString(CultureInfo.InvariantCulture) + "\n");
+                        
                         nrTotal++;
 
                     }
