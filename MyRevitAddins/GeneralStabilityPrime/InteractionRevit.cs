@@ -142,7 +142,7 @@ namespace GeneralStability
 
                         watch1.Stop();
                         TimeSpan time1 = watch1.Elapsed;
-                        sbLog.Append(", " + time1.TotalMilliseconds.ToString(CultureInfo.InvariantCulture) + ", ");
+                        sbLog.Append(", " + time1.TotalMilliseconds.ToString(CultureInfo.InvariantCulture));
                         #endregion
 
                         #region Stopwatch2
@@ -155,7 +155,7 @@ namespace GeneralStability
 
                         watch2.Stop();
                         TimeSpan time2 = watch2.Elapsed;
-                        sbLog.Append(", " + time2.TotalMilliseconds.ToString(CultureInfo.InvariantCulture) + ", ");
+                        sbLog.Append(", " + time2.TotalMilliseconds.ToString(CultureInfo.InvariantCulture));
                         #endregion
 
                         #region Stopwatch3
@@ -168,7 +168,7 @@ namespace GeneralStability
 
                         watch3.Stop();
                         TimeSpan time3 = watch3.Elapsed;
-                        sbLog.Append(", " + time3.TotalMilliseconds.ToString(CultureInfo.InvariantCulture) + ", ");
+                        sbLog.Append(", " + time3.TotalMilliseconds.ToString(CultureInfo.InvariantCulture));
                         #endregion
 
                         #region Stopwatch4
@@ -184,7 +184,7 @@ namespace GeneralStability
 
                         watch4.Stop();
                         TimeSpan time4 = watch4.Elapsed;
-                        sbLog.Append(", " + time4.TotalMilliseconds.ToString(CultureInfo.InvariantCulture) + ", ");
+                        sbLog.Append(", " + time4.TotalMilliseconds.ToString(CultureInfo.InvariantCulture));
                         #endregion
 
                         #region Stopwatch5
@@ -202,7 +202,7 @@ namespace GeneralStability
 
                         watch5.Stop();
                         TimeSpan time5 = watch5.Elapsed;
-                        sbLog.Append(", " + time5.TotalMilliseconds.ToString(CultureInfo.InvariantCulture) + ", ");
+                        sbLog.Append(", " + time5.TotalMilliseconds.ToString(CultureInfo.InvariantCulture));
                         #endregion
                         
                         #region Stopwatch6
@@ -214,7 +214,7 @@ namespace GeneralStability
 
                         watch6.Stop();
                         TimeSpan time6 = watch6.Elapsed;
-                        sbLog.Append(", " + time6.TotalMilliseconds.ToString(CultureInfo.InvariantCulture) + ", ");
+                        sbLog.Append(", " + time6.TotalMilliseconds.ToString(CultureInfo.InvariantCulture));
                         #endregion
 
                         #region Stopwatch7
@@ -226,7 +226,7 @@ namespace GeneralStability
 
                         watch7.Stop();
                         TimeSpan time7 = watch7.Elapsed;
-                        sbLog.Append(", " + time7.TotalMilliseconds.ToString(CultureInfo.InvariantCulture) + ", ");
+                        sbLog.Append(", " + time7.TotalMilliseconds.ToString(CultureInfo.InvariantCulture));
                         #endregion
 
                         #region Stopwatch8
@@ -239,8 +239,10 @@ namespace GeneralStability
 
                         watch8.Stop();
                         TimeSpan time8 = watch8.Elapsed;
-                        sbLog.Append(", " + time8.TotalMilliseconds.ToString(CultureInfo.InvariantCulture) + "\n");
+                        sbLog.Append(", " + time8.TotalMilliseconds.ToString(CultureInfo.InvariantCulture));
                         #endregion
+
+                        sbLog.AppendLine();
                         
                         nrTotal++;
 
