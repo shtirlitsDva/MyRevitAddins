@@ -100,13 +100,6 @@ namespace GeneralStability
                 //Iterate through the length of the building analyzing the load
                 for (int i = 0; i < nrOfX; i++)
                 {
-                    ////Stopwatch 1
-                    //var watch1 = Stopwatch.StartNew();
-
-                    #region watch1
-                    //Debug and optimize
-                    //var watch = System.Diagnostics.Stopwatch.StartNew();
-
                     //Current x value
                     double x1 = i * step;
                     double x2 = (i + 1) * step;
@@ -131,24 +124,9 @@ namespace GeneralStability
                     //Log
                     nrJ = nrOfY;
 
-                    #endregion watch1
-
-                    //watch1.Stop();
-                    //TimeSpan time1 = watch1.Elapsed;
-                    //sbLog.Append(nrTotal + ", 1, " + time1.TotalMilliseconds.ToString(CultureInfo.InvariantCulture) + ", ");
-                    
-                    ////Stopwatch 2
-                    //var watch2 = Stopwatch.StartNew();
-
-                    #region watch2
-
                     //Iterate through the width of the building
                     for (int j = 0; j < nrOfY; j++)
                     {
-                        //Stopwatch 3
-                        var watch3 = Stopwatch.StartNew();
-
-                        #region watch3
                         //Current y value
                         double y1 = Ymin + j * step;
                         double y2 = Ymin + (j + 1) * step;
@@ -165,16 +143,7 @@ namespace GeneralStability
                         XYZ cPointInGlobalCoords = trfO.OfPoint(cPointInOrigoCoords);
 
                         double loadIntensity = 0.0;
-                        #endregion watch3
 
-                        watch3.Stop();
-                        TimeSpan time3 = watch3.Elapsed;
-                        sbLog.Append(nrTotal + ", 3, " + time3.TotalMilliseconds.ToString(CultureInfo.InvariantCulture) + ", ");
-
-                        //Stopwatch 4
-                        var watch4 = Stopwatch.StartNew();
-
-                        #region watch4
                         for (int f = 0; f < faces.Count; f++)
                         {
                             IntersectionResult result = faces[f].Project(cPointInGlobalCoords);
@@ -182,38 +151,13 @@ namespace GeneralStability
                             string rawLoadIntensity = LoadData.LoadAreas[f].get_Parameter(BuiltInParameter.ALL_MODEL_INSTANCE_COMMENTS).AsString();
                             loadIntensity = double.Parse(rawLoadIntensity, CultureInfo.InvariantCulture);
                         }
-                        #endregion watch4
 
-                        watch4.Stop();
-                        TimeSpan time4 = watch4.Elapsed;
-                        sbLog.Append(nrTotal + ", 4, " + time4.TotalMilliseconds.ToString(CultureInfo.InvariantCulture) + ", ");
-
-
-                        //Stopwatch 5
-                        var watch5 = Stopwatch.StartNew();
-
-                        #region watch5
                         double force = loadIntensity * areaSqrM;
 
                         double currentValue = nearestWall.LookupParameter("GS_Load").AsDouble();
 
                         bool success = nearestWall.LookupParameter("GS_Load").Set(currentValue + force);
-                        #endregion watch5
-
-                        watch5.Stop();
-                        TimeSpan time5 = watch5.Elapsed;
-                        sbLog.Append(nrTotal + ", 5, " + time5.TotalMilliseconds.ToString(CultureInfo.InvariantCulture) + "\n");
-                        
-                        nrTotal++;
-
                     }
-                    #endregion watch2
-
-                    //watch2.Stop();
-                    //TimeSpan time2 = watch2.Elapsed;
-                    //sbLog.Append(nrTotal + ", 2, " + time2.TotalMilliseconds.ToString(CultureInfo.InvariantCulture) + "\n");
-                    //nrTotal++;
-
                 }
 
                 //Log
