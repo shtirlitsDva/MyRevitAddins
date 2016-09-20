@@ -65,7 +65,7 @@ namespace GeneralStability
                 Transform trf = trfO.Inverse;
 
                 //Get the list of boundaries (to simplify the synthax)
-                IList<CurveElement> Bd = BoundaryData.BoundaryLines;
+                HashSet<CurveElement> Bd = BoundaryData.BoundaryLines;
 
                 //Get the faces of filled regions
                 //Determine the intersection between the centre point of finite element and filled region symbolizing the load
@@ -106,17 +106,17 @@ namespace GeneralStability
                     double xC = x1 + step / 2;
 
                     //Select boundary lines in scope, but make sure Y boundaries are discarded
-                    var boundaryX = from CurveElement cu in Bd
-                                    where StartPoint(cu, trf).X <= xC && EndPoint(cu, trf).X >= xC && !StartPoint(cu, trf).X.Equals(EndPoint(cu, trf).X)
-                                    select cu;
+                    var boundaryX = (from CurveElement cu in Bd
+                                     where StartPoint(cu, trf).X <= xC && EndPoint(cu, trf).X >= xC && !StartPoint(cu, trf).X.Equals(EndPoint(cu, trf).X)
+                                     select cu).ToHashSet();
                     //Determine minimum and maximum Y values
                     double Ymin = boundaryX.Min(x => StartPoint(x, trf).Y);
                     double Ymax = boundaryX.Max(x => StartPoint(x, trf).Y);
 
                     //Determine relevant walls (that means the walls which are crossed by the current X value iteration)
-                    var wallsX = from FamilyInstance fi in WallsAlong.WallSymbols
-                                 where StartPoint(fi, trf).X <= xC && EndPoint(fi, trf).X >= xC
-                                 select fi;
+                    var wallsX = (from FamilyInstance fi in WallsAlong.WallSymbols
+                                  where StartPoint(fi, trf).X <= xC && EndPoint(fi, trf).X >= xC
+                                  select fi).ToHashSet();
 
                     //Determine number of iterations in Y direction
                     int nrOfY = (int)Math.Floor((Ymax - Ymin) / step);
@@ -150,7 +150,9 @@ namespace GeneralStability
 
                         #region watch2
                         //Determine nearest wall
+
                         FamilyInstance nearestWall = wallsX.MinBy(x => Math.Abs(StartPoint(x, trf).Y - yC));
+
                         #endregion watch2
 
                         watch2.Stop();
@@ -204,7 +206,7 @@ namespace GeneralStability
                         TimeSpan time5 = watch5.Elapsed;
                         sbLog.Append(", " + time5.TotalMilliseconds.ToString(CultureInfo.InvariantCulture));
                         #endregion
-                        
+
                         #region Stopwatch6
                         var watch6 = Stopwatch.StartNew();
 
@@ -243,7 +245,7 @@ namespace GeneralStability
                         #endregion
 
                         sbLog.AppendLine();
-                        
+
                         nrTotal++;
 
                     }
@@ -279,7 +281,7 @@ namespace GeneralStability
 
                 //Get and assign number to walls along
                 string name = "GS_Stabilizing_Wall: Stabilizing Wall - Along";
-                IList<FamilyInstance> along = GetWallSymbolsUnordered(name, doc);
+                HashSet<FamilyInstance> along = GetWallSymbolsUnordered(name, doc);
                 IList<FamilyInstance> wallsAlongSorted = OrderGeometrically(along, Origo);
 
                 int idx = 0;
@@ -290,7 +292,7 @@ namespace GeneralStability
                 }
 
                 name = "GS_Stabilizing_Wall: Stabilizing Wall - Cross";
-                IList<FamilyInstance> cross = GetWallSymbolsUnordered(name, doc);
+                HashSet<FamilyInstance> cross = GetWallSymbolsUnordered(name, doc);
                 IList<FamilyInstance> wallsCrossSorted = OrderGeometrically(cross, Origo);
 
                 idx = 0;
@@ -315,7 +317,7 @@ namespace GeneralStability
         /// <param name="listToOrder">The list of FamilyInstances to order.</param>
         /// <param name="Origo">The reference FamilyInstance in whose coordinate system the sortin must be done.</param>
         /// <returns></returns>
-        private static IList<FamilyInstance> OrderGeometrically(IList<FamilyInstance> listToOrder, FamilyInstance Origo)
+        private static IList<FamilyInstance> OrderGeometrically(HashSet<FamilyInstance> listToOrder, FamilyInstance Origo)
         {
             Transform trf = Origo.GetTransform();
             trf = trf.Inverse;
@@ -331,6 +333,7 @@ namespace GeneralStability
         /// <param name="trf">Inverse Transform of the reference coordinates.</param>
         private static XYZ StartPoint(FamilyInstance fi, Transform trf)
         {
+            if (fi == null) return null;
             LocationCurve loc = fi.Location as LocationCurve;
             return trf.OfPoint(loc.Curve.GetEndPoint(0));
         }
@@ -376,20 +379,20 @@ namespace GeneralStability
                 .FirstOrDefault();
         }
 
-        private static IList<FamilyInstance> GetWallSymbolsUnordered(string familyName, Document doc)
+        private static HashSet<FamilyInstance> GetWallSymbolsUnordered(string familyName, Document doc)
         {
             FilteredElementCollector collector = new FilteredElementCollector(doc);
             return collector.WherePasses(fi.FamInstOfDetailComp())
                 .WherePasses(fi.ParameterValueFilter(familyName,
                     BuiltInParameter.SYMBOL_FAMILY_AND_TYPE_NAMES_PARAM))
                 .Cast<FamilyInstance>()
-                .ToList();
+                .ToHashSet();
         }
     }
 
     public class WallData
     {
-        public IList<FamilyInstance> WallSymbols { get; }
+        public HashSet<FamilyInstance> WallSymbols { get; }
         public IList<double> Length { get; } = new List<double>();
         public IList<double> X { get; } = new List<double>();
         public IList<double> Y { get; } = new List<double>();
@@ -406,7 +409,7 @@ namespace GeneralStability
                     BuiltInParameter.SYMBOL_FAMILY_AND_TYPE_NAMES_PARAM))
                 .OrderBy(x => int.Parse(x.get_Parameter(BuiltInParameter.ALL_MODEL_MARK).AsString())) //Mark must be filled with integer numbers
                 .Cast<FamilyInstance>()
-                .ToList();
+                .ToHashSet();
 
             //Analyze the geometry to get x and y values
             //Obtain the transform from the Origo family
@@ -454,14 +457,14 @@ namespace GeneralStability
 
     public class BoundaryData
     {
-        public IList<CurveElement> BoundaryLines { get; }
-        public IList<XYZ> Vertices { get; } = new List<XYZ>();
+        public HashSet<CurveElement> BoundaryLines { get; }
+        public HashSet<XYZ> Vertices { get; } = new HashSet<XYZ>();
 
         public BoundaryData(string lineName, Document doc)
         {
             BoundaryLines = (from CurveElement cu in fi.GetElements<CurveElement>(doc)
                              where cu.LineStyle.Name == lineName
-                             select cu).ToList();
+                             select cu).ToHashSet();
 
             #region Collect Vertices
 
@@ -489,7 +492,7 @@ namespace GeneralStability
             //Define centre point
             XYZ cp = new XYZ(cX, cY, 0);
             //Sorts the points -> Works only for convex hulls!
-            Vertices = Vertices.OrderByDescending(pt => Math.Atan2(pt.X - cp.X, pt.Y - cp.Y)).ToList();
+            Vertices = Vertices.OrderByDescending(pt => Math.Atan2(pt.X - cp.X, pt.Y - cp.Y)).ToHashSet();
 
             #endregion
 

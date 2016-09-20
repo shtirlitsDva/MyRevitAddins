@@ -200,6 +200,11 @@ namespace Shared
             return Util.SqrFootToSqrMeter(number);
         }
 
+        public static double myAbs(this Double number)
+        {
+            return number > 0 ? number : -number;
+        }
+
         public static bool IsEqual(this XYZ p, XYZ q)
         {
             return 0 == Util.Compare(p, q);
