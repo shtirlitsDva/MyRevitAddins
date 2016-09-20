@@ -100,13 +100,6 @@ namespace GeneralStability
                 //Iterate through the length of the building analyzing the load
                 for (int i = 0; i < nrOfX; i++)
                 {
-                    ////Stopwatch 1
-                    //var watch1 = Stopwatch.StartNew();
-
-                    #region watch1
-                    //Debug and optimize
-                    //var watch = System.Diagnostics.Stopwatch.StartNew();
-
                     //Current x value
                     double x1 = i * step;
                     double x2 = (i + 1) * step;
@@ -130,17 +123,6 @@ namespace GeneralStability
 
                     //Log
                     nrJ = nrOfY;
-
-                    #endregion watch1
-
-                    //watch1.Stop();
-                    //TimeSpan time1 = watch1.Elapsed;
-                    //sbLog.Append(nrTotal + ", 1, " + time1.TotalMilliseconds.ToString(CultureInfo.InvariantCulture) + ", ");
-                    
-                    ////Stopwatch 2
-                    //var watch2 = Stopwatch.StartNew();
-
-                    #region watch2
 
                     //Iterate through the width of the building
                     for (int j = 0; j < nrOfY; j++)
@@ -207,13 +189,6 @@ namespace GeneralStability
                         nrTotal++;
 
                     }
-                    #endregion watch2
-
-                    //watch2.Stop();
-                    //TimeSpan time2 = watch2.Elapsed;
-                    //sbLog.Append(nrTotal + ", 2, " + time2.TotalMilliseconds.ToString(CultureInfo.InvariantCulture) + "\n");
-                    //nrTotal++;
-
                 }
 
                 //Log
