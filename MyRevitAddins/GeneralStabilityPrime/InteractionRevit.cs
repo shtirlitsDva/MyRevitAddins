@@ -239,7 +239,7 @@ namespace GeneralStability
 
                         watch8.Stop();
                         TimeSpan time8 = watch8.Elapsed;
-                        sbLog.Append(", " + time8.TotalMilliseconds.ToString(CultureInfo.InvariantCulture) + ", ");
+                        sbLog.Append(", " + time8.TotalMilliseconds.ToString(CultureInfo.InvariantCulture) + "\n");
                         #endregion
                         
                         nrTotal++;
