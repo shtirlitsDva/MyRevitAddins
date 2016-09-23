@@ -63,8 +63,10 @@ namespace GeneralStability
                 Transform trfO = Origo.GetTransform();
                 Transform trf = trfO.Inverse;
 
-                //Get the list of boundaries (to simplify the synthax)
+                //Get the list of boundaries and walls (to simplify the synthax)
                 HashSet<CurveElement> Bd = BoundaryData.BoundaryLines;
+                HashSet<FamilyInstance> Walls = WallsAlong.WallSymbols;
+
 
                 //Get the faces of filled regions
                 //Determine the intersection between the centre point of finite element and filled region symbolizing the load
@@ -77,16 +79,39 @@ namespace GeneralStability
                 //Optimization: order filled regions by size: Descending = Largest first
                 var LoadAreas = LoadData.LoadAreas.OrderByDescending(x => GetFace(x, options).Area).ToList();
 
-                //var LoadAreas = LoadData.LoadAreas;
-
                 foreach (FilledRegion fr in LoadAreas) faces.Add(GetFace(fr, options));
 
-                //The analysis proceeds in steps of 1mm (hardcoded for now)
+                //The analysis proceeds in steps (hardcoded for now)
                 double step = 20.0.MmToFeet(); //<-- a "magic" number. TODO: Implement definition of step size.
 
-                //Determine the largest X value
-                double Xmax = Bd.Max(x => EndPoint(x, trf).X);
-                //Divide the largest X value by the step value to determine the number iterations in X direction
+                foreach (FamilyInstance fi in Walls)
+                {
+
+                    //Determine the start X
+                    double Xmin = StartPoint(fi, trf).X;
+
+                    //Determine the end X
+                    double Xmax = 
+                    
+
+                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                ////Determine the largest X value
+                //double Xmax = Bd.Max(x => EndPoint(x, trf).X);
+                ////Divide the largest X value by the step value to determine the number iterations in X direction
                 int nrOfX = (int)Math.Floor(Xmax / step);
                 //Log
                 nrI = nrOfX;
