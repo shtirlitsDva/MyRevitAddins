@@ -53,7 +53,6 @@ namespace GeneralStability
                 int nrI = 0, nrJ = 0, nrTotal = 1;
                 //StringBuilder sbLog = new StringBuilder();
 
-
                 //Reset the load from last run
                 foreach (FamilyInstance fi in WallsAlong.WallSymbols)
                 {
@@ -69,23 +68,18 @@ namespace GeneralStability
 
                 //Get the faces of filled regions
                 //Determine the intersection between the centre point of finite element and filled region symbolizing the load
-                //TODO: Move this access of faces out of the for loop because it accesses them each time.
                 IList<Face> faces = new List<Face>();
 
                 Options options = new Options();
                 options.ComputeReferences = true;
                 options.View = LoadData.GS_View;
 
-                foreach (FilledRegion fr in LoadData.LoadAreas)
-                {
-                    GeometryElement geometryElement = fr.get_Geometry(options);
-                    foreach (GeometryObject go in geometryElement)
-                    {
-                        Solid solid = go as Solid;
-                        Face face = solid.Faces.get_Item(0);
-                        faces.Add(face);
-                    }
-                }
+                //Optimization: order filled regions by size: Descending = Largest first
+                var LoadAreas = LoadData.LoadAreas.OrderByDescending(x => GetFace(x, options).Area).ToList();
+
+                //var LoadAreas = LoadData.LoadAreas;
+
+                foreach (FilledRegion fr in LoadAreas) faces.Add(GetFace(fr, options));
 
                 //The analysis proceeds in steps of 1mm (hardcoded for now)
                 double step = 20.0.MmToFeet(); //<-- a "magic" number. TODO: Implement definition of step size.
@@ -137,7 +131,7 @@ namespace GeneralStability
 
                         //Area of finite element
                         double areaSqrM = ((x2 - x1) * (y2 - y1)).SqrFeetToSqrMeters();
-                        
+
                         //Determine the correct load intensity at the finite element centre point
                         XYZ cPointInOrigoCoords = new XYZ(xC, yC, 0);
                         XYZ cPointInGlobalCoords = trfO.OfPoint(cPointInOrigoCoords);
@@ -147,16 +141,22 @@ namespace GeneralStability
                         for (int f = 0; f < faces.Count; f++)
                         {
                             IntersectionResult result = faces[f].Project(cPointInGlobalCoords);
-                            if (result == null) continue;
-                            string rawLoadIntensity = LoadData.LoadAreas[f].get_Parameter(BuiltInParameter.ALL_MODEL_INSTANCE_COMMENTS).AsString();
-                            loadIntensity = double.Parse(rawLoadIntensity, CultureInfo.InvariantCulture);
+                            if (result != null)
+                            {
+                                string rawLoadIntensity =
+                                    LoadAreas[f].get_Parameter(BuiltInParameter.ALL_MODEL_INSTANCE_COMMENTS).AsString();
+                                loadIntensity = double.Parse(rawLoadIntensity, CultureInfo.InvariantCulture);
+                                break;
+                            }
                         }
 
                         double force = loadIntensity * areaSqrM;
 
                         double currentValue = nearestWall.LookupParameter("GS_Load").AsDouble();
 
-                        bool success = nearestWall.LookupParameter("GS_Load").Set(currentValue + force);
+                        double load = force + currentValue;
+
+                        nearestWall.LookupParameter("GS_Load").Set(load);
 
                         nrTotal++;
 
@@ -299,6 +299,17 @@ namespace GeneralStability
                     BuiltInParameter.SYMBOL_FAMILY_AND_TYPE_NAMES_PARAM))
                 .Cast<FamilyInstance>()
                 .ToHashSet();
+        }
+
+        private static Face GetFace(FilledRegion fr, Options options)
+        {
+            GeometryElement geometryElement = fr.get_Geometry(options);
+            foreach (GeometryObject go in geometryElement)
+            {
+                Solid solid = go as Solid;
+                return solid.Faces.get_Item(0);
+            }
+            return null;
         }
     }
 
