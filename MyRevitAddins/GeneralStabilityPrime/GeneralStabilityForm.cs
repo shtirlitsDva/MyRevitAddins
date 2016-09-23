@@ -136,7 +136,7 @@ namespace GeneralStability
                 watch.Stop();
                 TimeSpan time = watch.Elapsed;
                 string text = textBox3.Text;
-                text = text + ". Time: " + time.TotalMinutes+" min, "+time.Seconds+" sec.";
+                text = text + ". Time: " + time.TotalMinutes+" min, "+time.TotalSeconds+" sec.";
                 textBox3.Text = text;
                 if (result == Result.Succeeded)
                 {
