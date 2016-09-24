@@ -67,6 +67,12 @@ namespace GeneralStability
                 HashSet<CurveElement> Bd = BoundaryData.BoundaryLines;
                 HashSet<FamilyInstance> Walls = WallsAlong.WallSymbols;
 
+                //Combine the two sets to make a combination
+                HashSet<Element> wallsAndBoundaries = (from CurveElement cu in Bd
+                                                       where !StartPoint(cu, trf).X.Equals(EndPoint(cu, trf).X)
+                                                       select cu).Cast<Element>().ToHashSet();
+
+                wallsAndBoundaries.UnionWith(Walls);
 
                 //Get the faces of filled regions
                 //Determine the intersection between the centre point of finite element and filled region symbolizing the load
@@ -82,7 +88,7 @@ namespace GeneralStability
                 foreach (FilledRegion fr in LoadAreas) faces.Add(GetFace(fr, options));
 
                 //The analysis proceeds in steps (hardcoded for now)
-                double step = 20.0.MmToFeet(); //<-- a "magic" number. TODO: Implement definition of step size.
+                double step = 20.0.MmToFeet(); //<-- a "magic" number. TODO: Implement definition of step size in UI.
 
                 foreach (FamilyInstance fi in Walls)
                 {
@@ -91,10 +97,50 @@ namespace GeneralStability
                     double Xmin = StartPoint(fi, trf).X;
 
                     //Determine the end X
-                    double Xmax = 
-                    
+                    double Xmax = EndPoint(fi, trf).X;
 
-                }
+                    //The y of the wall
+                    double Ycur = StartPoint(fi, trf).Y;
+
+                    ////Divide the largest X value by the step value to determine the number iterations in X direction
+                    int nrOfX = (int)Math.Floor((Xmax - Xmin) / step);
+
+                    //Iterate through the length of the current wall analyzing the load
+                    for (int i = 0; i < nrOfX; i++)
+                    {
+                        //Current x value
+                        double x1 = Xmin + i * step;
+                        double x2 = Xmin + (i + 1) * step;
+                        double xC = x1 + step / 2;
+
+                        //Determine relevant elements (that means the walls and boundaries which are crossed by the current X value iteration)
+                        var elementsX = (from Element el in wallsAndBoundaries
+                                         where StartPoint(el, trf).X <= xC && EndPoint(el, trf).X >= xC
+                                         select el).OrderByDescending(x => StartPoint(x, trf).Y);
+
+                        //Determine relevant walls (that means the walls which are crossed by the current X value iteration)
+                        var wallsX = (from FamilyInstance fin in Walls
+                                      where StartPoint(fin, trf).X <= xC && EndPoint(fin, trf).X >= xC
+                                      select fin).OrderByDescending(x => StartPoint(x, trf).Y);
+
+                        //Determine relevant walls (that means the walls which are crossed by the current X value iteration)
+                        var boundaryX = (from CurveElement cue in Bd
+                                         where StartPoint(cue, trf).X <= xC && EndPoint(cue, trf).X >= xC
+                                         select cue).OrderByDescending(x => StartPoint(x, trf).Y);
+
+                        //First handle the walls
+                        var wallsXlinked = new LinkedList<FamilyInstance>(wallsX);
+                        var listNode1 = wallsXlinked.Find(fi);
+                        var wallPositive = listNode1.Next.Value;
+                        var wallNegative = listNode1.Previous.Value;
+
+                        
+                        //Determine number of iterations in Y direction
+                        int nrOfY = (int)Math.Floor((Ymax - Ymin) / step);
+
+
+
+                    }
 
 
 
@@ -109,33 +155,10 @@ namespace GeneralStability
 
 
 
-                ////Determine the largest X value
-                //double Xmax = Bd.Max(x => EndPoint(x, trf).X);
-                ////Divide the largest X value by the step value to determine the number iterations in X direction
-                int nrOfX = (int)Math.Floor(Xmax / step);
-                //Log
-                nrI = nrOfX;
 
-                //Iterate through the length of the building analyzing the load
-                for (int i = 0; i < nrOfX; i++)
-                {
-                    //Current x value
-                    double x1 = i * step;
-                    double x2 = (i + 1) * step;
-                    double xC = x1 + step / 2;
 
-                    //Select boundary lines in scope, but make sure Y boundaries are discarded
-                    var boundaryX = (from CurveElement cu in Bd
-                                     where StartPoint(cu, trf).X <= xC && EndPoint(cu, trf).X >= xC && !StartPoint(cu, trf).X.Equals(EndPoint(cu, trf).X)
-                                     select cu).ToHashSet();
-                    //Determine minimum and maximum Y values
-                    double Ymin = boundaryX.Min(x => StartPoint(x, trf).Y);
-                    double Ymax = boundaryX.Max(x => StartPoint(x, trf).Y);
 
-                    //Determine relevant walls (that means the walls which are crossed by the current X value iteration)
-                    var wallsX = (from FamilyInstance fi in WallsAlong.WallSymbols
-                                  where StartPoint(fi, trf).X <= xC && EndPoint(fi, trf).X >= xC
-                                  select fi).ToHashSet();
+
 
                     //Determine number of iterations in Y direction
                     int nrOfY = (int)Math.Floor((Ymax - Ymin) / step);
@@ -278,11 +301,23 @@ namespace GeneralStability
         /// <summary>
         /// Returns the start point of the CurveElement transformed to the reference coordinates.
         /// </summary>
-        /// <param name="fi">CurveElement such as detail line.</param>
+        /// <param name="cu">CurveElement such as detail line.</param>
         /// <param name="trf">Inverse Transform of the reference coordinates.</param>
-        private static XYZ StartPoint(CurveElement fi, Transform trf)
+        private static XYZ StartPoint(CurveElement cu, Transform trf)
         {
-            return trf.OfPoint(fi.GeometryCurve.GetEndPoint(0));
+            return trf.OfPoint(cu.GeometryCurve.GetEndPoint(0));
+        }
+
+        /// <summary>
+        /// Returns the start point of the Element transformed to the reference coordinates.
+        /// </summary>
+        /// <param name="el">Elements to retrieve from, it will be cast to proper type.</param>
+        /// <param name="trf">Inverse Transform of the reference coordinates.</param>
+        private static XYZ StartPoint(Element el, Transform trf)
+        {
+            if (el is FamilyInstance) return StartPoint((FamilyInstance)el, trf);
+            if (el is CurveElement) return StartPoint((CurveElement)el, trf);
+            throw new Exception("Type not handled!");
         }
 
         /// <summary>
@@ -299,11 +334,23 @@ namespace GeneralStability
         /// <summary>
         /// Returns the end point of the CurveElement transformed to the reference coordinates.
         /// </summary>
-        /// <param name="fi">CurveElement such as detail line.</param>
+        /// <param name="cu">CurveElement such as detail line.</param>
         /// <param name="trf">Inverse Transform of the reference coordinates.</param>
-        private static XYZ EndPoint(CurveElement fi, Transform trf)
+        private static XYZ EndPoint(CurveElement cu, Transform trf)
         {
-            return trf.OfPoint(fi.GeometryCurve.GetEndPoint(1));
+            return trf.OfPoint(cu.GeometryCurve.GetEndPoint(1));
+        }
+
+        /// <summary>
+        /// Returns the end point of the Element transformed to the reference coordinates.
+        /// </summary>
+        /// <param name="el">Elements to retrieve from, it will be cast to proper type.</param>
+        /// <param name="trf">Inverse Transform of the reference coordinates.</param>
+        private static XYZ EndPoint(Element el, Transform trf)
+        {
+            if (el is FamilyInstance) return EndPoint((FamilyInstance)el, trf);
+            if (el is CurveElement) return EndPoint((CurveElement)el, trf);
+            throw new Exception("Type not handled!");
         }
 
         private static FamilyInstance GetOrigo(Document doc)
