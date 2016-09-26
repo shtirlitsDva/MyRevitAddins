@@ -127,8 +127,6 @@ namespace GeneralStability
                         var boundaryX = (from CurveElement cue in Bd
                                          where StartPoint(cue, trf).X <= xC && EndPoint(cue, trf).X >= xC
                                          select cue).ToHashSet();
-                        var bdPositive = boundaryX.MaxBy(x => StartPoint(x, trf).Y);
-                        var bdNegative = boundaryX.MinBy(x => StartPoint(x, trf).Y);
 
                         //First handle the walls
                         var wallsXlinked = new LinkedList<FamilyInstance>(wallsX);
@@ -139,25 +137,28 @@ namespace GeneralStability
                         //Flow control
                         bool isEdgePositive = false, isEdgeNegative = false; //<-- Indicates if the wall is on the boundary
 
-                        //Select boundaries if
-                        if (wallPositive == null && StartPoint(bdPositive, trf).Y.Equals(Ycur))
-                            isEdgePositive = true;
-                        if (wallNegative == null && StartPoint(bdNegative, trf).Y.Equals(StartPoint(fi, trf).Y))
-                            isEdgeNegative = true;
+                        //Select boundaries if no walls found at location
+                        CurveElement bdPositive = null, bdNegative = null;
+                        if (wallPositive == null) bdPositive = boundaryX.MaxBy(x => StartPoint(x, trf).Y);
+                        if (wallNegative == null) bdNegative = boundaryX.MinBy(x => StartPoint(x, trf).Y);
+
+                        //Detect edge cases
+                        if (wallPositive == null && StartPoint(bdPositive, trf).Y.Equals(Ycur)) isEdgePositive = true;
+                        if (wallNegative == null && StartPoint(bdNegative, trf).Y.Equals(StartPoint(fi, trf).Y)) isEdgeNegative = true;
 
                         int nrOfYPos, nrOfYNeg;
 
                         //Determine number of iterations in Y direction POSITIVE handling all cases
-                        if (wallPositive != null)
-                            nrOfYPos = (int)Math.Floor((StartPoint(wallPositive, trf).Y - Ycur) / step);
+                        //The 2* multiplier on step makes sure that iteration only happens on the half of the span
+                        if (wallPositive != null) nrOfYPos = (int)Math.Floor((StartPoint(wallPositive, trf).Y - Ycur) / 2 * step);
                         else if (isEdgePositive) nrOfYPos = 0;
-                        else nrOfYPos = (int)Math.Floor((StartPoint(bdPositive, trf).Y - Ycur) / step);
+                        else nrOfYPos = (int)Math.Floor((StartPoint(bdPositive, trf).Y - Ycur) / 2 * step);
 
                         //Determine number of iterations in Y direction NEGATIVE handling all cases
-                        if (wallNegative != null)
-                            nrOfYNeg = (int)Math.Floor((-StartPoint(wallNegative, trf).Y + Ycur) / step);
+                        //The 2* multiplier on step makes sure that iteration only happens on the half of the span
+                        if (wallNegative != null) nrOfYNeg = (int)Math.Floor((-StartPoint(wallNegative, trf).Y + Ycur) / 2 * step);
                         else if (isEdgeNegative) nrOfYNeg = 0;
-                        else nrOfYNeg = (int)Math.Floor((-StartPoint(bdNegative, trf).Y + Ycur) / step);
+                        else nrOfYNeg = (int)Math.Floor((-StartPoint(bdNegative, trf).Y + Ycur) / 2 * step);
 
                         //Iterate through the POSITIVE side
                         for (int j = 0; j < nrOfYPos; j++)
@@ -169,7 +170,7 @@ namespace GeneralStability
 
 
                     //Iterate through the width of the building
-                    
+
                     {
                         //Current y value
                         double y1 = Ymin + j * step;
