@@ -50,7 +50,7 @@ namespace GeneralStability
             try
             {
                 //Log
-                int nrI = 0, nrJ = 0, nrTotal = 1;
+                int nrI = 0, nrJ = 0, nrTotal = 0;
                 //StringBuilder sbLog = new StringBuilder();
 
                 //Reset the load from last run
@@ -90,8 +90,13 @@ namespace GeneralStability
                 //The analysis proceeds in steps (hardcoded for now)
                 double step = 20.0.MmToFeet(); //<-- a "magic" number. TODO: Implement definition of step size in UI.
 
+                //Area of finite element
+                double areaSqrM = (step * step).SqrFeetToSqrMeters();
+
                 foreach (FamilyInstance fi in Walls)
                 {
+                    //Initialize variables
+                    double load = 0;
 
                     //Determine the start X
                     double Xmin = StartPoint(fi, trf).X;
@@ -113,15 +118,10 @@ namespace GeneralStability
                         double x2 = Xmin + (i + 1) * step;
                         double xC = x1 + step / 2;
 
-                        //Determine relevant elements (that means the walls and boundaries which are crossed by the current X value iteration)
-                        var elementsX = (from Element el in wallsAndBoundaries
-                                         where StartPoint(el, trf).X <= xC && EndPoint(el, trf).X >= xC
-                                         select el).OrderByDescending(x => StartPoint(x, trf).Y);
-
                         //Determine relevant walls (that means the walls which are crossed by the current X value iteration)
                         var wallsX = (from FamilyInstance fin in Walls
                                       where StartPoint(fin, trf).X <= xC && EndPoint(fin, trf).X >= xC
-                                      select fin).OrderByDescending(x => StartPoint(x, trf).Y);
+                                      select fin).OrderBy(x => StartPoint(x, trf).Y); //<- Not using Descending because the list is defined from up to down
 
                         //Determine relevant walls (that means the walls which are crossed by the current X value iteration)
                         var boundaryX = (from CurveElement cue in Bd
@@ -131,8 +131,8 @@ namespace GeneralStability
                         //First handle the walls
                         var wallsXlinked = new LinkedList<FamilyInstance>(wallsX);
                         var listNode1 = wallsXlinked.Find(fi);
-                        var wallPositive = listNode1.Next.Value;
-                        var wallNegative = listNode1.Previous.Value;
+                        var wallPositive = listNode1?.Next?.Value;
+                        var wallNegative = listNode1?.Previous?.Value;
 
                         //Flow control
                         bool isEdgePositive = false, isEdgeNegative = false; //<-- Indicates if the wall is on the boundary
@@ -146,6 +146,7 @@ namespace GeneralStability
                         if (wallPositive == null && StartPoint(bdPositive, trf).Y.Equals(Ycur)) isEdgePositive = true;
                         if (wallNegative == null && StartPoint(bdNegative, trf).Y.Equals(StartPoint(fi, trf).Y)) isEdgeNegative = true;
 
+                        //Init loop counters
                         int nrOfYPos, nrOfYNeg;
 
                         //Determine number of iterations in Y direction POSITIVE handling all cases
@@ -163,59 +164,74 @@ namespace GeneralStability
                         //Iterate through the POSITIVE side
                         for (int j = 0; j < nrOfYPos; j++)
                         {
-                            //ITERATE ONLY THROUGH THE HALF OF WIDTH!!!!
-                        }
+                            //Init intermediate result variable
+                            double loadIntensity = 0;
 
-                    }
+                            //Current y value
+                            double y1 = Ycur + j * step;
+                            double y2 = Ycur + (j + 1) * step;
+                            double yC = y1 + step / 2;
 
+                            //Determine the correct load intensity at the finite element centre point
+                            XYZ cPointInOrigoCoords = new XYZ(xC, yC, 0);
+                            XYZ cPointInGlobalCoords = trfO.OfPoint(cPointInOrigoCoords);
 
-                    //Iterate through the width of the building
-
-                    {
-                        //Current y value
-                        double y1 = Ymin + j * step;
-                        double y2 = Ymin + (j + 1) * step;
-                        double yC = y1 + step / 2;
-
-                        //Determine nearest wall
-                        FamilyInstance nearestWall = wallsX.MinBy(x => Math.Abs(StartPoint(x, trf).Y - yC));
-
-                        //Area of finite element
-                        double areaSqrM = ((x2 - x1) * (y2 - y1)).SqrFeetToSqrMeters();
-
-                        //Determine the correct load intensity at the finite element centre point
-                        XYZ cPointInOrigoCoords = new XYZ(xC, yC, 0);
-                        XYZ cPointInGlobalCoords = trfO.OfPoint(cPointInOrigoCoords);
-
-                        double loadIntensity = 0.0;
-
-                        for (int f = 0; f < faces.Count; f++)
-                        {
-                            IntersectionResult result = faces[f].Project(cPointInGlobalCoords);
-                            if (result != null)
+                            for (int f = 0; f < faces.Count; f++)
                             {
-                                string rawLoadIntensity =
-                                    LoadAreas[f].get_Parameter(BuiltInParameter.ALL_MODEL_INSTANCE_COMMENTS).AsString();
-                                loadIntensity = double.Parse(rawLoadIntensity, CultureInfo.InvariantCulture);
-                                break;
+                                IntersectionResult result = faces[f].Project(cPointInGlobalCoords);
+                                if (result != null)
+                                {
+                                    string rawLoadIntensity = LoadAreas[f].get_Parameter(BuiltInParameter.ALL_MODEL_INSTANCE_COMMENTS).AsString();
+                                    loadIntensity = double.Parse(rawLoadIntensity, CultureInfo.InvariantCulture);
+                                    break;
+                                }
                             }
+
+                            //Collect the results
+                            double force = loadIntensity * areaSqrM;
+                            load = load + force;
+                            nrTotal++;
+                        }
+                        
+                        //Iterate through the NEGATIVE side
+                        for (int k = 0; k < nrOfYNeg; k++)
+                        {
+                            //Init intermediate result variable
+                            double loadIntensity = 0;
+
+                            //Current y value
+                            double y1 = Ycur - k * step;
+                            double y2 = Ycur - (k + 1) * step;
+                            double yC = y1 - step / 2;
+
+                            //Determine the correct load intensity at the finite element centre point
+                            XYZ cPointInOrigoCoords = new XYZ(xC, yC, 0);
+                            XYZ cPointInGlobalCoords = trfO.OfPoint(cPointInOrigoCoords);
+
+                            for (int f = 0; f < faces.Count; f++)
+                            {
+                                IntersectionResult result = faces[f].Project(cPointInGlobalCoords);
+                                if (result != null)
+                                {
+                                    string rawLoadIntensity = LoadAreas[f].get_Parameter(BuiltInParameter.ALL_MODEL_INSTANCE_COMMENTS).AsString();
+                                    loadIntensity = double.Parse(rawLoadIntensity, CultureInfo.InvariantCulture);
+                                    break;
+                                }
+                            }
+
+                            //Collect the results
+                            double force = loadIntensity * areaSqrM;
+                            load = load + force;
+                            nrTotal++;
                         }
 
-                        double force = loadIntensity * areaSqrM;
-
-                        double currentValue = nearestWall.LookupParameter("GS_Load").AsDouble();
-
-                        double load = force + currentValue;
-
-                        nearestWall.LookupParameter("GS_Load").Set(load);
-
-                        nrTotal++;
-
                     }
+
+                    fi.LookupParameter("GS_Load").Set(load);
                 }
 
                 //Log
-                txBox.Text = nrI + ", " + nrJ + ": " + nrTotal;
+                txBox.Text = nrTotal.ToString();
                 //op.WriteDebugFile(mySettings.Default.debugFilePath, sbLog);
                 return Result.Succeeded;
             }

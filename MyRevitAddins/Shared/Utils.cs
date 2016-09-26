@@ -421,8 +421,7 @@ namespace Shared
 
         const double _convertInchToFoot = 12;
 
-        const double _convertFootToMeter
-          = _convertFootToMm * 0.001;
+        const double _convertFootToMeter = _convertFootToMm * 0.001;
 
         const double _convertSqrFootToSqrMeter = _convertFootToMeter * _convertFootToMeter;
 
@@ -471,9 +470,9 @@ namespace Shared
         /// <summary>
         /// Convert a given area in square feet to square meters.
         /// </summary>
-        public static double SqrFootToSqrMeter(double volume)
+        public static double SqrFootToSqrMeter(double area)
         {
-            return volume * _convertSqrFootToSqrMeter;
+            return area * _convertSqrFootToSqrMeter;
         }
 
         /// <summary>
