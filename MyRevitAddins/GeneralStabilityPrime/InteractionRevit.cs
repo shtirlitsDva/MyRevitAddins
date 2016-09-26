@@ -67,13 +67,6 @@ namespace GeneralStability
                 HashSet<CurveElement> Bd = BoundaryData.BoundaryLines;
                 HashSet<FamilyInstance> Walls = WallsAlong.WallSymbols;
 
-                //Combine the two sets to make a combination
-                HashSet<Element> wallsAndBoundaries = (from CurveElement cu in Bd
-                                                       where !StartPoint(cu, trf).X.Equals(EndPoint(cu, trf).X)
-                                                       select cu).Cast<Element>().ToHashSet();
-
-                wallsAndBoundaries.UnionWith(Walls);
-
                 //Get the faces of filled regions
                 //Determine the intersection between the centre point of finite element and filled region symbolizing the load
                 IList<Face> faces = new List<Face>();
@@ -88,7 +81,7 @@ namespace GeneralStability
                 foreach (FilledRegion fr in LoadAreas) faces.Add(GetFace(fr, options));
 
                 //The analysis proceeds in steps (hardcoded for now)
-                double step = 20.0.MmToFeet(); //<-- a "magic" number. TODO: Implement definition of step size in UI.
+                double step = 2.0.MmToFeet(); //<-- a "magic" number. TODO: Implement definition of step size in UI.
 
                 //Area of finite element
                 double areaSqrM = (step * step).SqrFeetToSqrMeters();
@@ -107,8 +100,11 @@ namespace GeneralStability
                     //The y of the wall
                     double Ycur = StartPoint(fi, trf).Y;
 
+                    //Længde af væggen
+                    double length = Xmax - Xmin;
+
                     ////Divide the largest X value by the step value to determine the number iterations in X direction
-                    int nrOfX = (int)Math.Floor((Xmax - Xmin) / step);
+                    int nrOfX = (int)Math.Floor(length / step);
 
                     //Iterate through the length of the current wall analyzing the load
                     for (int i = 0; i < nrOfX; i++)
@@ -143,23 +139,23 @@ namespace GeneralStability
                         if (wallNegative == null) bdNegative = boundaryX.MinBy(x => StartPoint(x, trf).Y);
 
                         //Detect edge cases
-                        if (wallPositive == null && StartPoint(bdPositive, trf).Y.Equals(Ycur)) isEdgePositive = true;
-                        if (wallNegative == null && StartPoint(bdNegative, trf).Y.Equals(StartPoint(fi, trf).Y)) isEdgeNegative = true;
+                        if (wallPositive == null && StartPoint(bdPositive, trf).Y.FtToMillimeters().Equals(Ycur.FtToMillimeters())) isEdgePositive = true;
+                        if (wallNegative == null && StartPoint(bdNegative, trf).Y.FtToMillimeters().Equals(Ycur.FtToMillimeters())) isEdgeNegative = true;
 
                         //Init loop counters
                         int nrOfYPos, nrOfYNeg;
 
                         //Determine number of iterations in Y direction POSITIVE handling all cases
                         //The 2* multiplier on step makes sure that iteration only happens on the half of the span
-                        if (wallPositive != null) nrOfYPos = (int)Math.Floor((StartPoint(wallPositive, trf).Y - Ycur) / 2 * step);
+                        if (wallPositive != null) nrOfYPos = (int)Math.Floor((StartPoint(wallPositive, trf).Y - Ycur) / (2 * step));
                         else if (isEdgePositive) nrOfYPos = 0;
-                        else nrOfYPos = (int)Math.Floor((StartPoint(bdPositive, trf).Y - Ycur) / 2 * step);
+                        else nrOfYPos = (int)Math.Floor((StartPoint(bdPositive, trf).Y - Ycur) / (2 * step));
 
                         //Determine number of iterations in Y direction NEGATIVE handling all cases
                         //The 2* multiplier on step makes sure that iteration only happens on the half of the span
-                        if (wallNegative != null) nrOfYNeg = (int)Math.Floor((-StartPoint(wallNegative, trf).Y + Ycur) / 2 * step);
+                        if (wallNegative != null) nrOfYNeg = (int)Math.Floor((-StartPoint(wallNegative, trf).Y + Ycur) / (2 * step));
                         else if (isEdgeNegative) nrOfYNeg = 0;
-                        else nrOfYNeg = (int)Math.Floor((-StartPoint(bdNegative, trf).Y + Ycur) / 2 * step);
+                        else nrOfYNeg = (int)Math.Floor((-StartPoint(bdNegative, trf).Y + Ycur) / (2 * step));
 
                         //Iterate through the POSITIVE side
                         for (int j = 0; j < nrOfYPos; j++)
@@ -192,7 +188,7 @@ namespace GeneralStability
                             load = load + force;
                             nrTotal++;
                         }
-                        
+
                         //Iterate through the NEGATIVE side
                         for (int k = 0; k < nrOfYNeg; k++)
                         {
@@ -227,7 +223,7 @@ namespace GeneralStability
 
                     }
 
-                    fi.LookupParameter("GS_Load").Set(load);
+                    fi.LookupParameter("GS_Load").Set(load / length); //Change meee!!
                 }
 
                 //Log
