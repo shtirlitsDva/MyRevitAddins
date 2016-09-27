@@ -81,7 +81,7 @@ namespace GeneralStability
                 foreach (FilledRegion fr in LoadAreas) faces.Add(GetFace(fr, options));
 
                 //The analysis proceeds in steps (hardcoded for now)
-                double step = 2.0.MmToFeet(); //<-- a "magic" number. TODO: Implement definition of step size in UI.
+                double step = 5.0.MmToFeet(); //<-- a "magic" number. TODO: Implement definition of step size in UI.
 
                 //Area of finite element
                 double areaSqrM = (step * step).SqrFeetToSqrMeters();
@@ -101,10 +101,13 @@ namespace GeneralStability
                     double Ycur = StartPoint(fi, trf).Y;
 
                     //Længde af væggen
-                    double length = Xmax - Xmin;
+                    double length = (Xmax - Xmin).FtToMeters();
 
                     ////Divide the largest X value by the step value to determine the number iterations in X direction
-                    int nrOfX = (int)Math.Floor(length / step);
+                    int nrOfX = (int)Math.Floor((Xmax - Xmin) / step);
+
+                    //Debug
+                    double[] X, Y; X = new double[4]; Y = new double[4];
 
                     //Iterate through the length of the current wall analyzing the load
                     for (int i = 0; i < nrOfX; i++)
@@ -113,6 +116,15 @@ namespace GeneralStability
                         double x1 = Xmin + i * step;
                         double x2 = Xmin + (i + 1) * step;
                         double xC = x1 + step / 2;
+
+                        //Debug
+                        if (i == 0)
+                        {
+                            X[0] = x1;
+                            X[2] = x1;
+                        }
+                        X[1] = x2;
+                        X[3] = x2;
 
                         //Determine relevant walls (that means the walls which are crossed by the current X value iteration)
                         var wallsX = (from FamilyInstance fin in Walls
@@ -130,13 +142,13 @@ namespace GeneralStability
                         var wallPositive = listNode1?.Next?.Value;
                         var wallNegative = listNode1?.Previous?.Value;
 
-                        //Flow control
-                        bool isEdgePositive = false, isEdgeNegative = false; //<-- Indicates if the wall is on the boundary
-
                         //Select boundaries if no walls found at location
                         CurveElement bdPositive = null, bdNegative = null;
                         if (wallPositive == null) bdPositive = boundaryX.MaxBy(x => StartPoint(x, trf).Y);
                         if (wallNegative == null) bdNegative = boundaryX.MinBy(x => StartPoint(x, trf).Y);
+
+                        //Flow control
+                        bool isEdgePositive = false, isEdgeNegative = false; //<-- Indicates if the wall is on the boundary
 
                         //Detect edge cases
                         if (wallPositive == null && StartPoint(bdPositive, trf).Y.FtToMillimeters().Equals(Ycur.FtToMillimeters())) isEdgePositive = true;
@@ -157,6 +169,8 @@ namespace GeneralStability
                         else if (isEdgeNegative) nrOfYNeg = 0;
                         else nrOfYNeg = (int)Math.Floor((-StartPoint(bdNegative, trf).Y + Ycur) / (2 * step));
 
+
+
                         //Iterate through the POSITIVE side
                         for (int j = 0; j < nrOfYPos; j++)
                         {
@@ -167,6 +181,29 @@ namespace GeneralStability
                             double y1 = Ycur + j * step;
                             double y2 = Ycur + (j + 1) * step;
                             double yC = y1 + step / 2;
+
+                            //Debug
+                            if (i == 0 && j == nrOfYPos - 1) Y[0] = y2;
+                            if (j == nrOfYPos - 1)
+                            {
+                                Y[1] = y2;
+                                if (!Y[0].FtToMillimeters().Equals(Y[1].FtToMillimeters()))
+                                {
+                                    XYZ p1 = new XYZ(X[0], Y[0], 0); XYZ p1O = trfO.OfPoint(p1);
+                                    XYZ p2 = new XYZ(X[1], Y[0], 0); XYZ p2O = trfO.OfPoint(p2);
+                                    Curve line = Line.CreateBound(p1O, p2O) as Curve;
+                                    var detailCurve = doc.Create.NewDetailCurve(LoadData.GS_View, line);
+                                    X[0] = x1; Y[0] = y2;
+                                }
+                                if (i == nrOfX - 1)
+                                {
+                                    XYZ p1 = new XYZ(X[0], Y[0], 0); XYZ p1O = trfO.OfPoint(p1);
+                                    XYZ p2 = new XYZ(X[1], Y[0], 0); XYZ p2O = trfO.OfPoint(p2);
+                                    Curve line = Line.CreateBound(p1O, p2O) as Curve;
+                                    var detailCurve = doc.Create.NewDetailCurve(LoadData.GS_View, line);
+                                }
+                            }
+
 
                             //Determine the correct load intensity at the finite element centre point
                             XYZ cPointInOrigoCoords = new XYZ(xC, yC, 0);
@@ -199,6 +236,28 @@ namespace GeneralStability
                             double y1 = Ycur - k * step;
                             double y2 = Ycur - (k + 1) * step;
                             double yC = y1 - step / 2;
+
+                            //Debug
+                            if (i == 0 && k == nrOfYNeg - 1) Y[2] = y2;
+                            if (k == nrOfYNeg - 1)
+                            {
+                                Y[3] = y2;
+                                if (!Y[2].FtToMillimeters().Equals(Y[3].FtToMillimeters()))
+                                {
+                                    XYZ p1 = new XYZ(X[2], Y[2], 0); XYZ p1O = trfO.OfPoint(p1);
+                                    XYZ p2 = new XYZ(X[3], Y[2], 0); XYZ p2O = trfO.OfPoint(p2);
+                                    Curve line = Line.CreateBound(p1O, p2O) as Curve;
+                                    var detailCurve = doc.Create.NewDetailCurve(LoadData.GS_View, line);
+                                    X[2] = x1; Y[2] = y2;
+                                }
+                                if (i == nrOfX - 1)
+                                {
+                                    XYZ p1 = new XYZ(X[2], Y[2], 0); XYZ p1O = trfO.OfPoint(p1);
+                                    XYZ p2 = new XYZ(X[3], Y[2], 0); XYZ p2O = trfO.OfPoint(p2);
+                                    Curve line = Line.CreateBound(p1O, p2O) as Curve;
+                                    var detailCurve = doc.Create.NewDetailCurve(LoadData.GS_View, line);
+                                }
+                            }
 
                             //Determine the correct load intensity at the finite element centre point
                             XYZ cPointInOrigoCoords = new XYZ(xC, yC, 0);
