@@ -53,12 +53,6 @@ namespace GeneralStability
                 int nrI = 0, nrJ = 0, nrTotal = 0;
                 //StringBuilder sbLog = new StringBuilder();
 
-                //Reset the load from last run
-                foreach (FamilyInstance fi in WallsAlong.WallSymbols)
-                {
-                    fi.LookupParameter("GS_Load").Set(0);
-                }
-
                 //Get the transform
                 Transform trfO = Origo.GetTransform();
                 Transform trf = trfO.Inverse;
@@ -81,7 +75,7 @@ namespace GeneralStability
                 foreach (FilledRegion fr in LoadAreas) faces.Add(GetFace(fr, options));
 
                 //The analysis proceeds in steps (hardcoded for now)
-                double step = 5.0.MmToFeet(); //<-- a "magic" number. TODO: Implement definition of step size in UI.
+                double step = 1.0.MmToFeet(); //<-- a "magic" number. TODO: Implement definition of step size in UI.
 
                 //Area of finite element
                 double areaSqrM = (step * step).SqrFeetToSqrMeters();
@@ -90,6 +84,7 @@ namespace GeneralStability
                 {
                     //Initialize variables
                     double load = 0;
+                    double totalArea = 0;
 
                     //Determine the start X
                     double Xmin = StartPoint(fi, trf).X;
@@ -189,19 +184,10 @@ namespace GeneralStability
                                 Y[1] = y2;
                                 if (!Y[0].FtToMillimeters().Equals(Y[1].FtToMillimeters()))
                                 {
-                                    XYZ p1 = new XYZ(X[0], Y[0], 0); XYZ p1O = trfO.OfPoint(p1);
-                                    XYZ p2 = new XYZ(X[1], Y[0], 0); XYZ p2O = trfO.OfPoint(p2);
-                                    Curve line = Line.CreateBound(p1O, p2O) as Curve;
-                                    var detailCurve = doc.Create.NewDetailCurve(LoadData.GS_View, line);
+                                    CreateLoadAreaBoundaries(doc, X[0], X[1], Y[0], trfO);
                                     X[0] = x1; Y[0] = y2;
                                 }
-                                if (i == nrOfX - 1)
-                                {
-                                    XYZ p1 = new XYZ(X[0], Y[0], 0); XYZ p1O = trfO.OfPoint(p1);
-                                    XYZ p2 = new XYZ(X[1], Y[0], 0); XYZ p2O = trfO.OfPoint(p2);
-                                    Curve line = Line.CreateBound(p1O, p2O) as Curve;
-                                    var detailCurve = doc.Create.NewDetailCurve(LoadData.GS_View, line);
-                                }
+                                if (i == nrOfX - 1) CreateLoadAreaBoundaries(doc, X[0], X[1], Y[0], trfO);
                             }
 
 
@@ -224,6 +210,7 @@ namespace GeneralStability
                             double force = loadIntensity * areaSqrM;
                             load = load + force;
                             nrTotal++;
+                            totalArea += areaSqrM;
                         }
 
                         //Iterate through the NEGATIVE side
@@ -244,19 +231,10 @@ namespace GeneralStability
                                 Y[3] = y2;
                                 if (!Y[2].FtToMillimeters().Equals(Y[3].FtToMillimeters()))
                                 {
-                                    XYZ p1 = new XYZ(X[2], Y[2], 0); XYZ p1O = trfO.OfPoint(p1);
-                                    XYZ p2 = new XYZ(X[3], Y[2], 0); XYZ p2O = trfO.OfPoint(p2);
-                                    Curve line = Line.CreateBound(p1O, p2O) as Curve;
-                                    var detailCurve = doc.Create.NewDetailCurve(LoadData.GS_View, line);
+                                    CreateLoadAreaBoundaries(doc, X[2], X[3], Y[2], trfO);
                                     X[2] = x1; Y[2] = y2;
                                 }
-                                if (i == nrOfX - 1)
-                                {
-                                    XYZ p1 = new XYZ(X[2], Y[2], 0); XYZ p1O = trfO.OfPoint(p1);
-                                    XYZ p2 = new XYZ(X[3], Y[2], 0); XYZ p2O = trfO.OfPoint(p2);
-                                    Curve line = Line.CreateBound(p1O, p2O) as Curve;
-                                    var detailCurve = doc.Create.NewDetailCurve(LoadData.GS_View, line);
-                                }
+                                if (i == nrOfX - 1) CreateLoadAreaBoundaries(doc, X[2], X[3], Y[2], trfO);
                             }
 
                             //Determine the correct load intensity at the finite element centre point
@@ -278,11 +256,13 @@ namespace GeneralStability
                             double force = loadIntensity * areaSqrM;
                             load = load + force;
                             nrTotal++;
+                            totalArea += areaSqrM;
                         }
 
                     }
 
                     fi.LookupParameter("GS_Load").Set(load / length); //Change meee!!
+                    fi.LookupParameter("GS_TotalArea").Set(totalArea);
                 }
 
                 //Log
@@ -296,6 +276,16 @@ namespace GeneralStability
                 throw new Exception(e.Message);
                 return Result.Failed;
             }
+        }
+
+        private void CreateLoadAreaBoundaries(Document doc, double x1, double x2, double y, Transform trfO)
+        {
+            XYZ p1 = new XYZ(x1, y, 0);
+            XYZ p1O = trfO.OfPoint(p1);
+            XYZ p2 = new XYZ(x2, y, 0);
+            XYZ p2O = trfO.OfPoint(p2);
+            Curve line = Line.CreateBound(p1O, p2O) as Curve;
+            var detailCurve = doc.Create.NewDetailCurve(LoadData.GS_View, line);
         }
 
         #endregion
