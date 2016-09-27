@@ -40,11 +40,16 @@ namespace GeneralStability
             this.button4 = new System.Windows.Forms.Button();
             this.button5 = new System.Windows.Forms.Button();
             this.textBox3 = new System.Windows.Forms.TextBox();
+            this.button6 = new System.Windows.Forms.Button();
+            this.numericUpDown1 = new System.Windows.Forms.NumericUpDown();
+            this.textBox4 = new System.Windows.Forms.TextBox();
+            this.textBox5 = new System.Windows.Forms.TextBox();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).BeginInit();
             this.SuspendLayout();
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(50, 38);
+            this.button1.Location = new System.Drawing.Point(12, 12);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(106, 46);
             this.button1.TabIndex = 0;
@@ -58,7 +63,7 @@ namespace GeneralStability
             // 
             // button2
             // 
-            this.button2.Location = new System.Drawing.Point(200, 38);
+            this.button2.Location = new System.Drawing.Point(359, 12);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(106, 46);
             this.button2.TabIndex = 0;
@@ -68,7 +73,7 @@ namespace GeneralStability
             // 
             // button3
             // 
-            this.button3.Location = new System.Drawing.Point(50, 134);
+            this.button3.Location = new System.Drawing.Point(12, 142);
             this.button3.Name = "button3";
             this.button3.Size = new System.Drawing.Size(106, 46);
             this.button3.TabIndex = 0;
@@ -83,26 +88,26 @@ namespace GeneralStability
             // textBox1
             // 
             this.textBox1.DataBindings.Add(new System.Windows.Forms.Binding("Text", global::GeneralStability.Properties.Settings.Default, "_worksheetPath", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
-            this.textBox1.Location = new System.Drawing.Point(12, 90);
+            this.textBox1.Location = new System.Drawing.Point(12, 64);
             this.textBox1.Name = "textBox1";
             this.textBox1.ReadOnly = true;
-            this.textBox1.Size = new System.Drawing.Size(377, 20);
+            this.textBox1.Size = new System.Drawing.Size(453, 20);
             this.textBox1.TabIndex = 1;
             this.textBox1.Text = global::GeneralStability.Properties.Settings.Default._worksheetPath;
             // 
             // textBox2
             // 
             this.textBox2.DataBindings.Add(new System.Windows.Forms.Binding("Text", global::GeneralStability.Properties.Settings.Default, "debugFilePath", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
-            this.textBox2.Location = new System.Drawing.Point(12, 186);
+            this.textBox2.Location = new System.Drawing.Point(12, 194);
             this.textBox2.Name = "textBox2";
             this.textBox2.ReadOnly = true;
-            this.textBox2.Size = new System.Drawing.Size(377, 20);
+            this.textBox2.Size = new System.Drawing.Size(453, 20);
             this.textBox2.TabIndex = 1;
             this.textBox2.Text = global::GeneralStability.Properties.Settings.Default.debugFilePath;
             // 
             // button4
             // 
-            this.button4.Location = new System.Drawing.Point(50, 230);
+            this.button4.Location = new System.Drawing.Point(12, 90);
             this.button4.Name = "button4";
             this.button4.Size = new System.Drawing.Size(106, 46);
             this.button4.TabIndex = 0;
@@ -112,7 +117,7 @@ namespace GeneralStability
             // 
             // button5
             // 
-            this.button5.Location = new System.Drawing.Point(50, 431);
+            this.button5.Location = new System.Drawing.Point(12, 405);
             this.button5.Name = "button5";
             this.button5.Size = new System.Drawing.Size(106, 46);
             this.button5.TabIndex = 0;
@@ -122,17 +127,62 @@ namespace GeneralStability
             // 
             // textBox3
             // 
-            this.textBox3.Location = new System.Drawing.Point(12, 405);
+            this.textBox3.Location = new System.Drawing.Point(12, 379);
             this.textBox3.Name = "textBox3";
             this.textBox3.ReadOnly = true;
-            this.textBox3.Size = new System.Drawing.Size(377, 20);
+            this.textBox3.Size = new System.Drawing.Size(339, 20);
             this.textBox3.TabIndex = 1;
+            // 
+            // button6
+            // 
+            this.button6.Location = new System.Drawing.Point(185, 12);
+            this.button6.Name = "button6";
+            this.button6.Size = new System.Drawing.Size(106, 46);
+            this.button6.TabIndex = 2;
+            this.button6.Text = "Calculate loads";
+            this.button6.UseVisualStyleBackColor = true;
+            this.button6.Click += new System.EventHandler(this.button6_Click);
+            // 
+            // numericUpDown1
+            // 
+            this.numericUpDown1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.numericUpDown1.DataBindings.Add(new System.Windows.Forms.Binding("Value", global::GeneralStability.Properties.Settings.Default, "integerStepSize", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
+            this.numericUpDown1.Location = new System.Drawing.Point(185, 115);
+            this.numericUpDown1.Name = "numericUpDown1";
+            this.numericUpDown1.Size = new System.Drawing.Size(61, 20);
+            this.numericUpDown1.TabIndex = 3;
+            this.numericUpDown1.Value = global::GeneralStability.Properties.Settings.Default.integerStepSize;
+            this.numericUpDown1.ValueChanged += new System.EventHandler(this.numericUpDown1_ValueChanged);
+            // 
+            // textBox4
+            // 
+            this.textBox4.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.textBox4.Location = new System.Drawing.Point(185, 89);
+            this.textBox4.Name = "textBox4";
+            this.textBox4.ReadOnly = true;
+            this.textBox4.Size = new System.Drawing.Size(106, 13);
+            this.textBox4.TabIndex = 4;
+            this.textBox4.Text = "Step size:";
+            // 
+            // textBox5
+            // 
+            this.textBox5.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.textBox5.Location = new System.Drawing.Point(252, 117);
+            this.textBox5.Name = "textBox5";
+            this.textBox5.ReadOnly = true;
+            this.textBox5.Size = new System.Drawing.Size(39, 13);
+            this.textBox5.TabIndex = 5;
+            this.textBox5.Text = "mm";
             // 
             // GeneralStabilityForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(401, 528);
+            this.ClientSize = new System.Drawing.Size(477, 528);
+            this.Controls.Add(this.textBox5);
+            this.Controls.Add(this.textBox4);
+            this.Controls.Add(this.numericUpDown1);
+            this.Controls.Add(this.button6);
             this.Controls.Add(this.textBox3);
             this.Controls.Add(this.textBox2);
             this.Controls.Add(this.textBox1);
@@ -143,6 +193,7 @@ namespace GeneralStability
             this.Controls.Add(this.button1);
             this.Name = "GeneralStabilityForm";
             this.Text = "GeneralStabilityForm";
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -160,5 +211,9 @@ namespace GeneralStability
         private System.Windows.Forms.Button button4;
         private System.Windows.Forms.Button button5;
         private System.Windows.Forms.TextBox textBox3;
+        private System.Windows.Forms.Button button6;
+        private System.Windows.Forms.NumericUpDown numericUpDown1;
+        private System.Windows.Forms.TextBox textBox4;
+        private System.Windows.Forms.TextBox textBox5;
     }
 }

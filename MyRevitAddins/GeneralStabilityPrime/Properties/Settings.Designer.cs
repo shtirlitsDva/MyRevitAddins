@@ -46,5 +46,17 @@ namespace GeneralStability.Properties {
                 this["debugFilePath"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("20")]
+        public decimal integerStepSize {
+            get {
+                return ((decimal)(this["integerStepSize"]));
+            }
+            set {
+                this["integerStepSize"] = value;
+            }
+        }
     }
 }

@@ -45,6 +45,9 @@ namespace GeneralStability
             //Init variables
             _debugFilePath = mySettings.Default.debugFilePath;
 
+            //Init input items
+            numericUpDown1.Value = mySettings.Default.integerStepSize;
+
             //Clear the debug file
             System.IO.File.WriteAllBytes(_debugFilePath, new byte[0]);
         }
@@ -65,10 +68,10 @@ namespace GeneralStability
             try
             {
                 var appCreate = new Mathcad.ApplicationCreatorClass();
-                app = (Mathcad.ApplicationCreator) appCreate;
+                app = (Mathcad.ApplicationCreator)appCreate;
                 app.Visible = true;
                 var ws = app.Open(mySettings.Default._worksheetPath);
-                
+
                 InteractionMathcad interactionMathcad = new InteractionMathcad(doc, ws);
             }
             catch (Exception ex)
@@ -78,7 +81,7 @@ namespace GeneralStability
                 StringBuilder exSb = new StringBuilder();
                 exSb.Append(ex.Message);
                 exSb.AppendLine();
-                op.WriteDebugFile(_debugFilePath,exSb);
+                op.WriteDebugFile(_debugFilePath, exSb);
                 app.CloseAll(Mathcad.SaveOption.spDiscardChanges);
                 Cleanup();
                 //Util.InfoMsg(ex.Message);
@@ -131,13 +134,13 @@ namespace GeneralStability
                 InteractionRevit ir = new InteractionRevit(doc);
 
                 trans.Start("Interaction Revit Debug");
-                var watch = System.Diagnostics.Stopwatch.StartNew();
-                Result result = ir.CalculateLoads(doc, this.textBox3);
-                watch.Stop();
-                TimeSpan time = watch.Elapsed;
-                string text = textBox3.Text;
-                text = text + ". Time: " + time.TotalMinutes+" min, "+time.TotalSeconds+" sec.";
-                textBox3.Text = text;
+                //var watch = System.Diagnostics.Stopwatch.StartNew();
+                Result result = ir.DrawLoadAreas(doc);
+                //watch.Stop();
+                //TimeSpan time = watch.Elapsed;
+                //string text = textBox3.Text;
+                //text = text + ". Time: " + time.TotalMinutes+" min, "+time.TotalSeconds+" sec.";
+                //textBox3.Text = text;
                 if (result == Result.Succeeded)
                 {
                     trans.Commit();
@@ -149,6 +152,41 @@ namespace GeneralStability
                     Util.InfoMsg("Debug failed!");
                 }
             }
+        }
+
+        private void button6_Click(object sender, EventArgs e)
+        {
+            using (Transaction trans = new Transaction(doc))
+            {
+                InteractionRevit ir = new InteractionRevit(doc);
+                trans.Start("Calculate loads");
+                int NrOfTotal = 0;
+
+                var watch = System.Diagnostics.Stopwatch.StartNew();
+                Result result = ir.CalculateLoads(ref NrOfTotal);
+                watch.Stop();
+
+                TimeSpan time = watch.Elapsed;
+
+                if (result == Result.Succeeded)
+                {
+                    trans.Commit();
+                    string text = "Load calculation succeeded!\n" + 
+                                  "Total points analyzed: " + NrOfTotal + "\n" + 
+                                  "Time elapsed: H" + time.Hours + ":M" + time.Minutes + ":S" + time.Seconds;
+                    Util.InfoMsg(text);
+                }
+                else
+                {
+                    trans.RollBack();
+                    Util.InfoMsg("Load calculation failed!");
+                }
+            }
+        }
+
+        private void numericUpDown1_ValueChanged(object sender, EventArgs e)
+        {
+            mySettings.Default.integerStepSize = Convert.ToInt32(numericUpDown1.Value);
         }
     }
 }

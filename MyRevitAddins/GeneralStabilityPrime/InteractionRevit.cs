@@ -45,13 +45,12 @@ namespace GeneralStability
 
         #region LoadCalculation
 
-        public Result CalculateLoads(Document doc, TxBox txBox)
+        public Result CalculateLoads(ref int totalLoops)
         {
             try
             {
                 //Log
-                int nrI = 0, nrJ = 0, nrTotal = 0;
-                //StringBuilder sbLog = new StringBuilder();
+                int nrTotal = 0;
 
                 //Get the transform
                 Transform trfO = Origo.GetTransform();
@@ -74,8 +73,8 @@ namespace GeneralStability
 
                 foreach (FilledRegion fr in LoadAreas) faces.Add(GetFace(fr, options));
 
-                //The analysis proceeds in steps (hardcoded for now)
-                double step = 1.0.MmToFeet(); //<-- a "magic" number. TODO: Implement definition of step size in UI.
+                //The analysis proceeds in steps
+                double step = ((double)mySettings.Default.integerStepSize).MmToFeet();
 
                 //Area of finite element
                 double areaSqrM = (step * step).SqrFeetToSqrMeters();
@@ -97,6 +96,171 @@ namespace GeneralStability
 
                     //Længde af væggen
                     double length = (Xmax - Xmin).FtToMeters();
+
+                    ////Divide the largest X value by the step value to determine the number iterations in X direction
+                    int nrOfX = (int)Math.Floor((Xmax - Xmin) / step);
+
+                    //Debug
+                    double[] X, Y; X = new double[4]; Y = new double[4];
+
+                    //Iterate through the length of the current wall analyzing the load
+                    for (int i = 0; i < nrOfX; i++)
+                    {
+                        //Current x value
+                        double x1 = Xmin + i * step;
+                        double x2 = Xmin + (i + 1) * step;
+                        double xC = x1 + step / 2;
+
+                        //Determine relevant walls (that means the walls which are crossed by the current X value iteration)
+                        var wallsX = (from FamilyInstance fin in Walls
+                                      where StartPoint(fin, trf).X <= xC && EndPoint(fin, trf).X >= xC
+                                      select fin).OrderBy(x => StartPoint(x, trf).Y); //<- Not using Descending because the list is defined from up to down
+
+                        //Determine relevant walls (that means the walls which are crossed by the current X value iteration)
+                        var boundaryX = (from CurveElement cue in Bd
+                                         where StartPoint(cue, trf).X <= xC && EndPoint(cue, trf).X >= xC
+                                         select cue).ToHashSet();
+
+                        //First handle the walls
+                        var wallsXlinked = new LinkedList<FamilyInstance>(wallsX);
+                        var listNode1 = wallsXlinked.Find(fi);
+                        var wallPositive = listNode1?.Next?.Value;
+                        var wallNegative = listNode1?.Previous?.Value;
+
+                        //Select boundaries if no walls found at location
+                        CurveElement bdPositive = null, bdNegative = null;
+                        if (wallPositive == null) bdPositive = boundaryX.MaxBy(x => StartPoint(x, trf).Y);
+                        if (wallNegative == null) bdNegative = boundaryX.MinBy(x => StartPoint(x, trf).Y);
+
+                        //Flow control
+                        bool isEdgePositive = false, isEdgeNegative = false; //<-- Indicates if the wall is on the boundary
+
+                        //Detect edge cases
+                        if (wallPositive == null && StartPoint(bdPositive, trf).Y.FtToMillimeters().Equals(Ycur.FtToMillimeters())) isEdgePositive = true;
+                        if (wallNegative == null && StartPoint(bdNegative, trf).Y.FtToMillimeters().Equals(Ycur.FtToMillimeters())) isEdgeNegative = true;
+
+                        //Init loop counters
+                        int nrOfYPos, nrOfYNeg;
+
+                        //Determine number of iterations in Y direction POSITIVE handling all cases
+                        //The 2* multiplier on step makes sure that iteration only happens on the half of the span
+                        if (wallPositive != null) nrOfYPos = (int)Math.Floor((StartPoint(wallPositive, trf).Y - Ycur) / (2 * step));
+                        else if (isEdgePositive) nrOfYPos = 0;
+                        else nrOfYPos = (int)Math.Floor((StartPoint(bdPositive, trf).Y - Ycur) / (2 * step));
+
+                        //Determine number of iterations in Y direction NEGATIVE handling all cases
+                        //The 2* multiplier on step makes sure that iteration only happens on the half of the span
+                        if (wallNegative != null) nrOfYNeg = (int)Math.Floor((-StartPoint(wallNegative, trf).Y + Ycur) / (2 * step));
+                        else if (isEdgeNegative) nrOfYNeg = 0;
+                        else nrOfYNeg = (int)Math.Floor((-StartPoint(bdNegative, trf).Y + Ycur) / (2 * step));
+
+                        //Iterate through the POSITIVE side
+                        for (int j = 0; j < nrOfYPos; j++)
+                        {
+                            //Init intermediate result variable
+                            double loadIntensity = 0;
+
+                            //Current y value
+                            double y1 = Ycur + j * step;
+                            double y2 = Ycur + (j + 1) * step;
+                            double yC = y1 + step / 2;
+
+                            //Determine the correct load intensity at the finite element centre point
+                            XYZ cPointInOrigoCoords = new XYZ(xC, yC, 0);
+                            XYZ cPointInGlobalCoords = trfO.OfPoint(cPointInOrigoCoords);
+
+                            for (int f = 0; f < faces.Count; f++)
+                            {
+                                IntersectionResult result = faces[f].Project(cPointInGlobalCoords);
+                                if (result != null)
+                                {
+                                    string rawLoadIntensity = LoadAreas[f].get_Parameter(BuiltInParameter.ALL_MODEL_INSTANCE_COMMENTS).AsString();
+                                    loadIntensity = double.Parse(rawLoadIntensity, CultureInfo.InvariantCulture);
+                                    break;
+                                }
+                            }
+
+                            //Collect the results
+                            double force = loadIntensity * areaSqrM;
+                            load = load + force;
+                            nrTotal++;
+                            totalArea += areaSqrM;
+                        }
+
+                        //Iterate through the NEGATIVE side
+                        for (int k = 0; k < nrOfYNeg; k++)
+                        {
+                            //Init intermediate result variable
+                            double loadIntensity = 0;
+
+                            //Current y value
+                            double y1 = Ycur - k * step;
+                            double y2 = Ycur - (k + 1) * step;
+                            double yC = y1 - step / 2;
+
+                            //Determine the correct load intensity at the finite element centre point
+                            XYZ cPointInOrigoCoords = new XYZ(xC, yC, 0);
+                            XYZ cPointInGlobalCoords = trfO.OfPoint(cPointInOrigoCoords);
+
+                            for (int f = 0; f < faces.Count; f++)
+                            {
+                                IntersectionResult result = faces[f].Project(cPointInGlobalCoords);
+                                if (result != null)
+                                {
+                                    string rawLoadIntensity = LoadAreas[f].get_Parameter(BuiltInParameter.ALL_MODEL_INSTANCE_COMMENTS).AsString();
+                                    loadIntensity = double.Parse(rawLoadIntensity, CultureInfo.InvariantCulture);
+                                    break;
+                                }
+                            }
+
+                            //Collect the results
+                            double force = loadIntensity * areaSqrM;
+                            load = load + force;
+                            nrTotal++;
+                            totalArea += areaSqrM;
+                        }
+
+                    }
+
+                    fi.LookupParameter("GS_Load").Set(load / length); //Change meee!!
+                    fi.LookupParameter("GS_TotalArea").Set(totalArea);
+                }
+
+                totalLoops = nrTotal;
+                return Result.Succeeded;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw new Exception(e.Message);
+            }
+        }
+
+        public Result DrawLoadAreas(Document doc)
+        {
+            try
+            {
+                //Get the transform
+                Transform trfO = Origo.GetTransform();
+                Transform trf = trfO.Inverse;
+
+                //Get the list of boundaries and walls (to simplify the synthax)
+                HashSet<CurveElement> Bd = BoundaryData.BoundaryLines;
+                HashSet<FamilyInstance> Walls = WallsAlong.WallSymbols;
+
+                //The analysis proceeds in steps
+                double step = ((double)mySettings.Default.integerStepSize).MmToFeet();
+
+                foreach (FamilyInstance fi in Walls)
+                {
+                    //Determine the start X
+                    double Xmin = StartPoint(fi, trf).X;
+
+                    //Determine the end X
+                    double Xmax = EndPoint(fi, trf).X;
+
+                    //The y of the wall
+                    double Ycur = StartPoint(fi, trf).Y;
 
                     ////Divide the largest X value by the step value to determine the number iterations in X direction
                     int nrOfX = (int)Math.Floor((Xmax - Xmin) / step);
@@ -164,18 +328,12 @@ namespace GeneralStability
                         else if (isEdgeNegative) nrOfYNeg = 0;
                         else nrOfYNeg = (int)Math.Floor((-StartPoint(bdNegative, trf).Y + Ycur) / (2 * step));
 
-
-
                         //Iterate through the POSITIVE side
                         for (int j = 0; j < nrOfYPos; j++)
                         {
-                            //Init intermediate result variable
-                            double loadIntensity = 0;
-
                             //Current y value
                             double y1 = Ycur + j * step;
                             double y2 = Ycur + (j + 1) * step;
-                            double yC = y1 + step / 2;
 
                             //Debug
                             if (i == 0 && j == nrOfYPos - 1) Y[0] = y2;
@@ -189,40 +347,14 @@ namespace GeneralStability
                                 }
                                 if (i == nrOfX - 1) CreateLoadAreaBoundaries(doc, X[0], X[1], Y[0], trfO);
                             }
-
-
-                            //Determine the correct load intensity at the finite element centre point
-                            XYZ cPointInOrigoCoords = new XYZ(xC, yC, 0);
-                            XYZ cPointInGlobalCoords = trfO.OfPoint(cPointInOrigoCoords);
-
-                            for (int f = 0; f < faces.Count; f++)
-                            {
-                                IntersectionResult result = faces[f].Project(cPointInGlobalCoords);
-                                if (result != null)
-                                {
-                                    string rawLoadIntensity = LoadAreas[f].get_Parameter(BuiltInParameter.ALL_MODEL_INSTANCE_COMMENTS).AsString();
-                                    loadIntensity = double.Parse(rawLoadIntensity, CultureInfo.InvariantCulture);
-                                    break;
-                                }
-                            }
-
-                            //Collect the results
-                            double force = loadIntensity * areaSqrM;
-                            load = load + force;
-                            nrTotal++;
-                            totalArea += areaSqrM;
                         }
 
                         //Iterate through the NEGATIVE side
                         for (int k = 0; k < nrOfYNeg; k++)
                         {
-                            //Init intermediate result variable
-                            double loadIntensity = 0;
-
                             //Current y value
                             double y1 = Ycur - k * step;
                             double y2 = Ycur - (k + 1) * step;
-                            double yC = y1 - step / 2;
 
                             //Debug
                             if (i == 0 && k == nrOfYNeg - 1) Y[2] = y2;
@@ -236,45 +368,15 @@ namespace GeneralStability
                                 }
                                 if (i == nrOfX - 1) CreateLoadAreaBoundaries(doc, X[2], X[3], Y[2], trfO);
                             }
-
-                            //Determine the correct load intensity at the finite element centre point
-                            XYZ cPointInOrigoCoords = new XYZ(xC, yC, 0);
-                            XYZ cPointInGlobalCoords = trfO.OfPoint(cPointInOrigoCoords);
-
-                            for (int f = 0; f < faces.Count; f++)
-                            {
-                                IntersectionResult result = faces[f].Project(cPointInGlobalCoords);
-                                if (result != null)
-                                {
-                                    string rawLoadIntensity = LoadAreas[f].get_Parameter(BuiltInParameter.ALL_MODEL_INSTANCE_COMMENTS).AsString();
-                                    loadIntensity = double.Parse(rawLoadIntensity, CultureInfo.InvariantCulture);
-                                    break;
-                                }
-                            }
-
-                            //Collect the results
-                            double force = loadIntensity * areaSqrM;
-                            load = load + force;
-                            nrTotal++;
-                            totalArea += areaSqrM;
                         }
-
                     }
-
-                    fi.LookupParameter("GS_Load").Set(load / length); //Change meee!!
-                    fi.LookupParameter("GS_TotalArea").Set(totalArea);
                 }
-
-                //Log
-                txBox.Text = nrTotal.ToString();
-                //op.WriteDebugFile(mySettings.Default.debugFilePath, sbLog);
                 return Result.Succeeded;
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
                 throw new Exception(e.Message);
-                return Result.Failed;
             }
         }
 
