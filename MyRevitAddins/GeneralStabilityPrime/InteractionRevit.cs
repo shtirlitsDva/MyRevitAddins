@@ -100,9 +100,6 @@ namespace GeneralStability
                     ////Divide the largest X value by the step value to determine the number iterations in X direction
                     int nrOfX = (int)Math.Floor((Xmax - Xmin) / step);
 
-                    //Debug
-                    double[] X, Y; X = new double[4]; Y = new double[4];
-
                     //Iterate through the length of the current wall analyzing the load
                     for (int i = 0; i < nrOfX; i++)
                     {
@@ -139,6 +136,15 @@ namespace GeneralStability
                         if (wallPositive == null && StartPoint(bdPositive, trf).Y.FtToMillimeters().Equals(Ycur.FtToMillimeters())) isEdgePositive = true;
                         if (wallNegative == null && StartPoint(bdNegative, trf).Y.FtToMillimeters().Equals(Ycur.FtToMillimeters())) isEdgeNegative = true;
 
+                        //Prepare for roof load: if edge case detected select both boundaries
+                        if (isEdgePositive || isEdgeNegative)
+                        {
+                            if (bdPositive == null) bdPositive = boundaryX.MaxBy(x => StartPoint(x, trf).Y);
+                            if (bdNegative == null) bdNegative = boundaryX.MinBy(x => StartPoint(x, trf).Y);
+
+                            //TODO: Implement roof load here!
+                        }
+
                         //Init loop counters
                         int nrOfYPos, nrOfYNeg;
 
@@ -154,6 +160,8 @@ namespace GeneralStability
                         else if (isEdgeNegative) nrOfYNeg = 0;
                         else nrOfYNeg = (int)Math.Floor((-StartPoint(bdNegative, trf).Y + Ycur) / (2 * step));
 
+                        #region POSITIVE SIDE
+
                         //Iterate through the POSITIVE side
                         for (int j = 0; j < nrOfYPos; j++)
                         {
@@ -161,9 +169,9 @@ namespace GeneralStability
                             double loadIntensity = 0;
 
                             //Current y value
-                            double y1 = Ycur + j * step;
-                            double y2 = Ycur + (j + 1) * step;
-                            double yC = y1 + step / 2;
+                            double y1 = Ycur + j*step;
+                            double y2 = Ycur + (j + 1)*step;
+                            double yC = y1 + step/2;
 
                             //Determine the correct load intensity at the finite element centre point
                             XYZ cPointInOrigoCoords = new XYZ(xC, yC, 0);
@@ -174,18 +182,24 @@ namespace GeneralStability
                                 IntersectionResult result = faces[f].Project(cPointInGlobalCoords);
                                 if (result != null)
                                 {
-                                    string rawLoadIntensity = LoadAreas[f].get_Parameter(BuiltInParameter.ALL_MODEL_INSTANCE_COMMENTS).AsString();
+                                    string rawLoadIntensity =
+                                        LoadAreas[f].get_Parameter(BuiltInParameter.ALL_MODEL_INSTANCE_COMMENTS)
+                                            .AsString();
                                     loadIntensity = double.Parse(rawLoadIntensity, CultureInfo.InvariantCulture);
                                     break;
                                 }
                             }
 
                             //Collect the results
-                            double force = loadIntensity * areaSqrM;
+                            double force = loadIntensity*areaSqrM;
                             load = load + force;
                             nrTotal++;
                             totalArea += areaSqrM;
                         }
+
+                        #endregion
+                        
+                        #region NEGATIVE SIDE
 
                         //Iterate through the NEGATIVE side
                         for (int k = 0; k < nrOfYNeg; k++)
@@ -194,9 +208,9 @@ namespace GeneralStability
                             double loadIntensity = 0;
 
                             //Current y value
-                            double y1 = Ycur - k * step;
-                            double y2 = Ycur - (k + 1) * step;
-                            double yC = y1 - step / 2;
+                            double y1 = Ycur - k*step;
+                            double y2 = Ycur - (k + 1)*step;
+                            double yC = y1 - step/2;
 
                             //Determine the correct load intensity at the finite element centre point
                             XYZ cPointInOrigoCoords = new XYZ(xC, yC, 0);
@@ -207,19 +221,20 @@ namespace GeneralStability
                                 IntersectionResult result = faces[f].Project(cPointInGlobalCoords);
                                 if (result != null)
                                 {
-                                    string rawLoadIntensity = LoadAreas[f].get_Parameter(BuiltInParameter.ALL_MODEL_INSTANCE_COMMENTS).AsString();
+                                    string rawLoadIntensity =
+                                        LoadAreas[f].get_Parameter(BuiltInParameter.ALL_MODEL_INSTANCE_COMMENTS)
+                                            .AsString();
                                     loadIntensity = double.Parse(rawLoadIntensity, CultureInfo.InvariantCulture);
                                     break;
                                 }
                             }
-
                             //Collect the results
                             double force = loadIntensity * areaSqrM;
                             load = load + force;
                             nrTotal++;
                             totalArea += areaSqrM;
                         }
-
+                        #endregion
                     }
 
                     fi.LookupParameter("GS_Load").Set(load / length); //Change meee!!
@@ -453,69 +468,50 @@ namespace GeneralStability
         }
 
         /// <summary>
-        /// Returns the start point of the LocationCurve transformed to the reference coordinates.
+        /// Returns the start point of a Curve based Element.
         /// </summary>
-        /// <param name="fi">LocationCurve based FamilyInstance.</param>
-        /// <param name="trf">Inverse Transform of the reference coordinates.</param>
-        private static XYZ StartPoint(FamilyInstance fi, Transform trf)
+        /// <typeparam name="T">The type of the Element in question.</typeparam>
+        /// <param name="obj">The Element where to extract the start point.</param>
+        /// <param name="trf">The transform of the Origo.</param>
+        /// <returns>The start point of the Element's Curve as XYZ.</returns>
+        private static XYZ StartPoint<T>(T obj, Transform trf) where T : Element
         {
-            if (fi == null) return null;
-            LocationCurve loc = fi.Location as LocationCurve;
-            return trf.OfPoint(loc.Curve.GetEndPoint(0));
-        }
-
-        /// <summary>
-        /// Returns the start point of the CurveElement transformed to the reference coordinates.
-        /// </summary>
-        /// <param name="cu">CurveElement such as detail line.</param>
-        /// <param name="trf">Inverse Transform of the reference coordinates.</param>
-        private static XYZ StartPoint(CurveElement cu, Transform trf)
-        {
-            return trf.OfPoint(cu.GeometryCurve.GetEndPoint(0));
-        }
-
-        /// <summary>
-        /// Returns the start point of the Element transformed to the reference coordinates.
-        /// </summary>
-        /// <param name="el">Elements to retrieve from, it will be cast to proper type.</param>
-        /// <param name="trf">Inverse Transform of the reference coordinates.</param>
-        private static XYZ StartPoint(Element el, Transform trf)
-        {
-            if (el is FamilyInstance) return StartPoint((FamilyInstance)el, trf);
-            if (el is CurveElement) return StartPoint((CurveElement)el, trf);
+            if (obj == null) return null;
+            if (obj is FamilyInstance)
+            {
+                FamilyInstance fi = obj as FamilyInstance;
+                LocationCurve loc = fi.Location as LocationCurve;
+                return trf.OfPoint(loc.Curve.GetEndPoint(0));
+            }
+            if (obj is CurveElement)
+            {
+                CurveElement cu = obj as CurveElement;
+                return trf.OfPoint(cu.GeometryCurve.GetEndPoint(0));
+            }
             throw new Exception("Type not handled!");
         }
 
         /// <summary>
-        /// Returns the end point of the LocationCurve transformed to the reference coordinates.
+        /// Returns the start point of a Curve based Element.
         /// </summary>
-        /// <param name="fi">LocationCurve based FamilyInstance.</param>
-        /// <param name="trf">Inverse Transform of the reference coordinates.</param>
-        private static XYZ EndPoint(FamilyInstance fi, Transform trf)
+        /// <typeparam name="T">The type of the Element in question.</typeparam>
+        /// <param name="obj">The Element where to extract the start point.</param>
+        /// <param name="trf">The transform of the Origo.</param>
+        /// <returns>The start point of the Element's Curve as XYZ.</returns>
+        private static XYZ EndPoint<T>(T obj, Transform trf) where T : Element
         {
-            LocationCurve loc = fi.Location as LocationCurve;
-            return trf.OfPoint(loc.Curve.GetEndPoint(1));
-        }
-
-        /// <summary>
-        /// Returns the end point of the CurveElement transformed to the reference coordinates.
-        /// </summary>
-        /// <param name="cu">CurveElement such as detail line.</param>
-        /// <param name="trf">Inverse Transform of the reference coordinates.</param>
-        private static XYZ EndPoint(CurveElement cu, Transform trf)
-        {
-            return trf.OfPoint(cu.GeometryCurve.GetEndPoint(1));
-        }
-
-        /// <summary>
-        /// Returns the end point of the Element transformed to the reference coordinates.
-        /// </summary>
-        /// <param name="el">Elements to retrieve from, it will be cast to proper type.</param>
-        /// <param name="trf">Inverse Transform of the reference coordinates.</param>
-        private static XYZ EndPoint(Element el, Transform trf)
-        {
-            if (el is FamilyInstance) return EndPoint((FamilyInstance)el, trf);
-            if (el is CurveElement) return EndPoint((CurveElement)el, trf);
+            if (obj == null) return null;
+            if (obj is FamilyInstance)
+            {
+                FamilyInstance fi = obj as FamilyInstance;
+                LocationCurve loc = fi.Location as LocationCurve;
+                return trf.OfPoint(loc.Curve.GetEndPoint(1));
+            }
+            if (obj is CurveElement)
+            {
+                CurveElement cu = obj as CurveElement;
+                return trf.OfPoint(cu.GeometryCurve.GetEndPoint(1));
+            }
             throw new Exception("Type not handled!");
         }
 
