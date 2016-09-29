@@ -47,6 +47,7 @@ namespace GeneralStability
 
             //Init input items
             numericUpDown1.Value = mySettings.Default.integerStepSize;
+            textBox8.Text = mySettings.Default.roofLoadIntensity;
 
             //Clear the debug file
             System.IO.File.WriteAllBytes(_debugFilePath, new byte[0]);
@@ -187,6 +188,11 @@ namespace GeneralStability
         private void numericUpDown1_ValueChanged(object sender, EventArgs e)
         {
             mySettings.Default.integerStepSize = Convert.ToInt32(numericUpDown1.Value);
+        }
+
+        private void textBox8_TextChanged(object sender, EventArgs e)
+        {
+            mySettings.Default.roofLoadIntensity = textBox8.Text;
         }
     }
 }

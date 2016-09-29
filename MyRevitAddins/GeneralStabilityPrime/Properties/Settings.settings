@@ -11,5 +11,8 @@
     <Setting Name="integerStepSize" Type="System.Decimal" Scope="User">
       <Value Profile="(Default)">20</Value>
     </Setting>
+    <Setting Name="roofLoadIntensity" Type="System.String" Scope="User">
+      <Value Profile="(Default)">0</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

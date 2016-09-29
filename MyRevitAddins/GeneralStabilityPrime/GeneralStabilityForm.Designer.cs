@@ -44,6 +44,9 @@ namespace GeneralStability
             this.numericUpDown1 = new System.Windows.Forms.NumericUpDown();
             this.textBox4 = new System.Windows.Forms.TextBox();
             this.textBox5 = new System.Windows.Forms.TextBox();
+            this.textBox6 = new System.Windows.Forms.TextBox();
+            this.textBox7 = new System.Windows.Forms.TextBox();
+            this.textBox8 = new System.Windows.Forms.TextBox();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -73,7 +76,7 @@ namespace GeneralStability
             // 
             // button3
             // 
-            this.button3.Location = new System.Drawing.Point(12, 142);
+            this.button3.Location = new System.Drawing.Point(12, 321);
             this.button3.Name = "button3";
             this.button3.Size = new System.Drawing.Size(106, 46);
             this.button3.TabIndex = 0;
@@ -98,7 +101,7 @@ namespace GeneralStability
             // textBox2
             // 
             this.textBox2.DataBindings.Add(new System.Windows.Forms.Binding("Text", global::GeneralStability.Properties.Settings.Default, "debugFilePath", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
-            this.textBox2.Location = new System.Drawing.Point(12, 194);
+            this.textBox2.Location = new System.Drawing.Point(12, 373);
             this.textBox2.Name = "textBox2";
             this.textBox2.ReadOnly = true;
             this.textBox2.Size = new System.Drawing.Size(453, 20);
@@ -127,7 +130,7 @@ namespace GeneralStability
             // 
             // textBox3
             // 
-            this.textBox3.Location = new System.Drawing.Point(12, 379);
+            this.textBox3.Location = new System.Drawing.Point(12, 457);
             this.textBox3.Name = "textBox3";
             this.textBox3.ReadOnly = true;
             this.textBox3.Size = new System.Drawing.Size(339, 20);
@@ -135,7 +138,7 @@ namespace GeneralStability
             // 
             // button6
             // 
-            this.button6.Location = new System.Drawing.Point(185, 12);
+            this.button6.Location = new System.Drawing.Point(12, 142);
             this.button6.Name = "button6";
             this.button6.Size = new System.Drawing.Size(106, 46);
             this.button6.TabIndex = 2;
@@ -162,7 +165,7 @@ namespace GeneralStability
             this.textBox4.ReadOnly = true;
             this.textBox4.Size = new System.Drawing.Size(106, 13);
             this.textBox4.TabIndex = 4;
-            this.textBox4.Text = "Step size:";
+            this.textBox4.Text = "Step size for load calc:";
             // 
             // textBox5
             // 
@@ -174,11 +177,46 @@ namespace GeneralStability
             this.textBox5.TabIndex = 5;
             this.textBox5.Text = "mm";
             // 
+            // textBox6
+            // 
+            this.textBox6.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.textBox6.Location = new System.Drawing.Point(252, 187);
+            this.textBox6.Name = "textBox6";
+            this.textBox6.ReadOnly = true;
+            this.textBox6.Size = new System.Drawing.Size(39, 13);
+            this.textBox6.TabIndex = 8;
+            this.textBox6.Text = "kN/m²";
+            // 
+            // textBox7
+            // 
+            this.textBox7.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.textBox7.Location = new System.Drawing.Point(185, 159);
+            this.textBox7.Name = "textBox7";
+            this.textBox7.ReadOnly = true;
+            this.textBox7.Size = new System.Drawing.Size(106, 13);
+            this.textBox7.TabIndex = 7;
+            this.textBox7.Text = "Roof load intensity:";
+            // 
+            // textBox8
+            // 
+            this.textBox8.BackColor = System.Drawing.SystemColors.Window;
+            this.textBox8.DataBindings.Add(new System.Windows.Forms.Binding("Text", global::GeneralStability.Properties.Settings.Default, "roofLoadIntensity", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
+            this.textBox8.Location = new System.Drawing.Point(185, 184);
+            this.textBox8.Name = "textBox8";
+            this.textBox8.ReadOnly = true;
+            this.textBox8.Size = new System.Drawing.Size(61, 20);
+            this.textBox8.TabIndex = 9;
+            this.textBox8.Text = global::GeneralStability.Properties.Settings.Default.roofLoadIntensity;
+            this.textBox8.TextChanged += new System.EventHandler(this.textBox8_TextChanged);
+            // 
             // GeneralStabilityForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(477, 528);
+            this.Controls.Add(this.textBox8);
+            this.Controls.Add(this.textBox6);
+            this.Controls.Add(this.textBox7);
             this.Controls.Add(this.textBox5);
             this.Controls.Add(this.textBox4);
             this.Controls.Add(this.numericUpDown1);
@@ -215,5 +253,8 @@ namespace GeneralStability
         private System.Windows.Forms.NumericUpDown numericUpDown1;
         private System.Windows.Forms.TextBox textBox4;
         private System.Windows.Forms.TextBox textBox5;
+        private System.Windows.Forms.TextBox textBox6;
+        private System.Windows.Forms.TextBox textBox7;
+        private System.Windows.Forms.TextBox textBox8;
     }
 }

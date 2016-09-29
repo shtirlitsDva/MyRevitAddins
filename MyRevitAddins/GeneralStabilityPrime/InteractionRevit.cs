@@ -76,6 +76,9 @@ namespace GeneralStability
                 //The analysis proceeds in steps
                 double step = ((double)mySettings.Default.integerStepSize).MmToFeet();
 
+                //Roof load intensity
+                double roofLoadIntensity = double.Parse(mySettings.Default.roofLoadIntensity, CultureInfo.InvariantCulture);
+
                 //Area of finite element
                 double areaSqrM = (step * step).SqrFeetToSqrMeters();
 
@@ -142,7 +145,10 @@ namespace GeneralStability
                             if (bdPositive == null) bdPositive = boundaryX.MaxBy(x => StartPoint(x, trf).Y);
                             if (bdNegative == null) bdNegative = boundaryX.MinBy(x => StartPoint(x, trf).Y);
 
-                            //TODO: Implement roof load here!
+                            double widthRoofLoad = (StartPoint(bdPositive, trf).Y - StartPoint(bdNegative, trf).Y) / 2;
+                            double roofLoadArea = (widthRoofLoad * step).SqrFeetToSqrMeters();
+                            double roofLoad = roofLoadIntensity * roofLoadArea;
+                            load = load + roofLoad; //Write to the overall load variable
                         }
 
                         //Init loop counters
@@ -169,9 +175,9 @@ namespace GeneralStability
                             double loadIntensity = 0;
 
                             //Current y value
-                            double y1 = Ycur + j*step;
-                            double y2 = Ycur + (j + 1)*step;
-                            double yC = y1 + step/2;
+                            double y1 = Ycur + j * step;
+                            double y2 = Ycur + (j + 1) * step;
+                            double yC = y1 + step / 2;
 
                             //Determine the correct load intensity at the finite element centre point
                             XYZ cPointInOrigoCoords = new XYZ(xC, yC, 0);
@@ -191,14 +197,14 @@ namespace GeneralStability
                             }
 
                             //Collect the results
-                            double force = loadIntensity*areaSqrM;
+                            double force = loadIntensity * areaSqrM;
                             load = load + force;
                             nrTotal++;
                             totalArea += areaSqrM;
                         }
 
                         #endregion
-                        
+
                         #region NEGATIVE SIDE
 
                         //Iterate through the NEGATIVE side
@@ -208,9 +214,9 @@ namespace GeneralStability
                             double loadIntensity = 0;
 
                             //Current y value
-                            double y1 = Ycur - k*step;
-                            double y2 = Ycur - (k + 1)*step;
-                            double yC = y1 - step/2;
+                            double y1 = Ycur - k * step;
+                            double y2 = Ycur - (k + 1) * step;
+                            double yC = y1 - step / 2;
 
                             //Determine the correct load intensity at the finite element centre point
                             XYZ cPointInOrigoCoords = new XYZ(xC, yC, 0);
@@ -492,12 +498,12 @@ namespace GeneralStability
         }
 
         /// <summary>
-        /// Returns the start point of a Curve based Element.
+        /// Returns the end point of a Curve based Element.
         /// </summary>
         /// <typeparam name="T">The type of the Element in question.</typeparam>
-        /// <param name="obj">The Element where to extract the start point.</param>
+        /// <param name="obj">The Element where to extract the end point.</param>
         /// <param name="trf">The transform of the Origo.</param>
-        /// <returns>The start point of the Element's Curve as XYZ.</returns>
+        /// <returns>The end point of the Element's Curve as XYZ.</returns>
         private static XYZ EndPoint<T>(T obj, Transform trf) where T : Element
         {
             if (obj == null) return null;
