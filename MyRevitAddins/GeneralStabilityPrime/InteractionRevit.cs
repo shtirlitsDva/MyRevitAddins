@@ -100,6 +100,17 @@ namespace GeneralStability
                     //Længde af væggen
                     double length = (Xmax - Xmin).FtToMeters();
 
+                    //TODO: New implementation -- start here
+
+                    //Determine the elements in scope
+                    var wallsScope = (from FamilyInstance fin in Walls
+                                      where StartPoint(fin, trf).X >= Xmin && EndPoint(fin, trf).X <= Xmax
+                                      select fin).OrderBy(x => StartPoint(x, trf).Y);
+
+
+
+                    //TODO: Remove the nr 1 implementation below
+
                     ////Divide the largest X value by the step value to determine the number iterations in X direction
                     int nrOfX = (int)Math.Floor((Xmax - Xmin) / step);
 
