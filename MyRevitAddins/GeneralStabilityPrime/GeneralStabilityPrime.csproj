@@ -46,7 +46,7 @@
     </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="Ptc.MathcadPrime.Automation">
-      <HintPath>..\..\..\..\Programs\PTC\Mathcad Prime 3.1\Ptc.MathcadPrime.Automation.dll</HintPath>
+      <HintPath>..\..\..\..\Programs\Mathcad\Prime 3.1\Mathcad Prime 3.1\Ptc.MathcadPrime.Automation.dll</HintPath>
       <Private>True</Private>
       <EmbedInteropTypes>False</EmbedInteropTypes>
     </Reference>

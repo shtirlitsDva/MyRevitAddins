@@ -97,15 +97,6 @@
       <Isolated>False</Isolated>
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </COMReference>
-    <COMReference Include="MathcadAutomationPrivate">
-      <Guid>{EB26A1CE-6F1E-482E-96C0-38A6106BB0B4}</Guid>
-      <VersionMajor>1</VersionMajor>
-      <VersionMinor>2</VersionMinor>
-      <Lcid>0</Lcid>
-      <WrapperTool>tlbimp</WrapperTool>
-      <Isolated>False</Isolated>
-      <EmbedInteropTypes>True</EmbedInteropTypes>
-    </COMReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
