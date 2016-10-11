@@ -59,6 +59,9 @@ namespace GeneralStability
                 //Get the list of boundaries and walls (to simplify the synthax)
                 HashSet<CurveElement> Bd = BoundaryData.BoundaryLines;
                 HashSet<FamilyInstance> Walls = WallsAlong.WallSymbols;
+                HashSet<Element> BdAndWalls = new HashSet<Element>();
+                BdAndWalls.UnionWith(Bd);
+                BdAndWalls.UnionWith(Walls);
 
                 //Get the faces of filled regions
                 //Determine the intersection between the centre point of finite element and filled region symbolizing the load
@@ -82,6 +85,16 @@ namespace GeneralStability
                 //Area of finite element
                 double areaSqrM = (step * step).SqrFeetToSqrMeters();
 
+                //Create a list of ALL X Points of Interest ie. Start and End points
+                IList<XYZ> allPoiX = new List<XYZ>();
+                foreach (Element el in BdAndWalls)
+                {
+                    allPoiX.Add(StartPoint(el, trf));
+                    allPoiX.Add(EndPoint(el, trf));
+                }
+                //Clean list of duplicates and sort by value of X
+                allPoiX = allPoiX.DistinctBy(pt => pt.X.FtToMillimeters()).OrderBy(pt => pt.X.FtToMillimeters()).ToList();
+
                 foreach (FamilyInstance fi in Walls)
                 {
                     //Initialize variables
@@ -102,10 +115,11 @@ namespace GeneralStability
 
                     //TODO: New implementation -- start here
 
-                    //Determine the elements in scope
-                    var wallsScope = (from FamilyInstance fin in Walls
-                                      where StartPoint(fin, trf).X >= Xmin && EndPoint(fin, trf).X <= Xmax
-                                      select fin).OrderBy(x => StartPoint(x, trf).Y);
+                    //Determine the POIX in scope of the wall (POIX = Point Of Interest on X axis)
+                    var poixInScope = (from XYZ pt in allPoiX
+                                       where pt.X.FtToMillimeters() >= Xmin.FtToMillimeters() &&
+                                             pt.X.FtToMillimeters() <= Xmax.FtToMillimeters()
+                                       select pt).ToList();
 
 
 
