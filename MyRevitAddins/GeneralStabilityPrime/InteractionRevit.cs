@@ -121,36 +121,32 @@ namespace GeneralStability
                                              pt.X.FtToMillimeters() <= Xmax.FtToMillimeters()
                                        select pt).ToList();
 
-
-
-                    //TODO: Remove the nr 1 implementation below
-
-                    ////Divide the largest X value by the step value to determine the number iterations in X direction
-                    int nrOfX = (int)Math.Floor((Xmax - Xmin) / step);
-
-                    //Iterate through the length of the current wall analyzing the load
-                    for (int i = 0; i < nrOfX; i++)
+                    //Iterate through the load areas
+                    for (int i = 0; i < poixInScope.Count - 1; i++) //<- -1 because theres 1 less areas than points
                     {
-                        //Current x value
-                        double x1 = Xmin + i * step;
-                        double x2 = Xmin + (i + 1) * step;
-                        double xC = x1 + step / 2;
+                        //Determine the X value in the middle of the span to be able to get relevant walls
+                        double x1 = poixInScope[i].X;
+                        double x2 = poixInScope[i + 1].X;
+                        double xC = (x1 + (x2 - x1) / 2).FtToMillimeters();
 
-                        //Determine relevant walls (that means the walls which are crossed by the current X value iteration)
+                        //Determine relevant walls (that means the walls which are crossed by the current Xcentre value iteration)
                         var wallsX = (from FamilyInstance fin in Walls
-                                      where StartPoint(fin, trf).X <= xC && EndPoint(fin, trf).X >= xC
+                                      where StartPoint(fin, trf).X.FtToMillimeters() <= xC &&
+                                            EndPoint(fin, trf).X.FtToMillimeters() >= xC
                                       select fin).OrderBy(x => StartPoint(x, trf).Y); //<- Not using Descending because the list is defined from up to down
 
-                        //Determine relevant walls (that means the walls which are crossed by the current X value iteration)
+                        //Determine relevant boundaries (that means the boundaries which are crossed by the current Xcentre value iteration)
                         var boundaryX = (from CurveElement cue in Bd
-                                         where StartPoint(cue, trf).X <= xC && EndPoint(cue, trf).X >= xC
+                                         where StartPoint(cue, trf).X.FtToMillimeters() <= xC &&
+                                               EndPoint(cue, trf).X.FtToMillimeters() >= xC
                                          select cue).ToHashSet();
 
                         //First handle the walls
+                        //Create a linked list to be able select previous and next elements in sequence
                         var wallsXlinked = new LinkedList<FamilyInstance>(wallsX);
-                        var listNode1 = wallsXlinked.Find(fi);
-                        var wallPositive = listNode1?.Next?.Value;
-                        var wallNegative = listNode1?.Previous?.Value;
+                        var node = wallsXlinked.Find(fi);
+                        var wallPositive = node?.Next?.Value;
+                        var wallNegative = node?.Previous?.Value;
 
                         //Select boundaries if no walls found at location
                         CurveElement bdPositive = null, bdNegative = null;
@@ -171,10 +167,29 @@ namespace GeneralStability
                             if (bdNegative == null) bdNegative = boundaryX.MinBy(x => StartPoint(x, trf).Y);
 
                             double widthRoofLoad = (StartPoint(bdPositive, trf).Y - StartPoint(bdNegative, trf).Y) / 2;
-                            double roofLoadArea = (widthRoofLoad * step).SqrFeetToSqrMeters();
+                            double roofLoadArea = (widthRoofLoad * (x2 - x1)).SqrFeetToSqrMeters();
                             double roofLoad = roofLoadIntensity * roofLoadArea;
                             load = load + roofLoad; //Write to the overall load variable
                         }
+
+
+
+                        //TODO: Remove the nr 1 implementation below
+
+                        ////Divide the largest X value by the step value to determine the number iterations in X direction
+                        int nrOfX = (int)Math.Floor((Xmax - Xmin) / step);
+
+
+
+
+
+
+
+
+
+
+
+
 
                         //Init loop counters
                         int nrOfYPos, nrOfYNeg;
