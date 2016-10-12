@@ -164,7 +164,7 @@ namespace GeneralStability
                 int NrOfTotal = 0;
 
                 var watch = System.Diagnostics.Stopwatch.StartNew();
-                Result result = ir.CalculateLoads(ref NrOfTotal);
+                Result result = ir.CalculateLoads(doc, ref NrOfTotal);
                 watch.Stop();
 
                 TimeSpan time = watch.Elapsed;

@@ -45,7 +45,7 @@ namespace GeneralStability
 
         #region LoadCalculation
 
-        public Result CalculateLoads(ref int totalLoops)
+        public Result CalculateLoads(Document doc, ref int totalLoops)
         {
             try
             {
@@ -99,7 +99,7 @@ namespace GeneralStability
                 {
                     //Initialize variables
                     double load = 0;
-                    double totalArea = 0;
+                    //double totalArea = 0;
 
                     //Determine the start X
                     double Xmin = StartPoint(fi, trf).X;
@@ -120,6 +120,9 @@ namespace GeneralStability
                                        where pt.X.FtToMillimeters() >= Xmin.FtToMillimeters() &&
                                              pt.X.FtToMillimeters() <= Xmax.FtToMillimeters()
                                        select pt).ToList();
+
+                    //Declare the List to gather the GeometricalObjects
+                    List<GeometryObject> geometryList = new List<GeometryObject>();
 
                     //Iterate through the load areas
                     for (int i = 0; i < poixInScope.Count - 1; i++) //<- -1 because theres 1 less areas than points
@@ -172,119 +175,91 @@ namespace GeneralStability
                             load = load + roofLoad; //Write to the overall load variable
                         }
 
+                        //Process the positive and negative side
+                        //Create points along wall in global coords
+                        XYZ Px1 = trfO.OfPoint(new XYZ(x1, Ycur, 0));
+                        XYZ Px2 = trfO.OfPoint(new XYZ(x2, Ycur, 0));
 
+                        //Declare Y values
+                        double yP, yN;
+                        //Positive side
+                        if (!isEdgePositive)
+                        {
+                            //Calculate Y values
+                            if (wallPositive != null) yP = Ycur + (StartPoint(wallPositive, trf).Y - Ycur) / 2;
+                            else yP = Ycur + (StartPoint(bdPositive, trf).Y - Ycur) / 2;
 
-                        //TODO: Remove the nr 1 implementation below
+                            //Create points from the X and Y values
+                            XYZ PxP1 = trfO.OfPoint(new XYZ(x1, yP, 0));
+                            XYZ PxP2 = trfO.OfPoint(new XYZ(x2, yP, 0));
 
-                        ////Divide the largest X value by the step value to determine the number iterations in X direction
-                        int nrOfX = (int)Math.Floor((Xmax - Xmin) / step);
+                            //Create a list of vertices to feed the solid builder
+                            IList<XYZ> vertices = new List<XYZ>();
+                            vertices.Add(Px1);
+                            vertices.Add(Px2);
+                            vertices.Add(PxP2);
+                            vertices.Add(PxP1);
 
+                            ////Create the single faced solid
+                            //Solid solid = CreateSolid(vertices);
+                            //Face face = solid.Faces.get_Item(0);
+                            IList<GeometryObject> positiveList = CreateSolid(vertices);
+                            geometryList.AddRange(positiveList);
 
-
-
-
-
-
-
-
-
-
-
-
-                        //Init loop counters
-                        int nrOfYPos, nrOfYNeg;
-
-                        //Determine number of iterations in Y direction POSITIVE handling all cases
-                        //The 2* multiplier on step makes sure that iteration only happens on the half of the span
-                        if (wallPositive != null) nrOfYPos = (int)Math.Floor((StartPoint(wallPositive, trf).Y - Ycur) / (2 * step));
-                        else if (isEdgePositive) nrOfYPos = 0;
-                        else nrOfYPos = (int)Math.Floor((StartPoint(bdPositive, trf).Y - Ycur) / (2 * step));
-
-                        //Determine number of iterations in Y direction NEGATIVE handling all cases
-                        //The 2* multiplier on step makes sure that iteration only happens on the half of the span
-                        if (wallNegative != null) nrOfYNeg = (int)Math.Floor((-StartPoint(wallNegative, trf).Y + Ycur) / (2 * step));
-                        else if (isEdgeNegative) nrOfYNeg = 0;
-                        else nrOfYNeg = (int)Math.Floor((-StartPoint(bdNegative, trf).Y + Ycur) / (2 * step));
+                            nrTotal++;
+                        }
+                        
+                        //Negative side
+                        if (!isEdgeNegative)
+                        {
+                            if (wallNegative != null) yN = StartPoint(wallNegative, trf).Y + (Ycur - StartPoint(wallNegative, trf).Y) / 2;
+                            else yN = StartPoint(bdNegative, trf).Y + (Ycur - StartPoint(bdNegative, trf).Y) / 2;
+                        }
 
                         #region POSITIVE SIDE
 
-                        //Iterate through the POSITIVE side
-                        for (int j = 0; j < nrOfYPos; j++)
-                        {
-                            //Init intermediate result variable
-                            double loadIntensity = 0;
+                        ////Iterate through the POSITIVE side
+                        //for (int j = 0; j < nrOfYPos; j++)
+                        //{
+                        //    //Init intermediate result variable
+                        //    double loadIntensity = 0;
 
-                            //Current y value
-                            double y1 = Ycur + j * step;
-                            double y2 = Ycur + (j + 1) * step;
-                            double yC = y1 + step / 2;
+                        //    //Current y value
+                        //    double y1 = Ycur + j * step;
+                        //    double y2 = Ycur + (j + 1) * step;
+                        //    double yC = y1 + step / 2;
 
-                            //Determine the correct load intensity at the finite element centre point
-                            XYZ cPointInOrigoCoords = new XYZ(xC, yC, 0);
-                            XYZ cPointInGlobalCoords = trfO.OfPoint(cPointInOrigoCoords);
+                        //    //Determine the correct load intensity at the finite element centre point
+                        //    XYZ cPointInOrigoCoords = new XYZ(xC, yC, 0);
+                        //    XYZ cPointInGlobalCoords = trfO.OfPoint(cPointInOrigoCoords);
 
-                            for (int f = 0; f < faces.Count; f++)
-                            {
-                                IntersectionResult result = faces[f].Project(cPointInGlobalCoords);
-                                if (result != null)
-                                {
-                                    string rawLoadIntensity =
-                                        LoadAreas[f].get_Parameter(BuiltInParameter.ALL_MODEL_INSTANCE_COMMENTS)
-                                            .AsString();
-                                    loadIntensity = double.Parse(rawLoadIntensity, CultureInfo.InvariantCulture);
-                                    break;
-                                }
-                            }
+                        //    for (int f = 0; f < faces.Count; f++)
+                        //    {
+                        //        IntersectionResult result = faces[f].Project(cPointInGlobalCoords);
+                        //        if (result != null)
+                        //        {
+                        //            string rawLoadIntensity =
+                        //                LoadAreas[f].get_Parameter(BuiltInParameter.ALL_MODEL_INSTANCE_COMMENTS)
+                        //                    .AsString();
+                        //            loadIntensity = double.Parse(rawLoadIntensity, CultureInfo.InvariantCulture);
+                        //            break;
+                        //        }
+                        //    }
 
-                            //Collect the results
-                            double force = loadIntensity * areaSqrM;
-                            load = load + force;
-                            nrTotal++;
-                            totalArea += areaSqrM;
-                        }
+                        //    //Collect the results
+                        //    double force = loadIntensity * areaSqrM;
+                        //    load = load + force;
+                            
+                        //    totalArea += areaSqrM;
+                        //}
 
-                        #endregion
-
-                        #region NEGATIVE SIDE
-
-                        //Iterate through the NEGATIVE side
-                        for (int k = 0; k < nrOfYNeg; k++)
-                        {
-                            //Init intermediate result variable
-                            double loadIntensity = 0;
-
-                            //Current y value
-                            double y1 = Ycur - k * step;
-                            double y2 = Ycur - (k + 1) * step;
-                            double yC = y1 - step / 2;
-
-                            //Determine the correct load intensity at the finite element centre point
-                            XYZ cPointInOrigoCoords = new XYZ(xC, yC, 0);
-                            XYZ cPointInGlobalCoords = trfO.OfPoint(cPointInOrigoCoords);
-
-                            for (int f = 0; f < faces.Count; f++)
-                            {
-                                IntersectionResult result = faces[f].Project(cPointInGlobalCoords);
-                                if (result != null)
-                                {
-                                    string rawLoadIntensity =
-                                        LoadAreas[f].get_Parameter(BuiltInParameter.ALL_MODEL_INSTANCE_COMMENTS)
-                                            .AsString();
-                                    loadIntensity = double.Parse(rawLoadIntensity, CultureInfo.InvariantCulture);
-                                    break;
-                                }
-                            }
-                            //Collect the results
-                            double force = loadIntensity * areaSqrM;
-                            load = load + force;
-                            nrTotal++;
-                            totalArea += areaSqrM;
-                        }
                         #endregion
                     }
 
-                    fi.LookupParameter("GS_Load").Set(load / length); //Change meee!!
-                    fi.LookupParameter("GS_TotalArea").Set(totalArea);
+                    CreateDirectShape(doc, geometryList);
+
+                    //fi.LookupParameter("GS_Load").Set(load / length); //Change meee!!
+                    //fi.LookupParameter("GS_TotalArea").Set(totalArea);
                 }
 
                 totalLoops = nrTotal;
@@ -590,6 +565,38 @@ namespace GeneralStability
                 return solid.Faces.get_Item(0);
             }
             return null;
+        }
+
+        /// <summary>
+        /// Creates a solid from a list of points. Intented to create single face solids for solid operations.
+        /// </summary>
+        /// <param name="vertices">A list of XYZ vertices of the face.</param>
+        /// <returns>A solid consisting of one face.</returns>
+        private static IList<GeometryObject> CreateSolid(IList<XYZ> vertices)
+        {
+            TessellatedShapeBuilder builder = new TessellatedShapeBuilder();
+            //http://thebuildingcoder.typepad.com/blog/2014/05/directshape-performance-and-minimum-size.html
+            builder.OpenConnectedFaceSet(false);
+            builder.AddFace(new TessellatedFace(vertices, ElementId.InvalidElementId));
+            builder.CloseConnectedFaceSet();
+            builder.Build();
+            TessellatedShapeBuilderResult result = builder.GetBuildResult();
+            IList<GeometryObject> resultList = result.GetGeometricalObjects();
+            return resultList;
+        }
+
+        private static DirectShape CreateDirectShape(Document doc, IList<GeometryObject> resultList)
+        {
+            DirectShape ds = DirectShape.CreateElement(doc, new ElementId(BuiltInCategory.OST_GenericModel));
+            ds.ApplicationId = "Application id";
+            ds.ApplicationDataId = "Geometry object id";
+            ds.Name = "Load area";
+            DirectShapeOptions dso = ds.GetOptions();
+            dso.ReferencingOption = DirectShapeReferencingOption.Referenceable;
+            ds.SetOptions(dso);
+            ds.SetShape(resultList);
+            doc.Regenerate();
+            return ds;
         }
     }
 
