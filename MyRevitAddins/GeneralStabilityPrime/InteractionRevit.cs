@@ -123,6 +123,7 @@ namespace GeneralStability
 
                     //Declare the List to gather the GeometricalObjects
                     List<GeometryObject> geometryList = new List<GeometryObject>();
+                    IList<TessellatedFace> faceList = new List<TessellatedFace>();
 
                     //Iterate through the load areas
                     for (int i = 0; i < poixInScope.Count - 1; i++) //<- -1 because theres 1 less areas than points
@@ -200,15 +201,18 @@ namespace GeneralStability
                             vertices.Add(PxP2);
                             vertices.Add(PxP1);
 
+                            TessellatedFace face = new TessellatedFace(vertices, ElementId.InvalidElementId);
+                            faceList.Add(face);
+
                             ////Create the single faced solid
                             //Solid solid = CreateSolid(vertices);
                             //Face face = solid.Faces.get_Item(0);
-                            IList<GeometryObject> positiveList = CreateSolid(vertices);
-                            geometryList.AddRange(positiveList);
+                            //IList<GeometryObject> positiveList = CreateSolid(vertices);
+                            //geometryList.AddRange(positiveList);
 
                             nrTotal++;
                         }
-                        
+
                         //Negative side
                         if (!isEdgeNegative)
                         {
@@ -249,14 +253,19 @@ namespace GeneralStability
                         //    //Collect the results
                         //    double force = loadIntensity * areaSqrM;
                         //    load = load + force;
-                            
+
                         //    totalArea += areaSqrM;
                         //}
 
                         #endregion
                     }
 
-                    CreateDirectShape(doc, geometryList);
+                    if (faceList.Count > 0)
+                    {
+                        geometryList.AddRange(CreateSolid(faceList));
+                        CreateDirectShape(doc, geometryList);
+                    }
+
 
                     //fi.LookupParameter("GS_Load").Set(load / length); //Change meee!!
                     //fi.LookupParameter("GS_TotalArea").Set(totalArea);
@@ -572,17 +581,28 @@ namespace GeneralStability
         /// </summary>
         /// <param name="vertices">A list of XYZ vertices of the face.</param>
         /// <returns>A solid consisting of one face.</returns>
-        private static IList<GeometryObject> CreateSolid(IList<XYZ> vertices)
+        private static IList<GeometryObject> CreateSolid(IList<TessellatedFace> faces)
         {
             TessellatedShapeBuilder builder = new TessellatedShapeBuilder();
             //http://thebuildingcoder.typepad.com/blog/2014/05/directshape-performance-and-minimum-size.html
             builder.OpenConnectedFaceSet(false);
-            builder.AddFace(new TessellatedFace(vertices, ElementId.InvalidElementId));
+            foreach (TessellatedFace face in faces)
+            {
+                builder.AddFace(face);
+            }
+            //builder.AddFace(new TessellatedFace(vertices, ElementId.InvalidElementId));
             builder.CloseConnectedFaceSet();
             builder.Build();
             TessellatedShapeBuilderResult result = builder.GetBuildResult();
             IList<GeometryObject> resultList = result.GetGeometricalObjects();
-            return resultList;
+            Solid original = resultList[0] as Solid;
+            for (int i = 0; i < resultList.Count; i++)
+            {
+                original = BooleanOperationsUtils.ExecuteBooleanOperation(original, resultList[i] as Solid,
+                    BooleanOperationsType.Union);
+            }
+            BooleanOperationsUtils.
+            //return resultList;
         }
 
         private static DirectShape CreateDirectShape(Document doc, IList<GeometryObject> resultList)
