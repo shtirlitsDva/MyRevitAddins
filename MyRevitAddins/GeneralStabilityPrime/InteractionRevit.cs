@@ -7,6 +7,7 @@ using System.Linq;
 using MoreLinq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using Autodesk.Revit.UI;
 using Shared;
 using Autodesk.Revit.DB;
@@ -596,13 +597,11 @@ namespace GeneralStability
             TessellatedShapeBuilderResult result = builder.GetBuildResult();
             IList<GeometryObject> resultList = result.GetGeometricalObjects();
             Solid original = resultList[0] as Solid;
-            for (int i = 0; i < resultList.Count; i++)
-            {
-                original = BooleanOperationsUtils.ExecuteBooleanOperation(original, resultList[i] as Solid,
-                    BooleanOperationsType.Union);
-            }
-            BooleanOperationsUtils.
-            //return resultList;
+            original = resultList.Aggregate(original, (current, t) =>
+                       BooleanOperationsUtils.ExecuteBooleanOperation(current, t as Solid, BooleanOperationsType.Union));
+            IList<GeometryObject> combined = new List<GeometryObject>();
+            combined.Add(original);
+            return combined;
         }
 
         private static DirectShape CreateDirectShape(Document doc, IList<GeometryObject> resultList)
