@@ -14,6 +14,7 @@ using Autodesk.Revit.DB;
 using fi = Shared.Filter;
 using ut = Shared.Util;
 using op = Shared.Output;
+using tr = Shared.Transformation;
 using mySettings = GeneralStability.Properties.Settings;
 using TxBox = System.Windows.Forms.TextBox;
 
@@ -122,10 +123,6 @@ namespace GeneralStability
                                              pt.X.FtToMillimeters() <= Xmax.FtToMillimeters()
                                        select pt).ToList();
 
-                    //Declare the List to gather the GeometricalObjects
-                    List<GeometryObject> geometryList = new List<GeometryObject>();
-                    IList<TessellatedFace> faceList = new List<TessellatedFace>();
-
                     //Iterate through the load areas
                     for (int i = 0; i < poixInScope.Count - 1; i++) //<- -1 because theres 1 less areas than points
                     {
@@ -178,96 +175,71 @@ namespace GeneralStability
                         }
 
                         //Process the positive and negative side
-                        //Create points along wall in global coords
-                        XYZ Px1 = trfO.OfPoint(new XYZ(x1, Ycur, 0));
-                        XYZ Px2 = trfO.OfPoint(new XYZ(x2, Ycur, 0));
-
                         //Declare Y values
                         double yP, yN;
-                        //Positive side
+
+                        //Declare combining list for vertices
+                        List<XYZ> vertices = new List<XYZ>();
+                        //Add points along the wall if one is edge case
+                        if (isEdgePositive || isEdgeNegative)
+                        {
+                            vertices.Add(trfO.OfPoint(new XYZ(x1.Round4(), Ycur.Round4(), 0)));
+                            vertices.Add(trfO.OfPoint(new XYZ(x2.Round4(), Ycur.Round4(), 0)));
+                        }
+
+
+                        #region Positive side
+
                         if (!isEdgePositive)
                         {
                             //Calculate Y values
-                            if (wallPositive != null) yP = Ycur + (StartPoint(wallPositive, trf).Y - Ycur) / 2;
-                            else yP = Ycur + (StartPoint(bdPositive, trf).Y - Ycur) / 2;
+                            if (wallPositive != null) yP = Ycur + (StartPoint(wallPositive, trf).Y - Ycur)/2;
+                            else yP = Ycur + (StartPoint(bdPositive, trf).Y - Ycur)/2;
 
                             //Create points from the X and Y values
-                            XYZ PxP1 = trfO.OfPoint(new XYZ(x1, yP, 0));
-                            XYZ PxP2 = trfO.OfPoint(new XYZ(x2, yP, 0));
+                            XYZ PxP1 = trfO.OfPoint(new XYZ(x1.Round4(), yP.Round4(), 0));
+                            XYZ PxP2 = trfO.OfPoint(new XYZ(x2.Round4(), yP.Round4(), 0));
 
                             //Create a list of vertices to feed the solid builder
-                            IList<XYZ> vertices = new List<XYZ>();
-                            vertices.Add(Px1);
-                            vertices.Add(Px2);
-                            vertices.Add(PxP2);
                             vertices.Add(PxP1);
-
-                            TessellatedFace face = new TessellatedFace(vertices, ElementId.InvalidElementId);
-                            faceList.Add(face);
-
-                            ////Create the single faced solid
-                            //Solid solid = CreateSolid(vertices);
-                            //Face face = solid.Faces.get_Item(0);
-                            //IList<GeometryObject> positiveList = CreateSolid(vertices);
-                            //geometryList.AddRange(positiveList);
+                            vertices.Add(PxP2);
 
                             nrTotal++;
                         }
 
-                        //Negative side
+                        #endregion
+
+
+                        #region Negative side
+
                         if (!isEdgeNegative)
                         {
-                            if (wallNegative != null) yN = StartPoint(wallNegative, trf).Y + (Ycur - StartPoint(wallNegative, trf).Y) / 2;
-                            else yN = StartPoint(bdNegative, trf).Y + (Ycur - StartPoint(bdNegative, trf).Y) / 2;
+                            if (wallNegative != null)
+                                yN = StartPoint(wallNegative, trf).Y + (Ycur - StartPoint(wallNegative, trf).Y)/2;
+                            else yN = StartPoint(bdNegative, trf).Y + (Ycur - StartPoint(bdNegative, trf).Y)/2;
+
+                            //Create points from the X and Y values
+                            XYZ PxN1 = trfO.OfPoint(new XYZ(x1.Round4(), yN.Round4(), 0));
+                            XYZ PxN2 = trfO.OfPoint(new XYZ(x2.Round4(), yN.Round4(), 0));
+
+                            //Create a list of vertices to feed the solid builder
+                            vertices.Add(PxN1);
+                            vertices.Add(PxN2);
+
+                            nrTotal++;
                         }
-
-                        #region POSITIVE SIDE
-
-                        ////Iterate through the POSITIVE side
-                        //for (int j = 0; j < nrOfYPos; j++)
-                        //{
-                        //    //Init intermediate result variable
-                        //    double loadIntensity = 0;
-
-                        //    //Current y value
-                        //    double y1 = Ycur + j * step;
-                        //    double y2 = Ycur + (j + 1) * step;
-                        //    double yC = y1 + step / 2;
-
-                        //    //Determine the correct load intensity at the finite element centre point
-                        //    XYZ cPointInOrigoCoords = new XYZ(xC, yC, 0);
-                        //    XYZ cPointInGlobalCoords = trfO.OfPoint(cPointInOrigoCoords);
-
-                        //    for (int f = 0; f < faces.Count; f++)
-                        //    {
-                        //        IntersectionResult result = faces[f].Project(cPointInGlobalCoords);
-                        //        if (result != null)
-                        //        {
-                        //            string rawLoadIntensity =
-                        //                LoadAreas[f].get_Parameter(BuiltInParameter.ALL_MODEL_INSTANCE_COMMENTS)
-                        //                    .AsString();
-                        //            loadIntensity = double.Parse(rawLoadIntensity, CultureInfo.InvariantCulture);
-                        //            break;
-                        //        }
-                        //    }
-
-                        //    //Collect the results
-                        //    double force = loadIntensity * areaSqrM;
-                        //    load = load + force;
-
-                        //    totalArea += areaSqrM;
-                        //}
-
                         #endregion
+
+
+                        vertices = vertices.DistinctBy(xyz => new { xyz.X, xyz.Y }).ToList();
+                        vertices = tr.ConvexHull(vertices);
+
+                        CreateSolid(vertices);
+
+                        //CreateDirectShape(doc, CreateSolid(vertices));
+
                     }
-
-                    if (faceList.Count > 0)
-                    {
-                        geometryList.AddRange(CreateSolid(faceList));
-                        CreateDirectShape(doc, geometryList);
-                    }
-
-
+                    
                     //fi.LookupParameter("GS_Load").Set(load / length); //Change meee!!
                     //fi.LookupParameter("GS_TotalArea").Set(totalArea);
                 }
@@ -279,6 +251,7 @@ namespace GeneralStability
             {
                 Console.WriteLine(e);
                 throw new Exception(e.Message);
+                //return Result.Succeeded;
             }
         }
 
@@ -582,26 +555,16 @@ namespace GeneralStability
         /// </summary>
         /// <param name="vertices">A list of XYZ vertices of the face.</param>
         /// <returns>A solid consisting of one face.</returns>
-        private static IList<GeometryObject> CreateSolid(IList<TessellatedFace> faces)
+        private static IList<GeometryObject> CreateSolid(IList<XYZ> vertices)
         {
             TessellatedShapeBuilder builder = new TessellatedShapeBuilder();
             //http://thebuildingcoder.typepad.com/blog/2014/05/directshape-performance-and-minimum-size.html
             builder.OpenConnectedFaceSet(false);
-            foreach (TessellatedFace face in faces)
-            {
-                builder.AddFace(face);
-            }
-            //builder.AddFace(new TessellatedFace(vertices, ElementId.InvalidElementId));
+            builder.AddFace(new TessellatedFace(vertices, ElementId.InvalidElementId));
             builder.CloseConnectedFaceSet();
             builder.Build();
             TessellatedShapeBuilderResult result = builder.GetBuildResult();
-            IList<GeometryObject> resultList = result.GetGeometricalObjects();
-            Solid original = resultList[0] as Solid;
-            original = resultList.Aggregate(original, (current, t) =>
-                       BooleanOperationsUtils.ExecuteBooleanOperation(current, t as Solid, BooleanOperationsType.Union));
-            IList<GeometryObject> combined = new List<GeometryObject>();
-            combined.Add(original);
-            return combined;
+            return result.GetGeometricalObjects();
         }
 
         private static DirectShape CreateDirectShape(Document doc, IList<GeometryObject> resultList)

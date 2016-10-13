@@ -50,7 +50,7 @@ namespace GeneralStability
             textBox8.Text = mySettings.Default.roofLoadIntensity;
 
             //Clear the debug file
-            System.IO.File.WriteAllBytes(_debugFilePath, new byte[0]);
+            //System.IO.File.WriteAllBytes(_debugFilePath, new byte[0]);
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -135,13 +135,7 @@ namespace GeneralStability
                 InteractionRevit ir = new InteractionRevit(doc);
 
                 trans.Start("Interaction Revit Debug");
-                //var watch = System.Diagnostics.Stopwatch.StartNew();
                 Result result = ir.DrawLoadAreas(doc);
-                //watch.Stop();
-                //TimeSpan time = watch.Elapsed;
-                //string text = textBox3.Text;
-                //text = text + ". Time: " + time.TotalMinutes+" min, "+time.TotalSeconds+" sec.";
-                //textBox3.Text = text;
                 if (result == Result.Succeeded)
                 {
                     trans.Commit();
@@ -172,9 +166,9 @@ namespace GeneralStability
                 if (result == Result.Succeeded)
                 {
                     trans.Commit();
-                    string text = "Load calculation succeeded!\n" + 
-                                  "Total points analyzed: " + NrOfTotal + "\n" + 
-                                  "Time elapsed: H" + time.Hours + ":M" + time.Minutes + ":S" + time.Seconds;
+                    string text = "Load calculation succeeded!\n" +
+                                  "Total points analyzed: " + NrOfTotal + "\n" +
+                                  "Time elapsed: H" + time.Hours + ":M" + time.Minutes + ":S" + time.Seconds + ":MS" + time.Milliseconds;
                     Util.InfoMsg(text);
                 }
                 else

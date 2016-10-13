@@ -25,7 +25,7 @@ namespace GeneralStability.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        [global::System.Configuration.DefaultSettingValueAttribute("C:\\")]
         public string _worksheetPath {
             get {
                 return ((string)(this["_worksheetPath"]));
@@ -37,7 +37,7 @@ namespace GeneralStability.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        [global::System.Configuration.DefaultSettingValueAttribute("C:\\")]
         public string debugFilePath {
             get {
                 return ((string)(this["debugFilePath"]));

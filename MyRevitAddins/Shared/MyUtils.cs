@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.DB.Plumbing;
+using MoreLinq;
 
 namespace Shared
 {
@@ -200,14 +201,49 @@ namespace Shared
             return Util.SqrFootToSqrMeter(number);
         }
 
-        public static double myAbs(this Double number)
+        public static double Round4(this Double number)
         {
-            return number > 0 ? number : -number;
+            return Math.Round(number, 4, MidpointRounding.AwayFromZero);
         }
 
         public static bool IsEqual(this XYZ p, XYZ q)
         {
             return 0 == Util.Compare(p, q);
         }
+    }
+
+    public static class Transformation
+    {
+        #region Convex Hull
+        /// <summary>
+        /// Return the convex hull of a list of points 
+        /// using the Jarvis march or Gift wrapping:
+        /// https://en.wikipedia.org/wiki/Gift_wrapping_algorithm
+        /// Written by Maxence.
+        /// </summary>
+        public static List<XYZ> ConvexHull(List<XYZ> points)
+        {
+            if (points == null) throw new ArgumentNullException(nameof(points));
+            XYZ startPoint = points.MinBy(p => p.X);
+            var convexHullPoints = new List<XYZ>();
+            XYZ walkingPoint = startPoint;
+            XYZ refVector = XYZ.BasisY.Negate();
+            do
+            {
+                convexHullPoints.Add(walkingPoint);
+                XYZ wp = walkingPoint;
+                XYZ rv = refVector;
+                walkingPoint = points.MinBy(p =>
+                {
+                    double angle = (p - wp).AngleOnPlaneTo(rv, XYZ.BasisZ);
+                    if (angle < 1e-10) angle = 2 * Math.PI;
+                    return angle;
+                });
+                refVector = wp - walkingPoint;
+            } while (walkingPoint != startPoint);
+            convexHullPoints.Reverse();
+            return convexHullPoints;
+        }
+        #endregion // Convex Hull
     }
 }
