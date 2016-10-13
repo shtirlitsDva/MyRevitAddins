@@ -65,27 +65,15 @@ namespace GeneralStability
                 BdAndWalls.UnionWith(Bd);
                 BdAndWalls.UnionWith(Walls);
 
-                //Get the faces of filled regions
-                //Determine the intersection between the centre point of finite element and filled region symbolizing the load
-                IList<Face> faces = new List<Face>();
-
+                //Get the solids of filled regions
                 Options options = new Options();
                 options.ComputeReferences = true;
                 options.View = LoadData.GS_View;
 
-                //Optimization: order filled regions by size: Descending = Largest first
-                var LoadAreas = LoadData.LoadAreas.OrderByDescending(x => GetFace(x, options).Area).ToList();
-
-                foreach (FilledRegion fr in LoadAreas) faces.Add(GetFace(fr, options));
-
-                //The analysis proceeds in steps
-                double step = ((double)mySettings.Default.integerStepSize).MmToFeet();
-
+                var LoadAreas = LoadData.LoadAreas.Select(x => GetSolid(x, options)).ToHashSet();
+                
                 //Roof load intensity
                 double roofLoadIntensity = double.Parse(mySettings.Default.roofLoadIntensity, CultureInfo.InvariantCulture);
-
-                //Area of finite element
-                double areaSqrM = (step * step).SqrFeetToSqrMeters();
 
                 //Create a list of ALL X Points of Interest ie. Start and End points
                 IList<XYZ> allPoiX = new List<XYZ>();
@@ -234,7 +222,13 @@ namespace GeneralStability
                         vertices = vertices.DistinctBy(xyz => new { xyz.X, xyz.Y }).ToList();
                         vertices = tr.ConvexHull(vertices);
 
-                        CreateSolid(vertices);
+                        Solid wallLoadArea = CreateSolid(vertices)[0] as Solid;
+
+                        foreach (Solid loadArea in LoadAreas)
+                        {
+                            Solid intersection = BooleanOperationsUtils.ExecuteBooleanOperation(wallLoadArea, loadArea,
+                                BooleanOperationsType.Intersect);
+                        }
 
                         //CreateDirectShape(doc, CreateSolid(vertices));
 
@@ -548,6 +542,12 @@ namespace GeneralStability
                 return solid.Faces.get_Item(0);
             }
             return null;
+        }
+
+        private static Solid GetSolid(FilledRegion fr, Options options)
+        {
+            GeometryElement geometryElement = fr.get_Geometry(options);
+            return geometryElement.Select(go => go as Solid).FirstOrDefault();
         }
 
         /// <summary>
