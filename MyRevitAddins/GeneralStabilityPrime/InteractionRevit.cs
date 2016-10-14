@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Autodesk.Revit.UI;
 using Shared;
 using Autodesk.Revit.DB;
+using ClipperLib;
 using fi = Shared.Filter;
 using ut = Shared.Util;
 using op = Shared.Output;
@@ -241,7 +242,10 @@ namespace GeneralStability
                                 debug.Append(e.Message + "\n");
                             }
                         }
-                        
+
+                        //http://stackoverflow.com/questions/3615326/how-can-i-tell-if-two-polygons-intersect
+                        IntPoint test = new IntPoint();
+
                         //CreateDirectShape(doc, CreateSolid(vertices));
 
                     }
