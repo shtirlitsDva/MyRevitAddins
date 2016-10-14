@@ -7,7 +7,6 @@ using System.Linq;
 using MoreLinq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Forms;
 using Autodesk.Revit.UI;
 using Shared;
 using Autodesk.Revit.DB;
@@ -87,6 +86,9 @@ namespace GeneralStability
 
                 foreach (FamilyInstance fi in Walls)
                 {
+                    //Debug
+                    debug.Append("\n" + fi.Id + "\n");
+
                     //Initialize variables
                     double load = 0;
                     //double totalArea = 0;
@@ -171,8 +173,8 @@ namespace GeneralStability
                         //Add points along the wall if one is edge case
                         if (isEdgePositive || isEdgeNegative)
                         {
-                            vertices.Add(trfO.OfPoint(new XYZ(x1.Round4(), Ycur.Round4(), 0)));
-                            vertices.Add(trfO.OfPoint(new XYZ(x2.Round4(), Ycur.Round4(), 0)));
+                            vertices.Add(NormPoint(x1.Round4(), Ycur.Round4(), trfO, LoadData.GS_View));
+                            vertices.Add(NormPoint(x2.Round4(), Ycur.Round4(), trfO, LoadData.GS_View));
                         }
 
 
@@ -181,12 +183,12 @@ namespace GeneralStability
                         if (!isEdgePositive)
                         {
                             //Calculate Y values
-                            if (wallPositive != null) yP = Ycur + (StartPoint(wallPositive, trf).Y - Ycur)/2;
-                            else yP = Ycur + (StartPoint(bdPositive, trf).Y - Ycur)/2;
+                            if (wallPositive != null) yP = Ycur + (StartPoint(wallPositive, trf).Y - Ycur) / 2;
+                            else yP = Ycur + (StartPoint(bdPositive, trf).Y - Ycur) / 2;
 
                             //Create points from the X and Y values
-                            XYZ PxP1 = trfO.OfPoint(new XYZ(x1.Round4(), yP.Round4(), 0));
-                            XYZ PxP2 = trfO.OfPoint(new XYZ(x2.Round4(), yP.Round4(), 0));
+                            XYZ PxP1 = NormPoint(x1.Round4(), yP.Round4(), trfO, LoadData.GS_View);
+                            XYZ PxP2 = NormPoint(x2.Round4(), yP.Round4(), trfO, LoadData.GS_View);
 
                             //Create a list of vertices to feed the solid builder
                             vertices.Add(PxP1);
@@ -203,12 +205,12 @@ namespace GeneralStability
                         if (!isEdgeNegative)
                         {
                             if (wallNegative != null)
-                                yN = StartPoint(wallNegative, trf).Y + (Ycur - StartPoint(wallNegative, trf).Y)/2;
-                            else yN = StartPoint(bdNegative, trf).Y + (Ycur - StartPoint(bdNegative, trf).Y)/2;
+                                yN = StartPoint(wallNegative, trf).Y + (Ycur - StartPoint(wallNegative, trf).Y) / 2;
+                            else yN = StartPoint(bdNegative, trf).Y + (Ycur - StartPoint(bdNegative, trf).Y) / 2;
 
                             //Create points from the X and Y values
-                            XYZ PxN1 = trfO.OfPoint(new XYZ(x1.Round4(), yN.Round4(), 0));
-                            XYZ PxN2 = trfO.OfPoint(new XYZ(x2.Round4(), yN.Round4(), 0));
+                            XYZ PxN1 = NormPoint(x1.Round4(), yN.Round4(), trfO, LoadData.GS_View);
+                            XYZ PxN2 = NormPoint(x2.Round4(), yN.Round4(), trfO, LoadData.GS_View);
 
                             //Create a list of vertices to feed the solid builder
                             vertices.Add(PxN1);
@@ -223,17 +225,27 @@ namespace GeneralStability
                         vertices = tr.ConvexHull(vertices);
 
                         Solid wallLoadArea = CreateSolid(vertices)[0] as Solid;
-
+                        IList<GeometryObject> intersections = new List<GeometryObject>();
                         foreach (Solid loadArea in LoadAreas)
                         {
-                            Solid intersection = BooleanOperationsUtils.ExecuteBooleanOperation(wallLoadArea, loadArea,
-                                BooleanOperationsType.Intersect);
+                            try
+                            {
+                                Solid intersection = BooleanOperationsUtils.ExecuteBooleanOperation(loadArea, wallLoadArea,
+                                    BooleanOperationsType.Intersect);
+                                debug.Append(intersection.SurfaceArea.Round4() + "\n");
+                                intersections.Add(intersection);
+                                CreateDirectShape(doc, intersections);
+                            }
+                            catch (Exception e)
+                            {
+                                debug.Append(e.Message + "\n");
+                            }
                         }
-
+                        
                         //CreateDirectShape(doc, CreateSolid(vertices));
 
                     }
-                    
+                    CreateDirectShape(doc, LoadAreas.Cast<GeometryObject>().ToList());
                     //fi.LookupParameter("GS_Load").Set(load / length); //Change meee!!
                     //fi.LookupParameter("GS_TotalArea").Set(totalArea);
                 }
@@ -511,6 +523,22 @@ namespace GeneralStability
                 return trf.OfPoint(cu.GeometryCurve.GetEndPoint(1));
             }
             throw new Exception("Type not handled!");
+        }
+
+        /// <summary>
+        /// A method to create points on the same elevation as the specified view's associated level.
+        /// </summary>
+        /// <param name="x">X in Origo.</param>
+        /// <param name="y">Y in Origo.</param>
+        /// <param name="trfO">Transform back to global coords.</param>
+        /// <param name="view">The view where to create the points.</param>
+        /// <returns>Returns the point at the level's elevation.</returns>
+        private static XYZ NormPoint(double x, double y, Transform trfO, ViewPlan view)
+        {
+            XYZ temp1 = new XYZ(x, y, 0);
+            XYZ temp2 = trfO.OfPoint(temp1);
+            double realZ = view.GenLevel.ProjectElevation;
+            return new XYZ(temp2.X, temp2.Y, realZ);
         }
 
         private static FamilyInstance GetOrigo(Document doc)
