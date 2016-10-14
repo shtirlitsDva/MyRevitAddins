@@ -85,27 +85,13 @@ namespace Shared
         }
     }
 
-    public class Output
+    public static class Output
     {
-        public static void WriteDebugFile(string filePath, StringBuilder whatToWrite)
+        public static void WriteDebugFile<T>(string filePath, T whatToWrite)
         {
-            //// Clear the output file
-            //System.IO.File.WriteAllBytes(filePath, new byte[0]);
+            // Clear the output file
+            System.IO.File.WriteAllBytes(filePath, new byte[0]);
 
-            //// Write to output file
-            using (StreamWriter w = File.AppendText(filePath))
-            {
-                w.Write(whatToWrite);
-                w.Close();
-            }
-        }
-
-        public static void WriteDebugFile(string filePath, string whatToWrite)
-        {
-            //// Clear the output file
-            //System.IO.File.WriteAllBytes(filePath, new byte[0]);
-
-            //// Write to output file
             using (StreamWriter w = File.AppendText(filePath))
             {
                 w.Write(whatToWrite);
@@ -244,6 +230,6 @@ namespace Shared
             convexHullPoints.Reverse();
             return convexHullPoints;
         }
-        #endregion // Convex Hull
+        #endregion //Convex Hull
     }
 }

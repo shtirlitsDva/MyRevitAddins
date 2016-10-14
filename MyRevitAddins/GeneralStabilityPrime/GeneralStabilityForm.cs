@@ -156,11 +156,14 @@ namespace GeneralStability
                 InteractionRevit ir = new InteractionRevit(doc);
                 trans.Start("Calculate loads");
                 int NrOfTotal = 0;
+                StringBuilder debug = new StringBuilder();
 
                 var watch = System.Diagnostics.Stopwatch.StartNew();
-                Result result = ir.CalculateLoads(doc, ref NrOfTotal);
+                Result result = ir.CalculateLoads(doc, ref NrOfTotal, ref debug);
                 watch.Stop();
 
+                op.WriteDebugFile(_debugFilePath, debug);
+                
                 TimeSpan time = watch.Elapsed;
 
                 if (result == Result.Succeeded)

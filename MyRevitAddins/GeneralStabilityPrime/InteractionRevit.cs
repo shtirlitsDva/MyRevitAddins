@@ -47,7 +47,7 @@ namespace GeneralStability
 
         #region LoadCalculation
 
-        public Result CalculateLoads(Document doc, ref int totalLoops)
+        public Result CalculateLoads(Document doc, ref int totalLoops, ref StringBuilder debug)
         {
             try
             {
