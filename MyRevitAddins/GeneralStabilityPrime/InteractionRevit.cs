@@ -65,14 +65,13 @@ namespace GeneralStability
                 HashSet<Element> BdAndWalls = new HashSet<Element>();
                 BdAndWalls.UnionWith(Bd);
                 BdAndWalls.UnionWith(Walls);
+                HashSet<LoadArea> LoadAreas = LoadData.LoadAreas;
 
                 //Get the solids of filled regions
                 Options options = new Options();
                 options.ComputeReferences = true;
                 options.View = LoadData.GS_View;
 
-                var LoadAreas = LoadData.LoadAreas.Select(x => GetSolid(x, options)).ToHashSet();
-                
                 //Roof load intensity
                 double roofLoadIntensity = double.Parse(mySettings.Default.roofLoadIntensity, CultureInfo.InvariantCulture);
 
@@ -226,13 +225,13 @@ namespace GeneralStability
                         vertices = vertices.DistinctBy(xyz => new { xyz.X, xyz.Y }).ToList();
                         vertices = tr.ConvexHull(vertices);
 
-                        Solid wallLoadArea = CreateSolid(vertices)[0] as Solid;
+                        Solid wallLoadArea = CreateSolid(vertices);
                         IList<GeometryObject> intersections = new List<GeometryObject>();
-                        foreach (Solid loadArea in LoadAreas)
+                        foreach (LoadArea loadArea in LoadAreas)
                         {
                             try
                             {
-                                Solid intersection = BooleanOperationsUtils.ExecuteBooleanOperation(loadArea, wallLoadArea,
+                                Solid intersection = BooleanOperationsUtils.ExecuteBooleanOperation(loadArea.Solid, wallLoadArea,
                                     BooleanOperationsType.Intersect);
                                 debug.Append(intersection.SurfaceArea.Round4() + "\n");
                                 intersections.Add(intersection);
@@ -245,12 +244,12 @@ namespace GeneralStability
                         }
 
                         //http://stackoverflow.com/questions/3615326/how-can-i-tell-if-two-polygons-intersect
-                        IntPoint test = new IntPoint();
+                        //IntPoint test = new IntPoint();
 
                         //CreateDirectShape(doc, CreateSolid(vertices));
 
                     }
-                    CreateDirectShape(doc, LoadAreas.Cast<GeometryObject>().ToList());
+                    //CreateDirectShape(doc, LoadAreas.Cast<GeometryObject>().ToList());
                     //fi.LookupParameter("GS_Load").Set(load / length); //Change meee!!
                     //fi.LookupParameter("GS_TotalArea").Set(totalArea);
                 }
@@ -588,7 +587,7 @@ namespace GeneralStability
         /// </summary>
         /// <param name="vertices">A list of XYZ vertices of the face.</param>
         /// <returns>A solid consisting of one face.</returns>
-        private static IList<GeometryObject> CreateSolid(IList<XYZ> vertices)
+        public static Solid CreateSolid(IList<XYZ> vertices)
         {
             TessellatedShapeBuilder builder = new TessellatedShapeBuilder();
             //http://thebuildingcoder.typepad.com/blog/2014/05/directshape-performance-and-minimum-size.html
@@ -597,7 +596,7 @@ namespace GeneralStability
             builder.CloseConnectedFaceSet();
             builder.Build();
             TessellatedShapeBuilderResult result = builder.GetBuildResult();
-            return result.GetGeometricalObjects();
+            return result.GetGeometricalObjects()[0] as Solid;
         }
 
         private static DirectShape CreateDirectShape(Document doc, IList<GeometryObject> resultList)
@@ -726,20 +725,22 @@ namespace GeneralStability
 
     public class LoadData
     {
-        public IList<LoadArea> LoadAreas { get; }
+        public HashSet<LoadArea> LoadAreas { get; }
         public ViewPlan GS_View { get; }
 
         public LoadData(Document doc)
         {
             GS_View = fi.GetViewByName<ViewPlan>("GeneralStability", doc); //<-- this is a "magic" string. TODO: Find a better way to specify the view, maybe by using the current view.
 
-            Options options = new Options();
-            options.ComputeReferences = true;
-            options.View = GS_View;
-
-            foreach (FilledRegion fr in fi.GetElements<FilledRegion>(doc, GS_View.Id).ToHashSet())
+            HashSet<FilledRegion> filledRegions = fi.GetElements<FilledRegion>(doc, GS_View.Id).ToHashSet();
+            LoadAreas = new HashSet<LoadArea>();
+            foreach (FilledRegion fr in filledRegions)
             {
-                LoadAreas.Add(new LoadArea(fr, options));
+                Options options = new Options();
+                options.ComputeReferences = true;
+                options.View = GS_View;
+                LoadArea loadArea = new LoadArea(fr, options);
+                LoadAreas.Add(loadArea);
             }
         }
     }
@@ -753,14 +754,32 @@ namespace GeneralStability
 
         public LoadArea(FilledRegion filledRegion, Options options)
         {
-            FilledRegion = filledRegion;
-            ElementId = filledRegion.Id;
-            Load = double.Parse(filledRegion.get_Parameter(BuiltInParameter.ALL_MODEL_INSTANCE_COMMENTS).AsString(), CultureInfo.InvariantCulture);
+            try
+            {
+                FilledRegion = filledRegion;
+                ElementId = filledRegion.Id;
+                Load = double.Parse(filledRegion.get_Parameter(BuiltInParameter.ALL_MODEL_INSTANCE_COMMENTS).AsString(), CultureInfo.InvariantCulture);
 
-            //Create a new solid from the element solid
-            Face face = ir.GetFace(filledRegion, options);
-            face.
+                //Create a new solid from the element solid
+                Face face = ir.GetFace(filledRegion, options);
+                IList<XYZ> vertices = new List<XYZ>();
+                foreach (CurveLoop curveLoop in face.GetEdgesAsCurveLoops())
+                {
+                    foreach (Curve curve in curveLoop)
+                    {
+                        vertices.Add(curve.GetEndPoint(0));
+                        vertices.Add(curve.GetEndPoint(1));
+                    }
+                }
+                vertices = vertices.DistinctBy(xyz => new { xyz.X, xyz.Y }).ToList();
+                vertices = tr.ConvexHull(vertices.ToList());
+                Solid = ir.CreateSolid(vertices);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw new Exception(e.Message);
+            }
         }
     }
-
 }
