@@ -739,8 +739,7 @@ namespace GeneralStability
                 Options options = new Options();
                 options.ComputeReferences = true;
                 options.View = GS_View;
-                LoadArea loadArea = new LoadArea(fr, options);
-                LoadAreas.Add(loadArea);
+                LoadAreas.Add(new LoadArea(fr, options));
             }
         }
     }
