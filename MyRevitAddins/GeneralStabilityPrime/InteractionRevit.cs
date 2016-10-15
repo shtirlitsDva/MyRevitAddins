@@ -17,6 +17,7 @@ using op = Shared.Output;
 using tr = Shared.Transformation;
 using mySettings = GeneralStability.Properties.Settings;
 using TxBox = System.Windows.Forms.TextBox;
+using ir = GeneralStability.InteractionRevit;
 
 namespace GeneralStability
 {
@@ -565,7 +566,7 @@ namespace GeneralStability
                 .ToHashSet();
         }
 
-        private static Face GetFace(FilledRegion fr, Options options)
+        public static Face GetFace(FilledRegion fr, Options options)
         {
             GeometryElement geometryElement = fr.get_Geometry(options);
             foreach (GeometryObject go in geometryElement)
@@ -725,16 +726,41 @@ namespace GeneralStability
 
     public class LoadData
     {
-        public IList<FilledRegion> LoadAreas { get; }
+        public IList<LoadArea> LoadAreas { get; }
         public ViewPlan GS_View { get; }
 
         public LoadData(Document doc)
         {
             GS_View = fi.GetViewByName<ViewPlan>("GeneralStability", doc); //<-- this is a "magic" string. TODO: Find a better way to specify the view, maybe by using the current view.
 
-            LoadAreas = fi.GetElements<FilledRegion>(doc, GS_View.Id).ToList();
-        }
+            Options options = new Options();
+            options.ComputeReferences = true;
+            options.View = GS_View;
 
+            foreach (FilledRegion fr in fi.GetElements<FilledRegion>(doc, GS_View.Id).ToHashSet())
+            {
+                LoadAreas.Add(new LoadArea(fr, options));
+            }
+        }
+    }
+
+    public class LoadArea
+    {
+        public FilledRegion FilledRegion { get; }
+        public ElementId ElementId { get; }
+        public Solid Solid { get; }
+        public double Load { get; }
+
+        public LoadArea(FilledRegion filledRegion, Options options)
+        {
+            FilledRegion = filledRegion;
+            ElementId = filledRegion.Id;
+            Load = double.Parse(filledRegion.get_Parameter(BuiltInParameter.ALL_MODEL_INSTANCE_COMMENTS).AsString(), CultureInfo.InvariantCulture);
+
+            //Create a new solid from the element solid
+            Face face = ir.GetFace(filledRegion, options);
+            face.
+        }
     }
 
 }
