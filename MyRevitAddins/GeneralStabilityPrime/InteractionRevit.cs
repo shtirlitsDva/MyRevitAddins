@@ -66,6 +66,10 @@ namespace GeneralStability
                 BdAndWalls.UnionWith(Bd);
                 BdAndWalls.UnionWith(Walls);
                 HashSet<LoadArea> LoadAreas = LoadData.LoadAreas;
+                //foreach (LoadArea la in LoadAreas)
+                //{
+                //    CreateDirectShape(doc, la.Solid);
+                //}
 
                 //Get the solids of filled regions
                 Options options = new Options();
@@ -222,24 +226,29 @@ namespace GeneralStability
                         #endregion
 
 
-                        vertices = vertices.DistinctBy(xyz => new { xyz.X, xyz.Y }).ToList();
+                        vertices = vertices.DistinctBy(xyz => new { X = xyz.X.Round4(), Y = xyz.Y.Round4() }).ToList();
                         vertices = tr.ConvexHull(vertices);
 
-                        Solid wallLoadArea = CreateSolid(vertices);
+                        Solid wLAS = CreateSolid(vertices);
+                        //CreateDirectShape(doc, wLAS);
                         IList<GeometryObject> intersections = new List<GeometryObject>();
-                        foreach (LoadArea loadArea in LoadAreas)
+
+                        foreach (LoadArea lA in LoadAreas)
                         {
                             try
                             {
-                                Solid intersection = BooleanOperationsUtils.ExecuteBooleanOperation(loadArea.Solid, wallLoadArea,
-                                    BooleanOperationsType.Intersect);
-                                debug.Append(intersection.SurfaceArea.Round4() + "\n");
-                                intersections.Add(intersection);
-                                CreateDirectShape(doc, intersections);
+                                //Solid intersection = BooleanOperationsUtils.ExecuteBooleanOperation(wallLoadArea, loadArea.Solid, BooleanOperationsType.Intersect);
+                                Curve result;
+                                Face wLA = wLAS.Faces.get_Item(0);
+                                Face LA = lA.Solid.Faces.get_Item(0);
+                                var intersection = wLA.Intersect(LA, out result);
+                                debug.Append(result.Length + "\n");
+                                //intersections.Add(intersection);
+                                //CreateDirectShape(doc, intersections);
                             }
                             catch (Exception e)
                             {
-                                debug.Append(e.Message + "\n");
+                                //debug.Append(e.Message + "\n");
                             }
                         }
 
@@ -599,7 +608,7 @@ namespace GeneralStability
             return result.GetGeometricalObjects()[0] as Solid;
         }
 
-        private static DirectShape CreateDirectShape(Document doc, IList<GeometryObject> resultList)
+        public static DirectShape CreateDirectShape(Document doc, IList<GeometryObject> resultList)
         {
             DirectShape ds = DirectShape.CreateElement(doc, new ElementId(BuiltInCategory.OST_GenericModel));
             ds.ApplicationId = "Application id";
@@ -609,6 +618,22 @@ namespace GeneralStability
             dso.ReferencingOption = DirectShapeReferencingOption.Referenceable;
             ds.SetOptions(dso);
             ds.SetShape(resultList);
+            doc.Regenerate();
+            return ds;
+        }
+
+        public static DirectShape CreateDirectShape(Document doc, Solid solid)
+        {
+            IList<GeometryObject> list = new List<GeometryObject>(1);
+            list.Add(solid);
+            DirectShape ds = DirectShape.CreateElement(doc, new ElementId(BuiltInCategory.OST_GenericModel));
+            ds.ApplicationId = "Application id";
+            ds.ApplicationDataId = "Geometry object id";
+            ds.Name = "Load area";
+            DirectShapeOptions dso = ds.GetOptions();
+            dso.ReferencingOption = DirectShapeReferencingOption.Referenceable;
+            ds.SetOptions(dso);
+            ds.SetShape(list);
             doc.Regenerate();
             return ds;
         }
@@ -766,11 +791,11 @@ namespace GeneralStability
                 {
                     foreach (Curve curve in curveLoop)
                     {
-                        vertices.Add(curve.GetEndPoint(0));
+                        vertices.Add();
                         vertices.Add(curve.GetEndPoint(1));
                     }
                 }
-                vertices = vertices.DistinctBy(xyz => new { xyz.X, xyz.Y }).ToList();
+                vertices = vertices.DistinctBy(xyz => new { X = xyz.X.Round4(), Y = xyz.Y.Round4() }).ToList();
                 vertices = tr.ConvexHull(vertices.ToList());
                 Solid = ir.CreateSolid(vertices);
             }
