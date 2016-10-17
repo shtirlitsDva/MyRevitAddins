@@ -242,13 +242,14 @@ namespace GeneralStability
                                 Face wLA = wLAS.Faces.get_Item(0);
                                 Face LA = lA.Solid.Faces.get_Item(0);
                                 var intersection = wLA.Intersect(LA, out result);
-                                debug.Append(result.Length + "\n");
+                                //debug.Append(result.Length + "\n");
+                                debug.Append(intersection +"\n");
                                 //intersections.Add(intersection);
                                 //CreateDirectShape(doc, intersections);
                             }
                             catch (Exception e)
                             {
-                                //debug.Append(e.Message + "\n");
+                                debug.Append(e.Message + "\n");
                             }
                         }
 
@@ -551,7 +552,7 @@ namespace GeneralStability
             XYZ temp1 = new XYZ(x, y, 0);
             XYZ temp2 = trfO.OfPoint(temp1);
             double realZ = view.GenLevel.ProjectElevation;
-            return new XYZ(temp2.X, temp2.Y, realZ);
+            return new XYZ(temp2.X.Round4(), temp2.Y.Round4(), realZ.Round4());
         }
 
         private static FamilyInstance GetOrigo(Document doc)
@@ -786,17 +787,22 @@ namespace GeneralStability
 
                 //Create a new solid from the element solid
                 Face face = ir.GetFace(filledRegion, options);
-                IList<XYZ> vertices = new List<XYZ>();
+                IList<XYZ> source = new List<XYZ>();
                 foreach (CurveLoop curveLoop in face.GetEdgesAsCurveLoops())
                 {
                     foreach (Curve curve in curveLoop)
                     {
-                        vertices.Add();
-                        vertices.Add(curve.GetEndPoint(1));
+                        source.Add(curve.GetEndPoint(0));
+                        source.Add(curve.GetEndPoint(1));
                     }
                 }
-                vertices = vertices.DistinctBy(xyz => new { X = xyz.X.Round4(), Y = xyz.Y.Round4() }).ToList();
-                vertices = tr.ConvexHull(vertices.ToList());
+                source = source.DistinctBy(xyz => new { X = xyz.X.Round4(), Y = xyz.Y.Round4() }).ToList();
+                source = tr.ConvexHull(source.ToList());
+                IList<XYZ> vertices = new List<XYZ>(source.Count);
+                foreach (XYZ p in source)
+                {
+                    vertices.Add(new XYZ(p.X.Round4(), p.Y.Round4(), p.Z.Round4())); //<-- This to eliminate double imprecision
+                }
                 Solid = ir.CreateSolid(vertices);
             }
             catch (Exception e)
