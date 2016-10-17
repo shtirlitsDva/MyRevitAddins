@@ -18,7 +18,9 @@ using tr = Shared.Transformation;
 using mySettings = GeneralStability.Properties.Settings;
 using TxBox = System.Windows.Forms.TextBox;
 using ir = GeneralStability.InteractionRevit;
-
+using Path = System.Collections.Generic.List<ClipperLib.IntPoint>;
+using Paths = System.Collections.Generic.List<System.Collections.Generic.List<ClipperLib.IntPoint>>;
+    
 namespace GeneralStability
 {
     public class InteractionRevit
