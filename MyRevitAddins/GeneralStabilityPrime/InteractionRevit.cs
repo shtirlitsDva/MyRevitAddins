@@ -94,7 +94,7 @@ namespace GeneralStability
                 foreach (FamilyInstance fi in Walls)
                 {
                     //Debug
-                    debug.Append("\n" + fi.Id + "\n");
+                    debug.Append("\n" + fi.Id+"\n");
 
                     //Initialize variables
                     double load = 0;
@@ -230,24 +230,24 @@ namespace GeneralStability
 
                         vertices = vertices.DistinctBy(xyz => new { X = xyz.X.Round4(), Y = xyz.Y.Round4() }).ToList();
                         vertices = tr.ConvexHull(vertices);
+                        Path wallLoadPath = CreatePath(vertices);
+                        long precision = 100000;
 
-                        Solid wLAS = CreateSolid(vertices);
-                        //CreateDirectShape(doc, wLAS);
-                        IList<GeometryObject> intersections = new List<GeometryObject>();
+                        debug.Append((Clipper.Area(wallLoadPath)/(precision*precision)).Round4()+"+\n");
 
                         foreach (LoadArea lA in LoadAreas)
                         {
                             try
                             {
-                                //Solid intersection = BooleanOperationsUtils.ExecuteBooleanOperation(wallLoadArea, loadArea.Solid, BooleanOperationsType.Intersect);
-                                Curve result;
-                                Face wLA = wLAS.Faces.get_Item(0);
-                                Face LA = lA.Solid.Faces.get_Item(0);
-                                var intersection = wLA.Intersect(LA, out result);
-                                //debug.Append(result.Length + "\n");
-                                debug.Append(intersection +"\n");
-                                //intersections.Add(intersection);
-                                //CreateDirectShape(doc, intersections);
+                                Paths solution = new Paths();
+                                Clipper c = new Clipper();
+                                c.AddPath(wallLoadPath, PolyType.ptClip, true);
+                                c.AddPath(lA.Path, PolyType.ptSubject, true);
+                                c.Execute(ClipType.ctIntersection, solution);
+                                foreach (Path path in solution)
+                                {
+                                    debug.Append((Clipper.Area(path)/(precision*precision)).Round4()+"\n");
+                                }
                             }
                             catch (Exception e)
                             {
@@ -640,6 +640,14 @@ namespace GeneralStability
             doc.Regenerate();
             return ds;
         }
+
+        public static Path CreatePath(IList<XYZ> source)
+        {
+            long precision = 100000;
+            Path path = new Path(source.Count);
+            path.AddRange(source.Select(p => new IntPoint(p.X*precision, p.Y*precision)));
+            return path;
+        }
     }
 
     public class WallData
@@ -776,7 +784,8 @@ namespace GeneralStability
     {
         public FilledRegion FilledRegion { get; }
         public ElementId ElementId { get; }
-        public Solid Solid { get; }
+        //public Solid Solid { get; }
+        public Path Path { get; }
         public double Load { get; }
 
         public LoadArea(FilledRegion filledRegion, Options options)
@@ -800,12 +809,14 @@ namespace GeneralStability
                 }
                 source = source.DistinctBy(xyz => new { X = xyz.X.Round4(), Y = xyz.Y.Round4() }).ToList();
                 source = tr.ConvexHull(source.ToList());
-                IList<XYZ> vertices = new List<XYZ>(source.Count);
-                foreach (XYZ p in source)
-                {
-                    vertices.Add(new XYZ(p.X.Round4(), p.Y.Round4(), p.Z.Round4())); //<-- This to eliminate double imprecision
-                }
-                Solid = ir.CreateSolid(vertices);
+                Path = ir.CreatePath(source);
+
+                //IList<XYZ> vertices = new List<XYZ>(source.Count);
+                //foreach (XYZ p in source)
+                //{
+                //    vertices.Add(new XYZ(p.X.Round4(), p.Y.Round4(), p.Z.Round4())); //<-- This to eliminate double imprecision
+                //}
+                //Solid = ir.CreateSolid(vertices);
             }
             catch (Exception e)
             {
