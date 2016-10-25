@@ -20,7 +20,7 @@ using TxBox = System.Windows.Forms.TextBox;
 using ir = GeneralStability.InteractionRevit;
 using Path = System.Collections.Generic.List<ClipperLib.IntPoint>;
 using Paths = System.Collections.Generic.List<System.Collections.Generic.List<ClipperLib.IntPoint>>;
-    
+
 namespace GeneralStability
 {
     public class InteractionRevit
@@ -94,11 +94,11 @@ namespace GeneralStability
                 foreach (FamilyInstance fi in Walls)
                 {
                     //Debug
-                    debug.Append("\n" + fi.Id+"\n");
+                    debug.Append("\n" + fi.Id + "\n");
 
                     //Initialize variables
                     double load = 0;
-                    //double totalArea = 0;
+                    double totalArea = 0;
 
                     //Determine the start X
                     double Xmin = StartPoint(fi, trf).X;
@@ -168,7 +168,7 @@ namespace GeneralStability
                             double widthRoofLoad = (StartPoint(bdPositive, trf).Y - StartPoint(bdNegative, trf).Y) / 2;
                             double roofLoadArea = (widthRoofLoad * (x2 - x1)).SqrFeetToSqrMeters();
                             double roofLoad = roofLoadIntensity * roofLoadArea;
-                            load = load + roofLoad; //Write to the overall load variable
+                            //load = load + roofLoad; //Write to the overall load variable
                         }
 
                         //Process the positive and negative side
@@ -227,43 +227,38 @@ namespace GeneralStability
                         }
                         #endregion
 
-
+                        //Create a list of vertices
                         vertices = vertices.DistinctBy(xyz => new { X = xyz.X.Round4(), Y = xyz.Y.Round4() }).ToList();
                         vertices = tr.ConvexHull(vertices);
+
+                        //Create a path from the Clipper framework
                         Path wallLoadPath = CreatePath(vertices);
-                        long precision = 100000;
+                        //The defined precision of the Clipper objects
+                        long precision = 10000;
 
-                        debug.Append((Clipper.Area(wallLoadPath)/(precision*precision)).Round4()+"+\n");
+                        //Debug
+                        //debug.Append((Clipper.Area(wallLoadPath) / (precision * precision)).SqrFeetToSqrMeters() + "+\n");
 
-                        foreach (LoadArea lA in LoadAreas)
+                        //Iterate through the load areas and intersect them with wall load areas
+                        foreach (LoadArea la in LoadAreas)
                         {
-                            try
+                            Paths solution = new Paths();
+                            Clipper c = new Clipper();
+                            c.AddPath(wallLoadPath, PolyType.ptClip, true);
+                            c.AddPath(la.Path, PolyType.ptSubject, true);
+                            c.Execute(ClipType.ctIntersection, solution);
+                            foreach (Path path in solution)
                             {
-                                Paths solution = new Paths();
-                                Clipper c = new Clipper();
-                                c.AddPath(wallLoadPath, PolyType.ptClip, true);
-                                c.AddPath(lA.Path, PolyType.ptSubject, true);
-                                c.Execute(ClipType.ctIntersection, solution);
-                                foreach (Path path in solution)
-                                {
-                                    debug.Append((Clipper.Area(path)/(precision*precision)).Round4()+"\n");
-                                }
-                            }
-                            catch (Exception e)
-                            {
-                                debug.Append(e.Message + "\n");
+                                double intArea = (Clipper.Area(path) / (precision * precision)).SqrFeetToSqrMeters();
+                                //debug.Append(intArea + " " + la.Load + " " + la.Load * intArea + "\n");
+                                //debug.Append((Clipper.Area(la.Path)/(precision*precision)).SqrFeetToSqrMeters()+"\n");
+                                load += intArea * la.Load;
+                                totalArea += intArea;
                             }
                         }
-
-                        //http://stackoverflow.com/questions/3615326/how-can-i-tell-if-two-polygons-intersect
-                        //IntPoint test = new IntPoint();
-
-                        //CreateDirectShape(doc, CreateSolid(vertices));
-
                     }
-                    //CreateDirectShape(doc, LoadAreas.Cast<GeometryObject>().ToList());
-                    //fi.LookupParameter("GS_Load").Set(load / length); //Change meee!!
-                    //fi.LookupParameter("GS_TotalArea").Set(totalArea);
+                    fi.LookupParameter("GS_Load").Set(load / length); //Change meee!!
+                    debug.Append(length + " "+totalArea+" "+load+"\n" + load/length + "\n");
                 }
 
                 totalLoops = nrTotal;
@@ -643,9 +638,9 @@ namespace GeneralStability
 
         public static Path CreatePath(IList<XYZ> source)
         {
-            long precision = 100000;
+            long precision = 10000;
             Path path = new Path(source.Count);
-            path.AddRange(source.Select(p => new IntPoint(p.X*precision, p.Y*precision)));
+            path.AddRange(source.Select(p => new IntPoint(p.X * precision, p.Y * precision)));
             return path;
         }
     }
@@ -810,13 +805,6 @@ namespace GeneralStability
                 source = source.DistinctBy(xyz => new { X = xyz.X.Round4(), Y = xyz.Y.Round4() }).ToList();
                 source = tr.ConvexHull(source.ToList());
                 Path = ir.CreatePath(source);
-
-                //IList<XYZ> vertices = new List<XYZ>(source.Count);
-                //foreach (XYZ p in source)
-                //{
-                //    vertices.Add(new XYZ(p.X.Round4(), p.Y.Round4(), p.Z.Round4())); //<-- This to eliminate double imprecision
-                //}
-                //Solid = ir.CreateSolid(vertices);
             }
             catch (Exception e)
             {
