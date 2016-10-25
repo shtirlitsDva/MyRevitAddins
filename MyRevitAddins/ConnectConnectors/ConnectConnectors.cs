@@ -40,6 +40,7 @@ namespace ConnectConnectors
                 foreach (Connector c2 in connectors.Where(c2 => ut.IsEqual(c1.Origin, c2.Origin)))
                 {
                     c1.ConnectTo(c2);
+                    foundIt = true;
                     break;
                 }
             }
