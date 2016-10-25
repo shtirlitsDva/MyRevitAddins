@@ -18,7 +18,7 @@ namespace Shared
         public static ElementParameterFilter ParameterValueFilter(string valueQualifier, BuiltInParameter parameterName)
         {
             BuiltInParameter testParam = parameterName;
-            ParameterValueProvider pvp = new ParameterValueProvider(new ElementId((int)testParam));
+            ParameterValueProvider pvp = new ParameterValueProvider(new ElementId((int) testParam));
             FilterStringRuleEvaluator str = new FilterStringContains();
             FilterStringRule paramFr = new FilterStringRule(pvp, str, valueQualifier, false);
             ElementParameterFilter epf = new ElementParameterFilter(paramFr);
@@ -39,7 +39,7 @@ namespace Shared
             LogicalOrFilter categoryFilter = new LogicalOrFilter(a);
 
             LogicalAndFilter familySymbolFilter = new LogicalAndFilter(categoryFilter,
-                new ElementClassFilter(typeof(FamilyInstance)));
+                new ElementClassFilter(typeof (FamilyInstance)));
 
             IList<ElementFilter> b = new List<ElementFilter>();
 
@@ -58,7 +58,7 @@ namespace Shared
         /// <returns>The list of elements of the specified type</returns>
         public static IEnumerable<T> GetElements<T>(Document document) where T : Element
         {
-            return new FilteredElementCollector(document).OfClass(typeof(T)).Cast<T>();
+            return new FilteredElementCollector(document).OfClass(typeof (T)).Cast<T>();
         }
 
         /// <summary>
@@ -71,7 +71,7 @@ namespace Shared
         /// <returns>The list of elements of the specified type</returns>
         public static IEnumerable<T> GetElements<T>(Document document, ElementId id) where T : Element
         {
-            return new FilteredElementCollector(document, id).OfClass(typeof(T)).Cast<T>();
+            return new FilteredElementCollector(document, id).OfClass(typeof (T)).Cast<T>();
         }
 
         /// <summary>
@@ -83,7 +83,9 @@ namespace Shared
         /// <returns></returns>
         public static T GetViewByName<T>(string name, Document doc) where T : Element
         {
-            return (from v in GetElements<View>(doc) where v != null && !v.IsTemplate && v.Name == name select v as T).FirstOrDefault();
+            return
+                (from v in GetElements<View>(doc) where v != null && !v.IsTemplate && v.Name == name select v as T)
+                    .FirstOrDefault();
         }
     }
 
@@ -105,7 +107,7 @@ namespace Shared
     public class Conversion
     {
         const double _inch_to_mm = 25.4;
-        const double _foot_to_mm = 12 * _inch_to_mm;
+        const double _foot_to_mm = 12*_inch_to_mm;
         const double _foot_to_inch = 12;
 
         /// <summary>
@@ -114,7 +116,7 @@ namespace Shared
         public static string RealString(double a)
         {
             //return a.ToString("0.##");
-            return (Math.Truncate(a * 100) / 100).ToString("0.00", CultureInfo.GetCultureInfo("en-GB"));
+            return (Math.Truncate(a*100)/100).ToString("0.00", CultureInfo.GetCultureInfo("en-GB"));
         }
 
         /// <summary>
@@ -123,27 +125,27 @@ namespace Shared
         public static string PointStringMm(XYZ p)
         {
             return string.Format("{0:0.00} {1:0.00} {2:0.00}",
-                RealString(p.X * _foot_to_mm),
-                RealString(p.Y * _foot_to_mm),
-                RealString(p.Z * _foot_to_mm));
+                RealString(p.X*_foot_to_mm),
+                RealString(p.Y*_foot_to_mm),
+                RealString(p.Z*_foot_to_mm));
         }
 
         public static string PointStringInch(XYZ p)
         {
             return string.Format("{0:0.00} {1:0.00} {2:0.00}",
-                RealString(p.X * _foot_to_inch),
-                RealString(p.Y * _foot_to_inch),
-                RealString(p.Z * _foot_to_inch));
+                RealString(p.X*_foot_to_inch),
+                RealString(p.Y*_foot_to_inch),
+                RealString(p.Z*_foot_to_inch));
         }
 
         public static string PipeSizeToMm(double l)
         {
-            return string.Format("{0}", Math.Round(l * 2 * _foot_to_mm));
+            return string.Format("{0}", Math.Round(l*2*_foot_to_mm));
         }
 
         public static string PipeSizeToInch(double l)
         {
-            return string.Format("{0}", RealString(l * 2 * _foot_to_inch));
+            return string.Format("{0}", RealString(l*2*_foot_to_inch));
         }
 
         public static string AngleToPCF(double l)
@@ -153,12 +155,12 @@ namespace Shared
 
         public static double RadianToDegree(double angle)
         {
-            return angle * (180.0 / Math.PI);
+            return angle*(180.0/Math.PI);
         }
 
         public static double DegreeToRadian(double angle)
         {
-            return Math.PI * angle / 180.0;
+            return Math.PI*angle/180.0;
         }
     }
 
@@ -203,6 +205,7 @@ namespace Shared
     public static class Transformation
     {
         #region Convex Hull
+
         /// <summary>
         /// Return the convex hull of a list of points 
         /// using the Jarvis march or Gift wrapping:
@@ -224,7 +227,7 @@ namespace Shared
                 walkingPoint = points.MinBy(p =>
                 {
                     double angle = (p - wp).AngleOnPlaneTo(rv, XYZ.BasisZ);
-                    if (angle < 1e-10) angle = 2 * Math.PI;
+                    if (angle < 1e-10) angle = 2*Math.PI;
                     return angle;
                 });
                 refVector = wp - walkingPoint;
@@ -232,6 +235,7 @@ namespace Shared
             convexHullPoints.Reverse();
             return convexHullPoints;
         }
+
         #endregion //Convex Hull
     }
 
@@ -243,25 +247,27 @@ namespace Shared
 
             if (e is FamilyInstance)
             {
-                MEPModel m = ((FamilyInstance)e).MEPModel;
+                MEPModel m = ((FamilyInstance) e).MEPModel;
                 if (null != m && null != m.ConnectorManager) connectors = m.ConnectorManager.Connectors;
             }
 
-            else if (e is Wire) connectors = ((Wire)e).ConnectorManager.Connectors;
+            else if (e is Wire) connectors = ((Wire) e).ConnectorManager.Connectors;
 
             else
             {
-                Debug.Assert(e.GetType().IsSubclassOf(typeof(MEPCurve)),
-                  "expected all candidate connector provider "
-                  + "elements to be either family instances or "
-                  + "derived from MEPCurve");
+                Debug.Assert(e.GetType().IsSubclassOf(typeof (MEPCurve)),
+                    "expected all candidate connector provider "
+                    + "elements to be either family instances or "
+                    + "derived from MEPCurve");
 
-                if (e is MEPCurve) connectors = ((MEPCurve)e).ConnectorManager.Connectors;
+                if (e is MEPCurve) connectors = ((MEPCurve) e).ConnectorManager.Connectors;
             }
             return connectors;
         }
 
         public static IList<Connector> GetALLConnectors(HashSet<Element> elements)
         {
-            return (from e in elements from Connector c in GetConnectorSet(e) select c).ToHashSet();
+            return (from e in elements from Connector c in GetConnectorSet(e) select c).ToList();
         }
+    }
+}
