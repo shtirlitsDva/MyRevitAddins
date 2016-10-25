@@ -67,7 +67,15 @@ namespace MyRibbonPanel
             {
                 try
                 {
-                    cn.ConnectTheConnectors(commandData);
+                    
+
+                    using (Transaction trans = new Transaction(commandData.Application.ActiveUIDocument.Document))
+                    {
+                        trans.Start("Connect the Connectors!");
+                        cn.ConnectTheConnectors(commandData);
+                        trans.Commit();
+                    }
+
                     return Result.Succeeded;
                 }
 
