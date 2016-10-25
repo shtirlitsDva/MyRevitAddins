@@ -10,11 +10,16 @@ using System.Threading.Tasks;
 using Autodesk.Revit.UI;
 using Shared;
 using Autodesk.Revit.DB;
+using ClipperLib;
 using fi = Shared.Filter;
 using ut = Shared.Util;
 using op = Shared.Output;
+using tr = Shared.Transformation;
 using mySettings = GeneralStability.Properties.Settings;
 using TxBox = System.Windows.Forms.TextBox;
+using ir = GeneralStability.InteractionRevit;
+using Path = System.Collections.Generic.List<ClipperLib.IntPoint>;
+using Paths = System.Collections.Generic.List<System.Collections.Generic.List<ClipperLib.IntPoint>>;
 
 namespace GeneralStability
 {
@@ -45,135 +50,380 @@ namespace GeneralStability
 
         #region LoadCalculation
 
-        public Result CalculateLoads(Document doc, TxBox txBox)
+        public Result CalculateLoads(Document doc, ref int totalLoops, ref StringBuilder debug)
         {
             try
             {
                 //Log
-                int nrI = 0, nrJ = 0, nrTotal = 1;
-                //StringBuilder sbLog = new StringBuilder();
-
-                //Reset the load from last run
-                foreach (FamilyInstance fi in WallsAlong.WallSymbols)
-                {
-                    fi.LookupParameter("GS_Load").Set(0);
-                }
+                int nrTotal = 0;
 
                 //Get the transform
                 Transform trfO = Origo.GetTransform();
                 Transform trf = trfO.Inverse;
 
-                //Get the list of boundaries (to simplify the synthax)
+                //Get the list of boundaries and walls (to simplify the synthax)
                 HashSet<CurveElement> Bd = BoundaryData.BoundaryLines;
+                HashSet<FamilyInstance> Walls = WallsAlong.WallSymbols;
+                HashSet<Element> BdAndWalls = new HashSet<Element>();
+                BdAndWalls.UnionWith(Bd);
+                BdAndWalls.UnionWith(Walls);
+                HashSet<LoadArea> LoadAreas = LoadData.LoadAreas;
+                //foreach (LoadArea la in LoadAreas)
+                //{
+                //    CreateDirectShape(doc, la.Solid);
+                //}
 
-                //Get the faces of filled regions
-                //Determine the intersection between the centre point of finite element and filled region symbolizing the load
-                IList<Face> faces = new List<Face>();
-
+                //Get the solids of filled regions
                 Options options = new Options();
                 options.ComputeReferences = true;
                 options.View = LoadData.GS_View;
 
-                //Optimization: order filled regions by size: Descending = Largest first
-                var LoadAreas = LoadData.LoadAreas.OrderByDescending(x => GetFace(x, options).Area).ToList();
+                //Roof load intensity
+                double roofLoadIntensity = double.Parse(mySettings.Default.roofLoadIntensity, CultureInfo.InvariantCulture);
 
-                //var LoadAreas = LoadData.LoadAreas;
-
-                foreach (FilledRegion fr in LoadAreas) faces.Add(GetFace(fr, options));
-
-                //The analysis proceeds in steps of 1mm (hardcoded for now)
-                double step = 20.0.MmToFeet(); //<-- a "magic" number. TODO: Implement definition of step size.
-
-                //Determine the largest X value
-                double Xmax = Bd.Max(x => EndPoint(x, trf).X);
-                //Divide the largest X value by the step value to determine the number iterations in X direction
-                int nrOfX = (int)Math.Floor(Xmax / step);
-                //Log
-                nrI = nrOfX;
-
-                //Iterate through the length of the building analyzing the load
-                for (int i = 0; i < nrOfX; i++)
+                //Create a list of ALL X Points of Interest ie. Start and End points
+                IList<XYZ> allPoiX = new List<XYZ>();
+                foreach (Element el in BdAndWalls)
                 {
-                    //Current x value
-                    double x1 = i * step;
-                    double x2 = (i + 1) * step;
-                    double xC = x1 + step / 2;
+                    allPoiX.Add(StartPoint(el, trf));
+                    allPoiX.Add(EndPoint(el, trf));
+                }
+                //Clean list of duplicates and sort by value of X
+                allPoiX = allPoiX.DistinctBy(pt => pt.X.FtToMillimeters()).OrderBy(pt => pt.X.FtToMillimeters()).ToList();
 
-                    //Select boundary lines in scope, but make sure Y boundaries are discarded
-                    var boundaryX = (from CurveElement cu in Bd
-                                     where StartPoint(cu, trf).X <= xC && EndPoint(cu, trf).X >= xC && !StartPoint(cu, trf).X.Equals(EndPoint(cu, trf).X)
-                                     select cu).ToHashSet();
-                    //Determine minimum and maximum Y values
-                    double Ymin = boundaryX.Min(x => StartPoint(x, trf).Y);
-                    double Ymax = boundaryX.Max(x => StartPoint(x, trf).Y);
+                foreach (FamilyInstance fi in Walls)
+                {
+                    //Debug
+                    debug.Append("\n" + fi.Id + "\n");
 
-                    //Determine relevant walls (that means the walls which are crossed by the current X value iteration)
-                    var wallsX = (from FamilyInstance fi in WallsAlong.WallSymbols
-                                  where StartPoint(fi, trf).X <= xC && EndPoint(fi, trf).X >= xC
-                                  select fi).ToHashSet();
+                    //Initialize variables
+                    double load = 0;
+                    double totalArea = 0;
 
-                    //Determine number of iterations in Y direction
-                    int nrOfY = (int)Math.Floor((Ymax - Ymin) / step);
+                    //Determine the start X
+                    double Xmin = StartPoint(fi, trf).X;
 
-                    //Log
-                    nrJ = nrOfY;
+                    //Determine the end X
+                    double Xmax = EndPoint(fi, trf).X;
 
-                    //Iterate through the width of the building
-                    for (int j = 0; j < nrOfY; j++)
+                    //The y of the wall
+                    double Ycur = StartPoint(fi, trf).Y;
+
+                    //Længde af væggen
+                    double length = (Xmax - Xmin).FtToMeters();
+
+                    //TODO: New implementation -- start here
+
+                    //Determine the POIX in scope of the wall (POIX = Point Of Interest on X axis)
+                    var poixInScope = (from XYZ pt in allPoiX
+                                       where pt.X.FtToMillimeters() >= Xmin.FtToMillimeters() &&
+                                             pt.X.FtToMillimeters() <= Xmax.FtToMillimeters()
+                                       select pt).ToList();
+
+                    //Iterate through the load areas
+                    for (int i = 0; i < poixInScope.Count - 1; i++) //<- -1 because theres 1 less areas than points
                     {
-                        //Current y value
-                        double y1 = Ymin + j * step;
-                        double y2 = Ymin + (j + 1) * step;
-                        double yC = y1 + step / 2;
+                        //Determine the X value in the middle of the span to be able to get relevant walls
+                        double x1 = poixInScope[i].X;
+                        double x2 = poixInScope[i + 1].X;
+                        double xC = (x1 + (x2 - x1) / 2).FtToMillimeters();
 
-                        //Determine nearest wall
-                        FamilyInstance nearestWall = wallsX.MinBy(x => Math.Abs(StartPoint(x, trf).Y - yC));
+                        //Determine relevant walls (that means the walls which are crossed by the current Xcentre value iteration)
+                        var wallsX = (from FamilyInstance fin in Walls
+                                      where StartPoint(fin, trf).X.FtToMillimeters() <= xC &&
+                                            EndPoint(fin, trf).X.FtToMillimeters() >= xC
+                                      select fin).OrderBy(x => StartPoint(x, trf).Y); //<- Not using Descending because the list is defined from up to down
 
-                        //Area of finite element
-                        double areaSqrM = ((x2 - x1) * (y2 - y1)).SqrFeetToSqrMeters();
+                        //Determine relevant boundaries (that means the boundaries which are crossed by the current Xcentre value iteration)
+                        var boundaryX = (from CurveElement cue in Bd
+                                         where StartPoint(cue, trf).X.FtToMillimeters() <= xC &&
+                                               EndPoint(cue, trf).X.FtToMillimeters() >= xC
+                                         select cue).ToHashSet();
 
-                        //Determine the correct load intensity at the finite element centre point
-                        XYZ cPointInOrigoCoords = new XYZ(xC, yC, 0);
-                        XYZ cPointInGlobalCoords = trfO.OfPoint(cPointInOrigoCoords);
+                        //First handle the walls
+                        //Create a linked list to be able select previous and next elements in sequence
+                        var wallsXlinked = new LinkedList<FamilyInstance>(wallsX);
+                        var node = wallsXlinked.Find(fi);
+                        var wallPositive = node?.Next?.Value;
+                        var wallNegative = node?.Previous?.Value;
 
-                        double loadIntensity = 0.0;
+                        //Select boundaries if no walls found at location
+                        CurveElement bdPositive = null, bdNegative = null;
+                        if (wallPositive == null) bdPositive = boundaryX.MaxBy(x => StartPoint(x, trf).Y);
+                        if (wallNegative == null) bdNegative = boundaryX.MinBy(x => StartPoint(x, trf).Y);
 
-                        for (int f = 0; f < faces.Count; f++)
+                        //Flow control
+                        bool isEdgePositive = false, isEdgeNegative = false; //<-- Indicates if the wall is on the boundary
+
+                        //Detect edge cases
+                        if (wallPositive == null && StartPoint(bdPositive, trf).Y.FtToMillimeters().Equals(Ycur.FtToMillimeters())) isEdgePositive = true;
+                        if (wallNegative == null && StartPoint(bdNegative, trf).Y.FtToMillimeters().Equals(Ycur.FtToMillimeters())) isEdgeNegative = true;
+
+                        //Prepare for roof load: if edge case detected select both boundaries
+                        if (isEdgePositive || isEdgeNegative)
                         {
-                            IntersectionResult result = faces[f].Project(cPointInGlobalCoords);
-                            if (result != null)
-                            {
-                                string rawLoadIntensity =
-                                    LoadAreas[f].get_Parameter(BuiltInParameter.ALL_MODEL_INSTANCE_COMMENTS).AsString();
-                                loadIntensity = double.Parse(rawLoadIntensity, CultureInfo.InvariantCulture);
-                                break;
-                            }
+                            if (bdPositive == null) bdPositive = boundaryX.MaxBy(x => StartPoint(x, trf).Y);
+                            if (bdNegative == null) bdNegative = boundaryX.MinBy(x => StartPoint(x, trf).Y);
+
+                            double widthRoofLoad = (StartPoint(bdPositive, trf).Y - StartPoint(bdNegative, trf).Y) / 2;
+                            double roofLoadArea = (widthRoofLoad * (x2 - x1)).SqrFeetToSqrMeters();
+                            double roofLoad = roofLoadIntensity * roofLoadArea;
+                            //load = load + roofLoad; //Write to the overall load variable
                         }
 
-                        double force = loadIntensity * areaSqrM;
+                        //Process the positive and negative side
+                        //Declare Y values
+                        double yP, yN;
 
-                        double currentValue = nearestWall.LookupParameter("GS_Load").AsDouble();
+                        //Declare combining list for vertices
+                        List<XYZ> vertices = new List<XYZ>();
+                        //Add points along the wall if one is edge case
+                        if (isEdgePositive || isEdgeNegative)
+                        {
+                            vertices.Add(NormPoint(x1.Round4(), Ycur.Round4(), trfO, LoadData.GS_View));
+                            vertices.Add(NormPoint(x2.Round4(), Ycur.Round4(), trfO, LoadData.GS_View));
+                        }
 
-                        double load = force + currentValue;
 
-                        nearestWall.LookupParameter("GS_Load").Set(load);
+                        #region Positive side
 
-                        nrTotal++;
+                        if (!isEdgePositive)
+                        {
+                            //Calculate Y values
+                            if (wallPositive != null) yP = Ycur + (StartPoint(wallPositive, trf).Y - Ycur) / 2;
+                            else yP = Ycur + (StartPoint(bdPositive, trf).Y - Ycur) / 2;
 
+                            //Create points from the X and Y values
+                            XYZ PxP1 = NormPoint(x1.Round4(), yP.Round4(), trfO, LoadData.GS_View);
+                            XYZ PxP2 = NormPoint(x2.Round4(), yP.Round4(), trfO, LoadData.GS_View);
+
+                            //Create a list of vertices to feed the solid builder
+                            vertices.Add(PxP1);
+                            vertices.Add(PxP2);
+
+                            nrTotal++;
+                        }
+
+                        #endregion
+
+
+                        #region Negative side
+
+                        if (!isEdgeNegative)
+                        {
+                            if (wallNegative != null)
+                                yN = StartPoint(wallNegative, trf).Y + (Ycur - StartPoint(wallNegative, trf).Y) / 2;
+                            else yN = StartPoint(bdNegative, trf).Y + (Ycur - StartPoint(bdNegative, trf).Y) / 2;
+
+                            //Create points from the X and Y values
+                            XYZ PxN1 = NormPoint(x1.Round4(), yN.Round4(), trfO, LoadData.GS_View);
+                            XYZ PxN2 = NormPoint(x2.Round4(), yN.Round4(), trfO, LoadData.GS_View);
+
+                            //Create a list of vertices to feed the solid builder
+                            vertices.Add(PxN1);
+                            vertices.Add(PxN2);
+
+                            nrTotal++;
+                        }
+                        #endregion
+
+                        //Create a list of vertices
+                        vertices = vertices.DistinctBy(xyz => new { X = xyz.X.Round4(), Y = xyz.Y.Round4() }).ToList();
+                        vertices = tr.ConvexHull(vertices);
+
+                        //Create a path from the Clipper framework
+                        Path wallLoadPath = CreatePath(vertices);
+                        //The defined precision of the Clipper objects
+                        long precision = 10000;
+
+                        //Debug
+                        //debug.Append((Clipper.Area(wallLoadPath) / (precision * precision)).SqrFeetToSqrMeters() + "+\n");
+
+                        //Iterate through the load areas and intersect them with wall load areas
+                        foreach (LoadArea la in LoadAreas)
+                        {
+                            Paths solution = new Paths();
+                            Clipper c = new Clipper();
+                            c.AddPath(wallLoadPath, PolyType.ptClip, true);
+                            c.AddPath(la.Path, PolyType.ptSubject, true);
+                            c.Execute(ClipType.ctIntersection, solution);
+                            foreach (Path path in solution)
+                            {
+                                double intArea = (Clipper.Area(path) / (precision * precision)).SqrFeetToSqrMeters();
+                                //debug.Append(intArea + " " + la.Load + " " + la.Load * intArea + "\n");
+                                //debug.Append((Clipper.Area(la.Path)/(precision*precision)).SqrFeetToSqrMeters()+"\n");
+                                load += intArea * la.Load;
+                                totalArea += intArea;
+                            }
+                        }
                     }
+                    fi.LookupParameter("GS_Load").Set(load / length); //Change meee!!
+                    debug.Append(length + " "+totalArea+" "+load+"\n" + load/length + "\n");
                 }
 
-                //Log
-                txBox.Text = nrI + ", " + nrJ + ": " + nrTotal;
-                //op.WriteDebugFile(mySettings.Default.debugFilePath, sbLog);
+                totalLoops = nrTotal;
                 return Result.Succeeded;
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
                 throw new Exception(e.Message);
-                return Result.Failed;
+                //return Result.Succeeded;
             }
+        }
+
+        public Result DrawLoadAreas(Document doc)
+        {
+            try
+            {
+                //Get the transform
+                Transform trfO = Origo.GetTransform();
+                Transform trf = trfO.Inverse;
+
+                //Get the list of boundaries and walls (to simplify the synthax)
+                HashSet<CurveElement> Bd = BoundaryData.BoundaryLines;
+                HashSet<FamilyInstance> Walls = WallsAlong.WallSymbols;
+
+                //The analysis proceeds in steps
+                double step = ((double)mySettings.Default.integerStepSize).MmToFeet();
+
+                foreach (FamilyInstance fi in Walls)
+                {
+                    //Determine the start X
+                    double Xmin = StartPoint(fi, trf).X;
+
+                    //Determine the end X
+                    double Xmax = EndPoint(fi, trf).X;
+
+                    //The y of the wall
+                    double Ycur = StartPoint(fi, trf).Y;
+
+                    ////Divide the largest X value by the step value to determine the number iterations in X direction
+                    int nrOfX = (int)Math.Floor((Xmax - Xmin) / step);
+
+                    //Debug
+                    double[] X, Y; X = new double[4]; Y = new double[4];
+
+                    //Iterate through the length of the current wall analyzing the load
+                    for (int i = 0; i < nrOfX; i++)
+                    {
+                        //Current x value
+                        double x1 = Xmin + i * step;
+                        double x2 = Xmin + (i + 1) * step;
+                        double xC = x1 + step / 2;
+
+                        //Debug
+                        if (i == 0)
+                        {
+                            X[0] = x1;
+                            X[2] = x1;
+                        }
+                        X[1] = x2;
+                        X[3] = x2;
+
+                        //Determine relevant walls (that means the walls which are crossed by the current X value iteration)
+                        var wallsX = (from FamilyInstance fin in Walls
+                                      where StartPoint(fin, trf).X <= xC && EndPoint(fin, trf).X >= xC
+                                      select fin).OrderBy(x => StartPoint(x, trf).Y); //<- Not using Descending because the list is defined from up to down
+
+                        //Determine relevant walls (that means the walls which are crossed by the current X value iteration)
+                        var boundaryX = (from CurveElement cue in Bd
+                                         where StartPoint(cue, trf).X <= xC && EndPoint(cue, trf).X >= xC
+                                         select cue).ToHashSet();
+
+                        //First handle the walls
+                        var wallsXlinked = new LinkedList<FamilyInstance>(wallsX);
+                        var listNode1 = wallsXlinked.Find(fi);
+                        var wallPositive = listNode1?.Next?.Value;
+                        var wallNegative = listNode1?.Previous?.Value;
+
+                        //Select boundaries if no walls found at location
+                        CurveElement bdPositive = null, bdNegative = null;
+                        if (wallPositive == null) bdPositive = boundaryX.MaxBy(x => StartPoint(x, trf).Y);
+                        if (wallNegative == null) bdNegative = boundaryX.MinBy(x => StartPoint(x, trf).Y);
+
+                        //Flow control
+                        bool isEdgePositive = false, isEdgeNegative = false; //<-- Indicates if the wall is on the boundary
+
+                        //Detect edge cases
+                        if (wallPositive == null && StartPoint(bdPositive, trf).Y.FtToMillimeters().Equals(Ycur.FtToMillimeters())) isEdgePositive = true;
+                        if (wallNegative == null && StartPoint(bdNegative, trf).Y.FtToMillimeters().Equals(Ycur.FtToMillimeters())) isEdgeNegative = true;
+
+                        //Init loop counters
+                        int nrOfYPos, nrOfYNeg;
+
+                        //Determine number of iterations in Y direction POSITIVE handling all cases
+                        //The 2* multiplier on step makes sure that iteration only happens on the half of the span
+                        if (wallPositive != null) nrOfYPos = (int)Math.Floor((StartPoint(wallPositive, trf).Y - Ycur) / (2 * step));
+                        else if (isEdgePositive) nrOfYPos = 0;
+                        else nrOfYPos = (int)Math.Floor((StartPoint(bdPositive, trf).Y - Ycur) / (2 * step));
+
+                        //Determine number of iterations in Y direction NEGATIVE handling all cases
+                        //The 2* multiplier on step makes sure that iteration only happens on the half of the span
+                        if (wallNegative != null) nrOfYNeg = (int)Math.Floor((-StartPoint(wallNegative, trf).Y + Ycur) / (2 * step));
+                        else if (isEdgeNegative) nrOfYNeg = 0;
+                        else nrOfYNeg = (int)Math.Floor((-StartPoint(bdNegative, trf).Y + Ycur) / (2 * step));
+
+                        //Iterate through the POSITIVE side
+                        for (int j = 0; j < nrOfYPos; j++)
+                        {
+                            //Current y value
+                            double y1 = Ycur + j * step;
+                            double y2 = Ycur + (j + 1) * step;
+
+                            //Debug
+                            if (i == 0 && j == nrOfYPos - 1) Y[0] = y2;
+                            if (j == nrOfYPos - 1)
+                            {
+                                Y[1] = y2;
+                                if (!Y[0].FtToMillimeters().Equals(Y[1].FtToMillimeters()))
+                                {
+                                    CreateLoadAreaBoundaries(doc, X[0], X[1], Y[0], trfO);
+                                    X[0] = x1; Y[0] = y2;
+                                }
+                                if (i == nrOfX - 1) CreateLoadAreaBoundaries(doc, X[0], X[1], Y[0], trfO);
+                            }
+                        }
+
+                        //Iterate through the NEGATIVE side
+                        for (int k = 0; k < nrOfYNeg; k++)
+                        {
+                            //Current y value
+                            double y1 = Ycur - k * step;
+                            double y2 = Ycur - (k + 1) * step;
+
+                            //Debug
+                            if (i == 0 && k == nrOfYNeg - 1) Y[2] = y2;
+                            if (k == nrOfYNeg - 1)
+                            {
+                                Y[3] = y2;
+                                if (!Y[2].FtToMillimeters().Equals(Y[3].FtToMillimeters()))
+                                {
+                                    CreateLoadAreaBoundaries(doc, X[2], X[3], Y[2], trfO);
+                                    X[2] = x1; Y[2] = y2;
+                                }
+                                if (i == nrOfX - 1) CreateLoadAreaBoundaries(doc, X[2], X[3], Y[2], trfO);
+                            }
+                        }
+                    }
+                }
+                return Result.Succeeded;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw new Exception(e.Message);
+            }
+        }
+
+        private void CreateLoadAreaBoundaries(Document doc, double x1, double x2, double y, Transform trfO)
+        {
+            XYZ p1 = new XYZ(x1, y, 0);
+            XYZ p1O = trfO.OfPoint(p1);
+            XYZ p2 = new XYZ(x2, y, 0);
+            XYZ p2O = trfO.OfPoint(p2);
+            Curve line = Line.CreateBound(p1O, p2O) as Curve;
+            var detailCurve = doc.Create.NewDetailCurve(LoadData.GS_View, line);
         }
 
         #endregion
@@ -239,46 +489,67 @@ namespace GeneralStability
         }
 
         /// <summary>
-        /// Returns the start point of the LocationCurve transformed to the reference coordinates.
+        /// Returns the start point of a Curve based Element.
         /// </summary>
-        /// <param name="fi">LocationCurve based FamilyInstance.</param>
-        /// <param name="trf">Inverse Transform of the reference coordinates.</param>
-        private static XYZ StartPoint(FamilyInstance fi, Transform trf)
+        /// <typeparam name="T">The type of the Element in question.</typeparam>
+        /// <param name="obj">The Element where to extract the start point.</param>
+        /// <param name="trf">The transform of the Origo.</param>
+        /// <returns>The start point of the Element's Curve as XYZ.</returns>
+        private static XYZ StartPoint<T>(T obj, Transform trf) where T : Element
         {
-            if (fi == null) return null;
-            LocationCurve loc = fi.Location as LocationCurve;
-            return trf.OfPoint(loc.Curve.GetEndPoint(0));
+            if (obj == null) return null;
+            if (obj is FamilyInstance)
+            {
+                FamilyInstance fi = obj as FamilyInstance;
+                LocationCurve loc = fi.Location as LocationCurve;
+                return trf.OfPoint(loc.Curve.GetEndPoint(0));
+            }
+            if (obj is CurveElement)
+            {
+                CurveElement cu = obj as CurveElement;
+                return trf.OfPoint(cu.GeometryCurve.GetEndPoint(0));
+            }
+            throw new Exception("Type not handled!");
         }
 
         /// <summary>
-        /// Returns the start point of the CurveElement transformed to the reference coordinates.
+        /// Returns the end point of a Curve based Element.
         /// </summary>
-        /// <param name="fi">CurveElement such as detail line.</param>
-        /// <param name="trf">Inverse Transform of the reference coordinates.</param>
-        private static XYZ StartPoint(CurveElement fi, Transform trf)
+        /// <typeparam name="T">The type of the Element in question.</typeparam>
+        /// <param name="obj">The Element where to extract the end point.</param>
+        /// <param name="trf">The transform of the Origo.</param>
+        /// <returns>The end point of the Element's Curve as XYZ.</returns>
+        private static XYZ EndPoint<T>(T obj, Transform trf) where T : Element
         {
-            return trf.OfPoint(fi.GeometryCurve.GetEndPoint(0));
+            if (obj == null) return null;
+            if (obj is FamilyInstance)
+            {
+                FamilyInstance fi = obj as FamilyInstance;
+                LocationCurve loc = fi.Location as LocationCurve;
+                return trf.OfPoint(loc.Curve.GetEndPoint(1));
+            }
+            if (obj is CurveElement)
+            {
+                CurveElement cu = obj as CurveElement;
+                return trf.OfPoint(cu.GeometryCurve.GetEndPoint(1));
+            }
+            throw new Exception("Type not handled!");
         }
 
         /// <summary>
-        /// Returns the end point of the LocationCurve transformed to the reference coordinates.
+        /// A method to create points on the same elevation as the specified view's associated level.
         /// </summary>
-        /// <param name="fi">LocationCurve based FamilyInstance.</param>
-        /// <param name="trf">Inverse Transform of the reference coordinates.</param>
-        private static XYZ EndPoint(FamilyInstance fi, Transform trf)
+        /// <param name="x">X in Origo.</param>
+        /// <param name="y">Y in Origo.</param>
+        /// <param name="trfO">Transform back to global coords.</param>
+        /// <param name="view">The view where to create the points.</param>
+        /// <returns>Returns the point at the level's elevation.</returns>
+        private static XYZ NormPoint(double x, double y, Transform trfO, ViewPlan view)
         {
-            LocationCurve loc = fi.Location as LocationCurve;
-            return trf.OfPoint(loc.Curve.GetEndPoint(1));
-        }
-
-        /// <summary>
-        /// Returns the end point of the CurveElement transformed to the reference coordinates.
-        /// </summary>
-        /// <param name="fi">CurveElement such as detail line.</param>
-        /// <param name="trf">Inverse Transform of the reference coordinates.</param>
-        private static XYZ EndPoint(CurveElement fi, Transform trf)
-        {
-            return trf.OfPoint(fi.GeometryCurve.GetEndPoint(1));
+            XYZ temp1 = new XYZ(x, y, 0);
+            XYZ temp2 = trfO.OfPoint(temp1);
+            double realZ = view.GenLevel.ProjectElevation;
+            return new XYZ(temp2.X.Round4(), temp2.Y.Round4(), realZ.Round4());
         }
 
         private static FamilyInstance GetOrigo(Document doc)
@@ -301,7 +572,7 @@ namespace GeneralStability
                 .ToHashSet();
         }
 
-        private static Face GetFace(FilledRegion fr, Options options)
+        public static Face GetFace(FilledRegion fr, Options options)
         {
             GeometryElement geometryElement = fr.get_Geometry(options);
             foreach (GeometryObject go in geometryElement)
@@ -310,6 +581,67 @@ namespace GeneralStability
                 return solid.Faces.get_Item(0);
             }
             return null;
+        }
+
+        private static Solid GetSolid(FilledRegion fr, Options options)
+        {
+            GeometryElement geometryElement = fr.get_Geometry(options);
+            return geometryElement.Select(go => go as Solid).FirstOrDefault();
+        }
+
+        /// <summary>
+        /// Creates a solid from a list of points. Intented to create single face solids for solid operations.
+        /// </summary>
+        /// <param name="vertices">A list of XYZ vertices of the face.</param>
+        /// <returns>A solid consisting of one face.</returns>
+        public static Solid CreateSolid(IList<XYZ> vertices)
+        {
+            TessellatedShapeBuilder builder = new TessellatedShapeBuilder();
+            //http://thebuildingcoder.typepad.com/blog/2014/05/directshape-performance-and-minimum-size.html
+            builder.OpenConnectedFaceSet(false);
+            builder.AddFace(new TessellatedFace(vertices, ElementId.InvalidElementId));
+            builder.CloseConnectedFaceSet();
+            builder.Build();
+            TessellatedShapeBuilderResult result = builder.GetBuildResult();
+            return result.GetGeometricalObjects()[0] as Solid;
+        }
+
+        public static DirectShape CreateDirectShape(Document doc, IList<GeometryObject> resultList)
+        {
+            DirectShape ds = DirectShape.CreateElement(doc, new ElementId(BuiltInCategory.OST_GenericModel));
+            ds.ApplicationId = "Application id";
+            ds.ApplicationDataId = "Geometry object id";
+            ds.Name = "Load area";
+            DirectShapeOptions dso = ds.GetOptions();
+            dso.ReferencingOption = DirectShapeReferencingOption.Referenceable;
+            ds.SetOptions(dso);
+            ds.SetShape(resultList);
+            doc.Regenerate();
+            return ds;
+        }
+
+        public static DirectShape CreateDirectShape(Document doc, Solid solid)
+        {
+            IList<GeometryObject> list = new List<GeometryObject>(1);
+            list.Add(solid);
+            DirectShape ds = DirectShape.CreateElement(doc, new ElementId(BuiltInCategory.OST_GenericModel));
+            ds.ApplicationId = "Application id";
+            ds.ApplicationDataId = "Geometry object id";
+            ds.Name = "Load area";
+            DirectShapeOptions dso = ds.GetOptions();
+            dso.ReferencingOption = DirectShapeReferencingOption.Referenceable;
+            ds.SetOptions(dso);
+            ds.SetShape(list);
+            doc.Regenerate();
+            return ds;
+        }
+
+        public static Path CreatePath(IList<XYZ> source)
+        {
+            long precision = 10000;
+            Path path = new Path(source.Count);
+            path.AddRange(source.Select(p => new IntPoint(p.X * precision, p.Y * precision)));
+            return path;
         }
     }
 
@@ -424,16 +756,61 @@ namespace GeneralStability
 
     public class LoadData
     {
-        public IList<FilledRegion> LoadAreas { get; }
+        public HashSet<LoadArea> LoadAreas { get; }
         public ViewPlan GS_View { get; }
 
         public LoadData(Document doc)
         {
             GS_View = fi.GetViewByName<ViewPlan>("GeneralStability", doc); //<-- this is a "magic" string. TODO: Find a better way to specify the view, maybe by using the current view.
 
-            LoadAreas = fi.GetElements<FilledRegion>(doc, GS_View.Id).ToList();
+            HashSet<FilledRegion> filledRegions = fi.GetElements<FilledRegion>(doc, GS_View.Id).ToHashSet();
+            LoadAreas = new HashSet<LoadArea>();
+            foreach (FilledRegion fr in filledRegions)
+            {
+                Options options = new Options();
+                options.ComputeReferences = true;
+                options.View = GS_View;
+                LoadAreas.Add(new LoadArea(fr, options));
+            }
         }
-
     }
 
+    public class LoadArea
+    {
+        public FilledRegion FilledRegion { get; }
+        public ElementId ElementId { get; }
+        //public Solid Solid { get; }
+        public Path Path { get; }
+        public double Load { get; }
+
+        public LoadArea(FilledRegion filledRegion, Options options)
+        {
+            try
+            {
+                FilledRegion = filledRegion;
+                ElementId = filledRegion.Id;
+                Load = double.Parse(filledRegion.get_Parameter(BuiltInParameter.ALL_MODEL_INSTANCE_COMMENTS).AsString(), CultureInfo.InvariantCulture);
+
+                //Create a new solid from the element solid
+                Face face = ir.GetFace(filledRegion, options);
+                IList<XYZ> source = new List<XYZ>();
+                foreach (CurveLoop curveLoop in face.GetEdgesAsCurveLoops())
+                {
+                    foreach (Curve curve in curveLoop)
+                    {
+                        source.Add(curve.GetEndPoint(0));
+                        source.Add(curve.GetEndPoint(1));
+                    }
+                }
+                source = source.DistinctBy(xyz => new { X = xyz.X.Round4(), Y = xyz.Y.Round4() }).ToList();
+                source = tr.ConvexHull(source.ToList());
+                Path = ir.CreatePath(source);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw new Exception(e.Message);
+            }
+        }
+    }
 }

@@ -58,6 +58,7 @@
     <Reference Include="System.Windows.Forms" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="clipper.cs" />
     <Compile Include="FileReader.cs" />
     <Compile Include="MyUtils.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

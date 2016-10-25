@@ -1,16 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Data.Linq;
-using MoreLinq;
 using System.Text;
 using System.Threading.Tasks;
 using Autodesk.Revit.DB;
-using Autodesk.Revit.DB.Electrical;
 using Autodesk.Revit.DB.Plumbing;
+using MoreLinq;
 
 namespace Shared
 {
@@ -88,27 +85,13 @@ namespace Shared
         }
     }
 
-    public class Output
+    public static class Output
     {
-        public static void WriteDebugFile(string filePath, StringBuilder whatToWrite)
+        public static void WriteDebugFile<T>(string filePath, T whatToWrite)
         {
-            //// Clear the output file
-            //System.IO.File.WriteAllBytes(filePath, new byte[0]);
+            // Clear the output file
+            System.IO.File.WriteAllBytes(filePath, new byte[0]);
 
-            //// Write to output file
-            using (StreamWriter w = File.AppendText(filePath))
-            {
-                w.Write(whatToWrite);
-                w.Close();
-            }
-        }
-
-        public static void WriteDebugFile(string filePath, string whatToWrite)
-        {
-            //// Clear the output file
-            //System.IO.File.WriteAllBytes(filePath, new byte[0]);
-
-            //// Write to output file
             using (StreamWriter w = File.AppendText(filePath))
             {
                 w.Write(whatToWrite);
@@ -204,9 +187,9 @@ namespace Shared
             return Util.SqrFootToSqrMeter(number);
         }
 
-        public static double myAbs(this Double number)
+        public static double Round4(this Double number)
         {
-            return number > 0 ? number : -number;
+            return Math.Round(number, 4, MidpointRounding.AwayFromZero);
         }
 
         public static bool IsEqual(this XYZ p, XYZ q)
@@ -215,35 +198,38 @@ namespace Shared
         }
     }
 
-    public static class MyMepUtils
+    public static class Transformation
     {
-        public static ConnectorSet GetConnectorSet(Element e)
+        #region Convex Hull
+        /// <summary>
+        /// Return the convex hull of a list of points 
+        /// using the Jarvis march or Gift wrapping:
+        /// https://en.wikipedia.org/wiki/Gift_wrapping_algorithm
+        /// Written by Maxence.
+        /// </summary>
+        public static List<XYZ> ConvexHull(List<XYZ> points)
         {
-            ConnectorSet connectors = null;
-
-            if (e is FamilyInstance)
+            if (points == null) throw new ArgumentNullException(nameof(points));
+            XYZ startPoint = points.MinBy(p => p.X);
+            var convexHullPoints = new List<XYZ>();
+            XYZ walkingPoint = startPoint;
+            XYZ refVector = XYZ.BasisY.Negate();
+            do
             {
-                MEPModel m = ((FamilyInstance)e).MEPModel;
-                if (null != m && null != m.ConnectorManager) connectors = m.ConnectorManager.Connectors;
-            }
-
-            else if (e is Wire) connectors = ((Wire)e).ConnectorManager.Connectors;
-
-            else
-            {
-                Debug.Assert(e.GetType().IsSubclassOf(typeof(MEPCurve)),
-                  "expected all candidate connector provider "
-                  + "elements to be either family instances or "
-                  + "derived from MEPCurve");
-
-                if (e is MEPCurve) connectors = ((MEPCurve)e).ConnectorManager.Connectors;
-            }
-            return connectors;
+                convexHullPoints.Add(walkingPoint);
+                XYZ wp = walkingPoint;
+                XYZ rv = refVector;
+                walkingPoint = points.MinBy(p =>
+                {
+                    double angle = (p - wp).AngleOnPlaneTo(rv, XYZ.BasisZ);
+                    if (angle < 1e-10) angle = 2 * Math.PI;
+                    return angle;
+                });
+                refVector = wp - walkingPoint;
+            } while (walkingPoint != startPoint);
+            convexHullPoints.Reverse();
+            return convexHullPoints;
         }
-
-        public static IList<Connector> GetALLConnectors(HashSet<Element> elements )
-        {
-            return (from e in elements from Connector c in GetConnectorSet(e) select c).ToHashSet();
-        }
+        #endregion //Convex Hull
     }
 }
