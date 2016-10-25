@@ -1,11 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Data.Linq;
+using MoreLinq;
 using System.Text;
 using System.Threading.Tasks;
 using Autodesk.Revit.DB;
+using Autodesk.Revit.DB.Electrical;
 using Autodesk.Revit.DB.Plumbing;
 
 namespace Shared
@@ -208,6 +212,38 @@ namespace Shared
         public static bool IsEqual(this XYZ p, XYZ q)
         {
             return 0 == Util.Compare(p, q);
+        }
+    }
+
+    public static class MyMepUtils
+    {
+        public static ConnectorSet GetConnectorSet(Element e)
+        {
+            ConnectorSet connectors = null;
+
+            if (e is FamilyInstance)
+            {
+                MEPModel m = ((FamilyInstance)e).MEPModel;
+                if (null != m && null != m.ConnectorManager) connectors = m.ConnectorManager.Connectors;
+            }
+
+            else if (e is Wire) connectors = ((Wire)e).ConnectorManager.Connectors;
+
+            else
+            {
+                Debug.Assert(e.GetType().IsSubclassOf(typeof(MEPCurve)),
+                  "expected all candidate connector provider "
+                  + "elements to be either family instances or "
+                  + "derived from MEPCurve");
+
+                if (e is MEPCurve) connectors = ((MEPCurve)e).ConnectorManager.Connectors;
+            }
+            return connectors;
+        }
+
+        public static IList<Connector> GetALLConnectors(HashSet<Element> elements )
+        {
+            return (from e in elements from Connector c in GetConnectorSet(e) select c).ToHashSet();
         }
     }
 }
