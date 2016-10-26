@@ -55,8 +55,8 @@ namespace MyRibbonPanel
             RibbonPanel rvtRibbonPanel = application.CreateRibbonPanel("MyRevitAddins");
             PushButtonData data = new PushButtonData("ConnectConnectors", "Connect Connectors", ExecutingAssemblyPath, "MyRibbonPanel.ConnectConnectors");
             data.ToolTip = myRibbonPanelToolTip;
-            data.Image = NewBitmapImage(exe, "MyRibbonPanel.ImgConnectConnectors16.png");
-            data.LargeImage = NewBitmapImage(exe, "MyRibbonPanel.ImgConnectConnectors32.png");
+            data.Image = NewBitmapImage(exe, "MyRibbonPanel.Resources.ImgConnectConnectors16.png");
+            data.LargeImage = NewBitmapImage(exe, "MyRibbonPanel.Resources.ImgConnectConnectors32.png");
             PushButton pushButton = rvtRibbonPanel.AddItem(data) as PushButton;
         }
 
@@ -67,15 +67,12 @@ namespace MyRibbonPanel
             {
                 try
                 {
-                    
-
                     using (Transaction trans = new Transaction(commandData.Application.ActiveUIDocument.Document))
                     {
                         trans.Start("Connect the Connectors!");
                         cn.ConnectTheConnectors(commandData);
                         trans.Commit();
                     }
-
                     return Result.Succeeded;
                 }
 
