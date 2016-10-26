@@ -38,7 +38,7 @@ namespace MyRibbonPanel
         static string ExecutingAssemblyPath = Assembly.GetExecutingAssembly().Location;
         // get ref to assembly
         Assembly exe = Assembly.GetExecutingAssembly();
-
+        
         public Result OnStartup(UIControlledApplication application)
         {
             AddMenu(application);
