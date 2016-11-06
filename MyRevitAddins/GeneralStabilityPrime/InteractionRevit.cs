@@ -65,8 +65,8 @@ namespace GeneralStability
 
                 //Get the list of boundaries and walls (to simplify the synthax)
                 HashSet<CurveElement> Bd = BoundaryData.BoundaryLines;
-                HashSet<FamilyInstance> Walls = WallsAlong.WallSymbols;
-                HashSet<FamilyInstance> Beams = BearingBeams.WallSymbols;
+                HashSet<FamilyInstance> Walls = WallsAlong.WallSymbols.ToHashSet();
+                HashSet<FamilyInstance> Beams = BearingBeams.WallSymbols.ToHashSet();
                 HashSet<Element> BdAndWalls = new HashSet<Element>();
                 BdAndWalls.UnionWith(Bd);
                 BdAndWalls.UnionWith(Walls);
@@ -256,7 +256,7 @@ namespace GeneralStability
                             }
                         }
                     }
-                    fi.LookupParameter("GS_Load").Set(load/length); //Change meee!!
+                    fi.LookupParameter("GS_Load").Set(load/length);
                     debug.Append(length + " "+totalArea+" "+load+"\n" + load/length + "\n");
                 }
 
@@ -281,7 +281,7 @@ namespace GeneralStability
 
                 //Get the list of boundaries and walls (to simplify the synthax)
                 HashSet<CurveElement> Bd = BoundaryData.BoundaryLines;
-                HashSet<FamilyInstance> Walls = WallsAlong.WallSymbols;
+                HashSet<FamilyInstance> Walls = WallsAlong.WallSymbols.ToHashSet();
 
                 //The analysis proceeds in steps
                 double step = ((double)mySettings.Default.integerStepSize).MmToFeet();
@@ -659,7 +659,7 @@ namespace GeneralStability
 
     public class WallData
     {
-        public HashSet<FamilyInstance> WallSymbols { get; }
+        public IList<FamilyInstance> WallSymbols { get; }
         public IList<double> Length { get; } = new List<double>();
         public IList<double> X { get; } = new List<double>();
         public IList<double> Y { get; } = new List<double>();
@@ -676,7 +676,7 @@ namespace GeneralStability
                     BuiltInParameter.SYMBOL_FAMILY_AND_TYPE_NAMES_PARAM))
                 .OrderBy(x => int.Parse(x.get_Parameter(BuiltInParameter.ALL_MODEL_MARK).AsString())) //Mark must be filled with integer numbers
                 .Cast<FamilyInstance>()
-                .ToHashSet();
+                .ToList();
 
             //Analyze the geometry to get x and y values
             //Obtain the transform from the Origo family

@@ -203,7 +203,6 @@ namespace GeneralStability
             this.textBox8.DataBindings.Add(new System.Windows.Forms.Binding("Text", global::GeneralStability.Properties.Settings.Default, "roofLoadIntensity", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
             this.textBox8.Location = new System.Drawing.Point(185, 184);
             this.textBox8.Name = "textBox8";
-            this.textBox8.ReadOnly = true;
             this.textBox8.Size = new System.Drawing.Size(61, 20);
             this.textBox8.TabIndex = 9;
             this.textBox8.Text = global::GeneralStability.Properties.Settings.Default.roofLoadIntensity;

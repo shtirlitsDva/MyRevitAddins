@@ -38,6 +38,8 @@ namespace GeneralStability
                 Mathcad.IMathcadPrimeMatrix mLx = ws3.CreateMatrix(rows, cols);
                 Mathcad.IMathcadPrimeMatrix mY = ws3.CreateMatrix(rows, cols);
                 Mathcad.IMathcadPrimeMatrix mBx = ws3.CreateMatrix(rows, cols);
+                //The calculated load for walls along
+                Mathcad.IMathcadPrimeMatrix mGx = ws3.CreateMatrix(rows, cols);
                 for (int i = 0; i < rows; i++)
                 {
                     for (int j = 0; j < cols; j++)
@@ -45,11 +47,15 @@ namespace GeneralStability
                         mLx.SetMatrixElement(i, j, ir.WallsAlong.Length[i]);
                         mY.SetMatrixElement(i, j, ir.WallsAlong.Y[i]);
                         mBx.SetMatrixElement(i, j, ir.WallsAlong.Thickness[i]);
+
+                        //Write calculated load for walls along
+                        mGx.SetMatrixElement(i,j, ir.WallsAlong.WallSymbols[i].LookupParameter("GS_Load").AsDouble());
                     }
                 }
                 ws3.SetMatrixValue("lx", mLx, "m");
                 ws3.SetMatrixValue("y", mY, "m");
                 ws3.SetMatrixValue("bx", mBx, "mm");
+                ws3.SetMatrixValue("calcLoadAlong", mGx, "kN/m");
 
                 //Walls across
                 cols = 1; rows = ir.WallsCross.WallSymbols.Count;
@@ -73,6 +79,7 @@ namespace GeneralStability
                 ws3.SetMatrixValue("ly", mLy, "m");
                 ws3.SetMatrixValue("x", mX, "m");
                 ws3.SetMatrixValue("by", mBy, "mm");
+
 
 
                 #region Development
