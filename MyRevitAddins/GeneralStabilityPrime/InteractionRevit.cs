@@ -28,6 +28,7 @@ namespace GeneralStability
         public FamilyInstance Origo { get; } //Holds the Origo family instance
         public WallData WallsAlong { get; }
         public WallData WallsCross { get; }
+        public WallData BearingBeams { get; }
         public BoundaryData BoundaryData { get; }
         public LoadData LoadData { get; }
 
@@ -39,7 +40,8 @@ namespace GeneralStability
 
             //Gather the detail components
             WallsAlong = new WallData("GS_Stabilizing_Wall: Stabilizing Wall - Along", Origo, doc);
-            WallsCross = new WallData("GS_Stabilizing_Wall: Stabilizing Wall - Cross", Origo, doc);
+            WallsCross = new WallData("GS_Stabilizing_Wall: Stabilizing Wall - Across", Origo, doc);
+            BearingBeams = new WallData("GS_Stabilizing_Wall: Bearing Beam - Along", Origo, doc);
 
             //Initialize boundary data
             BoundaryData = new BoundaryData("GS_Boundary", doc);
@@ -64,19 +66,16 @@ namespace GeneralStability
                 //Get the list of boundaries and walls (to simplify the synthax)
                 HashSet<CurveElement> Bd = BoundaryData.BoundaryLines;
                 HashSet<FamilyInstance> Walls = WallsAlong.WallSymbols;
+                HashSet<FamilyInstance> Beams = BearingBeams.WallSymbols;
                 HashSet<Element> BdAndWalls = new HashSet<Element>();
                 BdAndWalls.UnionWith(Bd);
                 BdAndWalls.UnionWith(Walls);
-                HashSet<LoadArea> LoadAreas = LoadData.LoadAreas;
-                //foreach (LoadArea la in LoadAreas)
-                //{
-                //    CreateDirectShape(doc, la.Solid);
-                //}
+                BdAndWalls.UnionWith(Beams);
 
-                //Get the solids of filled regions
-                Options options = new Options();
-                options.ComputeReferences = true;
-                options.View = LoadData.GS_View;
+                //I know it's messy, but beams need to be in walls too, apparently
+                Walls.UnionWith(Beams);
+
+                HashSet<LoadArea> LoadAreas = LoadData.LoadAreas;
 
                 //Roof load intensity
                 double roofLoadIntensity = double.Parse(mySettings.Default.roofLoadIntensity, CultureInfo.InvariantCulture);
@@ -168,7 +167,7 @@ namespace GeneralStability
                             double widthRoofLoad = (StartPoint(bdPositive, trf).Y - StartPoint(bdNegative, trf).Y) / 2;
                             double roofLoadArea = (widthRoofLoad * (x2 - x1)).SqrFeetToSqrMeters();
                             double roofLoad = roofLoadIntensity * roofLoadArea;
-                            //load = load + roofLoad; //Write to the overall load variable
+                            load = load + roofLoad; //Write to the overall load variable
                         }
 
                         //Process the positive and negative side
@@ -257,7 +256,7 @@ namespace GeneralStability
                             }
                         }
                     }
-                    fi.LookupParameter("GS_Load").Set(load / length); //Change meee!!
+                    fi.LookupParameter("GS_Load").Set(load/length); //Change meee!!
                     debug.Append(length + " "+totalArea+" "+load+"\n" + load/length + "\n");
                 }
 
@@ -453,7 +452,7 @@ namespace GeneralStability
                     fi.get_Parameter(BuiltInParameter.ALL_MODEL_MARK).Set(idx.ToString());
                 }
 
-                name = "GS_Stabilizing_Wall: Stabilizing Wall - Cross";
+                name = "GS_Stabilizing_Wall: Stabilizing Wall - Across";
                 HashSet<FamilyInstance> cross = GetWallSymbolsUnordered(name, doc);
                 IList<FamilyInstance> wallsCrossSorted = OrderGeometrically(cross, Origo);
 
@@ -463,6 +462,19 @@ namespace GeneralStability
                     idx++;
                     fi.get_Parameter(BuiltInParameter.ALL_MODEL_MARK).Set(idx.ToString());
                 }
+
+                name = "GS_Stabilizing_Wall: Bearing Beam - Along";
+                HashSet<FamilyInstance> beams = GetWallSymbolsUnordered(name, doc);
+                IList<FamilyInstance> beamsAlongSorted = OrderGeometrically(beams, Origo);
+
+                idx = 0;
+                foreach (FamilyInstance fi in beamsAlongSorted)
+                {
+                    idx++;
+                    fi.get_Parameter(BuiltInParameter.ALL_MODEL_MARK).Set(idx.ToString());
+                }
+
+
             }
             catch (Exception e)
             {
