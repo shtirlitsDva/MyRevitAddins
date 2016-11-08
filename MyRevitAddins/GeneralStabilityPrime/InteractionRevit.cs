@@ -167,7 +167,7 @@ namespace GeneralStability
                             double widthRoofLoad = (StartPoint(bdPositive, trf).Y - StartPoint(bdNegative, trf).Y) / 2;
                             double roofLoadArea = (widthRoofLoad * (x2 - x1)).SqrFeetToSqrMeters();
                             double roofLoad = roofLoadIntensity * roofLoadArea;
-                            load = load + roofLoad; //Write to the overall load variable
+                            load += roofLoad; //Write to the overall load variable
                         }
 
                         //Process the positive and negative side
