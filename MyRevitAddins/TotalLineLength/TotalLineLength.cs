@@ -1,40 +1,49 @@
-﻿using System;
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 //using MoreLinq;
+using System.Text;
 using Autodesk.Revit.UI;
+using Shared;
 using Autodesk.Revit.DB;
+using Autodesk.Revit.UI.Selection;
 using fi = Shared.Filter;
 using ut = Shared.Util;
 using op = Shared.Output;
 using mp = Shared.MyMepUtils;
 //using mySettings = GeneralStability.Properties.Settings;
 
-namespace ConnectConnectors
+namespace TotalLineLength
 {
-    public class ConnectConnectors
+    public class TotalLineLength
     {
-        public static void ConnectTheConnectors(ExternalCommandData commandData)
+        public static void TotalLineLengths(ExternalCommandData commandData)
         {
             var app = commandData.Application;
             var uiDoc = app.ActiveUIDocument;
             var doc = uiDoc.Document;
             var selection = uiDoc.Selection.GetElementIds();
             var elements = new HashSet<Element>(from ElementId id in selection select doc.GetElement(id));
-            var connectors = mp.GetALLConnectors(elements);
-            //Find duplicate
-            bool foundIt = false;
-            while (!foundIt)
+
+            double totalLength = 0;
+
+            foreach (Element el in elements)
             {
-                if (connectors.Count < 2) throw new Exception("No eligible connectors found! Check alignment.");
-                Connector c1 = connectors[0];
-                connectors.RemoveAt(0);
-                foreach (Connector c2 in connectors.Where(c2 => ut.IsEqual(c1.Origin, c2.Origin)))
+                if (el == null)
                 {
-                    c1.ConnectTo(c2);
-                    foundIt = true;
+                    Shared.Util.ErrorMsg("One of the selected elements is null.");
                     break;
                 }
+
+                if (el is DetailCurve)
+                {
+                    DetailCurve dc = el as DetailCurve;
+                    Curve gc = dc.GeometryCurve;
+                    totalLength += gc.Length;
+                }
+
+
             }
         }
     }
