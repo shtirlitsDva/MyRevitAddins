@@ -42,7 +42,7 @@ namespace TotalLineLength
                     totalLength += dc.GeometryCurve.Length;
                 }
 
-                if (el is ModelCurve)
+                else if (el is ModelCurve)
                 {
                     ModelCurve mc = el as ModelCurve;
                     totalLength += mc.GeometryCurve.Length;
