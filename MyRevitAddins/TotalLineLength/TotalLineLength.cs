@@ -32,19 +32,20 @@ namespace TotalLineLength
             {
                 if (el == null)
                 {
-                    Shared.Util.ErrorMsg("One of the selected elements is null.");
+                    ut.ErrorMsg("One of the selected elements is null.");
                     break;
                 }
 
                 if (el is DetailCurve)
                 {
                     DetailCurve dc = el as DetailCurve;
-                    Curve gc = dc.GeometryCurve;
-                    totalLength += gc.Length;
+                    totalLength += dc.GeometryCurve.Length;
                 }
 
-
+                else ut.ErrorMsg(el.Name.ToString()+" is not implemented!");
             }
+
+            ut.InfoMsg(totalLength.FtToMillimeters().Round4().ToString());
         }
     }
 }

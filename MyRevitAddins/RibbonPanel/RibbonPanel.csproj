@@ -66,6 +66,10 @@
       <Project>{1a8437e5-fa90-42ef-9682-7957445ead85}</Project>
       <Name>ConnectConnectors</Name>
     </ProjectReference>
+    <ProjectReference Include="..\TotalLineLength\TotalLineLength.csproj">
+      <Project>{0224ac94-6e3a-421d-bf41-62f411082735}</Project>
+      <Name>TotalLineLength</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\Resources.resx">
@@ -74,6 +78,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Resources\ImgConnectConnectors16.png" />
     <EmbeddedResource Include="Resources\ImgConnectConnectors32.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\ImgTotalLineLength32.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\ImgTotalLineLength16.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
