@@ -42,6 +42,12 @@ namespace TotalLineLength
                     totalLength += dc.GeometryCurve.Length;
                 }
 
+                if (el is ModelCurve)
+                {
+                    ModelCurve mc = el as ModelCurve;
+                    totalLength += mc.GeometryCurve.Length;
+                }
+
                 else ut.ErrorMsg(el.Name.ToString()+" is not implemented!");
             }
 
