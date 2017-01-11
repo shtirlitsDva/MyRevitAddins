@@ -31,6 +31,12 @@ namespace ConnectConnectors
                 connectors.RemoveAt(0);
                 foreach (Connector c2 in connectors.Where(c2 => ut.IsEqual(c1.Origin, c2.Origin)))
                 {
+                    if (c1.IsConnectedTo(c2))
+                    {
+                        c1.DisconnectFrom(c2);
+                        foundIt = true;
+                        break;
+                    }
                     c1.ConnectTo(c2);
                     foundIt = true;
                     break;
