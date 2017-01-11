@@ -10,6 +10,7 @@ using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
 using cn = ConnectConnectors.ConnectConnectors;
 using tl = TotalLineLength.TotalLineLength;
+using piv = PipeInsulationVisibility.PipeInsulationVisibility;
 using Document = Autodesk.Revit.Creation.Document;
 
 #endregion
@@ -70,6 +71,14 @@ namespace MyRibbonPanel
             data.Image = NewBitmapImage(exe, "MyRibbonPanel.Resources.ImgTotalLineLength16.png");
             data.LargeImage = NewBitmapImage(exe, "MyRibbonPanel.Resources.ImgTotalLineLength32.png");
             PushButton totLentgths = rvtRibbonPanel.AddItem(data) as PushButton;
+
+            //PipeInsulationVisibility
+            data = new PushButtonData("PipeInsulationVisibility", "Toggle Pipe Insulation visibility", ExecutingAssemblyPath,
+                "MyRibbonPanel.PipeInsulationVisibility");
+            data.ToolTip = myRibbonPanelToolTip;
+            data.Image = NewBitmapImage(exe, "MyRibbonPanel.Resources.ImgPipeInsulationVisibility16.png");
+            data.LargeImage = NewBitmapImage(exe, "MyRibbonPanel.Resources.ImgPipeInsulationVisibility32.png");
+            PushButton pipeInsulationVisibility = rvtRibbonPanel.AddItem(data) as PushButton;
         }
     }
     
@@ -110,6 +119,32 @@ namespace MyRibbonPanel
                 {
                     trans.Start("Calculate total length of selected lines!");
                     tl.TotalLineLengths(commandData);
+                    trans.Commit();
+                }
+                return Result.Succeeded;
+            }
+
+            catch (Autodesk.Revit.Exceptions.OperationCanceledException) { return Result.Cancelled; }
+
+            catch (Exception ex)
+            {
+                message = ex.Message;
+                return Result.Failed;
+            }
+        }
+    }
+
+    [Autodesk.Revit.Attributes.Transaction(Autodesk.Revit.Attributes.TransactionMode.Manual)]
+    class PipeInsulationVisibility : IExternalCommand
+    {
+        public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
+        {
+            try
+            {
+                using (Transaction trans = new Transaction(commandData.Application.ActiveUIDocument.Document))
+                {
+                    trans.Start("Toggle Pipe Insulation visibility!");
+                    piv.TogglePipeInsulationVisibility(commandData);
                     trans.Commit();
                 }
                 return Result.Succeeded;
