@@ -4,6 +4,7 @@ using System.Linq;
 //using MoreLinq;
 using Autodesk.Revit.UI;
 using Autodesk.Revit.DB;
+using System.Text;
 using fi = Shared.Filter;
 using ut = Shared.Util;
 using op = Shared.Output;
@@ -23,6 +24,8 @@ namespace PipeInsulationVisibility
             Category pipeInsCat = Category.GetCategory(doc, BuiltInCategory.OST_PipeInsulations);
 
             View curView = doc.ActiveView;
+
+            //Handle built in category Pipe Insulations
             if (curView.GetCategoryHidden(pipeInsCat.Id))
             {
                 curView.SetCategoryHidden(pipeInsCat.Id, false);
@@ -31,6 +34,25 @@ namespace PipeInsulationVisibility
             {
                 curView.SetCategoryHidden(pipeInsCat.Id, true);
             }
+
+            //Handle custom Insulation category I use in Tees
+            Category pipeFitCat = Category.GetCategory(doc, BuiltInCategory.OST_PipeFitting);
+
+            var pipeFitCatSubs = pipeFitCat.SubCategories;
+            var insulCat = (from Category cat in pipeFitCatSubs where cat.Name == "Insulation" select cat).FirstOrDefault();
+
+            if (insulCat != null)
+            {
+                if (!curView.GetCategoryHidden(pipeInsCat.Id))
+                {
+                    curView.SetCategoryHidden(insulCat.Id, false);
+                }
+                else
+                {
+                    curView.SetCategoryHidden(insulCat.Id, true);
+                }
+            }
+
         }
     }
 }
