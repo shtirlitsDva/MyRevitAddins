@@ -4,12 +4,12 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using MoreLinq;
 using System.Text;
 using System.Threading.Tasks;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.DB.Electrical;
 using Autodesk.Revit.DB.Plumbing;
-using MoreLinq;
 
 namespace Shared
 {
@@ -241,6 +241,62 @@ namespace Shared
 
     public static class MyMepUtils
     {
+        public static FilteredElementCollector GetElementsWithConnectors(Document doc)
+        {
+            // what categories of family instances
+            // are we interested in?
+            // From here: http://thebuildingcoder.typepad.com/blog/2010/06/retrieve-mep-elements-and-connectors.html
+
+            BuiltInCategory[] bics = new BuiltInCategory[]
+            {
+                //BuiltInCategory.OST_CableTray,
+                //BuiltInCategory.OST_CableTrayFitting,
+                //BuiltInCategory.OST_Conduit,
+                //BuiltInCategory.OST_ConduitFitting,
+                //BuiltInCategory.OST_DuctCurves,
+                //BuiltInCategory.OST_DuctFitting,
+                //BuiltInCategory.OST_DuctTerminal,
+                //BuiltInCategory.OST_ElectricalEquipment,
+                //BuiltInCategory.OST_ElectricalFixtures,
+                //BuiltInCategory.OST_LightingDevices,
+                //BuiltInCategory.OST_LightingFixtures,
+                //BuiltInCategory.OST_MechanicalEquipment,
+                BuiltInCategory.OST_PipeAccessory,
+                BuiltInCategory.OST_PipeCurves,
+                BuiltInCategory.OST_PipeFitting,
+                //BuiltInCategory.OST_PlumbingFixtures,
+                //BuiltInCategory.OST_SpecialityEquipment,
+                //BuiltInCategory.OST_Sprinklers,
+                //BuiltInCategory.OST_Wire
+            };
+
+            IList<ElementFilter> a = new List<ElementFilter>(bics.Count());
+
+            foreach (BuiltInCategory bic in bics) a.Add(new ElementCategoryFilter(bic));
+
+            LogicalOrFilter categoryFilter = new LogicalOrFilter(a);
+
+            LogicalAndFilter familyInstanceFilter = new LogicalAndFilter(categoryFilter, new ElementClassFilter(typeof(FamilyInstance)));
+
+            //IList<ElementFilter> b = new List<ElementFilter>(6);
+            IList<ElementFilter> b = new List<ElementFilter>();
+
+            //b.Add(new ElementClassFilter(typeof(CableTray)));
+            //b.Add(new ElementClassFilter(typeof(Conduit)));
+            //b.Add(new ElementClassFilter(typeof(Duct)));
+            b.Add(new ElementClassFilter(typeof(Pipe)));
+
+            b.Add(familyInstanceFilter);
+
+            LogicalOrFilter classFilter = new LogicalOrFilter(b);
+
+            FilteredElementCollector collector = new FilteredElementCollector(doc);
+
+            collector.WherePasses(classFilter);
+
+            return collector;
+        }
+
         public static ConnectorSet GetConnectorSet(Element e)
         {
             ConnectorSet connectors = null;
@@ -265,9 +321,14 @@ namespace Shared
             return connectors;
         }
 
-        public static IList<Connector> GetALLConnectors(HashSet<Element> elements)
+        public static HashSet<Connector> GetALLConnectorsFromElements(HashSet<Element> elements)
         {
-            return (from e in elements from Connector c in GetConnectorSet(e) select c).ToList();
+            return (from e in elements from Connector c in GetConnectorSet(e) select c).ToHashSet();
+        }
+
+        public static HashSet<Connector> GetALLConnectorsInDocument(Document doc)
+        {
+            return (from e in GetElementsWithConnectors(doc) from Connector c in GetConnectorSet(e) select c).ToHashSet();
         }
     }
 }
