@@ -36,7 +36,7 @@ namespace ConnectConnectors
                         allConnectors.RemoveAt(i);
                         foreach (Connector c2 in allConnectors.Where(c2 => ut.IsEqual(c1.Origin, c2.Origin)))
                         {
-                            if (c1.IsConnected) break; //If the connector is already connected it will throw an exception
+                            if (c1.IsConnected || c2.IsConnected) break; //If the connector is already connected it will throw an exception
                             c1.ConnectTo(c2);
                             foundIt = true;
                             break;
