@@ -18,11 +18,40 @@ namespace Shared
         public static ElementParameterFilter ParameterValueFilter(string valueQualifier, BuiltInParameter parameterName)
         {
             BuiltInParameter testParam = parameterName;
-            ParameterValueProvider pvp = new ParameterValueProvider(new ElementId((int) testParam));
+            ParameterValueProvider pvp = new ParameterValueProvider(new ElementId((int)testParam));
             FilterStringRuleEvaluator str = new FilterStringContains();
             FilterStringRule paramFr = new FilterStringRule(pvp, str, valueQualifier, false);
             ElementParameterFilter epf = new ElementParameterFilter(paramFr);
             return epf;
+        }
+
+        public static LogicalOrFilter FamSymbolsAndPipeTypes()
+        {
+            BuiltInCategory[] bics = new BuiltInCategory[]
+            {
+                BuiltInCategory.OST_PipeAccessory,
+                BuiltInCategory.OST_PipeCurves,
+                BuiltInCategory.OST_PipeFitting,
+            };
+
+            IList<ElementFilter> a = new List<ElementFilter>(bics.Count());
+
+            foreach (BuiltInCategory bic in bics) a.Add(new ElementCategoryFilter(bic));
+
+            LogicalOrFilter categoryFilter = new LogicalOrFilter(a);
+
+            LogicalAndFilter familySymbolFilter = new LogicalAndFilter(categoryFilter,
+                new ElementClassFilter(typeof(FamilySymbol)));
+
+            IList<ElementFilter> b = new List<ElementFilter>();
+
+            b.Add(new ElementClassFilter(typeof(PipeType)));
+
+            b.Add(familySymbolFilter);
+
+            LogicalOrFilter classFilter = new LogicalOrFilter(b);
+
+            return classFilter;
         }
 
         public static LogicalOrFilter FamInstOfDetailComp()
@@ -39,7 +68,7 @@ namespace Shared
             LogicalOrFilter categoryFilter = new LogicalOrFilter(a);
 
             LogicalAndFilter familySymbolFilter = new LogicalAndFilter(categoryFilter,
-                new ElementClassFilter(typeof (FamilyInstance)));
+                new ElementClassFilter(typeof(FamilyInstance)));
 
             IList<ElementFilter> b = new List<ElementFilter>();
 
@@ -58,7 +87,7 @@ namespace Shared
         /// <returns>The list of elements of the specified type</returns>
         public static IEnumerable<T> GetElements<T>(Document document) where T : Element
         {
-            return new FilteredElementCollector(document).OfClass(typeof (T)).Cast<T>();
+            return new FilteredElementCollector(document).OfClass(typeof(T)).Cast<T>();
         }
 
         /// <summary>
@@ -71,7 +100,7 @@ namespace Shared
         /// <returns>The list of elements of the specified type</returns>
         public static IEnumerable<T> GetElements<T>(Document document, ElementId id) where T : Element
         {
-            return new FilteredElementCollector(document, id).OfClass(typeof (T)).Cast<T>();
+            return new FilteredElementCollector(document, id).OfClass(typeof(T)).Cast<T>();
         }
 
         /// <summary>
@@ -107,7 +136,7 @@ namespace Shared
     public class Conversion
     {
         const double _inch_to_mm = 25.4;
-        const double _foot_to_mm = 12*_inch_to_mm;
+        const double _foot_to_mm = 12 * _inch_to_mm;
         const double _foot_to_inch = 12;
 
         /// <summary>
@@ -116,7 +145,7 @@ namespace Shared
         public static string RealString(double a)
         {
             //return a.ToString("0.##");
-            return (Math.Truncate(a*100)/100).ToString("0.00", CultureInfo.GetCultureInfo("en-GB"));
+            return (Math.Truncate(a * 100) / 100).ToString("0.00", CultureInfo.GetCultureInfo("en-GB"));
         }
 
         /// <summary>
@@ -125,27 +154,27 @@ namespace Shared
         public static string PointStringMm(XYZ p)
         {
             return string.Format("{0:0.00} {1:0.00} {2:0.00}",
-                RealString(p.X*_foot_to_mm),
-                RealString(p.Y*_foot_to_mm),
-                RealString(p.Z*_foot_to_mm));
+                RealString(p.X * _foot_to_mm),
+                RealString(p.Y * _foot_to_mm),
+                RealString(p.Z * _foot_to_mm));
         }
 
         public static string PointStringInch(XYZ p)
         {
             return string.Format("{0:0.00} {1:0.00} {2:0.00}",
-                RealString(p.X*_foot_to_inch),
-                RealString(p.Y*_foot_to_inch),
-                RealString(p.Z*_foot_to_inch));
+                RealString(p.X * _foot_to_inch),
+                RealString(p.Y * _foot_to_inch),
+                RealString(p.Z * _foot_to_inch));
         }
 
         public static string PipeSizeToMm(double l)
         {
-            return string.Format("{0}", Math.Round(l*2*_foot_to_mm));
+            return string.Format("{0}", Math.Round(l * 2 * _foot_to_mm));
         }
 
         public static string PipeSizeToInch(double l)
         {
-            return string.Format("{0}", RealString(l*2*_foot_to_inch));
+            return string.Format("{0}", RealString(l * 2 * _foot_to_inch));
         }
 
         public static string AngleToPCF(double l)
@@ -155,12 +184,12 @@ namespace Shared
 
         public static double RadianToDegree(double angle)
         {
-            return angle*(180.0/Math.PI);
+            return angle * (180.0 / Math.PI);
         }
 
         public static double DegreeToRadian(double angle)
         {
-            return Math.PI*angle/180.0;
+            return Math.PI * angle / 180.0;
         }
     }
 
@@ -196,6 +225,11 @@ namespace Shared
             return Math.Round(number, 4, MidpointRounding.AwayFromZero);
         }
 
+        public static double Round3(this Double number)
+        {
+            return Math.Round(number, 3, MidpointRounding.AwayFromZero);
+        }
+
         public static bool IsEqual(this XYZ p, XYZ q)
         {
             return 0 == Util.Compare(p, q);
@@ -227,7 +261,7 @@ namespace Shared
                 walkingPoint = points.MinBy(p =>
                 {
                     double angle = (p - wp).AngleOnPlaneTo(rv, XYZ.BasisZ);
-                    if (angle < 1e-10) angle = 2*Math.PI;
+                    if (angle < 1e-10) angle = 2 * Math.PI;
                     return angle;
                 });
                 refVector = wp - walkingPoint;
@@ -237,6 +271,98 @@ namespace Shared
         }
 
         #endregion //Convex Hull
+
+        public static void RotateElementInPosition(Connector conOnFamilyToConnect, Connector hostPipeCon1, Element element)
+        {
+            #region Geometric manipulation
+
+            //http://thebuildingcoder.typepad.com/blog/2012/05/create-a-pipe-cap.html
+
+            //Centre of element
+            XYZ placementPoint = hostPipeCon1.Origin;
+
+            //Select the OTHER connector
+            MEPCurve hostPipe = hostPipeCon1.Owner as MEPCurve;
+
+            Connector hostPipeCon2 = (from Connector c in hostPipe.ConnectorManager.Connectors //End of the host/dummy pipe
+                             where c.Id != hostPipeCon1.Id && (int)c.ConnectorType == 1
+                             select c).FirstOrDefault();
+
+            XYZ dir = (hostPipeCon1.Origin - hostPipeCon2.Origin);
+
+            // rotate the cap if necessary
+            // rotate about Z first
+
+            XYZ pipeHorizontalDirection = new XYZ(dir.X, dir.Y, 0.0).Normalize();
+
+            //XYZ connectorDirection = new XYZ(1,0,0);
+            XYZ connectorDirection = -conOnFamilyToConnect.CoordinateSystem.BasisZ;
+
+            double zRotationAngle = pipeHorizontalDirection.AngleTo(connectorDirection);
+
+            Transform trf = Transform.CreateRotationAtPoint(XYZ.BasisZ, zRotationAngle, placementPoint);
+
+            XYZ testRotation = trf.OfVector(connectorDirection).Normalize();
+
+            if (Math.Abs(testRotation.DotProduct(pipeHorizontalDirection) - 1) > 0.00001) zRotationAngle = -zRotationAngle;
+
+            Line axis = Line.CreateBound(placementPoint, placementPoint + XYZ.BasisZ);
+
+            ElementTransformUtils.RotateElement(element.Document, element.Id, axis, zRotationAngle);
+
+            //Parameter comments = element.get_Parameter(BuiltInParameter.ALL_MODEL_INSTANCE_COMMENTS);
+            //comments.Set("Horizontal only");
+
+            // Need to rotate vertically?
+
+            if (Math.Abs(dir.DotProduct(XYZ.BasisZ)) > 0.000001)
+            {
+                // if pipe is straight up and down, 
+                // kludge it my way else
+
+                if (dir.X.Round3() == 0 && dir.Y.Round3() == 0 && dir.Z.Round3() != 0)
+                {
+                    XYZ yaxis = new XYZ(0.0, 1.0, 0.0);
+                    //XYZ yaxis = dir.CrossProduct(connectorDirection);
+
+                    double rotationAngle = dir.AngleTo(yaxis);
+                    //double rotationAngle = 90;
+
+                    if (dir.Z.Equals(1)) rotationAngle = -rotationAngle;
+
+                    axis = Line.CreateBound(placementPoint, new XYZ(placementPoint.X, placementPoint.Y + 5, placementPoint.Z));
+
+                    ElementTransformUtils.RotateElement(element.Document, element.Id, axis, rotationAngle);
+
+                    //comments.Set("Vertical!");
+                }
+                else
+                {
+                    #region sloped pipes
+
+                    double rotationAngle = dir.AngleTo(pipeHorizontalDirection);
+
+                    XYZ normal = pipeHorizontalDirection.CrossProduct(XYZ.BasisZ);
+
+                    trf = Transform.CreateRotationAtPoint(normal, rotationAngle, placementPoint);
+
+                    testRotation = trf.OfVector(dir).Normalize();
+
+                    if (Math.Abs(testRotation.DotProduct(pipeHorizontalDirection) - 1) < 0.00001)
+                        rotationAngle = -rotationAngle;
+
+                    axis = Line.CreateBound(placementPoint, placementPoint + normal);
+
+                    ElementTransformUtils.RotateElement(element.Document, element.Id, axis, rotationAngle);
+
+                    //comments.Set("Sloped");
+
+                    #endregion
+                }
+            }
+            #endregion
+        }
+
     }
 
     public static class MyMepUtils
@@ -303,20 +429,20 @@ namespace Shared
 
             if (e is FamilyInstance)
             {
-                MEPModel m = ((FamilyInstance) e).MEPModel;
+                MEPModel m = ((FamilyInstance)e).MEPModel;
                 if (null != m && null != m.ConnectorManager) connectors = m.ConnectorManager.Connectors;
             }
 
-            else if (e is Wire) connectors = ((Wire) e).ConnectorManager.Connectors;
+            else if (e is Wire) connectors = ((Wire)e).ConnectorManager.Connectors;
 
             else
             {
-                Debug.Assert(e.GetType().IsSubclassOf(typeof (MEPCurve)),
+                Debug.Assert(e.GetType().IsSubclassOf(typeof(MEPCurve)),
                     "expected all candidate connector provider "
                     + "elements to be either family instances or "
                     + "derived from MEPCurve");
 
-                if (e is MEPCurve) connectors = ((MEPCurve) e).ConnectorManager.Connectors;
+                if (e is MEPCurve) connectors = ((MEPCurve)e).ConnectorManager.Connectors;
             }
             return connectors;
         }
