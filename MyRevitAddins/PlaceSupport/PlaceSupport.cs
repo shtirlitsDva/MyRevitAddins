@@ -22,50 +22,65 @@ namespace PlaceSupport
             var app = commandData.Application;
             var uiDoc = app.ActiveUIDocument;
             var doc = uiDoc.Document;
-            var selection = uiDoc.Selection.GetElementIds();
-
-            if (selection == null) throw new Exception("Select ONE pipe!");
-            if (selection.Count > 1) throw new Exception("Select only ONE pipe!");
 
             try
             {
-                //Collect pipe's connectors
-                Element hostPipe = doc.GetElement((from ElementId id in selection select id).FirstOrDefault());
-                var oneOfPipeCons = (from Connector c in mp.GetConnectorSet(hostPipe) where (int)c.ConnectorType == 1 select c).FirstOrDefault();
+                //Select a pipe
+                var selectedPipe = ut.SelectSingleElementOfType(uiDoc, typeof(Pipe),
+                    "Select a pipe where to place a support!", false);
+                //Get end connectors
+                var conQuery = (from Connector c in mp.GetALLConnectorsFromElements(selectedPipe)
+                               where (int)c.ConnectorType == 1
+                               select c).ToList();
 
+                Connector c1 = conQuery.First();
+                Connector c2 = conQuery.Last();
+                //Define a plane by three points
+                var plane = Plane.CreateByThreePoints(c1.Origin, c2.Origin, new XYZ(c1.Origin.X + 5, c1.Origin.Y, c1.Origin.Z));
+                //Set view sketch plane to the be the created plane
+                var sp = SketchPlane.Create(doc, plane);
+                uiDoc.ActiveView.SketchPlane = sp;
+                //Get a 3d point by picking a point
+                XYZ point_in_3d = null;
+                try
+                {
+                    point_in_3d = uiDoc.Selection.PickPoint(
+                      "Please pick a point on the plane" 
+                      + " defined by the selected face");
+                }
+                catch (OperationCanceledException)
+                {
+                }
+                
                 //Get family symbol
                 FilteredElementCollector collector = new FilteredElementCollector(doc);
                 ElementParameterFilter filter = fi.ParameterValueFilter("Support Symbolic: ANC", BuiltInParameter.SYMBOL_FAMILY_AND_TYPE_NAMES_PARAM);
                 LogicalOrFilter classFilter = fi.FamSymbolsAndPipeTypes();
                 FamilySymbol familySymbol = (FamilySymbol)collector.WherePasses(classFilter).WherePasses(filter).FirstOrDefault();
+                if (familySymbol == null) throw new Exception("No SUPPORT FamilySymbol loaded in project!");
 
                 //Get the host pipe level
-                Level level = (Level) doc.GetElement(hostPipe.LevelId);
-                
+                Level level = (Level)doc.GetElement(selectedPipe.LevelId);
+
                 //Create the support instance
-                Element support = doc.Create.NewFamilyInstance(oneOfPipeCons.Origin, familySymbol, level, StructuralType.NonStructural);
+                Element support = doc.Create.NewFamilyInstance(point_in_3d, familySymbol, level, StructuralType.NonStructural);
 
                 //Get the connector from the support
-                FamilyInstance familyInstanceToAdd = (FamilyInstance)support;
-                ConnectorSet connectorSetToAdd = new ConnectorSet();
-                MEPModel mepModel = familyInstanceToAdd.MEPModel;
-                connectorSetToAdd = mepModel.ConnectorManager.Connectors;
+                ConnectorSet connectorSetToAdd = mp.GetConnectorSet(support);
                 if (connectorSetToAdd.IsEmpty)
-                    throw new Exception(
-                        "The support family lacks a connector. Please read the documentation for correct procedure of setting up a support element.");
-                Connector connectorToConnect =
-                    (from Connector c in connectorSetToAdd where true select c).FirstOrDefault();
+                    throw new Exception("The support family lacks a connector. Please read the documentation for correct procedure of setting up a support element.");
+                Connector connectorToConnect = (from Connector c in connectorSetToAdd select c).FirstOrDefault();
 
                 //Rotate into place
-                tr.RotateElementInPosition(connectorToConnect, oneOfPipeCons, support);
+                tr.RotateElementInPosition(point_in_3d, connectorToConnect, c1, support);
 
                 //Set diameter
                 Parameter nominalDiameter = support.LookupParameter("Nominal Diameter");
-                nominalDiameter.Set(oneOfPipeCons.Radius * 2);
+                nominalDiameter.Set(conQuery.First().Radius * 2);
 
-                return new Tuple<Pipe, Element>((Pipe)hostPipe, support);
+                return new Tuple<Pipe, Element>((Pipe)selectedPipe, support);
             }
-                catch (Exception e)
+            catch (Exception e)
             {
                 throw new Exception(e.Message);
             }

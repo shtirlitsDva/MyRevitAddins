@@ -272,30 +272,27 @@ namespace Shared
 
         #endregion //Convex Hull
 
-        public static void RotateElementInPosition(Connector conOnFamilyToConnect, Connector hostPipeCon1, Element element)
+        public static void RotateElementInPosition(XYZ placementPoint, Connector conOnFamilyToConnect, Connector start, Element element)
         {
             #region Geometric manipulation
 
             //http://thebuildingcoder.typepad.com/blog/2012/05/create-a-pipe-cap.html
 
-            //Centre of element
-            XYZ placementPoint = hostPipeCon1.Origin;
-
             //Select the OTHER connector
-            MEPCurve hostPipe = hostPipeCon1.Owner as MEPCurve;
+            MEPCurve hostPipe = start.Owner as MEPCurve;
 
-            Connector hostPipeCon2 = (from Connector c in hostPipe.ConnectorManager.Connectors //End of the host/dummy pipe
-                             where c.Id != hostPipeCon1.Id && (int)c.ConnectorType == 1
+            Connector end = (from Connector c in hostPipe.ConnectorManager.Connectors //End of the host/dummy pipe
+                             where c.Id != start.Id && (int)c.ConnectorType == 1
                              select c).FirstOrDefault();
 
-            XYZ dir = (hostPipeCon1.Origin - hostPipeCon2.Origin);
+            XYZ dir = (start.Origin - end.Origin);
 
             // rotate the cap if necessary
             // rotate about Z first
 
             XYZ pipeHorizontalDirection = new XYZ(dir.X, dir.Y, 0.0).Normalize();
+            //XYZ pipeHorizontalDirection = new XYZ(dir.X, dir.Y, 0.0);
 
-            //XYZ connectorDirection = new XYZ(1,0,0);
             XYZ connectorDirection = -conOnFamilyToConnect.CoordinateSystem.BasisZ;
 
             double zRotationAngle = pipeHorizontalDirection.AngleTo(connectorDirection);
@@ -304,7 +301,8 @@ namespace Shared
 
             XYZ testRotation = trf.OfVector(connectorDirection).Normalize();
 
-            if (Math.Abs(testRotation.DotProduct(pipeHorizontalDirection) - 1) > 0.00001) zRotationAngle = -zRotationAngle;
+            if (Math.Abs(testRotation.DotProduct(pipeHorizontalDirection) - 1) > 0.00001)
+                zRotationAngle = -zRotationAngle;
 
             Line axis = Line.CreateBound(placementPoint, placementPoint + XYZ.BasisZ);
 
@@ -330,7 +328,8 @@ namespace Shared
 
                     if (dir.Z.Equals(1)) rotationAngle = -rotationAngle;
 
-                    axis = Line.CreateBound(placementPoint, new XYZ(placementPoint.X, placementPoint.Y + 5, placementPoint.Z));
+                    axis = Line.CreateBound(placementPoint,
+                        new XYZ(placementPoint.X, placementPoint.Y + 5, placementPoint.Z));
 
                     ElementTransformUtils.RotateElement(element.Document, element.Id, axis, rotationAngle);
 
@@ -360,10 +359,13 @@ namespace Shared
                     #endregion
                 }
             }
+
             #endregion
         }
 
     }
+
+
 
     public static class MyMepUtils
     {
@@ -450,6 +452,11 @@ namespace Shared
         public static HashSet<Connector> GetALLConnectorsFromElements(HashSet<Element> elements)
         {
             return (from e in elements from Connector c in GetConnectorSet(e) select c).ToHashSet();
+        }
+
+        public static HashSet<Connector> GetALLConnectorsFromElements(Element element)
+        {
+            return (from Connector c in GetConnectorSet(element) select c).ToHashSet();
         }
 
         public static HashSet<Connector> GetALLConnectorsInDocument(Document doc)
