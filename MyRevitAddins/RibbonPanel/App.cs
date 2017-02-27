@@ -3,6 +3,7 @@ using System;
 using System.Reflection;
 using System.IO;
 using System.Windows.Media.Imaging;
+using System.Windows.Forms;
 using System.Collections.Generic;
 using System.Linq;
 using Autodesk.Revit.ApplicationServices;
@@ -10,6 +11,7 @@ using Autodesk.Revit.Attributes;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.DB.Plumbing;
 using Autodesk.Revit.UI;
+using PlaceSupport;
 using cn = ConnectConnectors.ConnectConnectors;
 using tl = TotalLineLength.TotalLineLength;
 using piv = PipeInsulationVisibility.PipeInsulationVisibility;
@@ -184,14 +186,18 @@ namespace MyRibbonPanel
 
             try
             {
+                SupportChooser sc = new SupportChooser(commandData, ref message);
+                sc.ShowDialog();
+                sc.Close();
+
                 Tuple<Pipe, Element> returnTuple;
 
-                using (Transaction trans = new Transaction(commandData.Application.ActiveUIDocument.Document))
-                {
-                    trans.Start("Place Supports");
-                    returnTuple = PlaceSupport.PlaceSupport.PlaceSupports(commandData);
-                    trans.Commit();
-                }
+                //using (Transaction trans = new Transaction(commandData.Application.ActiveUIDocument.Document))
+                //{
+                //    trans.Start("Place Supports");
+                //    returnTuple = PlaceSupport.PlaceSupport.PlaceSupports(commandData);
+                //    trans.Commit();
+                //}
 
                 //using (Transaction trans1 = new Transaction(commandData.Application.ActiveUIDocument.Document))
                 //{
