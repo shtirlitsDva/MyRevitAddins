@@ -186,11 +186,19 @@ namespace MyRibbonPanel
 
             try
             {
-                SupportChooser sc = new SupportChooser(commandData, ref message);
-                sc.ShowDialog();
-                sc.Close();
+                using (Transaction trans = new Transaction(commandData.Application.ActiveUIDocument.Document))
+                {
+                    trans.Start("Place supports!");
+                    SupportChooser sc = new SupportChooser(commandData);
+                    sc.ShowDialog();
+                    sc.Close();
 
-                Tuple<Pipe, Element> returnTuple;
+                    PlaceSupport.PlaceSupport.PlaceSupports(commandData, "Support Symbolic: " + sc.supportName);
+
+                    trans.Commit();
+                }
+
+                //Tuple<Pipe, Element> returnTuple;
 
                 //using (Transaction trans = new Transaction(commandData.Application.ActiveUIDocument.Document))
                 //{

@@ -17,7 +17,7 @@ namespace PlaceSupport
 {
     public class PlaceSupport
     {
-        public static Tuple<Pipe, Element> PlaceSupports(ExternalCommandData commandData)
+        public static Tuple<Pipe, Element> PlaceSupports(ExternalCommandData commandData, string name)
         {
             var app = commandData.Application;
             var uiDoc = app.ActiveUIDocument;
@@ -30,8 +30,8 @@ namespace PlaceSupport
                     "Select a pipe where to place a support!", false);
                 //Get end connectors
                 var conQuery = (from Connector c in mp.GetALLConnectorsFromElements(selectedPipe)
-                               where (int)c.ConnectorType == 1
-                               select c).ToList();
+                                where (int)c.ConnectorType == 1
+                                select c).ToList();
 
                 Connector c1 = conQuery.First();
                 Connector c2 = conQuery.Last();
@@ -45,19 +45,27 @@ namespace PlaceSupport
                 try
                 {
                     point_in_3d = uiDoc.Selection.PickPoint(
-                      "Please pick a point on the plane" 
+                      "Please pick a point on the plane"
                       + " defined by the selected face");
                 }
                 catch (OperationCanceledException)
                 {
                 }
-                
+
                 //Get family symbol
                 FilteredElementCollector collector = new FilteredElementCollector(doc);
-                ElementParameterFilter filter = fi.ParameterValueFilter("Support Symbolic: ANC", BuiltInParameter.SYMBOL_FAMILY_AND_TYPE_NAMES_PARAM);
+                ElementParameterFilter filter = fi.ParameterValueFilter(name, BuiltInParameter.SYMBOL_FAMILY_AND_TYPE_NAMES_PARAM);
                 LogicalOrFilter classFilter = fi.FamSymbolsAndPipeTypes();
                 FamilySymbol familySymbol = (FamilySymbol)collector.WherePasses(classFilter).WherePasses(filter).FirstOrDefault();
                 if (familySymbol == null) throw new Exception("No SUPPORT FamilySymbol loaded in project!");
+
+                //The strange symbol activation thingie...
+                //See: http://thebuildingcoder.typepad.com/blog/2014/08/activate-your-family-symbol-before-using-it.html
+                if (!familySymbol.IsActive)
+                {
+                    familySymbol.Activate();
+                    doc.Regenerate();
+                }
 
                 //Get the host pipe level
                 Level level = (Level)doc.GetElement(selectedPipe.LevelId);
