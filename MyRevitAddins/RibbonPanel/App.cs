@@ -13,6 +13,7 @@ using Autodesk.Revit.UI;
 using cn = ConnectConnectors.ConnectConnectors;
 using tl = TotalLineLength.TotalLineLength;
 using piv = PipeInsulationVisibility.PipeInsulationVisibility;
+using ped = PED.InitPED;
 using Shared;
 //using Document = Autodesk.Revit.Creation.Document;
 
@@ -68,28 +69,32 @@ namespace MyRibbonPanel
             PushButton connectCons = rvtRibbonPanel.AddItem(data) as PushButton;
 
             //TotalLineLengths
-            data = new PushButtonData("TotalLineLengths", "Total length of lines", ExecutingAssemblyPath,
-                "MyRibbonPanel.TotalLineLengths");
+            data = new PushButtonData("TotalLineLengths", "Total length of lines", ExecutingAssemblyPath, "MyRibbonPanel.TotalLineLengths");
             data.ToolTip = myRibbonPanelToolTip;
             data.Image = NewBitmapImage(exe, "MyRibbonPanel.Resources.ImgTotalLineLength16.png");
             data.LargeImage = NewBitmapImage(exe, "MyRibbonPanel.Resources.ImgTotalLineLength32.png");
             PushButton totLentgths = rvtRibbonPanel.AddItem(data) as PushButton;
 
             //PipeInsulationVisibility
-            data = new PushButtonData("PipeInsulationVisibility", "Toggle Pipe Insulation visibility", ExecutingAssemblyPath,
-                "MyRibbonPanel.PipeInsulationVisibility");
+            data = new PushButtonData("PipeInsulationVisibility", "Toggle Pipe Insulation visibility", ExecutingAssemblyPath, "MyRibbonPanel.PipeInsulationVisibility");
             data.ToolTip = myRibbonPanelToolTip;
             data.Image = NewBitmapImage(exe, "MyRibbonPanel.Resources.ImgPipeInsulationVisibility16.png");
             data.LargeImage = NewBitmapImage(exe, "MyRibbonPanel.Resources.ImgPipeInsulationVisibility32.png");
             PushButton pipeInsulationVisibility = rvtRibbonPanel.AddItem(data) as PushButton;
 
             //PlaceSupports
-            data = new PushButtonData("PlaceSupports", "Place supports", ExecutingAssemblyPath,
-                "MyRibbonPanel.PlaceSupports");
+            data = new PushButtonData("PlaceSupports", "Place supports", ExecutingAssemblyPath, "MyRibbonPanel.PlaceSupports");
             data.ToolTip = myRibbonPanelToolTip;
             data.Image = NewBitmapImage(exe, "MyRibbonPanel.Resources.ImgPlaceSupport16.png");
             data.LargeImage = NewBitmapImage(exe, "MyRibbonPanel.Resources.ImgPlaceSupport32.png");
             PushButton placeSupports = rvtRibbonPanel.AddItem(data) as PushButton;
+
+            //PED
+            data = new PushButtonData("PED", "PED", ExecutingAssemblyPath, "MyRibbonPanel.PEDclass");
+            data.ToolTip = myRibbonPanelToolTip;
+            data.Image = NewBitmapImage(exe, "MyRibbonPanel.Resources.ImgPED16.png");
+            data.LargeImage = NewBitmapImage(exe, "MyRibbonPanel.Resources.ImgPED32.png");
+            PushButton PED = rvtRibbonPanel.AddItem(data) as PushButton;
         }
     }
     
@@ -255,6 +260,33 @@ namespace MyRibbonPanel
                 message = ex.Message;
                 return Result.Failed;
             }
+        }
+    }
+
+    [Autodesk.Revit.Attributes.Transaction(Autodesk.Revit.Attributes.TransactionMode.Manual)]
+    class PEDclass : IExternalCommand
+    {
+        public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
+        {
+
+            UIApplication uiApp = commandData.Application;
+            Document doc = commandData.Application.ActiveUIDocument.Document;
+            UIDocument uidoc = uiApp.ActiveUIDocument;
+
+            using (TransactionGroup txGp = new TransactionGroup(doc))
+            {
+                txGp.Start("Initialize PED data");
+
+                using (Transaction trans1 = new Transaction(doc))
+                {
+                    trans1.Start("Create parameters");
+                    ped ped = new PED.InitPED();
+                    ped.CreateElementBindings(commandData);
+                    trans1.Commit();
+                }
+            }
+
+            return Result.Succeeded;
         }
     }
 }

@@ -84,6 +84,10 @@
       <Project>{1a8437e5-fa90-42ef-9682-7957445ead85}</Project>
       <Name>ConnectConnectors</Name>
     </ProjectReference>
+    <ProjectReference Include="..\PED\PED.csproj">
+      <Project>{90ab3a12-294b-42f2-8e60-c63f9cabde93}</Project>
+      <Name>PED</Name>
+    </ProjectReference>
     <ProjectReference Include="..\PipeInsulationVisibility\PipeInsulationVisibility.csproj">
       <Project>{1e6f7e46-c9c7-4dfa-afde-39864e00ef9e}</Project>
       <Name>PipeInsulationVisibility</Name>
