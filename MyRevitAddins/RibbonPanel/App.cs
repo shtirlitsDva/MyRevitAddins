@@ -3,6 +3,7 @@ using System;
 using System.Reflection;
 using System.IO;
 using System.Windows.Media.Imaging;
+using System.Windows.Forms;
 using System.Collections.Generic;
 using System.Linq;
 using Autodesk.Revit.ApplicationServices;
@@ -10,6 +11,7 @@ using Autodesk.Revit.Attributes;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.DB.Plumbing;
 using Autodesk.Revit.UI;
+using PlaceSupport;
 using cn = ConnectConnectors.ConnectConnectors;
 using tl = TotalLineLength.TotalLineLength;
 using piv = PipeInsulationVisibility.PipeInsulationVisibility;
@@ -189,66 +191,78 @@ namespace MyRibbonPanel
 
             try
             {
-                Tuple<Pipe, Element> returnTuple;
-
                 using (Transaction trans = new Transaction(commandData.Application.ActiveUIDocument.Document))
                 {
-                    trans.Start("Place Supports");
-                    returnTuple = PlaceSupport.PlaceSupport.PlaceSupports(commandData);
+                    trans.Start("Place supports!");
+                    SupportChooser sc = new SupportChooser(commandData);
+                    sc.ShowDialog();
+                    sc.Close();
+
+                    PlaceSupport.PlaceSupport.PlaceSupports(commandData, "Support Symbolic: " + sc.supportName);
+
                     trans.Commit();
                 }
 
-                using (Transaction trans1 = new Transaction(commandData.Application.ActiveUIDocument.Document))
-                {
-                    trans1.Start("Set system of the pipe");
-                    //Get the created elements
-                    Pipe pipe = returnTuple.Item1;
-                    Element elementToAdd = returnTuple.Item2;
-                    //Get the pipe type from pipe
-                    ElementId pipeTypeId = pipe.PipeType.Id;
+                //Tuple<Pipe, Element> returnTuple;
 
-                    //Get system type from pipe
-                    ConnectorSet pipeConnectors = pipe.ConnectorManager.Connectors;
-                    Connector pipeConnector = (from Connector c in pipeConnectors where true select c).FirstOrDefault();
-                    ElementId pipeSystemType = pipeConnector.MEPSystem.GetTypeId();
+                //using (Transaction trans = new Transaction(commandData.Application.ActiveUIDocument.Document))
+                //{
+                //    trans.Start("Place Supports");
+                //    returnTuple = PlaceSupport.PlaceSupport.PlaceSupports(commandData);
+                //    trans.Commit();
+                //}
 
-                    //Collect levels and select one level
-                    FilteredElementCollector collector = new FilteredElementCollector(doc);
-                    ElementClassFilter levelFilter = new ElementClassFilter(typeof(Level));
-                    ElementId levelId = collector.WherePasses(levelFilter).FirstElementId();
+                //using (Transaction trans1 = new Transaction(commandData.Application.ActiveUIDocument.Document))
+                //{
+                //    trans1.Start("Set system of the pipe");
+                //    //Get the created elements
+                //    Pipe pipe = returnTuple.Item1;
+                //    Element elementToAdd = returnTuple.Item2;
+                //    //Get the pipe type from pipe
+                //    ElementId pipeTypeId = pipe.PipeType.Id;
 
-                    //Get the connector from the support
-                    FamilyInstance familyInstanceToAdd = (FamilyInstance)elementToAdd;
-                    ConnectorSet connectorSetToAdd = new ConnectorSet();
-                    mepModel = familyInstanceToAdd.MEPModel;
-                    connectorSetToAdd = mepModel.ConnectorManager.Connectors;
-                    if (connectorSetToAdd.IsEmpty)
-                        throw new Exception(
-                            "The support family lacks a connector. Please read the documentation for correct procedure of setting up a support element.");
-                    Connector connectorToConnect =
-                        (from Connector c in connectorSetToAdd where true select c).FirstOrDefault();
+                //    //Get system type from pipe
+                //    ConnectorSet pipeConnectors = pipe.ConnectorManager.Connectors;
+                //    Connector pipeConnector = (from Connector c in pipeConnectors where true select c).FirstOrDefault();
+                //    ElementId pipeSystemType = pipeConnector.MEPSystem.GetTypeId();
 
-                    //Create a point in space to connect the pipe
-                    XYZ direction = connectorToConnect.CoordinateSystem.BasisZ.Multiply(2);
-                    XYZ origin = connectorToConnect.Origin;
-                    XYZ pointInSpace = origin.Add(direction);
+                //    //Collect levels and select one level
+                //    FilteredElementCollector collector = new FilteredElementCollector(doc);
+                //    ElementClassFilter levelFilter = new ElementClassFilter(typeof(Level));
+                //    ElementId levelId = collector.WherePasses(levelFilter).FirstElementId();
 
-                    //Create the pipe
-                    Pipe newPipe = Pipe.Create(doc, pipeTypeId, levelId, connectorToConnect, pointInSpace);
+                //    //Get the connector from the support
+                //    FamilyInstance familyInstanceToAdd = (FamilyInstance)elementToAdd;
+                //    ConnectorSet connectorSetToAdd = new ConnectorSet();
+                //    mepModel = familyInstanceToAdd.MEPModel;
+                //    connectorSetToAdd = mepModel.ConnectorManager.Connectors;
+                //    if (connectorSetToAdd.IsEmpty)
+                //        throw new Exception(
+                //            "The support family lacks a connector. Please read the documentation for correct procedure of setting up a support element.");
+                //    Connector connectorToConnect =
+                //        (from Connector c in connectorSetToAdd where true select c).FirstOrDefault();
 
-                    //Change the pipe system type to match the picked pipe (it is not always matching)
-                    newPipe.SetSystemType(pipeSystemType);
-                    doc.Regenerate();
-                    trans1.Commit();
+                //    //Create a point in space to connect the pipe
+                //    XYZ direction = connectorToConnect.CoordinateSystem.BasisZ.Multiply(2);
+                //    XYZ origin = connectorToConnect.Origin;
+                //    XYZ pointInSpace = origin.Add(direction);
+
+                //    //Create the pipe
+                //    Pipe newPipe = Pipe.Create(doc, pipeTypeId, levelId, connectorToConnect, pointInSpace);
+
+                //    //Change the pipe system type to match the picked pipe (it is not always matching)
+                //    newPipe.SetSystemType(pipeSystemType);
+                //    doc.Regenerate();
+                //    trans1.Commit();
                     
 
-                    trans1.Start("Delete the pipe");
+                //    trans1.Start("Delete the pipe");
 
-                    //Delete the pipe
-                    doc.Delete(newPipe.Id);
+                //    //Delete the pipe
+                //    doc.Delete(newPipe.Id);
 
-                    trans1.Commit();
-                }
+                //    trans1.Commit();
+                //}
 
                 return Result.Succeeded;
             }
