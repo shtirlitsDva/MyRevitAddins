@@ -99,6 +99,30 @@ namespace PED
                 [600] = 12.5
             };
 
+            Dictionary<int, double> outerD = new Dictionary<int, double>
+            {
+                [10] = 17.2,
+                [15] = 21.3,
+                [20] = 26.9,
+                [25] = 33.7,
+                [32] = 42.4,
+                [40] = 48.3,
+                [50] = 60.3,
+                [65] = 76.1,
+                [80] = 88.9,
+                [100] = 114.3,
+                [125] = 139.7,
+                [150] = 168.3,
+                [200] = 219.1,
+                [250] = 273.0,
+                [300] = 323.9,
+                [350] = 355.6,
+                [400] = 406.4,
+                [450] = 457.0,
+                [500] = 508.0,
+                [600] = 610.0
+            };
+
             pdef wallThkDef = pl.PED_PIPE_WALLTHK;
 
             foreach (Element element in elements)
@@ -203,10 +227,10 @@ namespace PED
         #region Parameter Definition
         //Element parameters user defined
         public static readonly pdef PED_PIPE_WALLTHK = new pdef("PED_PIPE_WALLTHK", "PIPE", "P", pd.Length, new Guid("B87FD9E8-D2B6-4560-B481-9586EF65FCFE"));
-        public static readonly pdef PED_ELEM_WALLTHK1 = new pdef("PED_ELEM_WALLTHK1", "ELEM", "P", pd.Length, new Guid("8290FACA-6A0A-4F33-8C46-3F5639CA4A12"));
-        public static readonly pdef PED_ELEM_WALLTHK2 = new pdef("PED_ELEM_WALLTHK2", "ELEM", "P", pd.Length, new Guid("E4325364-28FC-448F-9CE0-3CA2AF5AF416"));
-        public static readonly pdef PED_ELEM_TYPE = new pdef("PED_ELEM_TYPE", "ELEM", "P", pd.Text, new Guid("CE11C016-965D-44C9-B6FC-041F9F65C286"));
-        public static readonly pdef PED_ELEM_MODEL = new pdef("PED_ELEM_MODEL", "ELEM", "P", pd.Text, new Guid("4A40907D-E4BE-43D6-BD88-BF961AF8D6A3"));
+        public static readonly pdef PED_ELEM_ = new pdef("PED_ELEM_WALLTHK1", "ELEM", "P", pd.Length, new Guid("8290FACA-6A0A-4F33-8C46-3F5639CA4A12"));
+        //public static readonly pdef PED_ELEM_WALLTHK2 = new pdef("PED_ELEM_WALLTHK2", "ELEM", "P", pd.Length, new Guid("E4325364-28FC-448F-9CE0-3CA2AF5AF416"));
+        //public static readonly pdef PED_ELEM_TYPE = new pdef("PED_ELEM_TYPE", "ELEM", "P", pd.Text, new Guid("CE11C016-965D-44C9-B6FC-041F9F65C286"));
+        //public static readonly pdef PED_ELEM_MODEL = new pdef("PED_ELEM_MODEL", "ELEM", "P", pd.Text, new Guid("4A40907D-E4BE-43D6-BD88-BF961AF8D6A3"));
         #endregion
 
         #region Parameter List
@@ -214,10 +238,10 @@ namespace PED
         public readonly HashSet<pdef> PL = new HashSet<pdef>()
         {
             PED_PIPE_WALLTHK,
-            PED_ELEM_WALLTHK1,
-            PED_ELEM_WALLTHK2,
-            PED_ELEM_TYPE,
-            PED_ELEM_MODEL
+            //PED_ELEM_WALLTHK1,
+            //PED_ELEM_WALLTHK2,
+            //PED_ELEM_TYPE,
+            //PED_ELEM_MODEL
         };
         #endregion
 
