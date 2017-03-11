@@ -85,9 +85,9 @@ namespace Shared
         /// </summary>
         /// <typeparam name="T">The type of element to get</typeparam>
         /// <returns>The list of elements of the specified type</returns>
-        public static IEnumerable<T> GetElements<T>(Document document) where T : Element
+        public static HashSet<T> GetElements<T>(Document document) where T : Element
         {
-            return new FilteredElementCollector(document).OfClass(typeof(T)).Cast<T>();
+            return new FilteredElementCollector(document).OfClass(typeof(T)).Cast<T>().ToHashSet();
         }
 
         /// <summary>

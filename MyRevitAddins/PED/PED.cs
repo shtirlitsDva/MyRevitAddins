@@ -33,15 +33,15 @@ namespace PED
             Autodesk.Revit.Creation.Application ca = doc.Application.Create;
 
             Category pipeCat = doc.Settings.Categories.get_Item(BuiltInCategory.OST_PipeCurves);
-            Category fittingCat = doc.Settings.Categories.get_Item(BuiltInCategory.OST_PipeFitting);
-            Category accessoryCat = doc.Settings.Categories.get_Item(BuiltInCategory.OST_PipeAccessory);
+            //Category fittingCat = doc.Settings.Categories.get_Item(BuiltInCategory.OST_PipeFitting);
+            //Category accessoryCat = doc.Settings.Categories.get_Item(BuiltInCategory.OST_PipeAccessory);
 
             CategorySet pipeSet = ca.NewCategorySet();
             pipeSet.Insert(pipeCat);
 
-            CategorySet elemSet = ca.NewCategorySet();
-            elemSet.Insert(fittingCat);
-            elemSet.Insert(accessoryCat);
+            //CategorySet elemSet = ca.NewCategorySet();
+            //elemSet.Insert(fittingCat);
+            //elemSet.Insert(accessoryCat);
 
             string ExecutingAssemblyPath = System.Reflection.Assembly.GetExecutingAssembly().Location;
             string oriFile = app.SharedParametersFilename;
@@ -52,25 +52,86 @@ namespace PED
             string domain = "PIPE";
             CreateBinding(domain, tempFile, app, doc, pipeSet, sbFeedback);
 
-            domain = "ELEM";
-            CreateBinding(domain, tempFile, app, doc, elemSet, sbFeedback);
-            
-            ut.InfoMsg(sbFeedback.ToString());
+            //domain = "ELEM";
+            //CreateBinding(domain, tempFile, app, doc, elemSet, sbFeedback);
+
+            //ut.InfoMsg(sbFeedback.ToString());
 
             app.SharedParametersFilename = oriFile;
 
             return Result.Succeeded;
         }
 
-        public Result PupulateParameters()
+        public Result PopulateParameters(ExternalCommandData commandData)
         {
+            Document doc = commandData.Application.ActiveUIDocument.Document;
+            HashSet<Element> elements = fi.GetElements<Pipe>(doc).Cast<Element>().ToHashSet();
+            SetWallThicknessPipes(elements);
             return Result.Succeeded;
+        }
+
+        public static void SetWallThicknessPipes(HashSet<Element> elements)
+        {
+            //Wallthicknes for pipes are hardcoded until further notice
+            //Values are from 10216-2 - Seamless steel tubes for pressure purposes
+            //TODO: Implement a way to read values from excel
+            Dictionary<int, double> pipeWallThk = new Dictionary<int, double>
+            {
+                [10] = 1.8,
+                [15] = 2.0,
+                [20] = 2.3,
+                [25] = 2.6,
+                [32] = 2.6,
+                [40] = 2.6,
+                [50] = 2.9,
+                [65] = 2.9,
+                [80] = 3.2,
+                [100] = 3.6,
+                [125] = 4.0,
+                [150] = 4.5,
+                [200] = 6.3,
+                [250] = 6.3,
+                [300] = 7.1,
+                [350] = 8.0,
+                [400] = 8.8,
+                [450] = 10.0,
+                [500] = 11.0,
+                [600] = 12.5
+            };
+
+            pdef wallThkDef = pl.PED_PIPE_WALLTHK;
+
+            foreach (Element element in elements)
+            {
+                //See if the parameter already has value and skip element if it has
+                if (!element.get_Parameter(wallThkDef.Guid).HasValue) continue;
+
+                //Retrieve the correct wallthickness from dictionary and set it on the element
+                Parameter wallThkParameter = element.get_Parameter(wallThkDef.Guid);
+
+                //Get connector set for the pipes
+                ConnectorSet connectorSet = mp.GetConnectorSet(element);
+
+                Connector c1 = null;
+                
+                //Filter out non-end types of connectors
+                c1 = (from Connector connector in connectorSet
+                      where connector.ConnectorType.ToString().Equals("End")
+                      select connector).FirstOrDefault();
+
+                double data;
+                string source = Conversion.PipeSizeToMm(c1.Radius);
+                int dia = Convert.ToInt32(source);
+                pipeWallThk.TryGetValue(dia, out data);
+                wallThkParameter.Set(data.MmToFeet());
+            }
         }
 
         internal void CreateBinding(string domain, string tempFile, Application app, Document doc, CategorySet catSet, StringBuilder sbFeedback)
         {
             //Parameter query
-            var query = from p in pl.PL where p.Domain == domain select p;
+            
+            var query = from pdef p in new pl().PL where string.Equals(p.Domain, domain) select p;
             //Create parameter bindings
             try
             {
@@ -137,17 +198,8 @@ namespace PED
         public string ExportingTo { get; } //Currently used with CII export to distinguish CII parameters from other PIPL parameters.
     }
 
-    public static class ParameterList
+    public class ParameterList
     {
-        public static readonly HashSet<pdef> PL = new HashSet<pdef>()
-        {
-            PED_PIPE_WALLTHK,
-            PED_ELEM_WALLTHK1,
-            PED_ELEM_WALLTHK2,
-            PED_ELEM_TYPE,
-            PED_ELEM_MODEL
-        };
-
         #region Parameter Definition
         //Element parameters user defined
         public static readonly pdef PED_PIPE_WALLTHK = new pdef("PED_PIPE_WALLTHK", "PIPE", "P", pd.Length, new Guid("B87FD9E8-D2B6-4560-B481-9586EF65FCFE"));
@@ -159,7 +211,14 @@ namespace PED
 
         #region Parameter List
         //Populate the list with element parameters
-
+        public readonly HashSet<pdef> PL = new HashSet<pdef>()
+        {
+            PED_PIPE_WALLTHK,
+            PED_ELEM_WALLTHK1,
+            PED_ELEM_WALLTHK2,
+            PED_ELEM_TYPE,
+            PED_ELEM_MODEL
+        };
         #endregion
 
     }

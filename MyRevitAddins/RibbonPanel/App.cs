@@ -187,7 +187,6 @@ namespace MyRibbonPanel
             UIApplication uiApp = commandData.Application;
             Document doc = commandData.Application.ActiveUIDocument.Document;
             UIDocument uidoc = uiApp.ActiveUIDocument;
-            MEPModel mepModel = null;
 
             try
             {
@@ -294,10 +293,20 @@ namespace MyRibbonPanel
                 using (Transaction trans1 = new Transaction(doc))
                 {
                     trans1.Start("Create parameters");
-                    ped ped = new PED.InitPED();
+                    ped ped = new ped();
                     ped.CreateElementBindings(commandData);
                     trans1.Commit();
                 }
+
+                using (Transaction trans2 = new Transaction(doc))
+                {
+                    trans2.Start("Populate parameters");
+                    ped ped = new ped();
+                    ped.PopulateParameters(commandData);
+                    trans2.Commit();
+                }
+
+                txGp.Assimilate();
             }
 
             return Result.Succeeded;
