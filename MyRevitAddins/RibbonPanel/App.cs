@@ -199,7 +199,7 @@ namespace MyRibbonPanel
                     Pipe dummyPipe;
                     Connector supportConnector;
 
-                    using (Transaction trans1 = new Transaction(commandData.Application.ActiveUIDocument.Document))
+                    using (Transaction trans1 = new Transaction(doc))
                     {
                         trans1.Start("Place supports!");
                         SupportChooser sc = new SupportChooser(commandData);
@@ -211,28 +211,36 @@ namespace MyRibbonPanel
                         trans1.Commit();
                     }
 
-                    using (Transaction trans2 = new Transaction(commandData.Application.ActiveUIDocument.Document))
+                    using (Transaction trans2 = new Transaction(doc))
                     {
                         trans2.Start("Define correct system type for support.");
                         (dummyPipe, supportConnector) = PlaceSupport.PlaceSupport.SetSystemType(commandData, pipe, support);
                         trans2.Commit();
                     }
 
-                    using (Transaction trans3 = new Transaction(commandData.Application.ActiveUIDocument.Document))
+                    using (Transaction trans3 = new Transaction(doc))
                     {
                         trans3.Start("Disconnect pipe.");
-                        commandData.Application.ActiveUIDocument.Document.Delete(dummyPipe.Id);
-                        commandData.Application.ActiveUIDocument.Document.Regenerate();
+                        Connector connectorToDisconnect = (from Connector c in dummyPipe.ConnectorManager.Connectors
+                                                           where c.IsConnectedTo(supportConnector)
+                                                           select c).FirstOrDefault();
+                        connectorToDisconnect.DisconnectFrom(supportConnector);
                         trans3.Commit();
                     }
 
-                    //using (Transaction trans4 = new Transaction(commandData.Application.ActiveUIDocument.Document))
-                    //{
-                    //    trans3.Start("Delete the dummy pipe.");
-                    //    commandData.Application.ActiveUIDocument.Document.Delete(dummyPipe.Id);
-                    //    commandData.Application.ActiveUIDocument.Document.Regenerate();
-                    //    trans4.Commit();
-                    //}
+                    using (Transaction trans4 = new Transaction(doc))
+                    {
+                        trans4.Start("Divide the MEPSystem.");
+                        dummyPipe.MEPSystem.DivideSystem(doc);
+                        trans4.Commit();
+                    }
+
+                    using (Transaction trans5 = new Transaction(doc))
+                    {
+                        trans5.Start("Delete the dummy pipe.");
+                        doc.Delete(dummyPipe.Id);
+                        trans5.Commit();
+                    }
 
                     txGp.Assimilate();
                 }
