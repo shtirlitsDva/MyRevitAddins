@@ -99,7 +99,7 @@ namespace MyRibbonPanel
             PushButton PED = rvtRibbonPanel.AddItem(data) as PushButton;
         }
     }
-    
+
     [Autodesk.Revit.Attributes.Transaction(Autodesk.Revit.Attributes.TransactionMode.Manual)]
     class ConnectConnectors : IExternalCommand
     {
@@ -190,16 +190,51 @@ namespace MyRibbonPanel
 
             try
             {
-                using (Transaction trans = new Transaction(commandData.Application.ActiveUIDocument.Document))
+                using (TransactionGroup txGp = new TransactionGroup(doc))
                 {
-                    trans.Start("Place supports!");
-                    SupportChooser sc = new SupportChooser(commandData);
-                    sc.ShowDialog();
-                    sc.Close();
+                    txGp.Start("Place support");
 
-                    PlaceSupport.PlaceSupport.PlaceSupports(commandData, "Support Symbolic: " + sc.supportName);
+                    Pipe pipe;
+                    Element support;
+                    Pipe dummyPipe;
+                    Connector supportConnector;
 
-                    trans.Commit();
+                    using (Transaction trans1 = new Transaction(commandData.Application.ActiveUIDocument.Document))
+                    {
+                        trans1.Start("Place supports!");
+                        SupportChooser sc = new SupportChooser(commandData);
+                        sc.ShowDialog();
+                        sc.Close();
+
+                        (pipe, support) = PlaceSupport.PlaceSupport.PlaceSupports(commandData, "Support Symbolic: " + sc.supportName);
+
+                        trans1.Commit();
+                    }
+
+                    using (Transaction trans2 = new Transaction(commandData.Application.ActiveUIDocument.Document))
+                    {
+                        trans2.Start("Define correct system type for support.");
+                        (dummyPipe, supportConnector) = PlaceSupport.PlaceSupport.SetSystemType(commandData, pipe, support);
+                        trans2.Commit();
+                    }
+
+                    using (Transaction trans3 = new Transaction(commandData.Application.ActiveUIDocument.Document))
+                    {
+                        trans3.Start("Disconnect pipe.");
+                        commandData.Application.ActiveUIDocument.Document.Delete(dummyPipe.Id);
+                        commandData.Application.ActiveUIDocument.Document.Regenerate();
+                        trans3.Commit();
+                    }
+
+                    //using (Transaction trans4 = new Transaction(commandData.Application.ActiveUIDocument.Document))
+                    //{
+                    //    trans3.Start("Delete the dummy pipe.");
+                    //    commandData.Application.ActiveUIDocument.Document.Delete(dummyPipe.Id);
+                    //    commandData.Application.ActiveUIDocument.Document.Regenerate();
+                    //    trans4.Commit();
+                    //}
+
+                    txGp.Assimilate();
                 }
 
                 //Tuple<Pipe, Element> returnTuple;
@@ -253,7 +288,7 @@ namespace MyRibbonPanel
                 //    newPipe.SetSystemType(pipeSystemType);
                 //    doc.Regenerate();
                 //    trans1.Commit();
-                    
+
 
                 //    trans1.Start("Delete the pipe");
 

@@ -17,7 +17,7 @@ namespace PlaceSupport
 {
     public class PlaceSupport
     {
-        public static Tuple<Pipe, Element> PlaceSupports(ExternalCommandData commandData, string name)
+        public static (Pipe pipe, Element element) PlaceSupports(ExternalCommandData commandData, string name)
         {
             var app = commandData.Application;
             var uiDoc = app.ActiveUIDocument;
@@ -86,12 +86,49 @@ namespace PlaceSupport
                 Parameter nominalDiameter = support.LookupParameter("Nominal Diameter");
                 nominalDiameter.Set(conQuery.First().Radius * 2);
 
-                return new Tuple<Pipe, Element>((Pipe)selectedPipe, support);
+                return ((Pipe)selectedPipe, support);
             }
             catch (Exception e)
             {
                 throw new Exception(e.Message);
             }
+        }
+
+        /// <summary>
+        /// Set the correct PipingSystemType for the placed support family.
+        /// </summary>
+        /// <param name="commandData">The usual ExternalCommandData.</param>
+        /// <param name="pipe">The pipe on which the support was placed.</param>
+        /// <param name="support">The support that was placed.</param>
+        public static (Pipe dummyPipe, Connector supportConnector) SetSystemType(ExternalCommandData commandData, Pipe pipe, Element support)
+        {
+            var app = commandData.Application;
+            var uiDoc = app.ActiveUIDocument;
+            var doc = uiDoc.Document;
+
+            //Get the pipe type from pipe
+            ElementId pipeTypeId = pipe.PipeType.Id;
+
+            //Get system type from pipe
+            ConnectorSet pipeConnectors = pipe.ConnectorManager.Connectors;
+            Connector pipeConnector = (from Connector c in pipeConnectors where (int)c.ConnectorType == 1 select c).FirstOrDefault();
+            ElementId pipeSystemType = pipeConnector.MEPSystem.GetTypeId();
+
+            //Get the connector from the support
+            Connector connectorToConnect = (from Connector c in ((FamilyInstance)support).MEPModel.ConnectorManager.Connectors select c).FirstOrDefault();
+
+            //Create a point in space to connect the pipe
+            XYZ direction = connectorToConnect.CoordinateSystem.BasisZ.Multiply(2);
+            XYZ origin = connectorToConnect.Origin;
+            XYZ pointInSpace = origin.Add(direction);
+
+            //Create the pipe
+            Pipe dummyPipe = Pipe.Create(doc, pipeTypeId, pipe.ReferenceLevel.Id, connectorToConnect, pointInSpace);
+
+            //Change the pipe system type to match the picked pipe (it is not always matching)
+            dummyPipe.SetSystemType(pipeSystemType);
+
+            return (dummyPipe, connectorToConnect);
         }
     }
 }
