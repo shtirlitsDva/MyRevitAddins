@@ -17,7 +17,81 @@ namespace PlaceSupport
 {
     public class PlaceSupport
     {
-        public static (Pipe pipe, Element element) PlaceSupports(ExternalCommandData commandData, string name)
+        public static Result StartPlaceSupportsProcedure(ExternalCommandData commandData)
+        {
+            UIApplication uiApp = commandData.Application;
+            Document doc = commandData.Application.ActiveUIDocument.Document;
+            UIDocument uidoc = uiApp.ActiveUIDocument;
+
+            try
+            {
+                using (TransactionGroup txGp = new TransactionGroup(doc))
+                {
+                    txGp.Start("Place support");
+
+                    Pipe pipe;
+                    Element support;
+                    Pipe dummyPipe;
+                    Connector supportConnector;
+
+                    using (Transaction trans1 = new Transaction(doc))
+                    {
+                        trans1.Start("Place supports!");
+                        SupportChooser sc = new SupportChooser(commandData);
+                        sc.ShowDialog();
+                        sc.Close();
+
+                        (pipe, support) = PlaceSupports(commandData, "Support Symbolic: " + sc.supportName);
+
+                        trans1.Commit();
+                    }
+
+                    using (Transaction trans2 = new Transaction(doc))
+                    {
+                        trans2.Start("Define correct system type for support.");
+                        (dummyPipe, supportConnector) = SetSystemType(commandData, pipe, support);
+                        trans2.Commit();
+                    }
+
+                    using (Transaction trans3 = new Transaction(doc))
+                    {
+                        trans3.Start("Disconnect pipe.");
+                        Connector connectorToDisconnect = (from Connector c in dummyPipe.ConnectorManager.Connectors
+                                                           where c.IsConnectedTo(supportConnector)
+                                                           select c).FirstOrDefault();
+                        connectorToDisconnect.DisconnectFrom(supportConnector);
+                        trans3.Commit();
+                    }
+
+                    using (Transaction trans4 = new Transaction(doc))
+                    {
+                        trans4.Start("Divide the MEPSystem.");
+                        dummyPipe.MEPSystem.DivideSystem(doc);
+                        trans4.Commit();
+                    }
+
+                    using (Transaction trans5 = new Transaction(doc))
+                    {
+                        trans5.Start("Delete the dummy pipe.");
+                        doc.Delete(dummyPipe.Id);
+                        trans5.Commit();
+                    }
+
+                    txGp.Assimilate();
+                }
+
+                return Result.Succeeded;
+            }
+
+            catch (Autodesk.Revit.Exceptions.OperationCanceledException) { return Result.Cancelled; }
+
+            catch (Exception ex)
+            {
+                return Result.Failed;
+            }
+        }
+
+        private static (Pipe pipe, Element element) PlaceSupports(ExternalCommandData commandData, string name)
         {
             var app = commandData.Application;
             var uiDoc = app.ActiveUIDocument;
@@ -100,7 +174,7 @@ namespace PlaceSupport
         /// <param name="commandData">The usual ExternalCommandData.</param>
         /// <param name="pipe">The pipe on which the support was placed.</param>
         /// <param name="support">The support that was placed.</param>
-        public static (Pipe dummyPipe, Connector supportConnector) SetSystemType(ExternalCommandData commandData, Pipe pipe, Element support)
+        private static (Pipe dummyPipe, Connector supportConnector) SetSystemType(ExternalCommandData commandData, Pipe pipe, Element support)
         {
             var app = commandData.Application;
             var uiDoc = app.ActiveUIDocument;
