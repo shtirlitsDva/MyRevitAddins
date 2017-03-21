@@ -28,23 +28,32 @@ namespace ConnectConnectors
                 //Employ reverse iteration to be able to modify the collection while iterating over it
                 for (int i = allConnectors.Count - 1; i > 0; i--)
                 {
-                    bool foundIt = false;
-                    while (!foundIt) //I think the while loop is redudant.
+                    if (allConnectors.Count < 2) break;
+                    Connector c1 = allConnectors[i];
+                    allConnectors.RemoveAt(i);
+                    if (c1.IsConnected) continue;
+                    Connector c2 = (from Connector c in allConnectors where ut.IsEqual(c.Origin, c1.Origin) && !c.IsConnected select c).FirstOrDefault();
+                    c2?.ConnectTo(c1);
+                }
+            }
+
+            else if (selection.Count == 1)
+            {
+                var elements = new HashSet<Element>(from ElementId id in selection select doc.GetElement(id));
+                var connectors = mp.GetALLConnectorsFromElements(elements).ToList();
+                foreach (Connector c in connectors)
+                {
+                    if (c.IsConnected)
                     {
-                        if (allConnectors.Count < 2) break;
-                        Connector c1 = allConnectors[i];
-                        allConnectors.RemoveAt(i);
-                        foreach (Connector c2 in allConnectors.Where(c2 => ut.IsEqual(c1.Origin, c2.Origin)))
+                        var set = c.AllRefs;
+                        foreach (Connector c2 in set)
                         {
-                            if (c1.IsConnected || c2.IsConnected) break; //If the connector is already connected it will throw an exception
-                            c1.ConnectTo(c2);
-                            foundIt = true;
-                            break;
+                            c2.DisconnectFrom(c);
                         }
-                        foundIt = true;
                     }
                 }
             }
+
             else //Connect the connectors of selection
             {
                 var elements = new HashSet<Element>(from ElementId id in selection select doc.GetElement(id));

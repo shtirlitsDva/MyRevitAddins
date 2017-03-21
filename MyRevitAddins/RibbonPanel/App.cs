@@ -11,6 +11,7 @@ using Autodesk.Revit.Attributes;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.DB.Plumbing;
 using Autodesk.Revit.UI;
+using adWin = Autodesk.Windows;
 using PlaceSupport;
 using cn = ConnectConnectors.ConnectConnectors;
 using tl = TotalLineLength.TotalLineLength;
@@ -50,12 +51,19 @@ namespace MyRibbonPanel
         public Result OnStartup(UIControlledApplication application)
         {
             AddMenu(application);
+            adWin.ComponentManager.UIElementActivated += new EventHandler<adWin.UIElementActivatedEventArgs>(ComponentManager_UIElementActivated);
             return Result.Succeeded;
         }
 
         public Result OnShutdown(UIControlledApplication application)
         {
+            adWin.ComponentManager.UIElementActivated -= new EventHandler<adWin.UIElementActivatedEventArgs>(ComponentManager_UIElementActivated);
             return Result.Succeeded;
+        }
+
+        public void ComponentManager_UIElementActivated(object sender, adWin.UIElementActivatedEventArgs e)
+        {
+            Util.InfoMsg("Test: " + e.UiElement.);
         }
 
         private void AddMenu(UIControlledApplication application)
@@ -109,6 +117,8 @@ namespace MyRibbonPanel
             {
                 using (Transaction trans = new Transaction(commandData.Application.ActiveUIDocument.Document))
                 {
+                    
+
                     trans.Start("Connect the Connectors!");
                     cn.ConnectTheConnectors(commandData);
                     trans.Commit();

@@ -21,7 +21,7 @@
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
+    <WarningLevel>0</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -58,6 +58,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="AdWindows">
+      <HintPath>..\..\..\..\Programs\IDSP17\Revit 2017\AdWindows.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="RevitAPI">
       <HintPath>..\..\..\..\Programs\IDSP17\Revit 2017\RevitAPI.dll</HintPath>
@@ -74,6 +78,10 @@
     </Reference>
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xaml" />
+    <Reference Include="UIFramework">
+      <HintPath>..\..\..\..\Programs\IDSP17\Revit 2017\UIFramework.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
@@ -131,6 +139,12 @@
   <ItemGroup>
     <EmbeddedResource Include="Resources\ImgPlaceSupport16.png" />
     <EmbeddedResource Include="Resources\ImgPlaceSupport32.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\ImgPED16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\ImgPED32.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
