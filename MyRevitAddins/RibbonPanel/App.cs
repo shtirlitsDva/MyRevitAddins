@@ -63,7 +63,7 @@ namespace MyRibbonPanel
 
         public void ComponentManager_UIElementActivated(object sender, adWin.UIElementActivatedEventArgs e)
         {
-            Util.InfoMsg("Test: " + e.UiElement.);
+            Util.InfoMsg("Test: " + e.UiElement);
         }
 
         private void AddMenu(UIControlledApplication application)
