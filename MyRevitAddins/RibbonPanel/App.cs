@@ -51,19 +51,12 @@ namespace MyRibbonPanel
         public Result OnStartup(UIControlledApplication application)
         {
             AddMenu(application);
-            adWin.ComponentManager.UIElementActivated += new EventHandler<adWin.UIElementActivatedEventArgs>(ComponentManager_UIElementActivated);
             return Result.Succeeded;
         }
 
         public Result OnShutdown(UIControlledApplication application)
         {
-            adWin.ComponentManager.UIElementActivated -= new EventHandler<adWin.UIElementActivatedEventArgs>(ComponentManager_UIElementActivated);
             return Result.Succeeded;
-        }
-
-        public void ComponentManager_UIElementActivated(object sender, adWin.UIElementActivatedEventArgs e)
-        {
-            Util.InfoMsg("Test: " + e.UiElement);
         }
 
         private void AddMenu(UIControlledApplication application)
