@@ -6,6 +6,8 @@ using System.Windows.Media.Imaging;
 using System.Windows.Forms;
 using System.Collections.Generic;
 using System.Linq;
+using System.Windows.Input;
+using System.Text;
 using Autodesk.Revit.ApplicationServices;
 using Autodesk.Revit.Attributes;
 using Autodesk.Revit.DB;
@@ -51,20 +53,22 @@ namespace MyRibbonPanel
         public Result OnStartup(UIControlledApplication application)
         {
             AddMenu(application);
-            adWin.ComponentManager.UIElementActivated += new EventHandler<adWin.UIElementActivatedEventArgs>(ComponentManager_UIElementActivated);
+            //adWin.ComponentManager.UIElementActivated += new EventHandler<adWin.UIElementActivatedEventArgs>(ComponentManager_UIElementActivated);
             return Result.Succeeded;
         }
 
         public Result OnShutdown(UIControlledApplication application)
         {
-            adWin.ComponentManager.UIElementActivated -= new EventHandler<adWin.UIElementActivatedEventArgs>(ComponentManager_UIElementActivated);
+            //adWin.ComponentManager.UIElementActivated -= new EventHandler<adWin.UIElementActivatedEventArgs>(ComponentManager_UIElementActivated);
             return Result.Succeeded;
         }
 
-        public void ComponentManager_UIElementActivated(object sender, adWin.UIElementActivatedEventArgs e)
-        {
-            Util.InfoMsg("Test: " + e.UiElement);
-        }
+        //public void ComponentManager_UIElementActivated(object sender, adWin.UIElementActivatedEventArgs e)
+        //{
+        //    //Util.InfoMsg("This is correct assembly!");
+        //    ModifierKeys modKeys = Keyboard.Modifiers;
+        //    Util.InfoMsg(((int)modKeys).ToString());            
+        //}
 
         private void AddMenu(UIControlledApplication application)
         {
@@ -113,6 +117,9 @@ namespace MyRibbonPanel
     {
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
+            bool ctrl = false;
+            if ((int)Keyboard.Modifiers == 2) ctrl = true;
+            
             try
             {
                 using (Transaction trans = new Transaction(commandData.Application.ActiveUIDocument.Document))
@@ -120,7 +127,7 @@ namespace MyRibbonPanel
                     
 
                     trans.Start("Connect the Connectors!");
-                    cn.ConnectTheConnectors(commandData);
+                    cn.ConnectTheConnectors(commandData, ctrl);
                     trans.Commit();
                 }
                 return Result.Succeeded;
