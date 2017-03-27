@@ -37,49 +37,60 @@ namespace ConnectConnectors
                 }
             }
 
-            else if (selection.Count == 1)
+            else if (selection.Count == 1 && !ctrl) //If one and no CTRL key, connect the element
             {
                 var elements = new HashSet<Element>(from ElementId id in selection select doc.GetElement(id));
                 var elementConnectors = mp.GetALLConnectorsFromElements(elements);
-                
-                foreach (Connector c in elementConnectors)
+                var allConnectors = mp.GetALLConnectorsInDocument(doc).Where(c => !c.IsConnected).ToList();
+
+                foreach (Connector c1 in elementConnectors)
                 {
-                    if (c.IsConnected)
+                    if (!c1.IsConnected)
                     {
-                        var set = c.AllRefs;
-                        foreach (Connector c2 in set)
-                        {
-                            c2.DisconnectFrom(c);
-                        }
+                        Connector c2 = (from Connector c in allConnectors where ut.IsEqual(c.Origin, c1.Origin) select c).FirstOrDefault();
+                        c2?.ConnectTo(c1);
                     }
                 }
             }
 
-            else //Connect the connectors of selection
+            else if (selection.Count == 1 && ctrl) //If one and CTRL key is pressed, disconnect the element
             {
                 var elements = new HashSet<Element>(from ElementId id in selection select doc.GetElement(id));
-                var connectors = mp.GetALLConnectorsFromElements(elements).ToList();
-                //Find duplicate
-                bool foundIt = false;
-                while (!foundIt) //I have a suspicion that the while loop is redudant.
+                var elementConnectors = mp.GetALLConnectorsFromElements(elements);
+
+                foreach (Connector c1 in elementConnectors)
                 {
-                    if (connectors.Count < 2) throw new Exception("No eligible connectors found! Check alignment.");
-                    Connector c1 = connectors[0];
-                    connectors.RemoveAt(0);
-                    foreach (Connector c2 in connectors.Where(c2 => ut.IsEqual(c1.Origin, c2.Origin)))
+                    if (c1.IsConnected)
                     {
-                        if (c1.IsConnectedTo(c2))
-                        {
-                            c1.DisconnectFrom(c2);
-                            foundIt = true;
-                            break;
-                        }
-                        c1.ConnectTo(c2);
-                        foundIt = true;
-                        break;
+                        var set = c1.AllRefs;
+                        foreach (Connector c2 in set) c2.DisconnectFrom(c1);
                     }
                 }
             }
+
+            //Connect or disconnect the connectors of selection
+            //Only works on selection of two adjacent elements
+            //That means only two connectors get connected to or disconnected from each other
+            else if (selection.Count == 2)
+            {
+                var elements = new HashSet<Element>(from ElementId id in selection select doc.GetElement(id));
+                var connectors = mp.GetALLConnectorsFromElements(elements).ToList();
+                
+                for (int i = connectors.Count - 1; i > 0; i--)
+                {
+                    if (connectors.Count < 2) throw new Exception("No eligible connectors found! Check alignment.");
+                    Connector c1 = connectors[i];
+                    connectors.RemoveAt(i);
+                    Connector c2 = (from Connector c in connectors where ut.IsEqual(c.Origin, c1.Origin) select c).FirstOrDefault();
+                    if (c2 != null)
+                    {
+                        if (c1.IsConnected) c2.DisconnectFrom(c1);
+                        else c2.ConnectTo(c1);
+                    }
+                }
+
+            }
+            else throw new Exception("Not correct amount of elements selected for the command! Choose none, one or two!");
         }
     }
 }
