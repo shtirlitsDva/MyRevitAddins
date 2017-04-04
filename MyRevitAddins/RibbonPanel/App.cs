@@ -76,38 +76,48 @@ namespace MyRibbonPanel
 
             //ConnectConnectors
             PushButtonData data = new PushButtonData("ConnectConnectors", "Connect Connectors", ExecutingAssemblyPath,
-                "MyRibbonPanel.ConnectConnectors");
-            data.ToolTip = myRibbonPanelToolTip;
-            data.Image = NewBitmapImage(exe, "MyRibbonPanel.Resources.ImgConnectConnectors16.png");
-            data.LargeImage = NewBitmapImage(exe, "MyRibbonPanel.Resources.ImgConnectConnectors32.png");
+                "MyRibbonPanel.ConnectConnectors")
+            {
+                ToolTip = myRibbonPanelToolTip,
+                Image = NewBitmapImage(exe, "MyRibbonPanel.Resources.ImgConnectConnectors16.png"),
+                LargeImage = NewBitmapImage(exe, "MyRibbonPanel.Resources.ImgConnectConnectors32.png")
+            };
             PushButton connectCons = rvtRibbonPanel.AddItem(data) as PushButton;
 
             //TotalLineLengths
-            data = new PushButtonData("TotalLineLengths", "Total length of lines", ExecutingAssemblyPath, "MyRibbonPanel.TotalLineLengths");
-            data.ToolTip = myRibbonPanelToolTip;
-            data.Image = NewBitmapImage(exe, "MyRibbonPanel.Resources.ImgTotalLineLength16.png");
-            data.LargeImage = NewBitmapImage(exe, "MyRibbonPanel.Resources.ImgTotalLineLength32.png");
+            data = new PushButtonData("TotalLineLengths", "Total length of lines", ExecutingAssemblyPath, "MyRibbonPanel.TotalLineLengths")
+            {
+                ToolTip = myRibbonPanelToolTip,
+                Image = NewBitmapImage(exe, "MyRibbonPanel.Resources.ImgTotalLineLength16.png"),
+                LargeImage = NewBitmapImage(exe, "MyRibbonPanel.Resources.ImgTotalLineLength32.png")
+            };
             PushButton totLentgths = rvtRibbonPanel.AddItem(data) as PushButton;
 
             //PipeInsulationVisibility
-            data = new PushButtonData("PipeInsulationVisibility", "Toggle Pipe Insulation visibility", ExecutingAssemblyPath, "MyRibbonPanel.PipeInsulationVisibility");
-            data.ToolTip = myRibbonPanelToolTip;
-            data.Image = NewBitmapImage(exe, "MyRibbonPanel.Resources.ImgPipeInsulationVisibility16.png");
-            data.LargeImage = NewBitmapImage(exe, "MyRibbonPanel.Resources.ImgPipeInsulationVisibility32.png");
+            data = new PushButtonData("PipeInsulationVisibility", "Toggle Pipe Insulation visibility", ExecutingAssemblyPath, "MyRibbonPanel.PipeInsulationVisibility")
+            {
+                ToolTip = myRibbonPanelToolTip,
+                Image = NewBitmapImage(exe, "MyRibbonPanel.Resources.ImgPipeInsulationVisibility16.png"),
+                LargeImage = NewBitmapImage(exe, "MyRibbonPanel.Resources.ImgPipeInsulationVisibility32.png")
+            };
             PushButton pipeInsulationVisibility = rvtRibbonPanel.AddItem(data) as PushButton;
 
             //PlaceSupports
-            data = new PushButtonData("PlaceSupports", "Place supports", ExecutingAssemblyPath, "MyRibbonPanel.PlaceSupports");
-            data.ToolTip = myRibbonPanelToolTip;
-            data.Image = NewBitmapImage(exe, "MyRibbonPanel.Resources.ImgPlaceSupport16.png");
-            data.LargeImage = NewBitmapImage(exe, "MyRibbonPanel.Resources.ImgPlaceSupport32.png");
+            data = new PushButtonData("PlaceSupports", "Place supports", ExecutingAssemblyPath, "MyRibbonPanel.PlaceSupports")
+            {
+                ToolTip = myRibbonPanelToolTip,
+                Image = NewBitmapImage(exe, "MyRibbonPanel.Resources.ImgPlaceSupport16.png"),
+                LargeImage = NewBitmapImage(exe, "MyRibbonPanel.Resources.ImgPlaceSupport32.png")
+            };
             PushButton placeSupports = rvtRibbonPanel.AddItem(data) as PushButton;
 
             //PED
-            data = new PushButtonData("PED", "PED", ExecutingAssemblyPath, "MyRibbonPanel.PEDclass");
-            data.ToolTip = myRibbonPanelToolTip;
-            data.Image = NewBitmapImage(exe, "MyRibbonPanel.Resources.ImgPED16.png");
-            data.LargeImage = NewBitmapImage(exe, "MyRibbonPanel.Resources.ImgPED32.png");
+            data = new PushButtonData("PED", "PED", ExecutingAssemblyPath, "MyRibbonPanel.PEDclass")
+            {
+                ToolTip = myRibbonPanelToolTip,
+                Image = NewBitmapImage(exe, "MyRibbonPanel.Resources.ImgPED16.png"),
+                LargeImage = NewBitmapImage(exe, "MyRibbonPanel.Resources.ImgPED32.png")
+            };
             PushButton PED = rvtRibbonPanel.AddItem(data) as PushButton;
         }
     }
@@ -117,15 +127,12 @@ namespace MyRibbonPanel
     {
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
-            bool ctrl = false;
-            if ((int)Keyboard.Modifiers == 2) ctrl = true;
-            
             try
             {
                 using (Transaction trans = new Transaction(commandData.Application.ActiveUIDocument.Document))
                 {
                     trans.Start("Connect the Connectors!");
-                    cn.ConnectTheConnectors(commandData, ctrl);
+                    cn.ConnectTheConnectors(commandData);
                     trans.Commit();
                 }
                 return Result.Succeeded;

@@ -143,10 +143,9 @@ namespace PED
                       where connector.ConnectorType.ToString().Equals("End")
                       select connector).FirstOrDefault();
 
-                double data;
                 string source = Conversion.PipeSizeToMm(c1.Radius);
                 int dia = Convert.ToInt32(source);
-                pipeWallThk.TryGetValue(dia, out data);
+                pipeWallThk.TryGetValue(dia, out double data);
                 wallThkParameter.Set(data.MmToFeet());
             }
         }
@@ -163,8 +162,10 @@ namespace PED
                 {
                     using (File.Create(tempFile)) { }
                     app.SharedParametersFilename = tempFile;
-                    ExternalDefinitionCreationOptions options = new ExternalDefinitionCreationOptions(parameter.Name, parameter.Type);
-                    options.GUID = parameter.Guid;
+                    ExternalDefinitionCreationOptions options = new ExternalDefinitionCreationOptions(parameter.Name, parameter.Type)
+                    {
+                        GUID = parameter.Guid
+                    };
                     ExternalDefinition def = app.OpenSharedParameterFile().Groups.Create("TemporaryDefinitionGroup").Definitions.Create(options) as ExternalDefinition;
 
                     BindingMap map = doc.ParameterBindings;
