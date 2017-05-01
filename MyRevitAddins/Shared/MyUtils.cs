@@ -43,12 +43,12 @@ namespace Shared
             LogicalAndFilter familySymbolFilter = new LogicalAndFilter(categoryFilter,
                 new ElementClassFilter(typeof(FamilySymbol)));
 
-            IList<ElementFilter> b = new List<ElementFilter>();
+            IList<ElementFilter> b = new List<ElementFilter>
+            {
+                new ElementClassFilter(typeof(PipeType)),
 
-            b.Add(new ElementClassFilter(typeof(PipeType)));
-
-            b.Add(familySymbolFilter);
-
+                familySymbolFilter
+            };
             LogicalOrFilter classFilter = new LogicalOrFilter(b);
 
             return classFilter;
@@ -70,10 +70,10 @@ namespace Shared
             LogicalAndFilter familySymbolFilter = new LogicalAndFilter(categoryFilter,
                 new ElementClassFilter(typeof(FamilyInstance)));
 
-            IList<ElementFilter> b = new List<ElementFilter>();
-
-            b.Add(familySymbolFilter);
-
+            IList<ElementFilter> b = new List<ElementFilter>
+            {
+                familySymbolFilter
+            };
             LogicalOrFilter classFilter = new LogicalOrFilter(b);
 
             return classFilter;
@@ -407,15 +407,16 @@ namespace Shared
             LogicalAndFilter familyInstanceFilter = new LogicalAndFilter(categoryFilter, new ElementClassFilter(typeof(FamilyInstance)));
 
             //IList<ElementFilter> b = new List<ElementFilter>(6);
-            IList<ElementFilter> b = new List<ElementFilter>();
+            IList<ElementFilter> b = new List<ElementFilter>
+            {
 
-            //b.Add(new ElementClassFilter(typeof(CableTray)));
-            //b.Add(new ElementClassFilter(typeof(Conduit)));
-            //b.Add(new ElementClassFilter(typeof(Duct)));
-            b.Add(new ElementClassFilter(typeof(Pipe)));
+                //b.Add(new ElementClassFilter(typeof(CableTray)));
+                //b.Add(new ElementClassFilter(typeof(Conduit)));
+                //b.Add(new ElementClassFilter(typeof(Duct)));
+                new ElementClassFilter(typeof(Pipe)),
 
-            b.Add(familyInstanceFilter);
-
+                familyInstanceFilter
+            };
             LogicalOrFilter classFilter = new LogicalOrFilter(b);
 
             FilteredElementCollector collector = new FilteredElementCollector(doc);
