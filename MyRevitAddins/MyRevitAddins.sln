@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26228.4
+VisualStudioVersion = 15.0.26228.10
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GeneralStability", "GeneralStability\GeneralStability.csproj", "{2567E622-6123-4D19-9534-4D3003DB1C17}"
 EndProject
@@ -20,6 +20,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlaceSupport", "PlaceSupport\PlaceSupport.csproj", "{D20177D9-4439-4C89-9231-B4EB8418301B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PED", "PED\PED.csproj", "{90AB3A12-294B-42F2-8E60-C63F9CABDE93}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MEPUtils", "MEPUtils\MEPUtils.csproj", "{51413598-89E7-48B9-A192-8087207AC1A7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -99,6 +101,14 @@ Global
 		{90AB3A12-294B-42F2-8E60-C63F9CABDE93}.Release|Any CPU.Build.0 = Release|Any CPU
 		{90AB3A12-294B-42F2-8E60-C63F9CABDE93}.Release|x64.ActiveCfg = Release|Any CPU
 		{90AB3A12-294B-42F2-8E60-C63F9CABDE93}.Release|x64.Build.0 = Release|Any CPU
+		{51413598-89E7-48B9-A192-8087207AC1A7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{51413598-89E7-48B9-A192-8087207AC1A7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{51413598-89E7-48B9-A192-8087207AC1A7}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{51413598-89E7-48B9-A192-8087207AC1A7}.Debug|x64.Build.0 = Debug|Any CPU
+		{51413598-89E7-48B9-A192-8087207AC1A7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{51413598-89E7-48B9-A192-8087207AC1A7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{51413598-89E7-48B9-A192-8087207AC1A7}.Release|x64.ActiveCfg = Release|Any CPU
+		{51413598-89E7-48B9-A192-8087207AC1A7}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
