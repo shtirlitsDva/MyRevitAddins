@@ -426,6 +426,25 @@ namespace Shared
             return collector;
         }
 
+        /// <summary>
+        /// Returns the collection of all instances of the specified BuiltInCategory. Warning: does not work with Pipes!
+        /// </summary>
+        /// <param name="doc">The active document.</param>
+        /// <param name="cat">The specified category. Ex: BuiltInCategory.OST_PipeFitting</param>
+        /// <returns>A collection of all instances of the specified category.</returns>
+        public static FilteredElementCollector GetElementsOfBuiltInCategory(Document doc, BuiltInCategory cat)
+        {
+            // what categories of family instances
+            // are we interested in?
+            // From here: http://thebuildingcoder.typepad.com/blog/2010/06/retrieve-mep-elements-and-connectors.html
+
+            ElementFilter categoryFilter = new ElementCategoryFilter(cat);
+            LogicalAndFilter familyInstanceFilter = new LogicalAndFilter(categoryFilter, new ElementClassFilter(typeof(FamilyInstance)));
+            FilteredElementCollector collector = new FilteredElementCollector(doc);
+            collector.WherePasses(familyInstanceFilter);
+            return collector;
+        }
+
         public static ConnectorSet GetConnectorSet(Element e)
         {
             ConnectorSet connectors = null;

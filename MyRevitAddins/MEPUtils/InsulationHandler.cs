@@ -23,9 +23,33 @@ namespace MEPUtils
             Document doc = cData.Application.ActiveUIDocument.Document;
             var allPipes = fi.GetElements<Pipe>(doc);
 
+            string pipeInsulationName = "Rørisolering";
             var allInsulationTypes = fi.GetElements<PipeInsulationType>(doc);
             var insulationType = (from PipeInsulationType pit in allInsulationTypes
-                                  where pit.)
+                                  where pit.Name == pipeInsulationName
+                                  select pit).FirstOrDefault();
+
+            if (insulationType == null)
+            {
+                ut.ErrorMsg("Create Pipe Insulation Type with name " + pipeInsulationName);
+                return Result.Failed;
+            }
+
+            return Result.Succeeded;
+        }
+
+        public Result DeleteAllPipeInsulation(ExternalCommandData cData)
+        {
+            Document doc = cData.Application.ActiveUIDocument.Document;
+            
+            var allInsulation = fi.GetElements<PipeInsulation>(doc);
+            if (allInsulation == null) return Result.Failed;
+            else if (allInsulation.Count == 0) return Result.Failed;
+
+            Transaction tx = new Transaction(doc);
+            tx.Start("Delete all insulation!");
+            foreach (Element el in allInsulation) doc.Delete(el.Id);
+            tx.Commit();
 
             return Result.Succeeded;
         }
