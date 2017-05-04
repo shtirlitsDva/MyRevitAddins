@@ -16,11 +16,10 @@ using mp = Shared.MyMepUtils;
 
 namespace MEPUtils
 {
-    public class InsulationHandler
+    public static class InsulationHandler
     {
-        public Result CreateInsulationForPipes(ExternalCommandData cData)
+        public static Result CreateInsulationForPipes(Document doc)
         {
-            Document doc = cData.Application.ActiveUIDocument.Document;
             var allPipes = fi.GetElements<Pipe>(doc);
 
             string pipeInsulationName = "Rørisolering";
@@ -38,10 +37,8 @@ namespace MEPUtils
             return Result.Succeeded;
         }
 
-        public Result DeleteAllPipeInsulation(ExternalCommandData cData)
+        public static Result DeleteAllPipeInsulation(Document doc)
         {
-            Document doc = cData.Application.ActiveUIDocument.Document;
-            
             var allInsulation = fi.GetElements<PipeInsulation>(doc);
             if (allInsulation == null) return Result.Failed;
             else if (allInsulation.Count == 0) return Result.Failed;
