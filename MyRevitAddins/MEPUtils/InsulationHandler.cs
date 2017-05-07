@@ -20,9 +20,8 @@ namespace MEPUtils
     {
         public static Result CreateInsulationForPipes(Document doc)
         {
-            var allPipes = fi.GetElements<Pipe>(doc);
-
             string pipeInsulationName = "Rørisolering";
+
             var allInsulationTypes = fi.GetElements<PipeInsulationType>(doc);
             var insulationType = (from PipeInsulationType pit in allInsulationTypes
                                   where pit.Name == pipeInsulationName
@@ -33,6 +32,8 @@ namespace MEPUtils
                 ut.ErrorMsg("Create Pipe Insulation Type with name " + pipeInsulationName);
                 return Result.Failed;
             }
+
+            var allPipes = fi.GetElements<Pipe>(doc);
 
             return Result.Succeeded;
         }
