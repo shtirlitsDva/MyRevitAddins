@@ -78,6 +78,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="Insulation.xlsx" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
