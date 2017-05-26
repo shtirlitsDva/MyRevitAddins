@@ -20,7 +20,7 @@ namespace Shared
         {
             BuiltInParameter testParam = parameterName;
             ParameterValueProvider pvp = new ParameterValueProvider(new ElementId((int)testParam));
-            FilterStringRuleEvaluator str = new FilterStringContains();
+            FilterStringRuleEvaluator str = new FilterStringEquals();
             FilterStringRule paramFr = new FilterStringRule(pvp, str, valueQualifier, false);
             ElementParameterFilter epf = new ElementParameterFilter(paramFr);
             return epf;

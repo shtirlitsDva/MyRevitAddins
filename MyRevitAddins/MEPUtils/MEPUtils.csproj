@@ -61,6 +61,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="PipeCreator.cs" />
     <Compile Include="InsulationHandler.cs" />
     <Compile Include="MEPUtilsClass.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

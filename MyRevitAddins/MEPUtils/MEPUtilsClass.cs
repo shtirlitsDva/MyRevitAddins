@@ -24,7 +24,8 @@ namespace MEPUtils
             var dictionary = new Dictionary<int, Func<ExternalCommandData, Result>>
             {
                 {1, InsulationHandler.CreateInsulationForPipes },
-                {2, InsulationHandler.DeleteAllPipeInsulation }
+                {2, InsulationHandler.DeleteAllPipeInsulation },
+                {3, PipeCreator.CreatePipeFromConnector }
             };
             return dictionary;
         }
