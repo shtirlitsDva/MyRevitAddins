@@ -18,8 +18,9 @@ namespace MEPUtils
 {
     public static class InsulationHandler
     {
-        public static Result CreateInsulationForPipes(Document doc)
+        public static Result CreateInsulationForPipes(ExternalCommandData cData)
         {
+            Document doc = cData.Application.ActiveUIDocument.Document;
             string pipeInsulationName = "Rørisolering";
 
             var allInsulationTypes = fi.GetElements<PipeInsulationType>(doc);
@@ -40,8 +41,10 @@ namespace MEPUtils
             return Result.Succeeded;
         }
 
-        public static Result DeleteAllPipeInsulation(Document doc)
+        public static Result DeleteAllPipeInsulation(ExternalCommandData cData)
         {
+            Document doc = cData.Application.ActiveUIDocument.Document;
+
             var allInsulation = fi.GetElements<PipeInsulation>(doc);
             if (allInsulation == null) return Result.Failed;
             else if (allInsulation.Count == 0) return Result.Failed;

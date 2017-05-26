@@ -66,6 +66,16 @@ namespace MEPUtils
             b2.Dock = DockStyle.Fill;
             b2.AutoSizeMode = 0;
             tableLayoutPanel1.Controls.Add(b2);
+
+            var b3 = new Button()
+            {
+                Text = "Create pipe at connector",
+                Name = "B3"
+            };
+            b3.Click += B3_Click;
+            b3.Dock = DockStyle.Fill;
+            b3.AutoSizeMode = 0;
+            tableLayoutPanel1.Controls.Add(b3);
         }
 
         private void B1_Click(object sender, EventArgs e)
@@ -79,6 +89,13 @@ namespace MEPUtils
         {
             var b = sender as Button;
             MethodToExecute = 2;
+            Close();
+        }
+
+        private void B3_Click(object sender, EventArgs e)
+        {
+            var b = sender as Button;
+            MethodToExecute = 3;
             Close();
         }
 
