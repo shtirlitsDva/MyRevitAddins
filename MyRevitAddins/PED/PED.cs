@@ -128,7 +128,7 @@ namespace PED
             foreach (Element element in elements)
             {
                 //See if the parameter already has value and skip element if it has
-                if (!element.get_Parameter(wallThkDef.Guid).HasValue) continue;
+                if (element.get_Parameter(wallThkDef.Guid).HasValue) continue;
 
                 //Retrieve the correct wallthickness from dictionary and set it on the element
                 Parameter wallThkParameter = element.get_Parameter(wallThkDef.Guid);

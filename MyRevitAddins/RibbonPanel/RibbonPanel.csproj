@@ -95,6 +95,10 @@
       <Project>{1a8437e5-fa90-42ef-9682-7957445ead85}</Project>
       <Name>ConnectConnectors</Name>
     </ProjectReference>
+    <ProjectReference Include="..\MEPUtils\MEPUtils.csproj">
+      <Project>{51413598-89e7-48b9-a192-8087207ac1a7}</Project>
+      <Name>MEPUtils</Name>
+    </ProjectReference>
     <ProjectReference Include="..\PED\PED.csproj">
       <Project>{90ab3a12-294b-42f2-8e60-c63f9cabde93}</Project>
       <Name>PED</Name>
@@ -143,6 +147,10 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\ImgPED32.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\ImgMEPUtils16.png" />
+    <EmbeddedResource Include="Resources\ImgMEPUtils32.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

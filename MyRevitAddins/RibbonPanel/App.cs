@@ -17,6 +17,7 @@ using cn = ConnectConnectors.ConnectConnectors;
 using tl = TotalLineLength.TotalLineLength;
 using piv = PipeInsulationVisibility.PipeInsulationVisibility;
 using ped = PED.InitPED;
+using mep = MEPUtils.MEPUtilsClass;
 using Shared;
 //using Document = Autodesk.Revit.Creation.Document;
 
@@ -98,6 +99,13 @@ namespace MyRibbonPanel
             data.Image = NewBitmapImage(exe, "MyRibbonPanel.Resources.ImgPED16.png");
             data.LargeImage = NewBitmapImage(exe, "MyRibbonPanel.Resources.ImgPED32.png");
             PushButton PED = rvtRibbonPanel.AddItem(data) as PushButton;
+
+            //MEPUtils
+            data = new PushButtonData("MEPUtils", "MEP Utils", ExecutingAssemblyPath, "MyRibbonPanel.MEPUtils");
+            data.ToolTip = myRibbonPanelToolTip;
+            data.Image = NewBitmapImage(exe, "MyRibbonPanel.Resources.ImgMEPUtils16.png");
+            data.LargeImage = NewBitmapImage(exe, "MyRibbonPanel.Resources.ImgMEPUtils32.png");
+            PushButton MEPUtils = rvtRibbonPanel.AddItem(data) as PushButton;
         }
     }
 
@@ -225,6 +233,16 @@ namespace MyRibbonPanel
             }
 
             return Result.Succeeded;
+        }
+    }
+
+    [Autodesk.Revit.Attributes.Transaction(Autodesk.Revit.Attributes.TransactionMode.Manual)]
+    class MEPUtils : IExternalCommand
+    {
+        public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
+        {
+            Result result = mep.FormCaller(commandData);
+            return result;
         }
     }
 }

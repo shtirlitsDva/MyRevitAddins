@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Data;
+using System.Data.OleDb;
+using System.Text.RegularExpressions;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using MoreLinq;
-using System.Text;
-using System.Threading.Tasks;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.DB.Electrical;
 using Autodesk.Revit.DB.Plumbing;
@@ -19,7 +20,7 @@ namespace Shared
         {
             BuiltInParameter testParam = parameterName;
             ParameterValueProvider pvp = new ParameterValueProvider(new ElementId((int)testParam));
-            FilterStringRuleEvaluator str = new FilterStringContains();
+            FilterStringRuleEvaluator str = new FilterStringEquals();
             FilterStringRule paramFr = new FilterStringRule(pvp, str, valueQualifier, false);
             ElementParameterFilter epf = new ElementParameterFilter(paramFr);
             return epf;
@@ -426,6 +427,25 @@ namespace Shared
             return collector;
         }
 
+        /// <summary>
+        /// Returns the collection of all instances of the specified BuiltInCategory. Warning: does not work with Pipes!
+        /// </summary>
+        /// <param name="doc">The active document.</param>
+        /// <param name="cat">The specified category. Ex: BuiltInCategory.OST_PipeFitting</param>
+        /// <returns>A collection of all instances of the specified category.</returns>
+        public static FilteredElementCollector GetElementsOfBuiltInCategory(Document doc, BuiltInCategory cat)
+        {
+            // what categories of family instances
+            // are we interested in?
+            // From here: http://thebuildingcoder.typepad.com/blog/2010/06/retrieve-mep-elements-and-connectors.html
+
+            ElementFilter categoryFilter = new ElementCategoryFilter(cat);
+            LogicalAndFilter familyInstanceFilter = new LogicalAndFilter(categoryFilter, new ElementClassFilter(typeof(FamilyInstance)));
+            FilteredElementCollector collector = new FilteredElementCollector(doc);
+            collector.WherePasses(familyInstanceFilter);
+            return collector;
+        }
+
         public static ConnectorSet GetConnectorSet(Element e)
         {
             ConnectorSet connectors = null;
@@ -465,4 +485,70 @@ namespace Shared
             return (from e in GetElementsWithConnectors(doc) from Connector c in GetConnectorSet(e) select c).ToHashSet();
         }
     }
+
+    public class DataHandler
+    {
+        //DataSet import is from here:
+        //http://stackoverflow.com/a/18006593/6073998
+        public static DataSet ImportExcelToDataSet(string fileName, string dataHasHeaders)
+        {
+            //On connection strings http://www.connectionstrings.com/excel/#p84
+            string connectionString =
+                string.Format(
+                    "provider=Microsoft.ACE.OLEDB.12.0;Data Source={0};Extended Properties=\"Excel 12.0;HDR={1};IMEX=1\"",
+                    fileName, dataHasHeaders);
+
+            DataSet data = new DataSet();
+
+            foreach (string sheetName in GetExcelSheetNames(connectionString))
+            {
+                using (OleDbConnection con = new OleDbConnection(connectionString))
+                {
+                    var dataTable = new DataTable();
+                    string query = string.Format("SELECT * FROM [{0}]", sheetName);
+                    con.Open();
+                    OleDbDataAdapter adapter = new OleDbDataAdapter(query, con);
+                    adapter.Fill(dataTable);
+
+                    //Remove ' and $ from sheetName
+                    Regex rgx = new Regex("[^a-zA-Z0-9 _-]");
+                    string tableName = rgx.Replace(sheetName, "");
+
+                    dataTable.TableName = tableName;
+                    data.Tables.Add(dataTable);
+                }
+            }
+
+            if (data == null) Util.ErrorMsg("Data set is null");
+            if (data.Tables.Count < 1) Util.ErrorMsg("Table count in DataSet is 0");
+
+            return data;
+        }
+
+        static string[] GetExcelSheetNames(string connectionString)
+        {
+            OleDbConnection con = null;
+            DataTable dt = null;
+            con = new OleDbConnection(connectionString);
+            con.Open();
+            dt = con.GetOleDbSchemaTable(OleDbSchemaGuid.Tables, null);
+
+            if (dt == null)
+            {
+                return null;
+            }
+
+            string[] excelSheetNames = new string[dt.Rows.Count];
+            int i = 0;
+
+            foreach (DataRow row in dt.Rows)
+            {
+                excelSheetNames[i] = row["TABLE_NAME"].ToString();
+                i++;
+            }
+
+            return excelSheetNames;
+        }
+    }
+
 }
