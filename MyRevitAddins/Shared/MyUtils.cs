@@ -206,12 +206,12 @@ namespace Shared
             return Util.FootToMeter(number);
         }
 
-        public static double FtToMillimeters(this Double number)
+        public static double FtToMm(this Double number)
         {
             return Util.FootToMm(number);
         }
 
-        public static double MmToFeet(this Double number)
+        public static double MmToFt(this Double number)
         {
             return Util.MmToFoot(number);
         }
@@ -229,6 +229,11 @@ namespace Shared
         public static double Round3(this Double number)
         {
             return Math.Round(number, 3, MidpointRounding.AwayFromZero);
+        }
+
+        public static double Round(this Double number, int decimals)
+        {
+            return Math.Round(number, decimals, MidpointRounding.AwayFromZero);
         }
 
         public static bool IsEqual(this XYZ p, XYZ q)
@@ -365,8 +370,6 @@ namespace Shared
         }
 
     }
-
-
 
     public static class MyMepUtils
     {

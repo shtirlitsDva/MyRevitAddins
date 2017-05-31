@@ -51,7 +51,7 @@ namespace TotalLineLength
                 else ut.ErrorMsg(el.Name.ToString()+" is not implemented!");
             }
 
-            ut.InfoMsg(totalLength.FtToMillimeters().Round4().ToString());
+            ut.InfoMsg(totalLength.FtToMm().Round4().ToString());
         }
     }
 }

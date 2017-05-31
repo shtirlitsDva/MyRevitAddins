@@ -146,7 +146,7 @@ namespace PED
                 string source = Conversion.PipeSizeToMm(c1.Radius);
                 int dia = Convert.ToInt32(source);
                 pipeWallThk.TryGetValue(dia, out double data);
-                wallThkParameter.Set(data.MmToFeet());
+                wallThkParameter.Set(data.MmToFt());
             }
         }
 
