@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using MoreLinq;
 using System.Data;
+using System.IO;
 using Autodesk.Revit.UI;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.DB.Plumbing;
@@ -21,6 +22,17 @@ namespace MEPUtils
         public static Result CreateInsulationForPipes(ExternalCommandData cData)
         {
             Document doc = cData.Application.ActiveUIDocument.Document;
+
+            string pathToInsulationExcel =
+                Environment.ExpandEnvironmentVariables("%AppData%\\MyRevitAddins\\MEPUtils\\Insulation.xlsx");
+            bool fileExists = File.Exists(pathToInsulationExcel);
+            if (!fileExists)
+                throw new Exception(
+                    @"No insulation configuration file exists at: %AppData%\MyRevitAddins\MEPUtils\Insulation.xlsx");
+
+            DataSet insulationDataSet = DataHandler.ImportExcelToDataSet(pathToInsulationExcel, "YES");
+            DataTable insulationData = DataHandler.ReadDataTable(insulationDataSet.Tables, "Insulation");
+
             string pipeInsulationName = "Rørisolering";
 
             var allInsulationTypes = fi.GetElements<PipeInsulationType>(doc);

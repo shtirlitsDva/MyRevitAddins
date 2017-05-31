@@ -552,6 +552,13 @@ namespace Shared
 
             return excelSheetNames;
         }
+
+        public static DataTable ReadDataTable(DataTableCollection dataTableCollection, string tableName)
+        {
+            var table = (from DataTable dtbl in dataTableCollection where dtbl.TableName == tableName select dtbl)
+                .FirstOrDefault();
+            return table;
+        }
     }
 
 }
