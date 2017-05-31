@@ -14,7 +14,7 @@ using Autodesk.Revit.DB.Plumbing;
 
 namespace Shared
 {
-    public class Filter
+    public static class Filter
     {
         public static ElementParameterFilter ParameterValueFilter(string valueQualifier, BuiltInParameter parameterName)
         {
@@ -134,7 +134,7 @@ namespace Shared
         }
     }
 
-    public class Conversion
+    public static class Conversion
     {
         const double _inch_to_mm = 25.4;
         const double _foot_to_mm = 12 * _inch_to_mm;
@@ -489,7 +489,7 @@ namespace Shared
         }
     }
 
-    public class DataHandler
+    public static class DataHandler
     {
         //DataSet import is from here:
         //http://stackoverflow.com/a/18006593/6073998
