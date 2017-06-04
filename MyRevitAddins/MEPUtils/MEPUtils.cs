@@ -66,17 +66,19 @@ namespace MEPUtils
 
             for (int i = 0; i < methodDict.Count; i++)
             {
-                var b = new Button();
-                b.Text = nameDict[i];
-                b.Name = string.Format("b_{0}", i);
-                b.Click += b_Click;
+                var b = new Button
+                {
+                    Text = nameDict[i],
+                    Name = string.Format("b_{0}", i)
+                };
+                b.Click += B_Click;
                 b.Dock = DockStyle.Fill;
                 b.AutoSizeMode = 0;
                 tableLayoutPanel1.Controls.Add(b);
             }
         }
 
-        private void b_Click(object sender, EventArgs e)
+        private void B_Click(object sender, EventArgs e)
         {
             var b = sender as Button;
             var position = tableLayoutPanel1.GetPositionFromControl(b);
