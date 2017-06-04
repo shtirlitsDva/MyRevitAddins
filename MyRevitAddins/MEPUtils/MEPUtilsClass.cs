@@ -19,25 +19,13 @@ namespace MEPUtils
 {
     public class MEPUtilsClass
     {
-        private static Dictionary<int, Func<ExternalCommandData, Result>> CreateMethodDict()
-        {
-            var dictionary = new Dictionary<int, Func<ExternalCommandData, Result>>
-            {
-                {1, InsulationHandler.CreateInsulationForPipes },
-                {2, InsulationHandler.DeleteAllPipeInsulation },
-                {3, PipeCreator.CreatePipeFromConnector }
-            };
-            return dictionary;
-        }
-        
         public static Result FormCaller(ExternalCommandData cData)
         {
-            MEPUtilsChooser mepuc = new MEPUtilsChooser(cData);
+            MEPUtilsChooser mepuc = new MEPUtilsChooser();
             mepuc.ShowDialog();
             //mepuc.Close();
 
-            var methodDict = CreateMethodDict();
-            Result result = methodDict[mepuc.MethodToExecute].Invoke(cData);
+            Result result = mepuc.MethodToExecute.Invoke(cData);
 
             return result;
         }

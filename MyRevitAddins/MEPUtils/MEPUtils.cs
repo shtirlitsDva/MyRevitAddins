@@ -20,82 +20,68 @@ namespace MEPUtils
 {
     public partial class MEPUtilsChooser : System.Windows.Forms.Form
     {
-        Document Doc { get; }
-        public int MethodToExecute { get; private set; }
-        
-        public MEPUtilsChooser(ExternalCommandData commandData)
+        private Dictionary<int, Func<ExternalCommandData, Result>> methodDict;
+        private Dictionary<int, string> nameDict;
+        public Func<ExternalCommandData, Result> MethodToExecute { get; private set; }
+
+        public MEPUtilsChooser()
         {
             InitializeComponent();
-            Doc = commandData.Application.ActiveUIDocument.Document;
 
             //From here: http://stackoverflow.com/questions/34426888/dynamic-button-creation-placing-them-in-a-predefined-order-using-c-sharp
+            //Edit the number of methods in rowCount here
             int columnCount = 1;
-            int rowCount = 2;
+            int rowCount = 3;
 
-            this.tableLayoutPanel1.ColumnCount = columnCount;
-            this.tableLayoutPanel1.RowCount = rowCount;
+            tableLayoutPanel1.ColumnCount = columnCount;
+            tableLayoutPanel1.RowCount = rowCount;
 
-            this.tableLayoutPanel1.ColumnStyles.Clear();
-            this.tableLayoutPanel1.RowStyles.Clear();
+            tableLayoutPanel1.ColumnStyles.Clear();
+            tableLayoutPanel1.RowStyles.Clear();
 
             for (int i = 0; i < columnCount; i++)
             {
-                this.tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(System.Windows.Forms.SizeType.Percent, 100 / columnCount));
+                tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100 / columnCount));
             }
             for (int i = 0; i < rowCount; i++)
             {
-                this.tableLayoutPanel1.RowStyles.Add(new RowStyle(System.Windows.Forms.SizeType.Percent, 100 / rowCount));
+                tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 100 / rowCount));
             }
 
-            var b1 = new Button()
+            //Place methods to execute in this dict
+            methodDict = new Dictionary<int, Func<ExternalCommandData, Result>>
             {
-                Text = "Create all insulation",
-                Name = "B1"
+                {0, InsulationHandler.CreateInsulationForPipes },
+                {1, InsulationHandler.DeleteAllPipeInsulation },
+                {2, PipeCreator.CreatePipeFromConnector }
             };
-            b1.Click += B1_Click;
-            b1.Dock = DockStyle.Fill;
-            b1.AutoSizeMode = 0;
-            tableLayoutPanel1.Controls.Add(b1);
 
-            var b2 = new Button()
+            //Place names for methods in this dict
+            nameDict = new Dictionary<int, string>
             {
-                Text = "Delete all insulation",
-                Name = "B2"
+                {0, "Create all insulation" },
+                {1, "Delete all insulation" },
+                {2, "Create pipe from connector" }
             };
-            b2.Click += B2_Click;
-            b2.Dock = DockStyle.Fill;
-            b2.AutoSizeMode = 0;
-            tableLayoutPanel1.Controls.Add(b2);
 
-            var b3 = new Button()
+            for (int i = 0; i < methodDict.Count; i++)
             {
-                Text = "Create pipe at connector",
-                Name = "B3"
-            };
-            b3.Click += B3_Click;
-            b3.Dock = DockStyle.Fill;
-            b3.AutoSizeMode = 0;
-            tableLayoutPanel1.Controls.Add(b3);
+                var b = new Button();
+                b.Text = nameDict[i];
+                b.Name = string.Format("b_{0}", i);
+                b.Click += b_Click;
+                b.Dock = DockStyle.Fill;
+                b.AutoSizeMode = 0;
+                tableLayoutPanel1.Controls.Add(b);
+            }
         }
 
-        private void B1_Click(object sender, EventArgs e)
+        private void b_Click(object sender, EventArgs e)
         {
             var b = sender as Button;
-            MethodToExecute = 1;
-            Close();
-        }
-
-        private void B2_Click(object sender, EventArgs e)
-        {
-            var b = sender as Button;
-            MethodToExecute = 2;
-            Close();
-        }
-
-        private void B3_Click(object sender, EventArgs e)
-        {
-            var b = sender as Button;
-            MethodToExecute = 3;
+            var position = tableLayoutPanel1.GetPositionFromControl(b);
+            var index = position.Row;
+            MethodToExecute = methodDict[index];
             Close();
         }
 
