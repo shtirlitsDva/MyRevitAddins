@@ -17,8 +17,20 @@ using mp = Shared.MyMepUtils;
 
 namespace MEPUtils
 {
-    public static class InsulationHandler
+    public class InsulationHandler
     {
+        public Result ExecuteInsulationSettings(ExternalCommandData cData)
+        {
+            InsulationSettingsWindow isw = new InsulationSettingsWindow(cData);
+            isw.ShowDialog();
+
+            //TODO: Write settings to file
+
+            isw.Close();
+            
+            return Result.Succeeded;
+        }
+
         public static Result CreateInsulationForPipes(ExternalCommandData cData)
         {
             Document doc = cData.Application.ActiveUIDocument.Document;

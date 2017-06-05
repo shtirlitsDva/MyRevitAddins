@@ -92,6 +92,17 @@ namespace Shared
         }
 
         /// <summary>
+        /// Get the collection of elements of the specified BuiltInCategory.
+        /// </summary>
+        /// <param name="document">The Revit document.</param>
+        /// <param name="bic">BuiltInCategory which needs to be collected.</param>
+        /// <returns>The collection of elements of the specified BuiltInCategory.</returns>
+        public static HashSet<Element> GetElements(Document document, BuiltInCategory bic)
+        {
+            return new FilteredElementCollector(document).OfCategory(bic).OfClass(typeof(FamilyInstance)).ToElements().ToHashSet();
+        }
+
+        /// <summary>
         /// Get the collection of elements of the specified type in a specified view.
         /// <para>The specified type must derive from Element, or you can use Element but you get everything :)</para>
         /// </summary>
