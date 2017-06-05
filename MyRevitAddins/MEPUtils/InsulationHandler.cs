@@ -44,7 +44,10 @@ namespace MEPUtils
             var fittings = fi.GetElements(doc, BuiltInCategory.OST_PipeFitting);
             var accessories = fi.GetElements(doc, BuiltInCategory.OST_PipeAccessory);
 
-            
+            foreach (Element element in pipes)
+            {
+                InsulateElement(doc, element);
+            }
 
 
             return Result.Succeeded;
@@ -93,14 +96,20 @@ namespace MEPUtils
             return insulationData;
         }
 
-        private void InsulateElement(Document doc, Element e)
+        private static void InsulateElement(Document doc, Element e)
         {
-            var insulationData = GetInsulationParameters();
-            var settings = GetInsulationSettings(doc);
+            var insPar = GetInsulationParameters();
+            var insSet = GetInsulationSettings(doc);
 
-            string pipeInsulationName = "Rørisolering";
+            if (e is Pipe pipe)
+            {
+                //Start by reading the PipeInsulationType name from settings and so on.
+                
+            }
 
-            var allInsulationTypes = fi.GetElements<PipeInsulationType>(doc);
+            
+
+            var insType = fi.GetElements<PipeInsulationType>(doc,);
             var insulationType = (from PipeInsulationType pit in allInsulationTypes
                 where pit.Name == pipeInsulationName
                 select pit).FirstOrDefault();

@@ -92,6 +92,19 @@ namespace Shared
         }
 
         /// <summary>
+        /// Get the collection of elements of the specified type additionally filtered by a string value of specified BuiltInParameter.
+        /// </summary>
+        /// <typeparam name="T">The type of element to get.</typeparam>
+        /// <param name="document">The usual active document.</param>
+        /// <param name="value">String value of parameter to filter by.</param>
+        /// <param name="bip">The BuiltInParameter whose value to filter by.</param>
+        /// <returns>A HashSet of revit objects already cast to the specified type.</returns>
+        public static HashSet<T> GetElements<T>(Document document, string value, BuiltInParameter bip)
+        {
+            return new FilteredElementCollector(document).OfClass(typeof(T)).WherePasses(ParameterValueFilter(value, bip)).Cast<T>().ToHashSet();
+        }
+
+        /// <summary>
         /// Get the collection of elements of the specified BuiltInCategory.
         /// </summary>
         /// <param name="document">The Revit document.</param>
