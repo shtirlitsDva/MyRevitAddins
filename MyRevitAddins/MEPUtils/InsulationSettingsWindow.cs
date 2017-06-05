@@ -30,46 +30,44 @@ namespace MEPUtils
             InitializeComponent();
 
             this.Height = 800;
+            this.Width = 475;
 
             Document doc = cData.Application.ActiveUIDocument.Document;
 
             //Collect all pipe accessories names and types to determine number of rows
             var elements = fi.GetElements(doc, BuiltInCategory.OST_PipeAccessory)
+                .DistinctBy(d => d.get_Parameter(BuiltInParameter.ELEM_FAMILY_AND_TYPE_PARAM).AsValueString())
                 .OrderBy(o => o.get_Parameter(BuiltInParameter.ELEM_FAMILY_AND_TYPE_PARAM).AsValueString())
                 .ToList();
 
-            tableLayoutPanel1.ColumnCount = 2; //First column name of inst, Second setting to add insulation
+            tableLayoutPanel1.ColumnCount = 2;
             tableLayoutPanel1.RowCount = elements.Count;
-
-            //TODO: Fix column width!!
-            //TODO: Fix text box width!!
 
             for (int i = 0; i < elements.Count; i++)
             {
-                var tb = new System.Windows.Forms.TextBox()
+                var tb = new System.Windows.Forms.Label()
                 {
                     Text = elements[i].get_Parameter(BuiltInParameter.ELEM_FAMILY_AND_TYPE_PARAM).AsValueString(),
-                    Name = $"TextBox_{i}",
-                    AutoSize = true,
+                    Name = $"Label_{i}",
+                    AutoSize = false,
                     Dock = DockStyle.Fill,
-                    ReadOnly = true,
-                    TextAlign = HorizontalAlignment.Right,
-                    Width = TextRenderer.MeasureText(Text, Font).Width,
-                    Height = TextRenderer.MeasureText(Text, Font).Height,
+                    TextAlign = ContentAlignment.MiddleRight,
                     TabStop = false,
-            };
-                
+                };
+
                 tableLayoutPanel1.Controls.Add(tb, 0, i);
 
                 var cb = new CheckBox()
                 {
                     Name = $"CheckBox_{i}",
-                    Anchor = AnchorStyles.None,
+                    Anchor = AnchorStyles.Left,
+                    Dock = DockStyle.Fill,
+                    Width = 15,
                 };
 
                 cb.Enter += Cb_Enter;
                 cb.Leave += Cb_Leave;
-                
+
                 tableLayoutPanel1.Controls.Add(cb, 1, i);
             }
 
