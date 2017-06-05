@@ -14,6 +14,7 @@ using ut = Shared.Util;
 using op = Shared.Output;
 using tr = Shared.Transformation;
 using mp = Shared.MyMepUtils;
+using dh = Shared.DataHandler;
 
 namespace MEPUtils
 {
@@ -101,23 +102,25 @@ namespace MEPUtils
             var insPar = GetInsulationParameters();
             var insSet = GetInsulationSettings(doc);
 
+            //Read common configuration values
+            string sysAbbr = e.get_Parameter(BuiltInParameter.RBS_DUCT_PIPE_SYSTEM_ABBREVIATION_PARAM).AsString();
+
+            //Read pipeinsulation type and get the type
+            string pipeInsulationName = dh.ReadParameterFromDataTable(sysAbbr, insPar, "Type");
+            PipeInsulationType pipeInsulationType =
+                fi.GetElements<PipeInsulationType>(doc, pipeInsulationName, BuiltInParameter.ALL_MODEL_TYPE_NAME).FirstOrDefault();
+            if (pipeInsulationType == null) throw new Exception($"PipeInsulationType {pipeInsulationName} does not exist!");
+            
+            //Process the elements
             if (e is Pipe pipe)
             {
                 //Start by reading the PipeInsulationType name from settings and so on.
-                
+                double dia = pipe.Diameter.FtToMm().Round(0);
+                string insThicknessAsReadFromDataTable = dh.ReadParameterFromDataTable(sysAbbr, insPar, dia.ToString());
+                double insThickness = double.Parse(insThicknessAsReadFromDataTable).Round(0).MmToFt();
             }
 
             
-
-            var insType = fi.GetElements<PipeInsulationType>(doc,);
-            var insulationType = (from PipeInsulationType pit in allInsulationTypes
-                where pit.Name == pipeInsulationName
-                select pit).FirstOrDefault();
-
-            if (insulationType == null)
-            {
-                ut.ErrorMsg("Create Pipe Insulation Type with name " + pipeInsulationName);
-            }
         }
 
         public static Result DeleteAllPipeInsulation(ExternalCommandData cData)

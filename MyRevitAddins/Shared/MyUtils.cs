@@ -101,7 +101,8 @@ namespace Shared
         /// <returns>A HashSet of revit objects already cast to the specified type.</returns>
         public static HashSet<T> GetElements<T>(Document document, string value, BuiltInParameter bip)
         {
-            return new FilteredElementCollector(document).OfClass(typeof(T)).WherePasses(ParameterValueFilter(value, bip)).Cast<T>().ToHashSet();
+            var parValFilter = ParameterValueFilter(value, bip);
+            return new FilteredElementCollector(document).OfClass(typeof(T)).WherePasses(parValFilter).Cast<T>().ToHashSet();
         }
 
         /// <summary>
@@ -594,6 +595,22 @@ namespace Shared
                 .FirstOrDefault();
             return table;
         }
-    }
 
+        public static string ReadParameterFromDataTable(string key, DataTable table, string parameter)
+        {
+            //Test if value exists
+            if (table.AsEnumerable().Any(row => row.Field<string>(0) == key))
+            {
+                var query = from row in table.AsEnumerable()
+                            where row.Field<string>(0) == key
+                            select row.Field<string>(parameter);
+
+                string value = query.FirstOrDefault();
+
+                //if (value.IsNullOrEmpty()) return null;
+                return value;
+            }
+            else return null;
+        }
+    }
 }
