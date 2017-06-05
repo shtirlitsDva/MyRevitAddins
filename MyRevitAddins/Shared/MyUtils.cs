@@ -99,7 +99,18 @@ namespace Shared
         /// <returns>The collection of elements of the specified BuiltInCategory.</returns>
         public static HashSet<Element> GetElements(Document document, BuiltInCategory bic)
         {
-            return new FilteredElementCollector(document).OfCategory(bic).OfClass(typeof(FamilyInstance)).ToElements().ToHashSet();
+            switch (bic)
+            {
+                case BuiltInCategory.OST_PipeCurves:
+                    return new FilteredElementCollector(document).OfCategory(bic).OfClass(typeof(Pipe)).ToElements().ToHashSet();
+                case BuiltInCategory.OST_PipeAccessory:
+                case BuiltInCategory.OST_PipeFitting:
+                    return new FilteredElementCollector(document).OfCategory(bic).OfClass(typeof(FamilyInstance)).ToElements().ToHashSet();
+                case BuiltInCategory.OST_PipeInsulations:
+                    return new FilteredElementCollector(document).OfCategory(bic).OfClass(typeof(PipeInsulation)).ToElements().ToHashSet();
+                default:
+                    throw new NotImplementedException($"The {bic} is not implemented in the GetElements method!");
+            }
         }
 
         /// <summary>

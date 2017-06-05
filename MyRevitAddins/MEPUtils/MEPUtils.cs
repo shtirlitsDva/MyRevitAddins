@@ -51,7 +51,7 @@ namespace MEPUtils
             //Place methods to execute in this dict
             methodDict = new Dictionary<int, Func<ExternalCommandData, Result>>
             {
-                {0, InsulationHandler.CreateInsulationForPipes },
+                {0, InsulationHandler.CreateAllInsulation },
                 {1, InsulationHandler.DeleteAllPipeInsulation },
                 {2, new InsulationHandler().ExecuteInsulationSettings},
                 {3, PipeCreator.CreatePipeFromConnector }
