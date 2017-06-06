@@ -191,13 +191,15 @@ namespace MEPUtils
             }
             else return;
 
+            insThickness = ReadThickness();
+
             double ReadThickness()
             {
                 string insThicknessAsReadFromDataTable = dh.ReadParameterFromDataTable(sysAbbr, insPar, dia.ToString());
                 if (insThicknessAsReadFromDataTable == null) return 0;
                 return double.Parse(insThicknessAsReadFromDataTable).Round(0).MmToFt();
             }
-            
+                        
             PipeInsulation.Create(doc, e.Id, pipeInsulationType.Id, insThickness);
         }
 
