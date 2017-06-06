@@ -8,6 +8,7 @@ using Autodesk.Revit.UI;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.DB.Plumbing;
 using Autodesk.Revit.DB.Structure;
+using Autodesk.Revit.DB.Mechanical;
 using Shared;
 using fi = Shared.Filter;
 using ut = Shared.Util;
@@ -45,11 +46,17 @@ namespace MEPUtils
             var fittings = fi.GetElements(doc, BuiltInCategory.OST_PipeFitting);
             var accessories = fi.GetElements(doc, BuiltInCategory.OST_PipeAccessory);
 
-            foreach (Element element in pipes)
+            using (Transaction tx = new Transaction(doc))
             {
-                InsulateElement(doc, element);
-            }
+                tx.Start("Create all insulation");
 
+                foreach (Element element in pipes)
+                {
+                    InsulateElement(doc, element);
+                }
+
+                tx.Commit();
+            }
 
             return Result.Succeeded;
         }
@@ -107,20 +114,91 @@ namespace MEPUtils
 
             //Read pipeinsulation type and get the type
             string pipeInsulationName = dh.ReadParameterFromDataTable(sysAbbr, insPar, "Type");
+            if (pipeInsulationName == null) return;
             PipeInsulationType pipeInsulationType =
                 fi.GetElements<PipeInsulationType>(doc, pipeInsulationName, BuiltInParameter.ALL_MODEL_TYPE_NAME).FirstOrDefault();
-            if (pipeInsulationType == null) throw new Exception($"PipeInsulationType {pipeInsulationName} does not exist!");
-            
+
+            //Declare insulation thickness vars
+            double insThickness = 0;
+            double dia;
+
             //Process the elements
             if (e is Pipe pipe)
             {
                 //Start by reading the PipeInsulationType name from settings and so on.
-                double dia = pipe.Diameter.FtToMm().Round(0);
-                string insThicknessAsReadFromDataTable = dh.ReadParameterFromDataTable(sysAbbr, insPar, dia.ToString());
-                double insThickness = double.Parse(insThicknessAsReadFromDataTable).Round(0).MmToFt();
+                dia = pipe.Diameter.FtToMm().Round(0);
             }
+            else if (e is FamilyInstance fi)
+            {
+                //Case: Pipe Accessory with defined setting
+                //Read element insulation settings
+                if (insSet.AsEnumerable().Any(row => row.Field<string>("FamilyAndType")
+                == e.get_Parameter(BuiltInParameter.ELEM_FAMILY_AND_TYPE_PARAM).AsValueString()))
+                {
+                    var query = insSet.AsEnumerable()
+                        .Where(row => row.Field<string>("FamilyAndType") == e.get_Parameter(BuiltInParameter.ELEM_FAMILY_AND_TYPE_PARAM).AsValueString())
+                        .Select(row => row.Field<string>("AddInsulation"));
+                    bool value = bool.Parse(query.FirstOrDefault());
+                    if (!value) return;
 
+                    //Retrieve connector dimensions
+                    var cons = mp.GetConnectors(e);
+                    dia = (cons.Primary.Radius * 2).FtToMm().Round(0);
+                }
+                //Case: Pipe Fitting
+                else if (e.Category.Id.IntegerValue == (int)BuiltInCategory.OST_PipeFitting)
+                {
+                    var mf = fi.MEPModel as MechanicalFitting;
+                    //Case: Tee
+                    if (mf.PartType.ToString() == "Tee")
+                    {
+                        //See if tee already has insulation and delete it
+                        Parameter parInsType = e.get_Parameter(BuiltInParameter.RBS_REFERENCE_INSULATION_TYPE);
+                        if (parInsType.HasValue) doc.Delete(PipeInsulation.GetInsulationIds(doc, e.Id));
+
+                        //Retrieve connector dimensions
+                        var cons = mp.GetConnectors(e);
+                        dia = (cons.Primary.Radius * 2).FtToMm().Round(0);
+                        insThickness = ReadThickness();
+                        if (insThickness == 0) return;
+                        Parameter par = e.LookupParameter("Insulation Projected");
+                        if (par == null) return;
+                        par.Set(insThickness);
+                        return;
+                    }
+                    //Case: Reducer
+                    else if (mf.PartType.ToString() == "Transition")
+                    {
+                        //Retrieve connector dimensions
+                        var cons = mp.GetConnectors(e);
+                        double primDia = (cons.Primary.Radius * 2).FtToMm().Round(0);
+                        double secDia = (cons.Secondary.Radius * 2).FtToMm().Round(0);
+
+                        if (primDia > secDia) dia = secDia;
+                        else dia = primDia;
+                    }
+                    //Case: Other fitting
+                    else
+                    {
+                        //Retrieve connector dimensions
+                        var cons = mp.GetConnectors(e);
+                        dia = (cons.Primary.Radius * 2).FtToMm().Round(0);
+                    }
+                }
+                //Case: None of the above
+                else return;
+
+            }
+            else return;
+
+            double ReadThickness()
+            {
+                string insThicknessAsReadFromDataTable = dh.ReadParameterFromDataTable(sysAbbr, insPar, dia.ToString());
+                if (insThicknessAsReadFromDataTable == null) return 0;
+                return double.Parse(insThicknessAsReadFromDataTable).Round(0).MmToFt();
+            }
             
+            PipeInsulation.Create(doc, e.Id, pipeInsulationType.Id, insThickness);
         }
 
         public static Result DeleteAllPipeInsulation(ExternalCommandData cData)
@@ -130,6 +208,9 @@ namespace MEPUtils
             var allInsulation = fi.GetElements<PipeInsulation>(doc);
             if (allInsulation == null) return Result.Failed;
             else if (allInsulation.Count == 0) return Result.Failed;
+
+            //var fittings = fi.GetElements(doc, BuiltInCategory.OST_PipeFitting).Cast<FamilyInstance>().ToHashSet();
+            //var tees = from FamilyInstance e in fittings where mf (e.MEPModel as MechanicalFitting) 
 
             Transaction tx = new Transaction(doc);
             tx.Start("Delete all insulation!");
