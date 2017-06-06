@@ -50,11 +50,10 @@ namespace MEPUtils
             {
                 tx.Start("Create all insulation");
 
-                foreach (Element element in pipes)
-                {
-                    InsulateElement(doc, element);
-                }
-
+                foreach (Element element in pipes) InsulateElement(doc, element);
+                foreach (Element element in fittings) InsulateElement(doc, element);
+                foreach (Element element in accessories) InsulateElement(doc, element);
+                
                 tx.Commit();
             }
 
