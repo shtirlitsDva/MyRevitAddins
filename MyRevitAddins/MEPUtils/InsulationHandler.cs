@@ -105,6 +105,10 @@ namespace MEPUtils
 
         private static void InsulateElement(Document doc, Element e)
         {
+            //If element already is insulated -- continue to next element
+            Parameter parInsTypeCheck = e.get_Parameter(BuiltInParameter.RBS_REFERENCE_INSULATION_TYPE);
+            if (parInsTypeCheck.HasValue) return;
+
             var insPar = GetInsulationParameters();
             var insSet = GetInsulationSettings(doc);
 
