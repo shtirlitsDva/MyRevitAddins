@@ -248,12 +248,29 @@ namespace MEPUtils
             if (allInsulation == null) return Result.Failed;
             else if (allInsulation.Count == 0) return Result.Failed;
 
-            //var fittings = fi.GetElements(doc, BuiltInCategory.OST_PipeFitting).Cast<FamilyInstance>().ToHashSet();
-            //var tees = from FamilyInstance e in fittings where mf (e.MEPModel as MechanicalFitting) 
+            var fittings = fi.GetElements(doc, BuiltInCategory.OST_PipeFitting).Cast<FamilyInstance>().ToHashSet();
+
+            
 
             Transaction tx = new Transaction(doc);
             tx.Start("Delete all insulation!");
             foreach (Element el in allInsulation) doc.Delete(el.Id);
+
+            foreach (FamilyInstance fi in fittings)
+            {
+                var mf = fi.MEPModel as MechanicalFitting;
+                if (mf.PartType.ToString() == "Tee")
+                {
+                    //Set insulation to 0
+                    Parameter par1 = fi.LookupParameter("Insulation Projected");
+                    par1?.Set(0);
+                    
+                    //Make invisible also
+                    Parameter par2 = fi.LookupParameter("Dummy Insulation Visible");
+                    if (par2.AsInteger() == 1) par2.Set(0);
+                }
+            }
+
             tx.Commit();
 
             return Result.Succeeded;
