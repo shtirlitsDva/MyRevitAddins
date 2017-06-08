@@ -50,6 +50,7 @@ namespace MEPUtils
             {
                 tx.Start("Create all insulation");
 
+                //TODO: Split the InsulateElement into three methods for each kind -- I think it would make it more simple
                 foreach (Element element in pipes) InsulateElement(doc, element);
                 foreach (Element element in fittings) InsulateElement(doc, element);
                 foreach (Element element in accessories) InsulateElement(doc, element);
