@@ -53,7 +53,7 @@ namespace MEPUtils
                 foreach (Element element in pipes) InsulateElement(doc, element);
                 foreach (Element element in fittings) InsulateElement(doc, element);
                 foreach (Element element in accessories) InsulateElement(doc, element);
-                
+
                 tx.Commit();
             }
 
@@ -105,26 +105,67 @@ namespace MEPUtils
 
         private static void InsulateElement(Document doc, Element e)
         {
-            //If element already is insulated -- continue to next element
-            Parameter parInsTypeCheck = e.get_Parameter(BuiltInParameter.RBS_REFERENCE_INSULATION_TYPE);
-            if (parInsTypeCheck.HasValue) return;
+            #region Initialization
 
+            //Read configuration data
             var insPar = GetInsulationParameters();
             var insSet = GetInsulationSettings(doc);
 
             //Read common configuration values
             string sysAbbr = e.get_Parameter(BuiltInParameter.RBS_DUCT_PIPE_SYSTEM_ABBREVIATION_PARAM).AsString();
 
+            //Declare insulation thickness vars
+            double insThickness = 0;
+            double dia;
+
+            #endregion
+
+            #region Tees
+
+            //Case: Tees get their own treatment because of the custom parameters
+            if (e is FamilyInstance famInst && e.Category.Id.IntegerValue == (int)BuiltInCategory.OST_PipeFitting)
+            {
+                var mf = famInst.MEPModel as MechanicalFitting;
+                if (mf.PartType.ToString() == "Tee")
+                {
+                    //See if tee already has insulation and delete it
+                    Parameter parInsType = e.get_Parameter(BuiltInParameter.RBS_REFERENCE_INSULATION_TYPE);
+                    if (parInsType.HasValue) doc.Delete(PipeInsulation.GetInsulationIds(doc, e.Id));
+
+                    //Retrieve connector dimensions
+                    var cons = mp.GetConnectors(e);
+                    dia = (cons.Primary.Radius * 2).FtToMm().Round(0);
+
+                    //Read insulation setting
+                    insThickness = ReadThickness();
+                    if (insThickness == 0) return;
+
+                    //Set insulation
+                    Parameter par1 = e.LookupParameter("Insulation Projected");
+                    if (par1 == null) return;
+                    par1.Set(insThickness);
+
+                    //Make visible if not
+                    Parameter par2 = e.LookupParameter("Dummy Insulation Visible");
+                    if (par2.AsInteger() == 0) par2.Set(1);
+
+                    return;
+                }
+            }
+
+            #endregion
+
+            //If element already is insulated -- continue to next element
+            Parameter parInsTypeCheck = e.get_Parameter(BuiltInParameter.RBS_REFERENCE_INSULATION_TYPE);
+            if (parInsTypeCheck.HasValue) return;
+            
             //Read pipeinsulation type and get the type
             string pipeInsulationName = dh.ReadParameterFromDataTable(sysAbbr, insPar, "Type");
             if (pipeInsulationName == null) return;
             PipeInsulationType pipeInsulationType =
                 fi.GetElements<PipeInsulationType>(doc, pipeInsulationName, BuiltInParameter.ALL_MODEL_TYPE_NAME).FirstOrDefault();
-
-            //Declare insulation thickness vars
-            double insThickness = 0;
-            double dia;
-
+            if (pipeInsulationType == null) throw new Exception($"No pipe insulation type named {pipeInsulationName}!");
+            
             //Process the elements
             if (e is Pipe pipe)
             {
@@ -138,11 +179,20 @@ namespace MEPUtils
                 if (insSet.AsEnumerable().Any(row => row.Field<string>("FamilyAndType")
                 == e.get_Parameter(BuiltInParameter.ELEM_FAMILY_AND_TYPE_PARAM).AsValueString()))
                 {
+                    //See if element is not allowed to be insulated
                     var query = insSet.AsEnumerable()
                         .Where(row => row.Field<string>("FamilyAndType") == e.get_Parameter(BuiltInParameter.ELEM_FAMILY_AND_TYPE_PARAM).AsValueString())
                         .Select(row => row.Field<string>("AddInsulation"));
                     bool value = bool.Parse(query.FirstOrDefault());
-                    if (!value) return;
+
+                    //If not allowed (false is read) negate the false to true to trigger the following if
+                    //Delete any existing insulation and return
+                    if (!value)
+                    {
+                        Parameter parInsType = e.get_Parameter(BuiltInParameter.RBS_REFERENCE_INSULATION_TYPE);
+                        if (parInsType.HasValue) doc.Delete(PipeInsulation.GetInsulationIds(doc, e.Id));
+                        return;
+                    }
 
                     //Retrieve connector dimensions
                     var cons = mp.GetConnectors(e);
@@ -152,33 +202,17 @@ namespace MEPUtils
                 else if (e.Category.Id.IntegerValue == (int)BuiltInCategory.OST_PipeFitting)
                 {
                     var mf = fi.MEPModel as MechanicalFitting;
-                    //Case: Tee
-                    if (mf.PartType.ToString() == "Tee")
-                    {
-                        //See if tee already has insulation and delete it
-                        Parameter parInsType = e.get_Parameter(BuiltInParameter.RBS_REFERENCE_INSULATION_TYPE);
-                        if (parInsType.HasValue) doc.Delete(PipeInsulation.GetInsulationIds(doc, e.Id));
-
-                        //Retrieve connector dimensions
-                        var cons = mp.GetConnectors(e);
-                        dia = (cons.Primary.Radius * 2).FtToMm().Round(0);
-                        insThickness = ReadThickness();
-                        if (insThickness == 0) return;
-                        Parameter par = e.LookupParameter("Insulation Projected");
-                        if (par == null) return;
-                        par.Set(insThickness);
-                        return;
-                    }
                     //Case: Reducer
-                    else if (mf.PartType.ToString() == "Transition")
+                    if (mf.PartType.ToString() == "Transition")
                     {
                         //Retrieve connector dimensions
                         var cons = mp.GetConnectors(e);
+
+                        //Insulate after the larger diameter
                         double primDia = (cons.Primary.Radius * 2).FtToMm().Round(0);
                         double secDia = (cons.Secondary.Radius * 2).FtToMm().Round(0);
 
-                        if (primDia > secDia) dia = secDia;
-                        else dia = primDia;
+                        dia = primDia > secDia ? primDia : secDia;
                     }
                     //Case: Other fitting
                     else
@@ -202,7 +236,7 @@ namespace MEPUtils
                 if (insThicknessAsReadFromDataTable == null) return 0;
                 return double.Parse(insThicknessAsReadFromDataTable).Round(0).MmToFt();
             }
-                        
+
             PipeInsulation.Create(doc, e.Id, pipeInsulationType.Id, insThickness);
         }
 
