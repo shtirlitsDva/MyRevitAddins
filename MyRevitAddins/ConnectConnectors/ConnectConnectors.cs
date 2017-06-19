@@ -41,7 +41,7 @@ namespace ConnectConnectors
                 }
             }
 
-            else if (selection.Count == 1 && !ctrl) //If one and no CTRL key, connect the element
+            else if ((selection.Count == 1 || selection.Count > 2) && !ctrl) //If one and no CTRL key, connect the element
             {
                 var elements = new HashSet<Element>(from ElementId id in selection select doc.GetElement(id));
                 var elementConnectors = mp.GetALLConnectorsFromElements(elements);
@@ -70,7 +70,7 @@ namespace ConnectConnectors
                 }
             }
 
-            else if (selection.Count == 1 && ctrl) //If one and CTRL key is pressed, disconnect the element
+            else if ((selection.Count == 1 || selection.Count > 2) && ctrl) //If one and CTRL key is pressed, disconnect the element
             {
                 var elements = new HashSet<Element>(from ElementId id in selection select doc.GetElement(id));
                 var elementConnectors = mp.GetALLConnectorsFromElements(elements);
