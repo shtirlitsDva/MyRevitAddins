@@ -70,7 +70,7 @@ namespace ConnectConnectors
                 }
             }
 
-            else if (selection.Count == 1 && ctrl) //If one and CTRL key is pressed, disconnect the element
+            else if ((selection.Count == 1 || selection.Count > 2) && ctrl) //If one and CTRL key is pressed, disconnect the element
             {
                 var elements = new HashSet<Element>(from ElementId id in selection select doc.GetElement(id));
                 var elementConnectors = mp.GetALLConnectorsFromElements(elements);
@@ -80,7 +80,10 @@ namespace ConnectConnectors
                     if (c1.IsConnected)
                     {
                         var set = c1.AllRefs;
-                        foreach (Connector c2 in set) c2.DisconnectFrom(c1);
+                        foreach (Connector c2 in set)
+                        {
+                            if (c1.IsConnectedTo(c2)) c1.DisconnectFrom(c2);
+                        }
                     }
                 }
             }
