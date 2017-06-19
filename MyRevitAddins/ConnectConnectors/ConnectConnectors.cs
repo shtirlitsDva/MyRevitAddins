@@ -41,7 +41,7 @@ namespace ConnectConnectors
                 }
             }
 
-            else if ((selection.Count == 1 || selection.Count > 2) && !ctrl) //If one and no CTRL key, connect the element
+            else if ((selection.Count == 1 || selection.Count > 2) && !ctrl) //If one or many and no CTRL key, connect the elements
             {
                 var elements = new HashSet<Element>(from ElementId id in selection select doc.GetElement(id));
                 var elementConnectors = mp.GetALLConnectorsFromElements(elements);
@@ -54,7 +54,7 @@ namespace ConnectConnectors
                 {
                     foreach (var c2 in allConnectors)
                     {
-                        if (c1.Id != c2.Id && !c1.IsConnected && ut.IsEqual(c1.Origin, c2.Origin))
+                        if (c1.Id != c2.Id && !c1.IsConnected && ut.IsEqual(c1.Origin, c2.Origin) && !list2.Contains(c1) && !list1.Contains(c2))
                         {
                             list1.Add(c1);
                             list2.Add(c2);
@@ -70,18 +70,32 @@ namespace ConnectConnectors
                 }
             }
 
-            else if ((selection.Count == 1 || selection.Count > 2) && ctrl) //If one and CTRL key is pressed, disconnect the element
+            else if ((selection.Count == 1 || selection.Count > 2) && ctrl) //If one or many and CTRL key is pressed, disconnect the elements
             {
                 var elements = new HashSet<Element>(from ElementId id in selection select doc.GetElement(id));
                 var elementConnectors = mp.GetALLConnectorsFromElements(elements);
+                var allConnectors = mp.GetALLConnectorsInDocument(doc).Where(c => c.IsConnected).ToList();
 
-                foreach (Connector c1 in elementConnectors)
+                IList<Connector> list1 = new List<Connector>();
+                IList<Connector> list2 = new List<Connector>();
+
+                foreach (var c1 in elementConnectors)
                 {
-                    if (c1.IsConnected)
+                    foreach (var c2 in allConnectors)
                     {
-                        var set = c1.AllRefs;
-                        foreach (Connector c2 in set) c2.DisconnectFrom(c1);
+                        if (c1.Id != c2.Id && c1.IsConnected && ut.IsEqual(c1.Origin, c2.Origin) && !list2.Contains(c1) && !list1.Contains(c2))
+                        {
+                            list1.Add(c1);
+                            list2.Add(c2);
+                        }
                     }
+                }
+
+                if (list1.Count == 0 && list2.Count == 0) throw new Exception("No matches found! Check alignment!");
+
+                foreach (var t in list1.Zip(list2, (x, y) => (c1: x, c2: y)))
+                {
+                    t.c1.DisconnectFrom(t.c2);
                 }
             }
 
