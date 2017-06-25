@@ -109,8 +109,21 @@ namespace PlaceSupport
 
                 Connector c1 = conQuery.First();
                 Connector c2 = conQuery.Last();
+
                 //Define a plane by three points
-                var plane = Plane.CreateByThreePoints(c1.Origin, c2.Origin, new XYZ(c1.Origin.X + 5, c1.Origin.Y, c1.Origin.Z));
+                //Detect if the pipe concides with X-axis
+                //If true use another axis to define point
+                Plane plane;
+
+                if (ut.Compare(c1.Origin.Y, c2.Origin.Y) == 0 && ut.Compare(c1.Origin.Z, c2.Origin.Z) == 0)
+                {
+                    plane = Plane.CreateByThreePoints(c1.Origin, c2.Origin, new XYZ(c1.Origin.X, c1.Origin.Y + 5, c1.Origin.Z));
+                }
+                else
+                {
+                    plane = Plane.CreateByThreePoints(c1.Origin, c2.Origin, new XYZ(c1.Origin.X + 5, c1.Origin.Y, c1.Origin.Z));
+                }
+
                 //Set view sketch plane to the be the created plane
                 var sp = SketchPlane.Create(doc, plane);
                 uiDoc.ActiveView.SketchPlane = sp;
