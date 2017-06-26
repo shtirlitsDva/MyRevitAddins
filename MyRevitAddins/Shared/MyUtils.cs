@@ -28,14 +28,14 @@ namespace Shared
 
         public static LogicalOrFilter FamSymbolsAndPipeTypes()
         {
-            BuiltInCategory[] bics = new BuiltInCategory[]
+            BuiltInCategory[] bics =
             {
                 BuiltInCategory.OST_PipeAccessory,
                 BuiltInCategory.OST_PipeCurves,
                 BuiltInCategory.OST_PipeFitting,
             };
 
-            IList<ElementFilter> a = new List<ElementFilter>(bics.Count());
+            IList<ElementFilter> a = new List<ElementFilter>(bics.Length);
 
             foreach (BuiltInCategory bic in bics) a.Add(new ElementCategoryFilter(bic));
 
@@ -57,12 +57,12 @@ namespace Shared
 
         public static LogicalOrFilter FamInstOfDetailComp()
         {
-            BuiltInCategory[] bics = new BuiltInCategory[]
+            BuiltInCategory[] bics =
             {
                 BuiltInCategory.OST_DetailComponents,
             };
 
-            IList<ElementFilter> a = new List<ElementFilter>(bics.Count());
+            IList<ElementFilter> a = new List<ElementFilter>(bics.Length);
 
             foreach (BuiltInCategory bic in bics) a.Add(new ElementCategoryFilter(bic));
 

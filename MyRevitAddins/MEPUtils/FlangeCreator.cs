@@ -19,7 +19,7 @@ namespace MEPUtils
 {
     class FlangeCreator
     {
-        public static Result CreateFlangeForElements(ExternalCommandData cData)
+        public static Result CreateFlangeForElements(ExternalCommandData cData, string familyAndTypeName)
         {
             try
             {
@@ -30,12 +30,27 @@ namespace MEPUtils
                 var elemIds = selection.GetElementIds();
                 if (elemIds == null) throw new Exception("Getting element from selection failed!");
 
+                //Collect the family symbol of the flange
+                var collector = new FilteredElementCollector(doc);
+                var symbolFilter = fi.ParameterValueFilter(familyAndTypeName,
+                    BuiltInParameter.SYMBOL_FAMILY_AND_TYPE_NAMES_PARAM);
+                var classFilter = fi.FamSymbolsAndPipeTypes();
+                Element familySymbol = collector.WherePasses(classFilter).WherePasses(symbolFilter).FirstElement();
+
+                //Process the elements
                 foreach (var id in elemIds)
                 {
                     Element element = doc.GetElement(id);
                     if (element is Pipe) throw new Exception("This method does not work on pipes!");
                     var cons = mp.GetALLConnectorsFromElements(element);
-                    
+
+                    //Process the individual connectors of the original element
+                    foreach (Connector conToPutFlangeOn in cons)
+                    {
+                        //Create the flange at first at the connector (must be rotated AND moved in place)
+                        Element flange = doc.Create.NewFamilyInstance(conToPutFlangeOn.Origin, (FamilySymbol)familySymbol, StructuralType.NonStructural);
+                    }
+
                 }
             }
             catch (Exception e)
@@ -44,7 +59,7 @@ namespace MEPUtils
             }
         }
 
-        public static void RotateElementInPosition(???, Connector conOnFamilyToConnect, Connector start, Element element)
+        public static void RotateElementInPosition(XYZ placementPoint, Connector conOnFamilyToConnect, Connector start, Element element)
         {
             #region Geometric manipulation
 
