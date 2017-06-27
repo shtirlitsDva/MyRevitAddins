@@ -62,6 +62,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="FlangeCreator.cs" />
+    <Compile Include="FlangeCreatorChooser.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FlangeCreatorChooser.Designer.cs">
+      <DependentUpon>FlangeCreatorChooser.cs</DependentUpon>
+    </Compile>
     <Compile Include="InsulationSettingsWindow.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -91,6 +97,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="FlangeCreatorChooser.resx">
+      <DependentUpon>FlangeCreatorChooser.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="InsulationSettingsWindow.resx">
       <DependentUpon>InsulationSettingsWindow.cs</DependentUpon>
     </EmbeddedResource>

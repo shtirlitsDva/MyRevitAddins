@@ -19,7 +19,7 @@ namespace MEPUtils
 {
     class FlangeCreator
     {
-        public static Result CreateFlangeForElements(ExternalCommandData cData, string familyAndTypeName)
+        public static Result CreateFlangeForElements(ExternalCommandData cData)
         {
             try
             {
@@ -30,6 +30,12 @@ namespace MEPUtils
                 var elemIds = selection.GetElementIds();
                 if (elemIds == null) throw new Exception("Getting element from selection failed!");
 
+                //Choose the right flange to create
+                FlangeCreatorChooser fcc = new FlangeCreatorChooser(cData);
+                fcc.ShowDialog();
+                fcc.Close();
+                string familyAndTypeName = fcc.flangeName;
+
                 //Collect the family symbol of the flange
                 var collector = new FilteredElementCollector(doc);
                 var symbolFilter = fi.ParameterValueFilter(familyAndTypeName,
@@ -37,21 +43,122 @@ namespace MEPUtils
                 var classFilter = fi.FamSymbolsAndPipeTypes();
                 Element familySymbol = collector.WherePasses(classFilter).WherePasses(symbolFilter).FirstElement();
 
-                //Process the elements
-                foreach (var id in elemIds)
+                using (Transaction trans = new Transaction(doc))
                 {
-                    Element element = doc.GetElement(id);
-                    if (element is Pipe) throw new Exception("This method does not work on pipes!");
-                    var cons = mp.GetALLConnectorsFromElements(element);
+                    trans.Start("Create flanges");
 
-                    //Process the individual connectors of the original element
-                    foreach (Connector conToPutFlangeOn in cons)
+                    //Process the elements
+                    foreach (var id in elemIds)
                     {
-                        //Create the flange at first at the connector (must be rotated AND moved in place)
-                        Element flange = doc.Create.NewFamilyInstance(conToPutFlangeOn.Origin, (FamilySymbol)familySymbol, StructuralType.NonStructural);
-                    }
+                        Element element = doc.GetElement(id);
+                        if (element is Pipe) throw new Exception("This method does not work on pipes!");
+                        var origCons = mp.GetConnectors(element);
 
+                        #region Primary flange
+                        //Process the individual connectors of the original element
+                        //Start with primary connector
+
+                        //Create the flange at first at the primary connector (must be rotated AND moved in place)
+                        Element flange1 = doc.Create.NewFamilyInstance(origCons.Primary.Origin, (FamilySymbol)familySymbol, StructuralType.NonStructural);
+
+                        //Access the newly created flange's connectors
+                        var flangeCons1 = mp.GetConnectors(flange1);
+
+                        //Transform the flange to align with the connector
+                        RotateElementInPosition(origCons.Primary.Origin, flangeCons1.Primary, origCons.Primary, origCons.Secondary, flange1);
+
+                        //Set the diameter of the flange
+                        double dia1value = origCons.Primary.Radius * 2;
+                        Parameter dia1 = flange1.LookupParameter("Nominal Diameter 1");
+                        dia1.Set(dia1value);
+
+                        doc.Regenerate();
+
+                        //Move flange to location
+                        ElementTransformUtils.MoveElement(doc, flange1.Id, origCons.Primary.Origin - flangeCons1.Primary.Origin);
+
+                        //Modify the connecting pipe if any
+                        var allRefs1 = origCons.Primary.AllRefs;
+                        Connector modCon11 = null;
+                        foreach (Connector c in allRefs1) modCon11 = c;
+                        if (modCon11 != null && modCon11.Owner is Pipe)
+                        {
+                            var conSet = mp.GetConnectorSet(modCon11.Owner);
+                            Connector modCon12 = (from Connector c in ((Pipe)modCon11.Owner).ConnectorManager.Connectors //End of the host/dummy pipe
+                                                  where c.Id != modCon11.Id && (int)c.ConnectorType == 1
+                                                  select c).FirstOrDefault();
+
+                            //Get the typeId of most used pipeType
+                            var filter = fi.ParameterValueFilter("Stålrør, sømløse", BuiltInParameter.ALL_MODEL_TYPE_NAME);
+                            FilteredElementCollector col = new FilteredElementCollector(doc);
+                            var pipeType = col.OfClass(typeof(PipeType)).WherePasses(filter).ToElements().FirstOrDefault();
+
+                            //Create new pipe
+                            Pipe.Create(doc, pipeType.Id, element.LevelId, flangeCons1.Secondary, modCon12.Origin);
+
+                            //Delete the original pipe
+                            doc.Delete(modCon11.Owner.Id);
+
+                            //Connect the new flange to element
+                            origCons.Primary.ConnectTo(flangeCons1.Primary);
+                        }
+
+                        
+                        #endregion
+
+                        #region Secondary flange
+
+                        //Process the individual connectors of the original element
+                        //Continue with secondary connector
+                        Element flange2 = doc.Create.NewFamilyInstance(origCons.Secondary.Origin, (FamilySymbol)familySymbol, StructuralType.NonStructural);
+
+                        //Access the newly created flange's connectors
+                        var flangeCons2 = mp.GetConnectors(flange2);
+
+                        //Transform the flange to align with the connector
+                        RotateElementInPosition(origCons.Secondary.Origin, flangeCons2.Primary, origCons.Secondary, origCons.Primary, flange2);
+
+                        //Set the diameter of the flange
+                        double dia2value = origCons.Secondary.Radius * 2;
+                        Parameter dia2 = flange2.LookupParameter("Nominal Diameter 1");
+                        dia2.Set(dia2value);
+
+                        doc.Regenerate();
+
+                        //Move flange to location
+                        ElementTransformUtils.MoveElement(doc, flange2.Id, origCons.Secondary.Origin - flangeCons2.Primary.Origin);
+
+                        //Modify the connecting pipe if any
+                        var allRefs2 = origCons.Secondary.AllRefs;
+                        Connector modCon21 = null;
+                        foreach (Connector c in allRefs2) modCon21 = c;
+                        if (modCon21 != null && modCon21.Owner is Pipe)
+                        {
+                            var conSet = mp.GetConnectorSet(modCon21.Owner);
+                            Connector modCon22 = (from Connector c in ((Pipe)modCon21.Owner).ConnectorManager.Connectors //End of the host/dummy pipe
+                                                  where c.Id != modCon21.Id && (int)c.ConnectorType == 1
+                                                  select c).FirstOrDefault();
+
+                            //Get the typeId of most used pipeType
+                            var filter = fi.ParameterValueFilter("Stålrør, sømløse", BuiltInParameter.ALL_MODEL_TYPE_NAME);
+                            FilteredElementCollector col = new FilteredElementCollector(doc);
+                            var pipeType = col.OfClass(typeof(PipeType)).WherePasses(filter).ToElements().FirstOrDefault();
+
+                            //Create new pipe
+                            Pipe.Create(doc, pipeType.Id, element.LevelId, flangeCons2.Secondary, modCon22.Origin);
+
+                            //Delete the original pipe
+                            doc.Delete(modCon21.Owner.Id);
+
+                            //Connect the new flange to element
+                            origCons.Secondary.ConnectTo(flangeCons2.Primary);
+                        }
+                        #endregion
+                    }
+                    trans.Commit();
                 }
+
+                return Result.Succeeded;
             }
             catch (Exception e)
             {
@@ -59,21 +166,11 @@ namespace MEPUtils
             }
         }
 
-        public static void RotateElementInPosition(XYZ placementPoint, Connector conOnFamilyToConnect, Connector start, Element element)
+        public static void RotateElementInPosition(XYZ placementPoint, Connector conOnFamilyToConnect, Connector start, Connector end, Element element)
         {
             #region Geometric manipulation
 
             //http://thebuildingcoder.typepad.com/blog/2012/05/create-a-pipe-cap.html
-
-            //Centre of element
-            XYZ placementPoint = elementSymbol.CentrePoint.Xyz;
-
-            //Select the OTHER connector
-            MEPCurve hostPipe = start.Owner as MEPCurve;
-
-            Connector end = (from Connector c in hostPipe.ConnectorManager.Connectors //End of the host/dummy pipe
-                             where c.Id != start.Id && (int)c.ConnectorType == 1
-                             select c).FirstOrDefault();
 
             XYZ dir = (start.Origin - end.Origin);
 
