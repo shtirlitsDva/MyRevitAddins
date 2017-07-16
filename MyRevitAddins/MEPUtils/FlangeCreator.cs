@@ -90,12 +90,6 @@ namespace MEPUtils
             Element flange = doc.Create.NewFamilyInstance(start.Origin, (FamilySymbol)familySymbol,
                 StructuralType.NonStructural);
 
-            //Access the newly created flange's connectors
-            var flangeCons = mp.GetConnectors(flange);
-
-            //Transform the flange to align with the connector
-            RotateElementInPosition(start.Origin, flangeCons.Primary, start, end, flange);
-
             //Set the diameter of the flange
             double diaValue = start.Radius * 2;
             Parameter dia = flange.LookupParameter("Nominal Diameter 1");
@@ -103,9 +97,19 @@ namespace MEPUtils
 
             doc.Regenerate();
 
+            //Access the newly created flange's connectors
+            var flangeCons = mp.GetConnectors(flange);
+
+            //Transform the flange to align with the connector
+            RotateElementInPosition(start.Origin, flangeCons.Primary, start, end, flange);
+            
             //Move flange to location
             ElementTransformUtils.MoveElement(doc, flange.Id, start.Origin - flangeCons.Primary.Origin);
 
+            //Retrieve host element systemTypeId
+            var pipingSystemTypeParameter = element.get_Parameter(BuiltInParameter.RBS_PIPING_SYSTEM_TYPE_PARAM);
+            var pipingSystemTypeId = pipingSystemTypeParameter.AsElementId();
+            
             //Case: Connected to Pipe
             if (modCon1 != null)
             {
@@ -117,21 +121,25 @@ namespace MEPUtils
                 //Get the typeId of most used pipeType
                 var filter = fi.ParameterValueFilter("Stålrør, sømløse", BuiltInParameter.ALL_MODEL_TYPE_NAME);
                 FilteredElementCollector col = new FilteredElementCollector(doc);
-                var pipeType = col.OfClass(typeof(PipeType)).WherePasses(filter).ToElements().FirstOrDefault();
+                var pipeType = col.OfClass(typeof(PipeType)).WherePasses(filter).FirstElement();
 
                 //Create new pipe
-                Pipe.Create(doc, pipeType.Id, element.LevelId, flangeCons.Secondary, modCon2.Origin);
+                Pipe newPipe = Pipe.Create(doc, pipingSystemTypeId, pipeType.Id, element.LevelId, flangeCons.Secondary.Origin, modCon2.Origin);
+
+                //Set pipe diameter
+                Parameter pipeDia = newPipe.get_Parameter(BuiltInParameter.RBS_PIPE_DIAMETER_PARAM);
+                pipeDia.Set(diaValue);
 
                 //Delete the original pipe
                 doc.Delete(modCon1.Owner.Id);
 
                 //Connect the new flange to element
-                start.ConnectTo(flangeCons.Primary);
+                //start.ConnectTo(flangeCons.Primary);
             }
             //Case: Not connected to anything
             else
             {
-                start.ConnectTo(flangeCons.Primary);
+                //start.ConnectTo(flangeCons.Primary);
             }
 
         }
@@ -177,12 +185,10 @@ namespace MEPUtils
                 if (dir.X.Round3() == 0 && dir.Y.Round3() == 0 && dir.Z.Round3() != 0)
                 {
                     XYZ yaxis = new XYZ(0.0, 1.0, 0.0);
-                    //XYZ yaxis = dir.CrossProduct(connectorDirection);
 
-                    double rotationAngle = dir.AngleTo(yaxis);
-                    //double rotationAngle = 90;
+                    double rotationAngle = dir.AngleTo(yaxis); //<-- value in radians
 
-                    if (dir.Z.Equals(1)) rotationAngle = -rotationAngle;
+                    if (dir.Z > 0) rotationAngle = -rotationAngle; //<-- Here is the culprit: Equals(1) was wrong!
 
                     axis = Line.CreateBound(placementPoint, new XYZ(placementPoint.X, placementPoint.Y + 5, placementPoint.Z));
 
