@@ -5,6 +5,7 @@ using MoreLinq;
 using System.Data;
 using Autodesk.Revit.UI;
 using Autodesk.Revit.DB;
+using Autodesk.Revit.DB.Mechanical;
 using Autodesk.Revit.DB.Plumbing;
 using Autodesk.Revit.DB.Structure;
 using Autodesk.Revit.UI.Selection;
@@ -82,10 +83,6 @@ namespace MEPUtils
             Connector modCon1 = null;
             foreach (Connector c in allRefs) modCon1 = c;
 
-            //If the connector is connected to anything else than a Pipe then abort
-            //Case: connected to other element than pipe
-            if (modCon1 != null && !(modCon1.Owner is Pipe)) return;
-
             //Create the flange (must be rotated AND moved in place)
             Element flange = doc.Create.NewFamilyInstance(start.Origin, (FamilySymbol)familySymbol,
                 StructuralType.NonStructural);
@@ -110,8 +107,13 @@ namespace MEPUtils
             var pipingSystemTypeParameter = element.get_Parameter(BuiltInParameter.RBS_PIPING_SYSTEM_TYPE_PARAM);
             var pipingSystemTypeId = pipingSystemTypeParameter.AsElementId();
             
+            //Retrieve owner of the connected connector
+            var modOwner = modCon1?.Owner;
+            //If no connected elements, then return
+            if (modOwner == null) return;
+            
             //Case: Connected to Pipe
-            if (modCon1 != null)
+            if (modOwner is Pipe)
             {
                 Connector modCon2 =
                 (from Connector c in ((Pipe) modCon1.Owner).ConnectorManager.Connectors //End of the host/dummy pipe
@@ -136,10 +138,20 @@ namespace MEPUtils
                 //Connect the new flange to element
                 //start.ConnectTo(flangeCons.Primary);
             }
-            //Case: Not connected to anything
+            //Case: Connected to something other than a pipe
             else
             {
-                //start.ConnectTo(flangeCons.Primary);
+                var mf = ((FamilyInstance)modOwner).MEPModel as MechanicalFitting;
+                if (mf == null) return;
+                //Case: Reducer
+                if (mf.PartType.ToString() == "Transition")
+                {
+                    //Disconnect the flange con from the connected element con
+                    if (start.IsConnectedTo(modCon1)) start.DisconnectFrom(modCon1);
+
+                    //Move the element to the start of the new flange
+                    ElementTransformUtils.MoveElement(doc, modOwner.Id, flangeCons.Secondary.Origin - flangeCons.Primary.Origin);
+                }
             }
 
         }
