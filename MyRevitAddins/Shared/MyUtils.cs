@@ -428,7 +428,7 @@ namespace Shared
                 //BuiltInCategory.OST_ElectricalFixtures,
                 //BuiltInCategory.OST_LightingDevices,
                 //BuiltInCategory.OST_LightingFixtures,
-                //BuiltInCategory.OST_MechanicalEquipment,
+                BuiltInCategory.OST_MechanicalEquipment,
                 BuiltInCategory.OST_PipeAccessory,
                 BuiltInCategory.OST_PipeCurves,
                 BuiltInCategory.OST_PipeFitting,

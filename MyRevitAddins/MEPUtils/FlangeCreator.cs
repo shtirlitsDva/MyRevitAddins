@@ -139,7 +139,7 @@ namespace MEPUtils
                 //start.ConnectTo(flangeCons.Primary);
             }
             //Case: Connected to something other than a pipe
-            else
+            else if (modOwner is FamilyInstance)
             {
                 var mf = ((FamilyInstance)modOwner).MEPModel as MechanicalFitting;
                 if (mf == null) return;
@@ -152,6 +152,15 @@ namespace MEPUtils
                     //Move the element to the start of the new flange
                     ElementTransformUtils.MoveElement(doc, modOwner.Id, flangeCons.Secondary.Origin - flangeCons.Primary.Origin);
                 }
+            }
+            else
+            {
+                //If owner is something else -- do nothing
+                //The addin started to get error because Revit (dunno if it happened because of 2018.1 update)
+                //modOwner somehow ended with piping system assigned to it
+                //this do nothing else is fixing the behaviour
+                //TODO: Find out why the piping system get assigned to modOwner
+                //ut.ErrorMsg(modOwner.Name);
             }
 
         }
