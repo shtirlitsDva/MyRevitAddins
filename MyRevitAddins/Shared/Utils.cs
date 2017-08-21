@@ -23,35 +23,17 @@ using System.Collections;
 
 namespace Shared
 {
-    public class Util
+    public static class Util
     {
         #region Geometrical Comparison
         //const double _eps = 1.0e-9; //Original tolerance
         const double _eps = 0.00328; //Tolerance equal to 1 mm
 
-        public static double Eps
-        {
-            get
-            {
-                return _eps;
-            }
-        }
+        public static double Eps => _eps;
 
-        public static double MinLineLength
-        {
-            get
-            {
-                return _eps;
-            }
-        }
+        public static double MinLineLength => _eps;
 
-        public static double TolPointOnPlane
-        {
-            get
-            {
-                return _eps;
-            }
-        }
+        public static double TolPointOnPlane => _eps;
 
         public static bool IsZero(
           double a,
@@ -68,6 +50,16 @@ namespace Shared
         public static bool IsEqual(double a, double b)
         {
             return IsZero(b - a);
+        }
+
+        public static bool IsEqual(double a, double b, double tolerance)
+        {
+            return IsZero(b - a, tolerance);
+        }
+
+        public static bool Equalz(this double a, double b, double tolerance)
+        {
+            return IsZero(b - a, tolerance);
         }
 
         public static int Compare(double a, double b)
@@ -118,7 +110,7 @@ namespace Shared
         /// Return true if the given bounding box bb
         /// contains the given point p in its interior.
         /// </summary>
-        public bool BoundingBoxXyzContains(
+        public static bool BoundingBoxXyzContains(
           BoundingBoxXYZ bb,
           XYZ p)
         {
@@ -130,7 +122,7 @@ namespace Shared
         /// Return true if the vectors v and w 
         /// are non-zero and perpendicular.
         /// </summary>
-        bool IsPerpendicular(XYZ v, XYZ w)
+        static bool IsPerpendicular(XYZ v, XYZ w)
         {
             double a = v.GetLength();
             double b = v.GetLength();
