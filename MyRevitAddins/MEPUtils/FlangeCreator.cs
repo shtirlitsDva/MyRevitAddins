@@ -80,8 +80,7 @@ namespace MEPUtils
             //TODO: Set correct system type for the new elements
             //Gather the information about the connected elements
             var allRefs = start.AllRefs;
-            Connector modCon1 = null;
-            foreach (Connector c in allRefs) modCon1 = c;
+            Connector modCon1 = (from Connector c in allRefs where !(c.Owner is PipeInsulation) select c).FirstOrDefault();
 
             //Create the flange (must be rotated AND moved in place)
             Element flange = doc.Create.NewFamilyInstance(start.Origin, (FamilySymbol)familySymbol,
@@ -161,6 +160,10 @@ namespace MEPUtils
                 //this do nothing else is fixing the behaviour
                 //TODO: Find out why the piping system get assigned to modOwner
                 //ut.ErrorMsg(modOwner.Name);
+                
+                //2017.09.05
+                //Seems that allRefs contains now an additional connector with PipeInsulation as owner! Why??
+                //Maybe this was as expected, but I failed to notice it before.
             }
 
         }
