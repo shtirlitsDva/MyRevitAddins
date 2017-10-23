@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using MoreLinq;
 using System.Data;
+using System.Windows.Forms;
 using Autodesk.Revit.UI;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.DB.Plumbing;
@@ -21,7 +22,7 @@ namespace MEPUtils
     {
         public static Result FormCaller(ExternalCommandData cData)
         {
-            MEPUtilsChooser mepuc = new MEPUtilsChooser();
+            MEPUtilsChooser mepuc = new MEPUtilsChooser(Cursor.Position.X, Cursor.Position.Y);
             mepuc.ShowDialog();
             //mepuc.Close();
 

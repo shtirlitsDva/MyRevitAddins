@@ -24,6 +24,9 @@ namespace MEPUtils
         private Dictionary<int, string> nameDict;
         public Func<ExternalCommandData, Result> MethodToExecute { get; private set; }
 
+        private int desiredStartLocationX;
+        private int desiredStartLocationY;
+
         public MEPUtilsChooser()
         {
             InitializeComponent();
@@ -82,6 +85,14 @@ namespace MEPUtils
             }
         }
 
+        public MEPUtilsChooser(int x, int y) : this()
+        {
+            desiredStartLocationX = x;
+            desiredStartLocationY = y;
+
+            Load += new EventHandler(MEPUtilsChooser_Load);
+        }
+
         private void B_Click(object sender, EventArgs e)
         {
             var b = sender as Button;
@@ -89,6 +100,11 @@ namespace MEPUtils
             var index = position.Row;
             MethodToExecute = methodDict[index];
             Close();
+        }
+
+        private void MEPUtilsChooser_Load(object sender, EventArgs e)
+        {
+            SetDesktopLocation(desiredStartLocationX, desiredStartLocationY);
         }
 
         //StringBuilder sb = new StringBuilder();
