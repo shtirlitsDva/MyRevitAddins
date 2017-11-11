@@ -53,7 +53,7 @@ namespace MGTek.PDFExporter
         {
             FilteredElementCollector collector = new FilteredElementCollector(doc);
             collector.OfClass(typeof(ViewSheetSet));
-            return collector.Select(x => x.Name.ToString()).ToList();
+            return collector.Select(x => x.Name).ToList();
         }
 
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
@@ -70,7 +70,7 @@ namespace MGTek.PDFExporter
         private void button1_Click(object sender, EventArgs e)
         {
             CommonOpenFileDialog dialog = new CommonOpenFileDialog(); //https://stackoverflow.com/a/41511598/6073998
-            if (string.IsNullOrEmpty(pathToExport)) dialog.InitialDirectory = "C:\\Users";
+            if (string.IsNullOrEmpty(pathToExport)) dialog.InitialDirectory = Environment.ExpandEnvironmentVariables("%userprofile%");
             else dialog.InitialDirectory = pathToExport;
             dialog.IsFolderPicker = true;
             if (dialog.ShowDialog()==CommonFileDialogResult.Ok)
