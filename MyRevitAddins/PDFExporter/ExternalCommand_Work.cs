@@ -37,52 +37,44 @@ namespace MGTek.PDFExporter
     public sealed partial class ExternalCommand
     {
 
-        private bool DoWork(ExternalCommandData commandData,
-            ref String message, ElementSet elements)
+        private bool DoWork(ExternalCommandData commandData, ref String message, ElementSet elements)
         {
 
+            #region NullChecks
             if (null == commandData)
             {
-
-                throw new ArgumentNullException(nameof(
-                    commandData));
+                throw new ArgumentNullException(nameof(commandData));
             }
 
             if (null == message)
             {
-
-                throw new ArgumentNullException(nameof(message)
-                    );
+                throw new ArgumentNullException(nameof(message));
             }
 
             if (null == elements)
             {
-
-                throw new ArgumentNullException(nameof(elements
-                    ));
+                throw new ArgumentNullException(nameof(elements));
             }
+            #endregion
 
-            ResourceManager res_mng = new ResourceManager(
-                  GetType());
-            ResourceManager def_res_mng = new ResourceManager(
-                typeof(Properties.Resources));
+            ResourceManager res_mng = new ResourceManager(GetType());
+            ResourceManager def_res_mng = new ResourceManager(typeof(Properties.Resources));
 
             UIApplication ui_app = commandData.Application;
             UIDocument ui_doc = ui_app?.ActiveUIDocument;
             Application app = ui_app?.Application;
             Document doc = ui_doc?.Document;
 
-            var tr_name = res_mng.GetString("_transaction_name"
-                );
+            var tr_name = res_mng.GetString("_transaction_name");
+
+            PDFExporterForm ef = new PDFExporterForm(commandData, ref message, elements);
+            ef.ShowDialog();
 
             try
             {
-                using (var tr = new Transaction(doc, tr_name)
-                    )
+                using (var tr = new Transaction(doc, tr_name))
                 {
-
-                    if (TransactionStatus.Started == tr.Start()
-                        )
+                    if (TransactionStatus.Started == tr.Start())
                     {
 
                         // ====================================
@@ -96,8 +88,7 @@ namespace MGTek.PDFExporter
                                 .Name));
                         // ====================================
 
-                        return TransactionStatus.Committed ==
-                            tr.Commit();
+                        return TransactionStatus.Committed == tr.Commit();
                     }
                 }
             }

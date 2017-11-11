@@ -55,6 +55,21 @@
       <HintPath>..\packages\Revit-2018.1-x64.Base.1.0.0\lib\net46\AdWindows.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="Microsoft.WindowsAPICodePack, Version=1.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\WindowsAPICodePack.1.1.0\lib\Microsoft.WindowsAPICodePack.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.WindowsAPICodePack.ExtendedLinguisticServices, Version=1.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\WindowsAPICodePack.1.1.0\lib\Microsoft.WindowsAPICodePack.ExtendedLinguisticServices.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.WindowsAPICodePack.Sensors, Version=1.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\WindowsAPICodePack.1.1.0\lib\Microsoft.WindowsAPICodePack.Sensors.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.WindowsAPICodePack.Shell, Version=1.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\WindowsAPICodePack.1.1.0\lib\Microsoft.WindowsAPICodePack.Shell.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.WindowsAPICodePack.ShellExtensions, Version=1.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\WindowsAPICodePack.1.1.0\lib\Microsoft.WindowsAPICodePack.ShellExtensions.dll</HintPath>
+    </Reference>
     <Reference Include="RevitAPI, Version=18.0.0.0, Culture=neutral, processorArchitecture=AMD64">
       <HintPath>..\packages\Revit-2018.1-x64.Base.1.0.0\lib\net46\RevitAPI.dll</HintPath>
       <Private>False</Private>
@@ -77,12 +92,14 @@
     </Reference>
     <Reference Include="RevitDevTools, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Revit2018DevTools.1.0.0\lib\net46\RevitDevTools.dll</HintPath>
-      <Private>False</Private>
+      <Private>True</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
+    <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xaml" />
     <Reference Include="System.XML" />
     <Reference Include="System.Xml.Linq" />
@@ -93,6 +110,12 @@
     <Compile Include="ExternalCommandAvailability.cs" />
     <Compile Include="ExternalCommand.cs" />
     <Compile Include="ExternalCommand_Work.cs" />
+    <Compile Include="PDFExporterForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="PDFExporterForm.Designer.cs">
+      <DependentUpon>PDFExporterForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.ru.Designer.cs">
       <DependentUpon>Resources.ru.resx</DependentUpon>
@@ -103,6 +126,11 @@
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -138,6 +166,9 @@
     <EmbeddedResource Include="ExternalCommandAvailability.ru.resx">
       <DependentUpon>ExternalCommandAvailability.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="PDFExporterForm.resx">
+      <DependentUpon>PDFExporterForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -148,6 +179,11 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <None Include="app.config" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
     <None Include="Resources\Button_image.png" />
     <None Include="Resources\Button_tooltip_image.png" />
     <None Include="packages.config" />
@@ -157,23 +193,6 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>
-SET rdt="$(AppData)\Bushman\Revit\2018\RevitDevTools"
-SET p=$(SolutionDir)packages\
-SET a=Revit2018DevTools
-for /D %25%25x in ("%25p%25%25a%25*") do if not defined f set "f=%25%25x"
-SET pa=%25f%25\lib\net46\
-
-IF NOT "$(ConfigurationName)" == "Debug via Revit Add-In Manager" (
-copy /Y "$(ProjectDir)*.addin" "$(AppData)\Autodesk\REVIT\Addins\2018"
-mkdir "$(AppData)\Autodesk\REVIT\Addins\2018\$(ProjectName)\help"
-xcopy /Y /E /R "$(ProjectDir)bin\$(Configuration)\*" "$(AppData)\Autodesk\REVIT\Addins\2018\$(ProjectName)"
-copy /Y "$(ProjectDir)*.chm" "$(AppData)\Autodesk\REVIT\Addins\2018\$(ProjectName)\help"
-
-mkdir %25rdt%25
-
-copy /Y "%25pa%25*" %25rdt%25
-) ELSE (
-copy /Y "%25pa%25*" "$(TargetDir)"
-)</PostBuildEvent>
+    </PostBuildEvent>
   </PropertyGroup>
 </Project>
