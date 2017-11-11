@@ -190,6 +190,12 @@
     <None Include="PDFExporter.chm" />
     <None Include="PDFExporter.ru.chm" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Shared\Shared.csproj">
+      <Project>{07df7622-cf58-4245-bf47-7cb8bf83520b}</Project>
+      <Name>Shared</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>

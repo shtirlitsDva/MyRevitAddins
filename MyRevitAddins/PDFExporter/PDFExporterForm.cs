@@ -14,6 +14,8 @@ using Autodesk.Revit.UI;
 using Autodesk.Revit.UI.Selection;
 using mySettings = MGTek.PDFExporter.Properties.Settings;
 using Microsoft.WindowsAPICodePack.Dialogs;
+using Shared;
+using fi = Shared.Filter;
 
 namespace MGTek.PDFExporter
 {
@@ -79,6 +81,25 @@ namespace MGTek.PDFExporter
                 mySettings.Default.selectedFolderToExportTo = pathToExport;
                 textBox2.Text = pathToExport;
             }
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            using (Transaction tx = new Transaction(doc))
+            {
+                tx.Start("Export PDF");
+                FilteredElementCollector col = new FilteredElementCollector(doc);
+
+                var sheetSet = col.OfClass(typeof(ViewSheetSet)).Where(x => x.Name == selectedSheetSet).Cast<ViewSheetSet>().FirstOrDefault();
+
+                foreach (ViewSheet sheet in sheetSet.Views)
+                {
+                    sheet.
+                }
+
+                tx.Commit();
+            }
+
         }
     }
 }
