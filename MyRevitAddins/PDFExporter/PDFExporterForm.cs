@@ -7,6 +7,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Diagnostics;
+using System.IO;
+using Microsoft.Win32;
 using Autodesk.Revit.ApplicationServices;
 using Autodesk.Revit.Attributes;
 using Autodesk.Revit.DB;
@@ -75,9 +78,9 @@ namespace MGTek.PDFExporter
             if (string.IsNullOrEmpty(pathToExport)) dialog.InitialDirectory = Environment.ExpandEnvironmentVariables("%userprofile%");
             else dialog.InitialDirectory = pathToExport;
             dialog.IsFolderPicker = true;
-            if (dialog.ShowDialog()==CommonFileDialogResult.Ok)
+            if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
             {
-                pathToExport = dialog.FileName;
+                pathToExport = dialog.FileName + "\\";
                 mySettings.Default.selectedFolderToExportTo = pathToExport;
                 textBox2.Text = pathToExport;
             }
@@ -85,21 +88,125 @@ namespace MGTek.PDFExporter
 
         private void button2_Click(object sender, EventArgs e)
         {
-            using (Transaction tx = new Transaction(doc))
+
+            FilteredElementCollector col = new FilteredElementCollector(doc);
+
+            var sheetSet = col.OfClass(typeof(ViewSheetSet)).Where(x => x.Name == selectedSheetSet).Cast<ViewSheetSet>().FirstOrDefault();
+
+            foreach (ViewSheet sheet in sheetSet.Views)
             {
-                tx.Start("Export PDF");
-                FilteredElementCollector col = new FilteredElementCollector(doc);
+                PrintManager pm = doc.PrintManager;
 
-                var sheetSet = col.OfClass(typeof(ViewSheetSet)).Where(x => x.Name == selectedSheetSet).Cast<ViewSheetSet>().FirstOrDefault();
+                pm.PrintRange = PrintRange.Select;
+                //pm.SelectNewPrintDriver("Adobe PDF");
+                pm.SelectNewPrintDriver("HP PS Printer");
+                pm.PrintToFile = true;
 
-                foreach (ViewSheet sheet in sheetSet.Views)
-                {
-                    sheet.
-                }
+                string sheetFileNamePs = sheet.SheetNumber + " - " + sheet.Name + ".ps";
+                string sheetFileNamePdf = sheet.SheetNumber + " - " + sheet.Name + ".pdf";
+                string fullFileNamePs = pathToExport + sheetFileNamePs;
+                string fullFileNamePdf = pathToExport + sheetFileNamePdf;
+                pm.PrintToFileName = fullFileNamePs;
 
-                tx.Commit();
+                //SetPDFSettings(sheetFileName, pathToExport);
+
+                PrintSetup pSetup = pm.PrintSetup;
+                PrintParameters pParams = pSetup.CurrentPrintSetting.PrintParameters;
+
+                pParams.ZoomType = ZoomType.Zoom;
+                pParams.Zoom = 100;
+                //TODO: pParams.PageOrientation = PageOrientationType.Landscape???
+                pParams.PaperPlacement = PaperPlacementType.Center;
+                pParams.ColorDepth = ColorDepthType.Color;
+                pParams.RasterQuality = RasterQualityType.Presentation;
+                pParams.HiddenLineViews = HiddenLineViewsType.VectorProcessing;
+                pParams.ViewLinksinBlue = false;
+                pParams.HideReforWorkPlanes = true;
+                pParams.HideUnreferencedViewTags = true;
+                pParams.HideCropBoundaries = true;
+                pParams.HideScopeBoxes = true;
+                pParams.ReplaceHalftoneWithThinLines = false;
+                pParams.MaskCoincidentLines = false;
+
+                //TODO: PaperSize handling.
+
+                pm.Apply();
+
+                //pSetup.SaveAs("Temporary export");
+                
+                pm.SubmitPrint(sheet);
+
+                System.Threading.Thread.Sleep(5000);
+
+                string pdf = CreatePdf(pathToExport, sheetFileNamePs);
+
+                File.WriteAllText(fullFileNamePdf, pdf);
+
+            }
+        }
+
+        private string CreatePdf(string outputPath, string fileName)
+        {
+            string ret;
+
+            try
+            {
+                string command = $"gswin32c -q -dNOPAUSE -sDEVICE=pdfwrite -sOutputFile=\"{outputPath}\" -fc:\\\"{fileName}\"";
+
+                Process pdfProcess = new Process();
+
+                StreamWriter writer;
+                StreamReader reader;
+
+                ProcessStartInfo info = new ProcessStartInfo("cmd");
+                info.WorkingDirectory = System.AppDomain.CurrentDomain.BaseDirectory;
+
+                info.CreateNoWindow = true;
+                info.UseShellExecute = false;
+                info.RedirectStandardInput = true;
+                info.RedirectStandardOutput = true;
+
+                pdfProcess.StartInfo = info;
+                pdfProcess.Start();
+
+                writer = pdfProcess.StandardInput;
+                reader = pdfProcess.StandardOutput;
+                writer.AutoFlush = true;
+
+                writer.WriteLine(command);
+
+                writer.Close();
+
+                ret = reader.ReadToEnd();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
             }
 
+            return ret;
+        }
+
+        /// <summary>
+        /// Set's next file print location/name to prevent PDF prompting for file name.
+        /// </summary>
+        /// <param name="destFileName">Full file name with extension.</param>
+        /// <param name="dirName">Directory path.</param>
+        private void SetPDFSettings(string destFileName, string dirName)
+        {
+            try
+            {
+                // if (PrinterName != "Adobe PDF") return;
+                var pjcKey = Registry.CurrentUser.OpenSubKey(@"Software\Adobe\Acrobat Distiller\PrinterJobControl", true);
+                var appPath = @"E:\programs\IDSP18\Revit 2018\Revit.exe";
+                pjcKey?.SetValue(appPath, destFileName);
+                pjcKey?.SetValue("LastPdfPortFolder - Revit.exe", dirName);
+            }
+            catch (Exception)
+            {
+                Autodesk.Revit.UI.TaskDialog.Show("ERROR", "Couldn't access PDF driver registry settings");
+            }
         }
     }
 }
+

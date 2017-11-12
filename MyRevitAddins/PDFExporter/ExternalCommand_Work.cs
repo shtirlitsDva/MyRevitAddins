@@ -67,8 +67,7 @@ namespace MGTek.PDFExporter
 
             var tr_name = res_mng.GetString("_transaction_name");
 
-            PDFExporterForm ef = new PDFExporterForm(commandData, ref message, elements);
-            ef.ShowDialog();
+            
 
             try
             {
@@ -76,17 +75,9 @@ namespace MGTek.PDFExporter
                 {
                     if (TransactionStatus.Started == tr.Start())
                     {
+                        PDFExporterForm ef = new PDFExporterForm(commandData, ref message, elements);
+                        ef.ShowDialog();
 
-                        // ====================================
-                        // TODO: delete these code rows and put
-                        // your code here.
-                        TaskDialog.Show(res_mng.GetString(
-                            ResourceKeyNames.TaskDialogTitle),
-                            string.Format(res_mng.GetString(
-                                ResourceKeyNames
-                                .TaskDialogMessage), GetType()
-                                .Name));
-                        // ====================================
 
                         return TransactionStatus.Committed == tr.Commit();
                     }
