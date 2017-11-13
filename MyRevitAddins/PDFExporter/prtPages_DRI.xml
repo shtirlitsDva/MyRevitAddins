@@ -123,203 +123,203 @@
     <Width>827</Width>
   </Page>
   <Page>
-    <Name>1x1 (297x210)</Name>
-    <Height>297</Height>
-    <Width>210</Width>
+    <Name>1x1_(297x210)_MM</Name>
+    <Height>1169</Height>
+    <Width>826</Width>
   </Page>
   <Page>
-    <Name>1x2 (297x420)</Name>
-    <Height>297</Height>
-    <Width>420</Width>
+    <Name>1x2_(297x420)_MM</Name>
+    <Height>1169</Height>
+    <Width>1653</Width>
   </Page>
   <Page>
-    <Name>1x3 (297x630)</Name>
-    <Height>297</Height>
-    <Width>630</Width>
+    <Name>1x3_(297x630)_MM</Name>
+    <Height>1169</Height>
+    <Width>2480</Width>
   </Page>
   <Page>
-    <Name>1x4 (297x840)</Name>
-    <Height>297</Height>
-    <Width>840</Width>
+    <Name>1x4_(297x840)_MM</Name>
+    <Height>1169</Height>
+    <Width>3307</Width>
   </Page>
   <Page>
-    <Name>1x5 (297x1050)</Name>
-    <Height>297</Height>
-    <Width>1050</Width>
+    <Name>1x5_(297x1050)_MM</Name>
+    <Height>1169</Height>
+    <Width>4133</Width>
   </Page>
   <Page>
-    <Name>1x6 (297x1260)</Name>
-    <Height>297</Height>
-    <Width>1260</Width>
+    <Name>1x6_(297x1260)_MM</Name>
+    <Height>1169</Height>
+    <Width>4960</Width>
   </Page>
   <Page>
-    <Name>1x7 (297x1470)</Name>
-    <Height>297</Height>
-    <Width>1470</Width>
+    <Name>1x7_(297x1470)_MM</Name>
+    <Height>1169</Height>
+    <Width>5787</Width>
   </Page>
   <Page>
-    <Name>1x8 (297x1680)</Name>
-    <Height>297</Height>
-    <Width>1680</Width>
+    <Name>1x8_(297x1680)_MM</Name>
+    <Height>1169</Height>
+    <Width>6614</Width>
   </Page>
   <Page>
-    <Name>1x9 (297x1890)</Name>
-    <Height>297</Height>
-    <Width>1890</Width>
+    <Name>1x9_(297x1890)_MM</Name>
+    <Height>1169</Height>
+    <Width>7440</Width>
   </Page>
   <Page>
-    <Name>1x10 (297x2100)</Name>
-    <Height>297</Height>
-    <Width>2100</Width>
+    <Name>1x10_(297x2100)_MM</Name>
+    <Height>1169</Height>
+    <Width>8267</Width>
   </Page>
   <Page>
-    <Name>1,5x1 (446x210)</Name>
-    <Height>446</Height>
-    <Width>210</Width>
+    <Name>1,5x1_(446x210)_MM</Name>
+    <Height>1755</Height>
+    <Width>826</Width>
   </Page>
   <Page>
-    <Name>1,5x2 (446x420)</Name>
-    <Height>446</Height>
-    <Width>420</Width>
+    <Name>1,5x2_(446x420)_MM</Name>
+    <Height>1755</Height>
+    <Width>1653</Width>
   </Page>
   <Page>
-    <Name>1,5x3 (446x630)</Name>
-    <Height>446</Height>
-    <Width>630</Width>
+    <Name>1,5x3_(446x630)_MM</Name>
+    <Height>1755</Height>
+    <Width>2480</Width>
   </Page>
   <Page>
-    <Name>1,5x4 (446x840)</Name>
-    <Height>446</Height>
-    <Width>840</Width>
+    <Name>1,5x4_(446x840)_MM</Name>
+    <Height>1755</Height>
+    <Width>3307</Width>
   </Page>
   <Page>
-    <Name>1,5x5 (446x1050)</Name>
-    <Height>446</Height>
-    <Width>1050</Width>
+    <Name>1,5x5_(446x1050)_MM</Name>
+    <Height>1755</Height>
+    <Width>4133</Width>
   </Page>
   <Page>
-    <Name>1,5x6 (446x1260)</Name>
-    <Height>446</Height>
-    <Width>1260</Width>
+    <Name>1,5x6_(446x1260)_MM</Name>
+    <Height>1755</Height>
+    <Width>4960</Width>
   </Page>
   <Page>
-    <Name>1,5x7 (446x1470)</Name>
-    <Height>446</Height>
-    <Width>1470</Width>
+    <Name>1,5x7_(446x1470)_MM</Name>
+    <Height>1755</Height>
+    <Width>5787</Width>
   </Page>
   <Page>
-    <Name>1,5x8 (446x1680)</Name>
-    <Height>446</Height>
-    <Width>1680</Width>
+    <Name>1,5x8_(446x1680)_MM</Name>
+    <Height>1755</Height>
+    <Width>6614</Width>
   </Page>
   <Page>
-    <Name>1,5x9 (446x1890)</Name>
-    <Height>446</Height>
-    <Width>1890</Width>
+    <Name>1,5x9_(446x1890)_MM</Name>
+    <Height>1755</Height>
+    <Width>7440</Width>
   </Page>
   <Page>
-    <Name>1,5x10 (446x2100)</Name>
-    <Height>446</Height>
-    <Width>2100</Width>
+    <Name>1,5x10_(446x2100)_MM</Name>
+    <Height>1755</Height>
+    <Width>8267</Width>
   </Page>
   <Page>
-    <Name>2x1 (594x210)</Name>
-    <Height>594</Height>
-    <Width>210</Width>
+    <Name>2x1_(594x210)_MM</Name>
+    <Height>2338</Height>
+    <Width>826</Width>
   </Page>
   <Page>
-    <Name>2x2 (594x420)</Name>
-    <Height>594</Height>
-    <Width>420</Width>
+    <Name>2x2_(594x420)_MM</Name>
+    <Height>2338</Height>
+    <Width>1653</Width>
   </Page>
   <Page>
-    <Name>2x3 (594x630)</Name>
-    <Height>594</Height>
-    <Width>630</Width>
+    <Name>2x3_(594x630)_MM</Name>
+    <Height>2338</Height>
+    <Width>2480</Width>
   </Page>
   <Page>
-    <Name>2x4 (594x840)</Name>
-    <Height>594</Height>
-    <Width>840</Width>
+    <Name>2x4_(594x840)_MM</Name>
+    <Height>2338</Height>
+    <Width>3307</Width>
   </Page>
   <Page>
-    <Name>2x5 (594x1050)</Name>
-    <Height>594</Height>
-    <Width>1050</Width>
+    <Name>2x5_(594x1050)_MM</Name>
+    <Height>2338</Height>
+    <Width>4133</Width>
   </Page>
   <Page>
-    <Name>2x6 (594x1260)</Name>
-    <Height>594</Height>
-    <Width>1260</Width>
+    <Name>2x6_(594x1260)_MM</Name>
+    <Height>2338</Height>
+    <Width>4960</Width>
   </Page>
   <Page>
-    <Name>2x7 (594x1470)</Name>
-    <Height>594</Height>
-    <Width>1470</Width>
+    <Name>2x7_(594x1470)_MM</Name>
+    <Height>2338</Height>
+    <Width>5787</Width>
   </Page>
   <Page>
-    <Name>2x8 (594x1680)</Name>
-    <Height>594</Height>
-    <Width>1680</Width>
+    <Name>2x8_(594x1680)_MM</Name>
+    <Height>2338</Height>
+    <Width>6614</Width>
   </Page>
   <Page>
-    <Name>2x9 (594x1890)</Name>
-    <Height>594</Height>
-    <Width>1890</Width>
+    <Name>2x9_(594x1890)_MM</Name>
+    <Height>2338</Height>
+    <Width>7440</Width>
   </Page>
   <Page>
-    <Name>2x10 (594x2100)</Name>
-    <Height>594</Height>
-    <Width>2100</Width>
+    <Name>2x10_(594x2100)_MM</Name>
+    <Height>2338</Height>
+    <Width>8267</Width>
   </Page>
   <Page>
-    <Name>3x1 (891x210)</Name>
-    <Height>891</Height>
-    <Width>210</Width>
+    <Name>3x1_(891x210)_MM</Name>
+    <Height>3507</Height>
+    <Width>826</Width>
   </Page>
   <Page>
-    <Name>3x2 (891x420)</Name>
-    <Height>891</Height>
-    <Width>420</Width>
+    <Name>3x2_(891x420)_MM</Name>
+    <Height>3507</Height>
+    <Width>1653</Width>
   </Page>
   <Page>
-    <Name>3x3 (891x630)</Name>
-    <Height>891</Height>
-    <Width>630</Width>
+    <Name>3x3_(891x630)_MM</Name>
+    <Height>3507</Height>
+    <Width>2480</Width>
   </Page>
   <Page>
-    <Name>3x4 (891x840)</Name>
-    <Height>891</Height>
-    <Width>840</Width>
+    <Name>3x4_(891x840)_MM</Name>
+    <Height>3507</Height>
+    <Width>3307</Width>
   </Page>
   <Page>
-    <Name>3x5 (891x1050)</Name>
-    <Height>891</Height>
-    <Width>1050</Width>
+    <Name>3x5_(891x1050)_MM</Name>
+    <Height>3507</Height>
+    <Width>4133</Width>
   </Page>
   <Page>
-    <Name>3x6 (891x1260)</Name>
-    <Height>891</Height>
-    <Width>1260</Width>
+    <Name>3x6_(891x1260)_MM</Name>
+    <Height>3507</Height>
+    <Width>4960</Width>
   </Page>
   <Page>
-    <Name>3x7 (891x1470)</Name>
-    <Height>891</Height>
-    <Width>1470</Width>
+    <Name>3x7_(891x1470)_MM</Name>
+    <Height>3507</Height>
+    <Width>5787</Width>
   </Page>
   <Page>
-    <Name>3x8 (891x1680)</Name>
-    <Height>891</Height>
-    <Width>1680</Width>
+    <Name>3x8_(891x1680)_MM</Name>
+    <Height>3507</Height>
+    <Width>6614</Width>
   </Page>
   <Page>
-    <Name>3x9 (891x1890)</Name>
-    <Height>891</Height>
-    <Width>1890</Width>
+    <Name>3x9_(891x1890)_MM</Name>
+    <Height>3507</Height>
+    <Width>7440</Width>
   </Page>
   <Page>
-    <Name>3x10 (891x2100)</Name>
-    <Height>891</Height>
-    <Width>2100</Width>
+    <Name>3x10_(891x2100)_MM</Name>
+    <Height>3507</Height>
+    <Width>8267</Width>
   </Page>
 </Printer>
