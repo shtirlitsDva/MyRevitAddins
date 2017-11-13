@@ -98,17 +98,17 @@ namespace MGTek.PDFExporter
                 PrintManager pm = doc.PrintManager;
 
                 pm.PrintRange = PrintRange.Select;
-                //pm.SelectNewPrintDriver("Adobe PDF");
-                pm.SelectNewPrintDriver("HP PS Printer");
+                pm.SelectNewPrintDriver("Adobe PDF");
+                //pm.SelectNewPrintDriver("HP PS Printer");
                 pm.PrintToFile = true;
 
-                string sheetFileNamePs = sheet.SheetNumber + " - " + sheet.Name + ".ps";
+                //string sheetFileNamePs = sheet.SheetNumber + " - " + sheet.Name + ".ps";
                 string sheetFileNamePdf = sheet.SheetNumber + " - " + sheet.Name + ".pdf";
-                string fullFileNamePs = pathToExport + sheetFileNamePs;
+                //string fullFileNamePs = pathToExport + sheetFileNamePs;
                 string fullFileNamePdf = pathToExport + sheetFileNamePdf;
-                pm.PrintToFileName = fullFileNamePs;
+                pm.PrintToFileName = fullFileNamePdf;
 
-                //SetPDFSettings(sheetFileName, pathToExport);
+                SetPDFSettings(sheetFileNamePdf, pathToExport);
 
                 PrintSetup pSetup = pm.PrintSetup;
                 PrintParameters pParams = pSetup.CurrentPrintSetting.PrintParameters;
@@ -135,13 +135,6 @@ namespace MGTek.PDFExporter
                 //pSetup.SaveAs("Temporary export");
                 
                 pm.SubmitPrint(sheet);
-
-                System.Threading.Thread.Sleep(5000);
-
-                string pdf = CreatePdf(pathToExport, sheetFileNamePs);
-
-                File.WriteAllText(fullFileNamePdf, pdf);
-
             }
         }
 
