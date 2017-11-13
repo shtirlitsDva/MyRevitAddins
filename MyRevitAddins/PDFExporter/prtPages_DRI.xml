@@ -1,0 +1,325 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Printer>
+  <Name>Bluebeam PDF</Name>
+  <File>C:\ProgramData\Bluebeam Software\Bluebeam Revu\2017\Brewery\V45\Printer Support\prtPages.xml</File>
+  <Page>
+    <Name>Tabloid</Name>
+    <Height>1700</Height>
+    <Width>1100</Width>
+  </Page>
+  <Page>
+    <Name>Ledger</Name>
+    <Height>1100</Height>
+    <Width>1700</Width>
+  </Page>
+  <Page>
+    <Name>Legal</Name>
+    <Height>1400</Height>
+    <Width>850</Width>
+  </Page>
+  <Page>
+    <Name>Executive</Name>
+    <Height>1050</Height>
+    <Width>725</Width>
+  </Page>
+  <Page>
+    <Name>11 x 17</Name>
+    <Height>1700</Height>
+    <Width>1100</Width>
+  </Page>
+  <Page>
+    <Name>ISO_A5_(148.00_x_210.00_MM)</Name>
+    <Height>826</Height>
+    <Width>583</Width>
+  </Page>
+  <Page>
+    <Name>ISO_A0_(841.00_x_1189.00_MM)</Name>
+    <Height>4680</Height>
+    <Width>3311</Width>
+  </Page>
+  <Page>
+    <Name>ISO_A1_(594.00_x_841.00_MM)</Name>
+    <Height>3311</Height>
+    <Width>2339</Width>
+  </Page>
+  <Page>
+    <Name>ISO_A2_(420.00_x_594.00_MM)</Name>
+    <Height>2339</Height>
+    <Width>1654</Width>
+  </Page>
+  <Page>
+    <Name>ISO_A3_(297.00_x_420.00_MM)</Name>
+    <Height>1654</Height>
+    <Width>1169</Width>
+  </Page>
+  <Page>
+    <Name>ISO_A4_(210.00_x_297.00_MM)</Name>
+    <Height>1169</Height>
+    <Width>826</Width>
+  </Page>
+  <Page>
+    <Name>ISO_A0-24(1189.00_x1682.00_MM)</Name>
+    <Height>6622</Height>
+    <Width>4680</Width>
+  </Page>
+  <Page>
+    <Name>ISO_A0-26(1189.00_x2523.00_MM)</Name>
+    <Height>9933</Height>
+    <Width>4680</Width>
+  </Page>
+  <Page>
+    <Name>ISO_B0_(1000.00_x_1414.00_MM)</Name>
+    <Height>5567</Height>
+    <Width>3937</Width>
+  </Page>
+  <Page>
+    <Name>ISO_B1_(707.00_x_1000.00_MM)</Name>
+    <Height>3937</Height>
+    <Width>2783</Width>
+  </Page>
+  <Page>
+    <Name>ISO_B2_(500.00_x_707.00_MM)</Name>
+    <Height>2783</Height>
+    <Width>1968</Width>
+  </Page>
+  <Page>
+    <Name>ISO_B3_(353.00_x_500.00_MM)</Name>
+    <Height>1968</Height>
+    <Width>1390</Width>
+  </Page>
+  <Page>
+    <Name>ISO_B4_(250.00_x_353.00_MM)</Name>
+    <Height>1390</Height>
+    <Width>985</Width>
+  </Page>
+  <Page>
+    <Name>ISO_C0_(917.00_x_1297.00_MM)</Name>
+    <Height>5107</Height>
+    <Width>3609</Width>
+  </Page>
+  <Page>
+    <Name>ISO_C1_(648.00_x_917.00_MM)</Name>
+    <Height>3609</Height>
+    <Width>2551</Width>
+  </Page>
+  <Page>
+    <Name>ISO_C2_(458.00_x_648.00_MM)</Name>
+    <Height>2551</Height>
+    <Width>1803</Width>
+  </Page>
+  <Page>
+    <Name>ISO_C3_(324.00_x_458.00_MM)</Name>
+    <Height>1803</Height>
+    <Width>1275</Width>
+  </Page>
+  <Page>
+    <Name>ISO_C4_(229.00_x_324.00_MM)</Name>
+    <Height>1275</Height>
+    <Width>901</Width>
+  </Page>
+  <Page>
+    <Name>Størrelse på brugerdefineret PostScript-side</Name>
+    <Height>1169</Height>
+    <Width>827</Width>
+  </Page>
+  <Page>
+    <Name>1x1 (297x210)</Name>
+    <Height>297</Height>
+    <Width>210</Width>
+  </Page>
+  <Page>
+    <Name>1x2 (297x420)</Name>
+    <Height>297</Height>
+    <Width>420</Width>
+  </Page>
+  <Page>
+    <Name>1x3 (297x630)</Name>
+    <Height>297</Height>
+    <Width>630</Width>
+  </Page>
+  <Page>
+    <Name>1x4 (297x840)</Name>
+    <Height>297</Height>
+    <Width>840</Width>
+  </Page>
+  <Page>
+    <Name>1x5 (297x1050)</Name>
+    <Height>297</Height>
+    <Width>1050</Width>
+  </Page>
+  <Page>
+    <Name>1x6 (297x1260)</Name>
+    <Height>297</Height>
+    <Width>1260</Width>
+  </Page>
+  <Page>
+    <Name>1x7 (297x1470)</Name>
+    <Height>297</Height>
+    <Width>1470</Width>
+  </Page>
+  <Page>
+    <Name>1x8 (297x1680)</Name>
+    <Height>297</Height>
+    <Width>1680</Width>
+  </Page>
+  <Page>
+    <Name>1x9 (297x1890)</Name>
+    <Height>297</Height>
+    <Width>1890</Width>
+  </Page>
+  <Page>
+    <Name>1x10 (297x2100)</Name>
+    <Height>297</Height>
+    <Width>2100</Width>
+  </Page>
+  <Page>
+    <Name>1,5x1 (446x210)</Name>
+    <Height>446</Height>
+    <Width>210</Width>
+  </Page>
+  <Page>
+    <Name>1,5x2 (446x420)</Name>
+    <Height>446</Height>
+    <Width>420</Width>
+  </Page>
+  <Page>
+    <Name>1,5x3 (446x630)</Name>
+    <Height>446</Height>
+    <Width>630</Width>
+  </Page>
+  <Page>
+    <Name>1,5x4 (446x840)</Name>
+    <Height>446</Height>
+    <Width>840</Width>
+  </Page>
+  <Page>
+    <Name>1,5x5 (446x1050)</Name>
+    <Height>446</Height>
+    <Width>1050</Width>
+  </Page>
+  <Page>
+    <Name>1,5x6 (446x1260)</Name>
+    <Height>446</Height>
+    <Width>1260</Width>
+  </Page>
+  <Page>
+    <Name>1,5x7 (446x1470)</Name>
+    <Height>446</Height>
+    <Width>1470</Width>
+  </Page>
+  <Page>
+    <Name>1,5x8 (446x1680)</Name>
+    <Height>446</Height>
+    <Width>1680</Width>
+  </Page>
+  <Page>
+    <Name>1,5x9 (446x1890)</Name>
+    <Height>446</Height>
+    <Width>1890</Width>
+  </Page>
+  <Page>
+    <Name>1,5x10 (446x2100)</Name>
+    <Height>446</Height>
+    <Width>2100</Width>
+  </Page>
+  <Page>
+    <Name>2x1 (594x210)</Name>
+    <Height>594</Height>
+    <Width>210</Width>
+  </Page>
+  <Page>
+    <Name>2x2 (594x420)</Name>
+    <Height>594</Height>
+    <Width>420</Width>
+  </Page>
+  <Page>
+    <Name>2x3 (594x630)</Name>
+    <Height>594</Height>
+    <Width>630</Width>
+  </Page>
+  <Page>
+    <Name>2x4 (594x840)</Name>
+    <Height>594</Height>
+    <Width>840</Width>
+  </Page>
+  <Page>
+    <Name>2x5 (594x1050)</Name>
+    <Height>594</Height>
+    <Width>1050</Width>
+  </Page>
+  <Page>
+    <Name>2x6 (594x1260)</Name>
+    <Height>594</Height>
+    <Width>1260</Width>
+  </Page>
+  <Page>
+    <Name>2x7 (594x1470)</Name>
+    <Height>594</Height>
+    <Width>1470</Width>
+  </Page>
+  <Page>
+    <Name>2x8 (594x1680)</Name>
+    <Height>594</Height>
+    <Width>1680</Width>
+  </Page>
+  <Page>
+    <Name>2x9 (594x1890)</Name>
+    <Height>594</Height>
+    <Width>1890</Width>
+  </Page>
+  <Page>
+    <Name>2x10 (594x2100)</Name>
+    <Height>594</Height>
+    <Width>2100</Width>
+  </Page>
+  <Page>
+    <Name>3x1 (891x210)</Name>
+    <Height>891</Height>
+    <Width>210</Width>
+  </Page>
+  <Page>
+    <Name>3x2 (891x420)</Name>
+    <Height>891</Height>
+    <Width>420</Width>
+  </Page>
+  <Page>
+    <Name>3x3 (891x630)</Name>
+    <Height>891</Height>
+    <Width>630</Width>
+  </Page>
+  <Page>
+    <Name>3x4 (891x840)</Name>
+    <Height>891</Height>
+    <Width>840</Width>
+  </Page>
+  <Page>
+    <Name>3x5 (891x1050)</Name>
+    <Height>891</Height>
+    <Width>1050</Width>
+  </Page>
+  <Page>
+    <Name>3x6 (891x1260)</Name>
+    <Height>891</Height>
+    <Width>1260</Width>
+  </Page>
+  <Page>
+    <Name>3x7 (891x1470)</Name>
+    <Height>891</Height>
+    <Width>1470</Width>
+  </Page>
+  <Page>
+    <Name>3x8 (891x1680)</Name>
+    <Height>891</Height>
+    <Width>1680</Width>
+  </Page>
+  <Page>
+    <Name>3x9 (891x1890)</Name>
+    <Height>891</Height>
+    <Width>1890</Width>
+  </Page>
+  <Page>
+    <Name>3x10 (891x2100)</Name>
+    <Height>891</Height>
+    <Width>2100</Width>
+  </Page>
+</Printer>
