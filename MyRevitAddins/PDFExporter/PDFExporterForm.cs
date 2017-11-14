@@ -98,8 +98,9 @@ namespace MGTek.PDFExporter
                 PrintManager pm = doc.PrintManager;
 
                 pm.PrintRange = PrintRange.Select;
-                pm.SelectNewPrintDriver("Adobe PDF");
+                //pm.SelectNewPrintDriver("Adobe PDF");
                 //pm.SelectNewPrintDriver("HP PS Printer");
+                pm.SelectNewPrintDriver("Bluebeam PDF");
                 pm.PrintToFile = true;
 
                 //string sheetFileNamePs = sheet.SheetNumber + " - " + sheet.Name + ".ps";
