@@ -106,71 +106,80 @@ namespace MGTek.PDFExporter
             {
                 PrintManager pm = doc.PrintManager;
 
-                pm.PrintRange = PrintRange.Select;
-                //pm.SelectNewPrintDriver("Adobe PDF");
-                //pm.SelectNewPrintDriver("HP PS Printer");
-                pm.SelectNewPrintDriver("Bluebeam PDF");
-                pm.PrintToFile = true;
-
-                var revisionType = sheet.GetCurrentRevision();
-                string sheetFileName;
-
-                if (revisionType.IntegerValue != -1)
+                using (Transaction trans = new Transaction(doc))
                 {
-                    Revision revision = (Revision)doc.GetElement(revisionType);
-                    int revSequence = revision.SequenceNumber;
-                    sheetFileName = sheet.SheetNumber + "-" + IndexToLetter(revSequence) + " - " + sheet.Name + ".pdf";
+                    trans.Start("PrintSettings");
+                    //PrintManager pm = doc.PrintManager;
+
+                    pm.PrintRange = PrintRange.Select;
+                    //pm.SelectNewPrintDriver("Adobe PDF");
+                    //pm.SelectNewPrintDriver("HP PS Printer");
+                    pm.SelectNewPrintDriver("Bluebeam PDF");
+                    pm.PrintToFile = true;
+
+                    var revisionType = sheet.GetCurrentRevision();
+                    string sheetFileName;
+
+                    if (revisionType.IntegerValue != -1)
+                    {
+                        Revision revision = (Revision)doc.GetElement(revisionType);
+                        int revSequence = revision.SequenceNumber;
+                        sheetFileName = sheet.SheetNumber + "-" + IndexToLetter(revSequence) + " - " + sheet.Name + ".pdf";
+                    }
+                    else sheetFileName = sheet.SheetNumber + " - " + sheet.Name + ".pdf";
+
+                    string fullFileName = pathToExport + sheetFileName;
+                    pm.PrintToFileName = fullFileName;
+
+                    //SetPDFSettings(sheetFileNamePdf, pathToExport);
+
+                    PrintSetup pSetup = pm.PrintSetup;
+                    pSetup.CurrentPrintSetting = pm.PrintSetup.InSession;
+                    PrintParameters pParams = pSetup.CurrentPrintSetting.PrintParameters;
+
+                    pParams.ZoomType = ZoomType.Zoom;
+                    pParams.Zoom = 100;
+                    //TODO: pParams.PageOrientation = PageOrientationType.Landscape???
+                    pParams.PaperPlacement = PaperPlacementType.Center;
+                    pParams.ColorDepth = ColorDepthType.Color;
+                    pParams.RasterQuality = RasterQualityType.Presentation;
+                    pParams.HiddenLineViews = HiddenLineViewsType.VectorProcessing;
+                    pParams.ViewLinksinBlue = false;
+                    pParams.HideReforWorkPlanes = true;
+                    pParams.HideUnreferencedViewTags = true;
+                    pParams.HideCropBoundaries = true;
+                    pParams.HideScopeBoxes = true;
+                    pParams.ReplaceHalftoneWithThinLines = false;
+                    pParams.MaskCoincidentLines = false;
+
+                    //TODO: PaperSize handling
+                    var filterSheetNumber = fi.ParameterValueFilter(sheet.SheetNumber, BuiltInParameter.SHEET_NUMBER);
+                    FilteredElementCollector bCol = new FilteredElementCollector(doc);
+                    var titleBlock = bCol.OfCategory(BuiltInCategory.OST_TitleBlocks)
+                        .OfClass(typeof(FamilyInstance))
+                        .WherePasses(filterSheetNumber)
+                        .Cast<FamilyInstance>()
+                        .FirstOrDefault();
+
+                    var widthPar = titleBlock.get_Parameter(BuiltInParameter.SHEET_WIDTH);
+                    var width = Convert.ToInt32(widthPar.AsDouble().FtToMm().Round(0));
+
+                    var heightPar = titleBlock.get_Parameter(BuiltInParameter.SHEET_HEIGHT);
+                    var height = Convert.ToInt32(heightPar.AsDouble().FtToMm().Round(0));
+
+                    var paperSizes = pm.PaperSizes;
+
+                    var nameOfPaperSize = paperSizeDict[height][width];
+
+                    var paperSize = (from PaperSize ps in paperSizes where ps.Name.Equals(nameOfPaperSize) select ps).FirstOrDefault();
+
+                    pParams.PaperSize = paperSize;
+
+                    pm.Apply();
+
+                    trans.Commit();
                 }
-                else sheetFileName = sheet.SheetNumber + " - " + sheet.Name + ".pdf";
 
-                string fullFileName = pathToExport + sheetFileName;
-                pm.PrintToFileName = fullFileName;
-
-                //SetPDFSettings(sheetFileNamePdf, pathToExport);
-
-                PrintSetup pSetup = pm.PrintSetup;
-                pSetup.CurrentPrintSetting = pm.PrintSetup.InSession;
-                PrintParameters pParams = pSetup.CurrentPrintSetting.PrintParameters;
-
-                pParams.ZoomType = ZoomType.Zoom;
-                pParams.Zoom = 100;
-                //TODO: pParams.PageOrientation = PageOrientationType.Landscape???
-                pParams.PaperPlacement = PaperPlacementType.Center;
-                pParams.ColorDepth = ColorDepthType.Color;
-                pParams.RasterQuality = RasterQualityType.Presentation;
-                pParams.HiddenLineViews = HiddenLineViewsType.VectorProcessing;
-                pParams.ViewLinksinBlue = false;
-                pParams.HideReforWorkPlanes = true;
-                pParams.HideUnreferencedViewTags = true;
-                pParams.HideCropBoundaries = true;
-                pParams.HideScopeBoxes = true;
-                pParams.ReplaceHalftoneWithThinLines = false;
-                pParams.MaskCoincidentLines = false;
-
-                //TODO: PaperSize handling
-                var filterSheetNumber = fi.ParameterValueFilter(sheet.SheetNumber, BuiltInParameter.SHEET_NUMBER);
-                FilteredElementCollector bCol = new FilteredElementCollector(doc);
-                var titleBlock = bCol.OfCategory(BuiltInCategory.OST_TitleBlocks)
-                    .OfClass(typeof(FamilyInstance))
-                    .WherePasses(filterSheetNumber)
-                    .Cast<FamilyInstance>()
-                    .FirstOrDefault();
-
-                var widthPar = titleBlock.get_Parameter(BuiltInParameter.SHEET_WIDTH);
-                var width = Convert.ToInt32(widthPar.AsDouble().FtToMm().Round(0));
-
-                var heightPar = titleBlock.get_Parameter(BuiltInParameter.SHEET_HEIGHT);
-                var height = Convert.ToInt32(heightPar.AsDouble().FtToMm().Round(0));
-
-                var paperSizes = pm.PaperSizes;
-
-                var nameOfPaperSize = paperSizeDict[height][width];
-
-                var paperSize = (from PaperSize ps in paperSizes where ps.Name.Equals(nameOfPaperSize) select ps).FirstOrDefault();
-
-                pParams.PaperSize = paperSize;
-
-                pm.Apply();
                 pm.SubmitPrint(sheet);
             }
         }

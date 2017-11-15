@@ -65,23 +65,23 @@ namespace MGTek.PDFExporter
             Application app = ui_app?.Application;
             Document doc = ui_doc?.Document;
 
-            var tr_name = res_mng.GetString("_transaction_name");
+            //var tr_name = res_mng.GetString("_transaction_name");
 
             
 
             try
             {
-                using (var tr = new Transaction(doc, tr_name))
-                {
-                    if (TransactionStatus.Started == tr.Start())
-                    {
+                //using (var tr = new Transaction(doc, tr_name))
+                //{
+                    //if (TransactionStatus.Started == tr.Start())
+                    //{
                         PDFExporterForm ef = new PDFExporterForm(commandData, ref message, elements);
                         ef.ShowDialog();
 
 
-                        return TransactionStatus.Committed == tr.Commit();
-                    }
-                }
+                        //return TransactionStatus.Committed == tr.Commit();
+                    //}
+                //}
             }
             catch (Exception ex)
             {
