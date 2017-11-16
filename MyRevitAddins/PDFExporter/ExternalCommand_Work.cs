@@ -75,8 +75,7 @@ namespace MGTek.PDFExporter
                 //{
                     //if (TransactionStatus.Started == tr.Start())
                     //{
-                        PDFExporterForm ef = new PDFExporterForm(commandData, ref message, elements);
-                        ef.ShowDialog();
+                        
 
 
                         //return TransactionStatus.Committed == tr.Commit();
