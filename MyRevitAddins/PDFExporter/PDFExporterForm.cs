@@ -103,6 +103,8 @@ namespace MGTek.PDFExporter
         {
             string sheetFileName;
             string fullSheetFileName;
+            IList<string> fileNamesSource = new List<string>();
+            IList<string> fileNamesDestination = new List<string>();
 
             using (Transaction trans = new Transaction(doc))
             {
@@ -133,8 +135,10 @@ namespace MGTek.PDFExporter
                     else sheetFileName = sheet.SheetNumber + " " + sheet.Name + ".pdf";
 
                     fullSheetFileName = pathToExport + sheetFileName; //Used to copy files later
+                    fileNamesDestination.Add(fullSheetFileName);
 
                     string printfilename = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "\\" + sheetFileName; //Used to satisfy bluebeam
+                    fileNamesSource.Add(printfilename);
 
                     pm.PrintToFileName = printfilename;
                     #endregion
@@ -167,7 +171,7 @@ namespace MGTek.PDFExporter
                 }
                 trans.Commit();
             }
-
+            //File handling
 
         }
 
@@ -178,6 +182,22 @@ namespace MGTek.PDFExporter
         public static bool WaitForFile(string fullPath)
         {
             var numTries = 0;
+
+            while (true)
+            {
+                ++numTries;
+                if (File.Exists(fullPath))
+                {
+                    break;
+                }
+                
+                if (numTries > 1000) return false;
+                // Wait for the lock to be released
+                System.Threading.Thread.Sleep(300);
+            }
+
+            numTries = 0;
+
             while (true)
             {
                 ++numTries;
