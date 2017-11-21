@@ -101,6 +101,9 @@ namespace MGTek.PDFExporter
         /// </summary>
         private void button2_Click(object sender, EventArgs e)
         {
+            string sheetFileName;
+            string fullSheetFileName;
+
             using (Transaction trans = new Transaction(doc))
             {
                 trans.Start("Print!");
@@ -117,22 +120,19 @@ namespace MGTek.PDFExporter
 
                 foreach (ViewSheet sheet in sheetSet.Views)
                 {
-
-
                     #region Naming
                     var revisionType = sheet.GetCurrentRevision();
-                    string sheetFileName;
 
                     if (revisionType.IntegerValue != -1)
                     {
                         Revision revision = (Revision)doc.GetElement(revisionType);
                         int revSequence = revision.SequenceNumber;
-                        sheetFileName = sheet.SheetNumber + "-" + IndexToLetter(revSequence) + " - " + sheet.Name + ".pdf";
+                        sheetFileName = sheet.SheetNumber + "-" + IndexToLetter(revSequence) + " " + sheet.Name + ".pdf";
                     }
-                    else sheetFileName = sheet.SheetNumber + " - " + sheet.Name + ".pdf";
+                    else sheetFileName = sheet.SheetNumber + " " + sheet.Name + ".pdf";
 
-                    string fullFileName = pathToExport + sheetFileName;
-                    pm.PrintToFileName = fullFileName;
+                    fullSheetFileName = pathToExport + sheetFileName;
+                    pm.PrintToFileName = sheetFileName;
                     #endregion
 
                     var filterSheetNumber = fi.ParameterValueFilter(sheet.SheetNumber, BuiltInParameter.SHEET_NUMBER);
@@ -163,6 +163,38 @@ namespace MGTek.PDFExporter
                 }
                 trans.Commit();
             }
+
+
+        }
+
+        /// <summary>
+        /// Blocks until the file is not locked any more.
+        /// </summary>
+        /// <param name="fullPath"></param>
+        public static bool WaitForFile(string fullPath)
+        {
+            var numTries = 0;
+            while (true)
+            {
+                ++numTries;
+                try
+                {
+                    // Attempt to open the file exclusively.
+                    using (var fs = new FileStream(fullPath, FileMode.Open, FileAccess.ReadWrite, FileShare.None, 100))
+                    {
+                        fs.ReadByte();
+                        // If we got this far the file is ready
+                        break;
+                    }
+                }
+                catch (Exception)
+                {
+                    if (numTries > 1000) return false;
+                    // Wait for the lock to be released
+                    System.Threading.Thread.Sleep(300);
+                }
+            }
+            return true;
         }
 
         /// <summary>
