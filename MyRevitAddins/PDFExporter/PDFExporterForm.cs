@@ -121,18 +121,22 @@ namespace MGTek.PDFExporter
                 foreach (ViewSheet sheet in sheetSet.Views)
                 {
                     #region Naming
-                    var revisionType = sheet.GetCurrentRevision();
+                    //var revisionType = sheet.GetCurrentRevision();
 
-                    if (revisionType.IntegerValue != -1)
+                    Parameter curRevision = sheet.get_Parameter(BuiltInParameter.SHEET_CURRENT_REVISION);
+                    string revision = curRevision.AsString();
+
+                    if (revision.IsNullOrEmpty())
                     {
-                        Revision revision = (Revision)doc.GetElement(revisionType);
-                        int revSequence = revision.SequenceNumber;
-                        sheetFileName = sheet.SheetNumber + "-" + IndexToLetter(revSequence) + " " + sheet.Name + ".pdf";
+                        sheetFileName = sheet.SheetNumber + "-" + revision + " " + sheet.Name + ".pdf";
                     }
                     else sheetFileName = sheet.SheetNumber + " " + sheet.Name + ".pdf";
 
-                    fullSheetFileName = pathToExport + sheetFileName;
-                    pm.PrintToFileName = sheetFileName;
+                    fullSheetFileName = pathToExport + sheetFileName; //Used to copy files later
+
+                    string printfilename = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "\\" + sheetFileName; //Used to satisfy bluebeam
+
+                    pm.PrintToFileName = printfilename;
                     #endregion
 
                     var filterSheetNumber = fi.ParameterValueFilter(sheet.SheetNumber, BuiltInParameter.SHEET_NUMBER);
@@ -238,7 +242,7 @@ namespace MGTek.PDFExporter
                     trans.Start("PrintSettings");
                     //PrintManager pm = doc.PrintManager;
 
-                    
+
                     pm.PrintRange = PrintRange.Select;
                     pm.PrintToFile = true;
 
