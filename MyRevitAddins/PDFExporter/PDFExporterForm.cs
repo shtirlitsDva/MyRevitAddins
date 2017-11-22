@@ -172,7 +172,14 @@ namespace MGTek.PDFExporter
                 trans.Commit();
             }
             //File handling
-
+            if (WaitForFile(fileNamesSource.Last()))
+            {
+                foreach (var files in fileNamesSource.Zip(fileNamesDestination, Tuple.Create))
+                {
+                    File.Move(files.Item1, files.Item2);
+                }
+            }
+            else Util.ErrorMsg("The copying of files failed for some reason!");
         }
 
         /// <summary>
