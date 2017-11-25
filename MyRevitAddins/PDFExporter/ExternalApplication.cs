@@ -35,8 +35,7 @@ namespace MGTek.PDFExporter
     /// <summary>
     /// Revit external application.
     /// </summary>  
-    public sealed partial class ExternalApplication
-        : IExternalApplication
+    public sealed partial class ExternalApplication : IExternalApplication
     {
 
         /// <summary>
@@ -52,8 +51,7 @@ namespace MGTek.PDFExporter
         /// being started.</param>
         /// <returns>Indicates if the external application 
         /// completes its work successfully.</returns>
-        Result IExternalApplication.OnStartup(
-            UIControlledApplication uic_app)
+        Result IExternalApplication.OnStartup(UIControlledApplication uic_app)
         {
 
             ResourceManager res_mng = new ResourceManager(
@@ -96,15 +94,10 @@ namespace MGTek.PDFExporter
             // Fix the bug of Revit 2017.1.1
             // More info read here:
             // https://revit-addins.blogspot.ru/2017/01/revit-201711.html
-            RevitPatches.PatchCultures(uic_app
-                .ControlledApplication.Language);
-
-
+            RevitPatches.PatchCultures(uic_app.ControlledApplication.Language);
 
             // Create the tabs, panels, and buttons
-            UIBuilder.BuildUI(uic_app, Assembly
-                .GetExecutingAssembly(), typeof(Resources))
-                ;
+            UIBuilder.BuildUI(uic_app, Assembly.GetExecutingAssembly(), typeof(Resources));
         }
 
         /// <summary>
@@ -114,15 +107,11 @@ namespace MGTek.PDFExporter
         /// being shut down.</param>
         /// <returns>Indicates if the external application 
         /// completes its work successfully.</returns>
-        Result IExternalApplication.OnShutdown(
-            UIControlledApplication uic_app)
+        Result IExternalApplication.OnShutdown(UIControlledApplication uic_app)
         {
 
-            ResourceManager res_mng = new ResourceManager(
-                  GetType());
-            ResourceManager def_res_mng = new ResourceManager(
-                typeof(Properties.Resources));
-
+            ResourceManager res_mng = new ResourceManager(GetType());
+            ResourceManager def_res_mng = new ResourceManager(typeof(Properties.Resources));
             Result result = Result.Succeeded;
 
             try
@@ -134,15 +123,11 @@ namespace MGTek.PDFExporter
             }
             catch (Exception ex)
             {
-
-                TaskDialog.Show(def_res_mng.GetString("_Error")
-                    , ex.Message);
-
+                TaskDialog.Show(def_res_mng.GetString("_Error"), ex.Message);
                 result = Result.Failed;
             }
             finally
             {
-
                 res_mng.ReleaseAllResources();
                 def_res_mng.ReleaseAllResources();
             }
@@ -151,48 +136,37 @@ namespace MGTek.PDFExporter
         }
 
         // It contains info from the AssemblyResolves.xml file.
-        static Dictionary<string, string> asm_dict =
-            GetResolves();
+        static Dictionary<string, string> asm_dict = GetResolves();
 
         /// <summary>
         /// This method reads info from the 
         /// AssemblyResolves.xml file.
         /// </summary>
         /// <returns>It returns a dictionary.</returns>
-        private static Dictionary<string, string> GetResolves(
-            )
+        private static Dictionary<string, string> GetResolves()
         {
 
-            string asm_dir = Path.GetDirectoryName(Assembly
-                .GetExecutingAssembly().Location);
+            string asm_dir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
-            string xml_file = Path.Combine(asm_dir,
-                "AssemblyResolves.xml");
+            string xml_file = Path.Combine(asm_dir, "AssemblyResolves.xml");
 
             XElement xml = null;
 
-            if (!File.Exists(xml_file) ||
-                (xml = XElement.Load(xml_file)) == null)
+            if (!File.Exists(xml_file) || (xml = XElement.Load(xml_file)) == null)
             {
-
                 RecoveryFile(xml_file);
                 xml = XElement.Load(xml_file);
             }
 
-            Dictionary<string, string> dict =
-                new Dictionary<string, string>();
+            Dictionary<string, string> dict = new Dictionary<string, string>();
 
             foreach (var item in xml.Elements("Assembly"))
             {
-
                 string key = item.Attribute("Name").Value;
-                string value = Environment
-                    .ExpandEnvironmentVariables(item.Attribute(
-                        "Location").Value);
+                string value = Environment.ExpandEnvironmentVariables(item.Attribute("Location").Value);
 
                 if (!dict.ContainsKey(key))
                 {
-
                     dict.Add(key, value);
                 }
             }
@@ -236,8 +210,7 @@ namespace MGTek.PDFExporter
                 return null;
             }
 
-            Assembly result = Assembly.LoadFrom(asm_dict[name])
-                ;
+            Assembly result = Assembly.LoadFrom(asm_dict[name]);
 
             return result;
         }

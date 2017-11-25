@@ -584,6 +584,7 @@ namespace Shared
                     con.Open();
                     OleDbDataAdapter adapter = new OleDbDataAdapter(query, con);
                     adapter.Fill(dataTable);
+                    con.Close();
 
                     //Remove ' and $ from sheetName
                     Regex rgx = new Regex("[^a-zA-Z0-9 _-]");

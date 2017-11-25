@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
+using MoreLinq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -95,64 +96,53 @@ namespace MGTek.PDFExporter
             }
         }
 
+        /// <summary>
+        /// Retrieves print setting created for the specific paper size and prints all sheets in the set.
+        /// </summary>
         private void button2_Click(object sender, EventArgs e)
         {
+            string sheetFileName;
+            string fullSheetFileName;
+            IList<string> fileNamesSource = new List<string>();
+            IList<string> fileNamesDestination = new List<string>();
 
-            FilteredElementCollector col = new FilteredElementCollector(doc);
-
-            var sheetSet = col.OfClass(typeof(ViewSheetSet)).Where(x => x.Name == selectedSheetSet).Cast<ViewSheetSet>().FirstOrDefault();
-
-            foreach (ViewSheet sheet in sheetSet.Views)
+            using (Transaction trans = new Transaction(doc))
             {
+                trans.Start("Print!");
+                FilteredElementCollector col = new FilteredElementCollector(doc);
+                var sheetSet = col.OfClass(typeof(ViewSheetSet)).Where(x => x.Name == selectedSheetSet).Cast<ViewSheetSet>().FirstOrDefault();
+
+                FilteredElementCollector colPs = new FilteredElementCollector(doc);
+                var printSettings = colPs.OfClass(typeof(PrintSetting)).Cast<PrintSetting>().ToHashSet();
+
                 PrintManager pm = doc.PrintManager;
+                PrintSetup ps = pm.PrintSetup;
+                pm.SelectNewPrintDriver("Bluebeam PDF");
+                var paperSizes = pm.PaperSizes;
 
-                using (Transaction trans = new Transaction(doc))
+                foreach (ViewSheet sheet in sheetSet.Views)
                 {
-                    trans.Start("PrintSettings");
-                    //PrintManager pm = doc.PrintManager;
+                    #region Naming
+                    //var revisionType = sheet.GetCurrentRevision();
 
-                    pm.PrintRange = PrintRange.Select;
-                    //pm.SelectNewPrintDriver("Adobe PDF");
-                    //pm.SelectNewPrintDriver("HP PS Printer");
-                    pm.SelectNewPrintDriver("Bluebeam PDF");
-                    pm.PrintToFile = true;
+                    Parameter curRevision = sheet.get_Parameter(BuiltInParameter.SHEET_CURRENT_REVISION);
+                    string revision = curRevision.AsString();
 
-                    var revisionType = sheet.GetCurrentRevision();
-                    string sheetFileName;
-
-                    if (revisionType.IntegerValue != -1)
+                    if (revision.IsNullOrEmpty())
                     {
-                        Revision revision = (Revision)doc.GetElement(revisionType);
-                        int revSequence = revision.SequenceNumber;
-                        sheetFileName = sheet.SheetNumber + "-" + IndexToLetter(revSequence) + " - " + sheet.Name + ".pdf";
+                        sheetFileName = sheet.SheetNumber + "-" + revision + " " + sheet.Name + ".pdf";
                     }
-                    else sheetFileName = sheet.SheetNumber + " - " + sheet.Name + ".pdf";
+                    else sheetFileName = sheet.SheetNumber + " " + sheet.Name + ".pdf";
 
-                    string fullFileName = pathToExport + sheetFileName;
-                    pm.PrintToFileName = fullFileName;
+                    fullSheetFileName = pathToExport + sheetFileName; //Used to copy files later
+                    fileNamesDestination.Add(fullSheetFileName);
 
-                    //SetPDFSettings(sheetFileNamePdf, pathToExport);
+                    string printfilename = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "\\" + sheetFileName; //Used to satisfy bluebeam
+                    fileNamesSource.Add(printfilename);
 
-                    PrintSetup pSetup = pm.PrintSetup;
-                    pSetup.CurrentPrintSetting = pm.PrintSetup.InSession;
-                    PrintParameters pParams = pSetup.CurrentPrintSetting.PrintParameters;
+                    pm.PrintToFileName = printfilename;
+                    #endregion
 
-                    pParams.ZoomType = ZoomType.Zoom;
-                    pParams.Zoom = 100;
-                    //TODO: pParams.PageOrientation = PageOrientationType.Landscape???
-                    pParams.PaperPlacement = PaperPlacementType.Center;
-                    pParams.ColorDepth = ColorDepthType.Color;
-                    pParams.RasterQuality = RasterQualityType.Presentation;
-                    pParams.HiddenLineViews = HiddenLineViewsType.VectorProcessing;
-                    pParams.ViewLinksinBlue = false;
-                    pParams.HideReforWorkPlanes = true;
-                    pParams.HideUnreferencedViewTags = true;
-                    pParams.HideCropBoundaries = true;
-                    pParams.HideScopeBoxes = true;
-                    pParams.ReplaceHalftoneWithThinLines = false;
-                    pParams.MaskCoincidentLines = false;
-
-                    //TODO: PaperSize handling
                     var filterSheetNumber = fi.ParameterValueFilter(sheet.SheetNumber, BuiltInParameter.SHEET_NUMBER);
                     FilteredElementCollector bCol = new FilteredElementCollector(doc);
                     var titleBlock = bCol.OfCategory(BuiltInCategory.OST_TitleBlocks)
@@ -167,41 +157,150 @@ namespace MGTek.PDFExporter
                     var heightPar = titleBlock.get_Parameter(BuiltInParameter.SHEET_HEIGHT);
                     var height = Convert.ToInt32(heightPar.AsDouble().FtToMm().Round(0));
 
-                    var paperSizes = pm.PaperSizes;
-
                     var nameOfPaperSize = paperSizeDict[height][width];
 
-                    var paperSize = (from PaperSize ps in paperSizes where ps.Name.Equals(nameOfPaperSize) select ps).FirstOrDefault();
+                    var printSetting = (from PrintSetting pSetting in printSettings
+                                        where pSetting.Name == nameOfPaperSize
+                                        select pSetting).FirstOrDefault();
 
+                    ps.CurrentPrintSetting = printSetting ?? throw new Exception($"{sheet.Name} does not have a print setting!");
+
+                    pm.Apply();
+
+                    pm.SubmitPrint(sheet);
+                }
+                trans.Commit();
+            }
+            //File handling
+            if (WaitForFile(fileNamesSource.Last()))
+            {
+                foreach (var files in fileNamesSource.Zip(fileNamesDestination, Tuple.Create))
+                {
+                    File.Move(files.Item1, files.Item2);
+                }
+            }
+            else Util.ErrorMsg("The copying of files failed for some reason!");
+        }
+
+        /// <summary>
+        /// Blocks until the file is not locked any more.
+        /// </summary>
+        /// <param name="fullPath"></param>
+        public static bool WaitForFile(string fullPath)
+        {
+            var numTries = 0;
+
+            while (true)
+            {
+                ++numTries;
+                if (File.Exists(fullPath))
+                {
+                    break;
+                }
+                
+                if (numTries > 1000) return false;
+                // Wait for the lock to be released
+                System.Threading.Thread.Sleep(300);
+            }
+
+            numTries = 0;
+
+            while (true)
+            {
+                ++numTries;
+                try
+                {
+                    // Attempt to open the file exclusively.
+                    using (var fs = new FileStream(fullPath, FileMode.Open, FileAccess.ReadWrite, FileShare.None, 100))
+                    {
+                        fs.ReadByte();
+                        // If we got this far the file is ready
+                        break;
+                    }
+                }
+                catch (Exception)
+                {
+                    if (numTries > 1000) return false;
+                    // Wait for the lock to be released
+                    System.Threading.Thread.Sleep(300);
+                }
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// Creates print settings usable for the paper sizes of selected print set.
+        /// </summary>
+        private void button3_Click(object sender, EventArgs e)
+        {
+            FilteredElementCollector col = new FilteredElementCollector(doc);
+            var sheetSet = col.OfClass(typeof(ViewSheetSet)).Where(x => x.Name == selectedSheetSet).Cast<ViewSheetSet>().FirstOrDefault();
+
+            PrintManager pm = doc.PrintManager;
+            PrintSetup ps = pm.PrintSetup;
+            pm.SelectNewPrintDriver("Bluebeam PDF");
+            var paperSizes = pm.PaperSizes;
+
+            FilteredElementCollector colPs = new FilteredElementCollector(doc);
+            var printSettings = colPs.OfClass(typeof(PrintSetting)).Cast<PrintSetting>().ToHashSet();
+
+            foreach (ViewSheet sheet in sheetSet.Views)
+            {
+                var filterSheetNumber = fi.ParameterValueFilter(sheet.SheetNumber, BuiltInParameter.SHEET_NUMBER);
+                FilteredElementCollector bCol = new FilteredElementCollector(doc);
+                var titleBlock = bCol.OfCategory(BuiltInCategory.OST_TitleBlocks)
+                    .OfClass(typeof(FamilyInstance))
+                    .WherePasses(filterSheetNumber)
+                    .Cast<FamilyInstance>()
+                    .FirstOrDefault();
+
+                var widthPar = titleBlock.get_Parameter(BuiltInParameter.SHEET_WIDTH);
+                var width = Convert.ToInt32(widthPar.AsDouble().FtToMm().Round(0));
+
+                var heightPar = titleBlock.get_Parameter(BuiltInParameter.SHEET_HEIGHT);
+                var height = Convert.ToInt32(heightPar.AsDouble().FtToMm().Round(0));
+
+                var nameOfPaperSize = paperSizeDict[height][width];
+
+                if (printSettings.Any(x => x.Name == nameOfPaperSize)) continue;
+
+                using (Transaction trans = new Transaction(doc))
+                {
+                    trans.Start("PrintSettings");
+                    //PrintManager pm = doc.PrintManager;
+
+
+                    pm.PrintRange = PrintRange.Select;
+                    pm.PrintToFile = true;
+
+                    PrintSetup pSetup = pm.PrintSetup;
+                    pSetup.CurrentPrintSetting = pm.PrintSetup.InSession;
+                    PrintParameters pParams = pSetup.CurrentPrintSetting.PrintParameters;
+
+                    pParams.ZoomType = ZoomType.Zoom;
+                    pParams.Zoom = 100;
+                    pParams.PageOrientation = PageOrientationType.Portrait;
+                    pParams.PaperPlacement = PaperPlacementType.Center;
+                    pParams.ColorDepth = ColorDepthType.Color;
+                    pParams.RasterQuality = RasterQualityType.Presentation;
+                    pParams.HiddenLineViews = HiddenLineViewsType.VectorProcessing;
+                    pParams.ViewLinksinBlue = false;
+                    pParams.HideReforWorkPlanes = true;
+                    pParams.HideUnreferencedViewTags = true;
+                    pParams.HideCropBoundaries = true;
+                    pParams.HideScopeBoxes = true;
+                    pParams.ReplaceHalftoneWithThinLines = false;
+                    pParams.MaskCoincidentLines = false;
+
+                    var paperSize = (from PaperSize psize in paperSizes where psize.Name.Equals(nameOfPaperSize) select psize).FirstOrDefault();
                     pParams.PaperSize = paperSize;
 
                     pm.Apply();
 
+                    pm.PrintSetup.SaveAs(paperSize.Name);
+
                     trans.Commit();
                 }
-
-                pm.SubmitPrint(sheet);
-            }
-        }
-
-        /// <summary>
-        /// Set's next file print location/name to prevent PDF prompting for file name.
-        /// </summary>
-        /// <param name="destFileName">Full file name with extension.</param>
-        /// <param name="dirName">Directory path.</param>
-        private void SetPDFSettings(string destFileName, string dirName)
-        {
-            try
-            {
-                // if (PrinterName != "Adobe PDF") return;
-                var pjcKey = Registry.CurrentUser.OpenSubKey(@"Software\Adobe\Acrobat Distiller\PrinterJobControl", true);
-                var appPath = @"E:\programs\IDSP18\Revit 2018\Revit.exe";
-                pjcKey?.SetValue(appPath, destFileName);
-                pjcKey?.SetValue("LastPdfPortFolder - Revit.exe", dirName);
-            }
-            catch (Exception)
-            {
-                Autodesk.Revit.UI.TaskDialog.Show("ERROR", "Couldn't access PDF driver registry settings");
             }
         }
 
@@ -260,6 +359,18 @@ namespace MGTek.PDFExporter
                     { 1680, "3x8_(893x1680)_MM"},
                     { 1890, "3x9_(893x1890)_MM"},
                     { 2100, "3x10_(893x2100)_MM"}
+                }},
+                {2339, new Dictionary<int, string>
+                {
+                    { 1654, "ISO_A2_(420.00_x_594.00_MM)"}
+                }},
+                {3311, new Dictionary<int, string>
+                {
+                    { 2339, "ISO_A1_(594.00_x_841.00_MM)"}
+                }},
+                {4680, new Dictionary<int, string>
+                {
+                    { 3311, "ISO_A0_(841.00_x_1189.00_MM)"}
                 }}
             };
         }
@@ -277,6 +388,8 @@ namespace MGTek.PDFExporter
 
             return Columns[index - 1];
         }
+
+
     }
 }
 

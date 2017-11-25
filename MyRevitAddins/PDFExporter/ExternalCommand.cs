@@ -36,8 +36,7 @@ namespace MGTek.PDFExporter
     /// Revit external command.
     /// </summary>	
     [Transaction(TransactionMode.Manual)]
-    public sealed partial class ExternalCommand
-         : IExternalCommand
+    public sealed partial class ExternalCommand : IExternalCommand
     {
 
         /// <summary>
@@ -60,16 +59,8 @@ namespace MGTek.PDFExporter
         /// fails, succeeds, or was canceled by user. If it 
         /// does not succeed, Revit will undo any changes made 
         /// by the external command.</returns>	  
-        Result IExternalCommand.Execute(
-            ExternalCommandData commandData, ref string message
-            , ElementSet elements)
+        Result IExternalCommand.Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
-
-            ResourceManager res_mng = new ResourceManager(
-                  GetType());
-            ResourceManager def_res_mng = new ResourceManager(
-                typeof(Properties.Resources));
-
             Result result = Result.Failed;
 
             try
@@ -80,52 +71,17 @@ namespace MGTek.PDFExporter
                 Application app = ui_app?.Application;
                 Document doc = ui_doc?.Document;
 
-                /* Wrap all transactions into the transaction 
-                 * group. At first we get the transaction group
-                 * localized name. */
-                var tr_gr_name = UIBuilder.GetResourceString(
-                    GetType(), typeof(Properties.Resources),
-                    "_transaction_group_name");
+                PDFExporterForm ef = new PDFExporterForm(commandData, ref message, elements);
+                ef.ShowDialog();
 
-                using (var tr_gr = new TransactionGroup(doc, tr_gr_name))
-                {
-                    if (TransactionStatus.Started == tr_gr.Start())
-                    {
+                return Result.Succeeded;
 
-                        /* Here do your work or the set of 
-                         * works... */
-                        if (DoWork(commandData, ref message, elements))
-                        {
-
-                            if (TransactionStatus.Committed == tr_gr.Assimilate())
-                            {
-                                result = Result.Succeeded;
-                            }
-                        }
-                        else
-                        {
-
-                            tr_gr.RollBack();
-                        }
-                    }
-                }
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
-
-                TaskDialog.Show(def_res_mng.GetString("_Error")
-                    , ex.Message);
-
-                result = Result.Failed;
+                throw new Exception(e.Message);
+                return result;
             }
-            finally
-            {
-
-                res_mng.ReleaseAllResources();
-                def_res_mng.ReleaseAllResources();
-            }
-
-            return result;
         }
     }
 }
