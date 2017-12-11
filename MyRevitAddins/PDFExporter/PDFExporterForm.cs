@@ -168,6 +168,8 @@ namespace MGTek.PDFExporter
                     pm.Apply();
 
                     pm.SubmitPrint(sheet);
+
+                    System.Threading.Thread.Sleep(3000);
                 }
                 trans.Commit();
             }
