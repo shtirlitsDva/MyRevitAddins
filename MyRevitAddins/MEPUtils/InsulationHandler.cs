@@ -47,6 +47,7 @@ namespace MEPUtils
             var accessories = fi.GetElements(doc, BuiltInCategory.OST_PipeAccessory);
 
             var insPar = GetInsulationParameters();
+            var insSet = GetInsulationSettings(doc);
 
             using (Transaction tx = new Transaction(doc))
             {
@@ -55,7 +56,7 @@ namespace MEPUtils
                 //TODO: Split the InsulateElement into three methods for each kind -- I think it would make it more simple
                 foreach (Element element in pipes) InsulatePipe(doc, element, insPar); //Works
                 foreach (Element element in fittings) InsulateFitting(doc, element, insPar);
-                foreach (Element element in accessories) InsulateAccessory(doc, element, insPar);
+                foreach (Element element in accessories) InsulateAccessory(doc, element, insPar, insSet);
 
                 tx.Commit();
             }
@@ -258,13 +259,13 @@ namespace MEPUtils
             }
         }
 
-        private static void InsulateAccessory(Document doc, Element e, DataTable insPar)
+        private static void InsulateAccessory(Document doc, Element e, DataTable insPar, DataTable insSet)
         {
             #region Initialization
 
             //Read configuration data
             //var insPar = GetInsulationParameters();
-            var insSet = GetInsulationSettings(doc);
+            //var insSet = GetInsulationSettings(doc);
 
             //Read common configuration values
             string sysAbbr = e.get_Parameter(BuiltInParameter.RBS_DUCT_PIPE_SYSTEM_ABBREVIATION_PARAM).AsString();
