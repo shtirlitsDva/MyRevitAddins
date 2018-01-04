@@ -11,6 +11,7 @@ using MoreLinq;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.DB.Electrical;
 using Autodesk.Revit.DB.Plumbing;
+using Autodesk.Revit.DB.Mechanical;
 
 namespace Shared
 {
@@ -524,22 +525,24 @@ namespace Shared
             return (from e in GetElementsWithConnectors(doc) from Connector c in GetConnectorSet(e) select c).ToHashSet();
         }
 
-        public static (Connector Primary, Connector Secondary, Connector Tertiary) GetConnectors(Element element)
-        {
-            ConnectorManager cmgr = GetConnectorManager(element);
-            //Sort connectors to primary, secondary and none
-            Connector primCon = null; Connector secCon = null; Connector tertCon = null;
+        public static Cons GetConnectors(Element element) => new Cons(element);
 
-            foreach (Connector connector in cmgr.Connectors)
-            {
-                if (connector.GetMEPConnectorInfo().IsPrimary) primCon = connector;
-                else if (connector.GetMEPConnectorInfo().IsSecondary) secCon = connector;
-                else if ((connector.GetMEPConnectorInfo().IsPrimary == false) && (connector.GetMEPConnectorInfo().IsSecondary == false))
-                    tertCon = connector;
-            }
+        //public static (Connector Primary, Connector Secondary, Connector Tertiary) GetConnectors(Element element)
+        //{
+        //    ConnectorManager cmgr = GetConnectorManager(element);
+        //    //Sort connectors to primary, secondary and none
+        //    Connector primCon = null; Connector secCon = null; Connector tertCon = null;
 
-            return (primCon, secCon, tertCon);
-        }
+        //    foreach (Connector connector in cmgr.Connectors)
+        //    {
+        //        if (connector.GetMEPConnectorInfo().IsPrimary) primCon = connector;
+        //        else if (connector.GetMEPConnectorInfo().IsSecondary) secCon = connector;
+        //        else if ((connector.GetMEPConnectorInfo().IsPrimary == false) && (connector.GetMEPConnectorInfo().IsSecondary == false))
+        //            tertCon = connector;
+        //    }
+
+        //    return (primCon, secCon, tertCon);
+        //}
 
         /// <summary>
         /// Return the given element's connector manager, 
@@ -547,7 +550,7 @@ namespace Shared
         /// directly from the MEPCurve connector manager
         /// for ducts and pipes.
         /// </summary>
-        static ConnectorManager GetConnectorManager(Element e)
+        public static ConnectorManager GetConnectorManager(Element e)
         {
             MEPCurve mc = e as MEPCurve;
             FamilyInstance fi = e as FamilyInstance;
@@ -558,6 +561,50 @@ namespace Shared
             }
 
             return null == mc ? fi.MEPModel.ConnectorManager : mc.ConnectorManager;
+        }
+    }
+
+    public class Cons
+    {
+        public Connector Primary { get; } = null;
+        public Connector Secondary { get; } = null;
+        public Connector Tertiary { get; } = null;
+        public int Count { get; } = 0;
+        public Connector Largest { get; } = null;
+        public Connector Smallest { get; } = null;
+
+        public Cons(Element element)
+        {
+            ConnectorManager cmgr = MyMepUtils.GetConnectorManager(element);
+
+            foreach (Connector connector in cmgr.Connectors)
+            {
+                Count++;
+                if (connector.GetMEPConnectorInfo().IsPrimary) Primary = connector;
+                else if (connector.GetMEPConnectorInfo().IsSecondary) Secondary = connector;
+                else if ((connector.GetMEPConnectorInfo().IsPrimary == false) && (connector.GetMEPConnectorInfo().IsSecondary == false))
+                    Tertiary = connector;
+            }
+
+            if (Count > 1 && Secondary == null)
+                throw new Exception($"Element {element.Id.ToString()} has {Count} connectors and no secondary!");
+
+            if (element is FamilyInstance)
+            {
+                if (element.Category.Id.IntegerValue == (int)BuiltInCategory.OST_PipeFitting)
+                {
+                    var mf = ((FamilyInstance)element).MEPModel as MechanicalFitting;
+
+                    if (mf.PartType.ToString() == "Transition")
+                    {
+                        double primDia = (Primary.Radius * 2).Round(3);
+                        double secDia = (Secondary.Radius * 2).Round(3);
+
+                        Largest = primDia > secDia ? Primary : Secondary;
+                        Smallest = primDia < secDia ? Primary : Secondary;
+                    }
+                }
+            }
         }
     }
 
