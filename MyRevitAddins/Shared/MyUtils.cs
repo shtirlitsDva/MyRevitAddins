@@ -527,6 +527,7 @@ namespace Shared
 
         public static Cons GetConnectors(Element element) => new Cons(element);
 
+        //Old implementation of GetConnectors: Osolete now.
         //public static (Connector Primary, Connector Secondary, Connector Tertiary) GetConnectors(Element element)
         //{
         //    ConnectorManager cmgr = GetConnectorManager(element);
@@ -555,10 +556,7 @@ namespace Shared
             MEPCurve mc = e as MEPCurve;
             FamilyInstance fi = e as FamilyInstance;
 
-            if (null == mc && null == fi)
-            {
-                throw new ArgumentException("Element is neither an MEP curve nor a FamilyInstance.");
-            }
+            if (null == mc && null == fi) throw new ArgumentException("Element is neither an MEP curve nor a FamilyInstance.");
 
             return null == mc ? fi.MEPModel.ConnectorManager : mc.ConnectorManager;
         }
