@@ -577,6 +577,7 @@ namespace Shared
 
             foreach (Connector connector in cmgr.Connectors)
             {
+                if (connector.Domain != Domain.DomainPiping) continue;
                 Count++;
                 if (connector.GetMEPConnectorInfo().IsPrimary) Primary = connector;
                 else if (connector.GetMEPConnectorInfo().IsSecondary) Secondary = connector;
