@@ -488,15 +488,15 @@ namespace Shared
 
         public static ConnectorSet GetConnectorSet(Element e)
         {
-            ConnectorSet connectors = null;
+            ConnectorSet cs = null;
 
             if (e is FamilyInstance)
             {
                 MEPModel m = ((FamilyInstance)e).MEPModel;
-                if (null != m && null != m.ConnectorManager) connectors = m.ConnectorManager.Connectors;
+                if (null != m && null != m.ConnectorManager) cs = m.ConnectorManager.Connectors;
             }
 
-            else if (e is Wire) connectors = ((Wire)e).ConnectorManager.Connectors;
+            else if (e is Wire) cs = ((Wire)e).ConnectorManager.Connectors;
 
             else
             {
@@ -505,9 +505,10 @@ namespace Shared
                     + "elements to be either family instances or "
                     + "derived from MEPCurve");
 
-                if (e is MEPCurve) connectors = ((MEPCurve)e).ConnectorManager.Connectors;
+                if (e is MEPCurve) cs = ((MEPCurve)e).ConnectorManager.Connectors;
             }
-            return connectors;
+
+            return cs ?? new ConnectorSet();
         }
 
         public static HashSet<Connector> GetALLConnectorsFromElements(HashSet<Element> elements)
