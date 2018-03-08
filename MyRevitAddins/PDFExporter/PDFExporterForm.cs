@@ -189,6 +189,7 @@ namespace MGTek.PDFExporter
                 {
                     foreach (var files in fileNamesSource.Zip(fileNamesDestination, Tuple.Create))
                     {
+                        if (File.Exists(files.Item2)) File.Delete(files.Item2);
                         File.Move(files.Item1, files.Item2);
                     }
                 }
@@ -196,6 +197,7 @@ namespace MGTek.PDFExporter
                 {
                     foreach (var files in fileNamesDefault.Zip(fileNamesDestination, Tuple.Create))
                     {
+                        if (File.Exists(files.Item2)) File.Delete(files.Item2);
                         File.Move(files.Item1, files.Item2);
                     }
                 }
@@ -323,7 +325,7 @@ namespace MGTek.PDFExporter
 
                     pParams.ZoomType = ZoomType.Zoom;
                     pParams.Zoom = 100;
-                    pParams.PageOrientation = PageOrientationType.Portrait;
+                    pParams.PageOrientation = PageOrientationType.Landscape;
                     pParams.PaperPlacement = PaperPlacementType.Center;
                     pParams.ColorDepth = ColorDepthType.Color;
                     pParams.RasterQuality = RasterQualityType.Presentation;
