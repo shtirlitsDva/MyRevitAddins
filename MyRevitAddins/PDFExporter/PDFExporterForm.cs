@@ -105,6 +105,7 @@ namespace MGTek.PDFExporter
             string fullSheetFileName;
             IList<string> fileNamesSource = new List<string>();
             IList<string> fileNamesDestination = new List<string>();
+            IList<string> fileNamesDefault = new List<string>();
 
             using (Transaction trans = new Transaction(doc))
             {
@@ -119,6 +120,8 @@ namespace MGTek.PDFExporter
                 PrintSetup ps = pm.PrintSetup;
                 pm.SelectNewPrintDriver("Bluebeam PDF");
                 var paperSizes = pm.PaperSizes;
+
+                string title = doc.Title.Remove(doc.Title.Length-4);
 
                 foreach (ViewSheet sheet in sheetSet.Views)
                 {
@@ -139,6 +142,10 @@ namespace MGTek.PDFExporter
 
                     string printfilename = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "\\" + sheetFileName; //Used to satisfy bluebeam
                     fileNamesSource.Add(printfilename);
+
+                    string defaultFileName = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)
+                        + "\\" + title + " - Sheet - " + sheet.SheetNumber + " - " + sheet.Name + ".pdf";
+                    fileNamesDefault.Add(defaultFileName);
 
                     pm.PrintToFileName = printfilename;
                     #endregion
@@ -174,12 +181,26 @@ namespace MGTek.PDFExporter
                 trans.Commit();
             }
             //File handling
-            if (WaitForFile(fileNamesSource.Last()))
+            if (WaitForFile(fileNamesSource.Last(), fileNamesDefault.Last()))
             {
-                foreach (var files in fileNamesSource.Zip(fileNamesDestination, Tuple.Create))
+                var result = tryOpenFiles(fileNamesSource.Last(), fileNamesDefault.Last());
+
+                if (result.Item1)
                 {
-                    File.Move(files.Item1, files.Item2);
+                    foreach (var files in fileNamesSource.Zip(fileNamesDestination, Tuple.Create))
+                    {
+                        File.Move(files.Item1, files.Item2);
+                    }
                 }
+                else if (result.Item2)
+                {
+                    foreach (var files in fileNamesDefault.Zip(fileNamesDestination, Tuple.Create))
+                    {
+                        File.Move(files.Item1, files.Item2);
+                    }
+                }
+                else throw new Exception("Filename handling FAILED AGAIN!!!!!!!");
+                
             }
             else Util.ErrorMsg("The copying of files failed for some reason!");
         }
@@ -187,20 +208,20 @@ namespace MGTek.PDFExporter
         /// <summary>
         /// Blocks until the file is not locked any more.
         /// </summary>
-        /// <param name="fullPath"></param>
-        public static bool WaitForFile(string fullPath)
+        /// <param name="ideal"></param>
+        private static bool WaitForFile(string first, string second)
         {
             var numTries = 0;
 
             while (true)
             {
                 ++numTries;
-                if (File.Exists(fullPath))
+                if (File.Exists(first) || File.Exists(second))
                 {
                     break;
                 }
                 
-                if (numTries > 1000) return false;
+                if (numTries > 50) return false; //TODO: Set it to 1000
                 // Wait for the lock to be released
                 System.Threading.Thread.Sleep(300);
             }
@@ -210,24 +231,45 @@ namespace MGTek.PDFExporter
             while (true)
             {
                 ++numTries;
-                try
+                var result = tryOpenFiles(first, second);
+
+                if (result.Item1 || result.Item2) return true;
+
+                if (numTries > 1000) return false;
+                // Wait for the lock to be released
+                System.Threading.Thread.Sleep(300);
+                
+            }
+        }
+
+        private static (bool, bool) tryOpenFiles (string first, string second)
+        {
+            bool firstOK = false;
+            bool secondOK = false;
+
+            try
+            {
+                using (var fs = new FileStream(first, FileMode.Open, FileAccess.ReadWrite, FileShare.None, 100))
                 {
-                    // Attempt to open the file exclusively.
-                    using (var fs = new FileStream(fullPath, FileMode.Open, FileAccess.ReadWrite, FileShare.None, 100))
-                    {
-                        fs.ReadByte();
-                        // If we got this far the file is ready
-                        break;
-                    }
-                }
-                catch (Exception)
-                {
-                    if (numTries > 1000) return false;
-                    // Wait for the lock to be released
-                    System.Threading.Thread.Sleep(300);
+                    fs.ReadByte();
+                    // If we got this far the file is ready
+                    firstOK = true;
                 }
             }
-            return true;
+            catch (Exception){}
+
+            try
+            {
+                using (var fs = new FileStream(second, FileMode.Open, FileAccess.ReadWrite, FileShare.None, 100))
+                {
+                    fs.ReadByte();
+                    // If we got this far the file is ready
+                    secondOK = true;
+                }
+            }
+            catch (Exception){}
+
+            return (firstOK, secondOK);
         }
 
         /// <summary>
