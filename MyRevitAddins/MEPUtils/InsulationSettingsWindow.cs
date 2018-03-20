@@ -61,11 +61,18 @@ namespace MEPUtils
                 Settings.Columns.Add("AddInsulation", typeof(bool));
             }
 
-            //Collect all pipe accessories names and types to determine number of rows
-            var elements = fi.GetElements(doc, BuiltInCategory.OST_PipeAccessory)
+            //Collect all pipe fittings and accessories names and types to determine number of rows
+            var fittings = fi.GetElements(doc, BuiltInCategory.OST_PipeFitting)
                 .DistinctBy(d => d.get_Parameter(BuiltInParameter.ELEM_FAMILY_AND_TYPE_PARAM).AsValueString())
                 .OrderBy(o => o.get_Parameter(BuiltInParameter.ELEM_FAMILY_AND_TYPE_PARAM).AsValueString())
                 .ToList();
+
+            var accessories = fi.GetElements(doc, BuiltInCategory.OST_PipeAccessory)
+                .DistinctBy(d => d.get_Parameter(BuiltInParameter.ELEM_FAMILY_AND_TYPE_PARAM).AsValueString())
+                .OrderBy(o => o.get_Parameter(BuiltInParameter.ELEM_FAMILY_AND_TYPE_PARAM).AsValueString())
+                .ToList();
+
+            var elements = fittings.Concat(accessories).ToList();
 
             tableLayoutPanel1.ColumnCount = 2;
             tableLayoutPanel1.RowCount = elements.Count;
