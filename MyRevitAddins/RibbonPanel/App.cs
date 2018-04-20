@@ -65,7 +65,7 @@ namespace MyRibbonPanel
             RibbonPanel rvtRibbonPanel = application.CreateRibbonPanel("MyRevitAddins");
 
             //ConnectConnectors
-            PushButtonData data = new PushButtonData("ConnectConnectors", "Connect Connectors", ExecutingAssemblyPath,
+            PushButtonData data = new PushButtonData("ConnectConnectors", "Cons", ExecutingAssemblyPath,
                 "MyRibbonPanel.ConnectConnectors");
             data.ToolTip = myRibbonPanelToolTip;
             data.Image = NewBitmapImage(exe, "MyRibbonPanel.Resources.ImgConnectConnectors16.png");
@@ -73,21 +73,21 @@ namespace MyRibbonPanel
             PushButton connectCons = rvtRibbonPanel.AddItem(data) as PushButton;
 
             //TotalLineLengths
-            data = new PushButtonData("TotalLineLengths", "Total length of lines", ExecutingAssemblyPath, "MyRibbonPanel.TotalLineLengths");
+            data = new PushButtonData("TotalLineLengths", "Length", ExecutingAssemblyPath, "MyRibbonPanel.TotalLineLengths");
             data.ToolTip = myRibbonPanelToolTip;
             data.Image = NewBitmapImage(exe, "MyRibbonPanel.Resources.ImgTotalLineLength16.png");
             data.LargeImage = NewBitmapImage(exe, "MyRibbonPanel.Resources.ImgTotalLineLength32.png");
             PushButton totLentgths = rvtRibbonPanel.AddItem(data) as PushButton;
 
             //PipeInsulationVisibility
-            data = new PushButtonData("PipeInsulationVisibility", "Toggle Pipe Insulation visibility", ExecutingAssemblyPath, "MyRibbonPanel.PipeInsulationVisibility");
+            data = new PushButtonData("PipeInsulationVisibility", "Visible", ExecutingAssemblyPath, "MyRibbonPanel.PipeInsulationVisibility");
             data.ToolTip = myRibbonPanelToolTip;
             data.Image = NewBitmapImage(exe, "MyRibbonPanel.Resources.ImgPipeInsulationVisibility16.png");
             data.LargeImage = NewBitmapImage(exe, "MyRibbonPanel.Resources.ImgPipeInsulationVisibility32.png");
             PushButton pipeInsulationVisibility = rvtRibbonPanel.AddItem(data) as PushButton;
 
             //PlaceSupports
-            data = new PushButtonData("PlaceSupports", "Place supports", ExecutingAssemblyPath, "MyRibbonPanel.PlaceSupports");
+            data = new PushButtonData("PlaceSupports", "Supports", ExecutingAssemblyPath, "MyRibbonPanel.PlaceSupports");
             data.ToolTip = myRibbonPanelToolTip;
             data.Image = NewBitmapImage(exe, "MyRibbonPanel.Resources.ImgPlaceSupport16.png");
             data.LargeImage = NewBitmapImage(exe, "MyRibbonPanel.Resources.ImgPlaceSupport32.png");
@@ -101,7 +101,7 @@ namespace MyRibbonPanel
             PushButton PED = rvtRibbonPanel.AddItem(data) as PushButton;
 
             //MEPUtils
-            data = new PushButtonData("MEPUtils", "MEP Utils", ExecutingAssemblyPath, "MyRibbonPanel.MEPUtils");
+            data = new PushButtonData("MEPUtils", "MEP", ExecutingAssemblyPath, "MyRibbonPanel.MEPUtils");
             data.ToolTip = myRibbonPanelToolTip;
             data.Image = NewBitmapImage(exe, "MyRibbonPanel.Resources.ImgMEPUtils16.png");
             data.LargeImage = NewBitmapImage(exe, "MyRibbonPanel.Resources.ImgMEPUtils32.png");

@@ -64,9 +64,9 @@ namespace ConnectConnectors
 
                 if (list1.Count == 0 && list2.Count == 0) throw new Exception("No matches found! Check alignment!");
 
-                foreach (var t in list1.Zip(list2, (x, y) => (c1: x, c2: y)))
+                foreach (var (c1, c2) in list1.Zip(list2, (x, y) => (c1: x, c2: y)))
                 {
-                    t.c1.ConnectTo(t.c2);
+                    c1.ConnectTo(c2);
                 }
             }
 

@@ -11,6 +11,7 @@ using MoreLinq;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.DB.Electrical;
 using Autodesk.Revit.DB.Plumbing;
+using Autodesk.Revit.DB.Mechanical;
 
 namespace Shared
 {
@@ -487,15 +488,15 @@ namespace Shared
 
         public static ConnectorSet GetConnectorSet(Element e)
         {
-            ConnectorSet connectors = null;
+            ConnectorSet cs = null;
 
             if (e is FamilyInstance)
             {
                 MEPModel m = ((FamilyInstance)e).MEPModel;
-                if (null != m && null != m.ConnectorManager) connectors = m.ConnectorManager.Connectors;
+                if (null != m && null != m.ConnectorManager) cs = m.ConnectorManager.Connectors;
             }
 
-            else if (e is Wire) connectors = ((Wire)e).ConnectorManager.Connectors;
+            else if (e is Wire) cs = ((Wire)e).ConnectorManager.Connectors;
 
             else
             {
@@ -504,9 +505,10 @@ namespace Shared
                     + "elements to be either family instances or "
                     + "derived from MEPCurve");
 
-                if (e is MEPCurve) connectors = ((MEPCurve)e).ConnectorManager.Connectors;
+                if (e is MEPCurve) cs = ((MEPCurve)e).ConnectorManager.Connectors;
             }
-            return connectors;
+
+            return cs ?? new ConnectorSet();
         }
 
         public static HashSet<Connector> GetALLConnectorsFromElements(HashSet<Element> elements)
@@ -524,22 +526,25 @@ namespace Shared
             return (from e in GetElementsWithConnectors(doc) from Connector c in GetConnectorSet(e) select c).ToHashSet();
         }
 
-        public static (Connector Primary, Connector Secondary, Connector Tertiary) GetConnectors(Element element)
-        {
-            ConnectorManager cmgr = GetConnectorManager(element);
-            //Sort connectors to primary, secondary and none
-            Connector primCon = null; Connector secCon = null; Connector tertCon = null;
+        public static Cons GetConnectors(Element element) => new Cons(element);
 
-            foreach (Connector connector in cmgr.Connectors)
-            {
-                if (connector.GetMEPConnectorInfo().IsPrimary) primCon = connector;
-                else if (connector.GetMEPConnectorInfo().IsSecondary) secCon = connector;
-                else if ((connector.GetMEPConnectorInfo().IsPrimary == false) && (connector.GetMEPConnectorInfo().IsSecondary == false))
-                    tertCon = connector;
-            }
+        //Old implementation of GetConnectors: Osolete now.
+        //public static (Connector Primary, Connector Secondary, Connector Tertiary) GetConnectors(Element element)
+        //{
+        //    ConnectorManager cmgr = GetConnectorManager(element);
+        //    //Sort connectors to primary, secondary and none
+        //    Connector primCon = null; Connector secCon = null; Connector tertCon = null;
 
-            return (primCon, secCon, tertCon);
-        }
+        //    foreach (Connector connector in cmgr.Connectors)
+        //    {
+        //        if (connector.GetMEPConnectorInfo().IsPrimary) primCon = connector;
+        //        else if (connector.GetMEPConnectorInfo().IsSecondary) secCon = connector;
+        //        else if ((connector.GetMEPConnectorInfo().IsPrimary == false) && (connector.GetMEPConnectorInfo().IsSecondary == false))
+        //            tertCon = connector;
+        //    }
+
+        //    return (primCon, secCon, tertCon);
+        //}
 
         /// <summary>
         /// Return the given element's connector manager, 
@@ -547,17 +552,59 @@ namespace Shared
         /// directly from the MEPCurve connector manager
         /// for ducts and pipes.
         /// </summary>
-        static ConnectorManager GetConnectorManager(Element e)
+        public static ConnectorManager GetConnectorManager(Element e)
         {
             MEPCurve mc = e as MEPCurve;
             FamilyInstance fi = e as FamilyInstance;
 
-            if (null == mc && null == fi)
-            {
-                throw new ArgumentException("Element is neither an MEP curve nor a FamilyInstance.");
-            }
+            if (null == mc && null == fi) throw new ArgumentException("Element is neither an MEP curve nor a FamilyInstance.");
 
             return null == mc ? fi.MEPModel.ConnectorManager : mc.ConnectorManager;
+        }
+    }
+
+    public class Cons
+    {
+        public Connector Primary { get; } = null;
+        public Connector Secondary { get; } = null;
+        public Connector Tertiary { get; } = null;
+        public int Count { get; } = 0;
+        public Connector Largest { get; } = null;
+        public Connector Smallest { get; } = null;
+
+        public Cons(Element element)
+        {
+            ConnectorManager cmgr = MyMepUtils.GetConnectorManager(element);
+
+            foreach (Connector connector in cmgr.Connectors)
+            {
+                if (connector.Domain != Domain.DomainPiping) continue;
+                Count++;
+                if (connector.GetMEPConnectorInfo().IsPrimary) Primary = connector;
+                else if (connector.GetMEPConnectorInfo().IsSecondary) Secondary = connector;
+                else if ((connector.GetMEPConnectorInfo().IsPrimary == false) && (connector.GetMEPConnectorInfo().IsSecondary == false))
+                    Tertiary = connector;
+            }
+
+            if (Count > 1 && Secondary == null)
+                throw new Exception($"Element {element.Id.ToString()} has {Count} connectors and no secondary!");
+
+            if (element is FamilyInstance)
+            {
+                if (element.Category.Id.IntegerValue == (int)BuiltInCategory.OST_PipeFitting)
+                {
+                    var mf = ((FamilyInstance)element).MEPModel as MechanicalFitting;
+
+                    if (mf.PartType.ToString() == "Transition")
+                    {
+                        double primDia = (Primary.Radius * 2).Round(3);
+                        double secDia = (Secondary.Radius * 2).Round(3);
+
+                        Largest = primDia > secDia ? Primary : Secondary;
+                        Smallest = primDia < secDia ? Primary : Secondary;
+                    }
+                }
+            }
         }
     }
 
@@ -584,6 +631,7 @@ namespace Shared
                     con.Open();
                     OleDbDataAdapter adapter = new OleDbDataAdapter(query, con);
                     adapter.Fill(dataTable);
+                    con.Close();
 
                     //Remove ' and $ from sheetName
                     Regex rgx = new Regex("[^a-zA-Z0-9 _-]");
