@@ -13,7 +13,7 @@ using Autodesk.Revit.DB.Plumbing;
 using Autodesk.Revit.UI;
 //using adWin = Autodesk.Windows;
 using PlaceSupport;
-using cn = ConnectConnectors.ConnectConnectors;
+using cn = MEPUtils.ConnectConnectors;
 using tl = TotalLineLength.TotalLineLength;
 using piv = PipeInsulationVisibility.PipeInsulationVisibility;
 using ped = PED.InitPED;
@@ -66,7 +66,19 @@ namespace MyRibbonPanel
             //ConnectConnectors
             PushButtonData data = new PushButtonData("ConnectConnectors", "Cons", ExecutingAssemblyPath,
                 "MyRibbonPanel.ConnectConnectors");
-            data.ToolTip = myRibbonPanelToolTip;
+            data.ToolTip = 
+@"Zero elements selected -> Connect ALL unconnected connectors
+
+One element selected -> Connect the element to adjacent
+                        elements
+
+One element selected + CTRL -> Disconnect the element
+
+Two elements selected -> If disconnected - connect
+                         If connected - disconnect
+
+More than two elements selected + CTRL
+                         -> Disconnect all selected elements";
             data.Image = NewBitmapImage(exe, "MyRibbonPanel.Resources.ImgConnectConnectors16.png");
             data.LargeImage = NewBitmapImage(exe, "MyRibbonPanel.Resources.ImgConnectConnectors32.png");
             PushButton connectCons = rvtRibbonPanel.AddItem(data) as PushButton;
@@ -124,8 +136,6 @@ namespace MyRibbonPanel
             {
                 using (Transaction trans = new Transaction(commandData.Application.ActiveUIDocument.Document))
                 {
-                    
-
                     trans.Start("Connect the Connectors!");
                     cn.ConnectTheConnectors(commandData);
                     trans.Commit();

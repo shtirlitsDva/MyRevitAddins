@@ -95,10 +95,6 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ConnectConnectors\ConnectConnectors.csproj">
-      <Project>{1a8437e5-fa90-42ef-9682-7957445ead85}</Project>
-      <Name>ConnectConnectors</Name>
-    </ProjectReference>
     <ProjectReference Include="..\MEPUtils\MEPUtils.csproj">
       <Project>{51413598-89e7-48b9-a192-8087207ac1a7}</Project>
       <Name>MEPUtils</Name>
