@@ -5,6 +5,7 @@
     <ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>
       None
     </ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -14,7 +15,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>MGTek.PDFExporter</RootNamespace>
     <AssemblyName>PDFExporter</AssemblyName>
-    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -51,10 +52,6 @@
     <EnableUnmanagedDebugging>true</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="AdWindows, Version=2016.11.4.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Revit-2018.1-x64.Base.1.0.0\lib\net46\AdWindows.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
     <Reference Include="Microsoft.WindowsAPICodePack, Version=1.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\WindowsAPICodePack.1.1.0\lib\Microsoft.WindowsAPICodePack.dll</HintPath>
     </Reference>
@@ -70,32 +67,23 @@
     <Reference Include="Microsoft.WindowsAPICodePack.ShellExtensions, Version=1.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\WindowsAPICodePack.1.1.0\lib\Microsoft.WindowsAPICodePack.ShellExtensions.dll</HintPath>
     </Reference>
-    <Reference Include="MoreLinq, Version=2.8.21218.0, Culture=neutral, PublicKeyToken=384d532d7e88985d, processorArchitecture=MSIL">
-      <HintPath>..\packages\morelinq.2.8.0\lib\net40\MoreLinq.dll</HintPath>
+    <Reference Include="MoreLinq, Version=2.10.21623.0, Culture=neutral, PublicKeyToken=384d532d7e88985d, processorArchitecture=MSIL">
+      <HintPath>..\packages\morelinq.2.10.0\lib\net40\MoreLinq.dll</HintPath>
     </Reference>
-    <Reference Include="RevitAPI, Version=18.0.0.0, Culture=neutral, processorArchitecture=AMD64">
-      <HintPath>..\packages\Revit-2018.1-x64.Base.1.0.0\lib\net46\RevitAPI.dll</HintPath>
-      <Private>False</Private>
+    <Reference Include="RevitAPI">
+      <HintPath>..\..\..\..\Programs\IDSP19\Revit 2019\RevitAPI.dll</HintPath>
     </Reference>
-    <Reference Include="RevitAPIIFC, Version=18.0.0.0, Culture=neutral, processorArchitecture=AMD64">
-      <HintPath>..\packages\Revit-2018.1-x64.Base.1.0.0\lib\net46\RevitAPIIFC.dll</HintPath>
-      <Private>False</Private>
+    <Reference Include="RevitAPIIFC">
+      <HintPath>..\..\..\..\Programs\IDSP19\Revit 2019\RevitAPIIFC.dll</HintPath>
     </Reference>
-    <Reference Include="RevitAPIMacros, Version=18.0.0.0, Culture=neutral, processorArchitecture=AMD64">
-      <HintPath>..\packages\Revit-2018.1-x64.Base.1.0.0\lib\net46\RevitAPIMacros.dll</HintPath>
-      <Private>False</Private>
+    <Reference Include="RevitAPIMacros">
+      <HintPath>..\..\..\..\Programs\IDSP19\Revit 2019\RevitAPIMacros.dll</HintPath>
     </Reference>
-    <Reference Include="RevitAPIUI, Version=18.0.0.0, Culture=neutral, processorArchitecture=AMD64">
-      <HintPath>..\packages\Revit-2018.1-x64.Base.1.0.0\lib\net46\RevitAPIUI.dll</HintPath>
-      <Private>False</Private>
+    <Reference Include="RevitAPIUI">
+      <HintPath>..\..\..\..\Programs\IDSP19\Revit 2019\RevitAPIUI.dll</HintPath>
     </Reference>
-    <Reference Include="RevitAPIUIMacros, Version=18.0.0.0, Culture=neutral, processorArchitecture=AMD64">
-      <HintPath>..\packages\Revit-2018.1-x64.Base.1.0.0\lib\net46\RevitAPIUIMacros.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="RevitDevTools, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Revit2018DevTools.1.0.0\lib\net46\RevitDevTools.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="RevitAPIUIMacros">
+      <HintPath>..\..\..\..\Programs\IDSP19\Revit 2019\RevitAPIUIMacros.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="PresentationCore" />
