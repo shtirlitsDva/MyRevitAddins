@@ -36,6 +36,21 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.WindowsAPICodePack, Version=1.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\WindowsAPICodePack.1.1.0\lib\Microsoft.WindowsAPICodePack.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.WindowsAPICodePack.ExtendedLinguisticServices, Version=1.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\WindowsAPICodePack.1.1.0\lib\Microsoft.WindowsAPICodePack.ExtendedLinguisticServices.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.WindowsAPICodePack.Sensors, Version=1.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\WindowsAPICodePack.1.1.0\lib\Microsoft.WindowsAPICodePack.Sensors.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.WindowsAPICodePack.Shell, Version=1.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\WindowsAPICodePack.1.1.0\lib\Microsoft.WindowsAPICodePack.Shell.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.WindowsAPICodePack.ShellExtensions, Version=1.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\WindowsAPICodePack.1.1.0\lib\Microsoft.WindowsAPICodePack.ShellExtensions.dll</HintPath>
+    </Reference>
     <Reference Include="MoreLinq, Version=2.10.21623.0, Culture=neutral, PublicKeyToken=384d532d7e88985d, processorArchitecture=MSIL">
       <HintPath>..\packages\morelinq.2.10.0\lib\net40\MoreLinq.dll</HintPath>
     </Reference>
@@ -60,21 +75,28 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="FlangeCreator.cs" />
-    <Compile Include="FlangeCreatorChooser.cs">
+    <Compile Include="02 FlangeCreator\FlangeCreator.cs" />
+    <Compile Include="02 FlangeCreator\FlangeCreatorChooser.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="FlangeCreatorChooser.Designer.cs">
+    <Compile Include="02 FlangeCreator\FlangeCreatorChooser.Designer.cs">
       <DependentUpon>FlangeCreatorChooser.cs</DependentUpon>
     </Compile>
-    <Compile Include="InsulationSettingsWindow.cs">
+    <Compile Include="01 InsulationHandler\InsulationSettingsWindow.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="InsulationSettingsWindow.Designer.cs">
+    <Compile Include="01 InsulationHandler\InsulationSettingsWindow.Designer.cs">
       <DependentUpon>InsulationSettingsWindow.cs</DependentUpon>
     </Compile>
-    <Compile Include="PipeCreator.cs" />
-    <Compile Include="InsulationHandler.cs" />
+    <Compile Include="03 PipeCreator\PipeCreator.cs" />
+    <Compile Include="01 InsulationHandler\InsulationHandler.cs" />
+    <Compile Include="04 PDFExporter\PDFExporterForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="04 PDFExporter\PDFExporterForm.Designer.cs">
+      <DependentUpon>PDFExporterForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="04 PDFExporter\PDFExporter.cs" />
     <Compile Include="MEPUtilsClass.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="MEPUtils.cs">
@@ -82,6 +104,11 @@
     </Compile>
     <Compile Include="MEPUtils.Designer.cs">
       <DependentUpon>MEPUtils.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -91,16 +118,24 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="04 PDFExporter\Papirstørrelser.xlsx" />
     <None Include="app.config" />
-    <None Include="Insulation.xlsx" />
+    <None Include="01 InsulationHandler\Insulation.xlsx" />
     <None Include="packages.config" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="FlangeCreatorChooser.resx">
+    <EmbeddedResource Include="02 FlangeCreator\FlangeCreatorChooser.resx">
       <DependentUpon>FlangeCreatorChooser.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="InsulationSettingsWindow.resx">
+    <EmbeddedResource Include="01 InsulationHandler\InsulationSettingsWindow.resx">
       <DependentUpon>InsulationSettingsWindow.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="04 PDFExporter\PDFExporterForm.resx">
+      <DependentUpon>PDFExporterForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MEPUtils.resx">
       <DependentUpon>MEPUtils.cs</DependentUpon>
@@ -111,6 +146,10 @@
       <Project>{07df7622-cf58-4245-bf47-7cb8bf83520b}</Project>
       <Name>Shared</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <Content Include="04 PDFExporter\prtPages_DRI.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

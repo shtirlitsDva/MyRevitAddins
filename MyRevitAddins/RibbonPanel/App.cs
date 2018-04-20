@@ -19,7 +19,6 @@ using piv = PipeInsulationVisibility.PipeInsulationVisibility;
 using ped = PED.InitPED;
 using mep = MEPUtils.MEPUtilsClass;
 using Shared;
-//using Document = Autodesk.Revit.Creation.Document;
 
 #endregion
 
@@ -101,11 +100,18 @@ namespace MyRibbonPanel
             PushButton PED = rvtRibbonPanel.AddItem(data) as PushButton;
 
             //MEPUtils
-            data = new PushButtonData("MEPUtils", "MEP", ExecutingAssemblyPath, "MyRibbonPanel.MEPUtils");
+            data = new PushButtonData("MEPUtils", "MEP", ExecutingAssemblyPath, "MyRibbonPanel.MEPUtilsCaller");
             data.ToolTip = myRibbonPanelToolTip;
             data.Image = NewBitmapImage(exe, "MyRibbonPanel.Resources.ImgMEPUtils16.png");
             data.LargeImage = NewBitmapImage(exe, "MyRibbonPanel.Resources.ImgMEPUtils32.png");
             PushButton MEPUtils = rvtRibbonPanel.AddItem(data) as PushButton;
+
+            //PDFExporter
+            data = new PushButtonData("PDFExport", "PDF", ExecutingAssemblyPath, "MyRibbonPanel.PDFExporter");
+            data.ToolTip = "Exports selected sheet set to PDF.\nRequires BlueBeam";
+            data.Image = NewBitmapImage(exe, "MyRibbonPanel.Resources.ImgPDF16.png");
+            data.LargeImage = NewBitmapImage(exe, "MyRibbonPanel.Resources.ImgPDF32.png");
+            PushButton PDFExporter = rvtRibbonPanel.AddItem(data) as PushButton;
         }
     }
 
@@ -237,11 +243,21 @@ namespace MyRibbonPanel
     }
 
     [Autodesk.Revit.Attributes.Transaction(Autodesk.Revit.Attributes.TransactionMode.Manual)]
-    class MEPUtils : IExternalCommand
+    class MEPUtilsCaller : IExternalCommand
     {
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
             Result result = mep.FormCaller(commandData);
+            return result;
+        }
+    }
+
+    [Autodesk.Revit.Attributes.Transaction(Autodesk.Revit.Attributes.TransactionMode.Manual)]
+    class PDFExporter : IExternalCommand
+    {
+        public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
+        {
+            Result result = MEPUtils.PDFExporter.ExportPDF(commandData);
             return result;
         }
     }

@@ -23,8 +23,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PED", "PED\PED.csproj", "{9
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MEPUtils", "MEPUtils\MEPUtils.csproj", "{51413598-89E7-48B9-A192-8087207AC1A7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PDFExporter", "PDFExporter\PDFExporter.csproj", "{EB23276F-C716-4F11-B4E6-98451D548880}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug via Revit Add-In Manager|Any CPU = Debug via Revit Add-In Manager|Any CPU
@@ -149,18 +147,6 @@ Global
 		{51413598-89E7-48B9-A192-8087207AC1A7}.Release|Any CPU.Build.0 = Release|Any CPU
 		{51413598-89E7-48B9-A192-8087207AC1A7}.Release|x64.ActiveCfg = Release|Any CPU
 		{51413598-89E7-48B9-A192-8087207AC1A7}.Release|x64.Build.0 = Release|Any CPU
-		{EB23276F-C716-4F11-B4E6-98451D548880}.Debug via Revit Add-In Manager|Any CPU.ActiveCfg = Debug via Revit Add-In Manager|Any CPU
-		{EB23276F-C716-4F11-B4E6-98451D548880}.Debug via Revit Add-In Manager|Any CPU.Build.0 = Debug via Revit Add-In Manager|Any CPU
-		{EB23276F-C716-4F11-B4E6-98451D548880}.Debug via Revit Add-In Manager|x64.ActiveCfg = Debug via Revit Add-In Manager|Any CPU
-		{EB23276F-C716-4F11-B4E6-98451D548880}.Debug via Revit Add-In Manager|x64.Build.0 = Debug via Revit Add-In Manager|Any CPU
-		{EB23276F-C716-4F11-B4E6-98451D548880}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{EB23276F-C716-4F11-B4E6-98451D548880}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{EB23276F-C716-4F11-B4E6-98451D548880}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{EB23276F-C716-4F11-B4E6-98451D548880}.Debug|x64.Build.0 = Debug|Any CPU
-		{EB23276F-C716-4F11-B4E6-98451D548880}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{EB23276F-C716-4F11-B4E6-98451D548880}.Release|Any CPU.Build.0 = Release|Any CPU
-		{EB23276F-C716-4F11-B4E6-98451D548880}.Release|x64.ActiveCfg = Release|Any CPU
-		{EB23276F-C716-4F11-B4E6-98451D548880}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
