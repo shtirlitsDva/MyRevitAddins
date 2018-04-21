@@ -18,6 +18,7 @@ using tl = TotalLineLength.TotalLineLength;
 using piv = PipeInsulationVisibility.PipeInsulationVisibility;
 using ped = PED.InitPED;
 using mep = MEPUtils.MEPUtilsClass;
+using pdf = PDFExporter.PDFExporter;
 using Shared;
 
 #endregion
@@ -119,7 +120,7 @@ More than two elements selected + CTRL
             PushButton MEPUtils = rvtRibbonPanel.AddItem(data) as PushButton;
 
             //PDFExporter
-            data = new PushButtonData("PDFExport", "PDF", ExecutingAssemblyPath, "MyRibbonPanel.PDFExporter");
+            data = new PushButtonData("PDFExport", "PDF", ExecutingAssemblyPath, "MyRibbonPanel.PDFExport");
             data.ToolTip = "Exports selected sheet set to PDF.\nRequires BlueBeam";
             data.Image = NewBitmapImage(exe, "MyRibbonPanel.Resources.ImgPDF16.png");
             data.LargeImage = NewBitmapImage(exe, "MyRibbonPanel.Resources.ImgPDF32.png");
@@ -263,11 +264,11 @@ More than two elements selected + CTRL
     }
 
     [Autodesk.Revit.Attributes.Transaction(Autodesk.Revit.Attributes.TransactionMode.Manual)]
-    class PDFExporter : IExternalCommand
+    class PDFExport : IExternalCommand
     {
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
-            Result result = MEPUtils.PDFExporter.ExportPDF(commandData);
+            Result result = pdf.ExportPDF(commandData);
             return result;
         }
     }

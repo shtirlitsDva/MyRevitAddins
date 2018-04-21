@@ -1,4 +1,4 @@
-﻿namespace MEPUtils
+﻿namespace PDFExporter
 {
     partial class PDFExporterForm
     {

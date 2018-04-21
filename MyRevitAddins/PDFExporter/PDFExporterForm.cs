@@ -17,12 +17,12 @@ using Autodesk.Revit.Attributes;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
 using Autodesk.Revit.UI.Selection;
-using mySettings = MEPUtils.Properties.Settings;
+using mySettings = PDFExporter.Properties.Settings;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using Shared;
 using fi = Shared.Filter;
 
-namespace MEPUtils
+namespace PDFExporter
 {
     public partial class PDFExporterForm : System.Windows.Forms.Form
     {

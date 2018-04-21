@@ -15,7 +15,7 @@ using op = Shared.Output;
 using tr = Shared.Transformation;
 using mp = Shared.MyMepUtils;
 
-namespace MEPUtils
+namespace PDFExporter
 {
     public static class PDFExporter
     {
