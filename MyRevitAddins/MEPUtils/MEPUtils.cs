@@ -58,7 +58,8 @@ namespace MEPUtils
                 {1, InsulationHandler.DeleteAllPipeInsulation },
                 {2, new InsulationHandler().ExecuteInsulationSettings },
                 {3, PipeCreator.CreatePipeFromConnector },
-                {4, FlangeCreator.CreateFlangeForElements }
+                {4, FlangeCreator.CreateFlangeForElements },
+                {5, TotalLineLength.TotalLineLengths }
             };
 
             //Place names for methods in this dict
@@ -68,7 +69,8 @@ namespace MEPUtils
                 {1, "Delete all insulation" },
                 {2, "Insulation settings" },
                 {3, "Create pipe from connector" },
-                {4, "Create flanges" }
+                {4, "Create flanges" },
+                {5, "Total length of lines" }
             };
 
             for (int i = 0; i < methodDict.Count; i++)

@@ -84,13 +84,6 @@ More than two elements selected + CTRL
             data.LargeImage = NewBitmapImage(exe, "MyRibbonPanel.Resources.ImgConnectConnectors32.png");
             PushButton connectCons = rvtRibbonPanel.AddItem(data) as PushButton;
 
-            //TotalLineLengths
-            data = new PushButtonData("TotalLineLengths", "Length", ExecutingAssemblyPath, "MyRibbonPanel.TotalLineLengths");
-            data.ToolTip = myRibbonPanelToolTip;
-            data.Image = NewBitmapImage(exe, "MyRibbonPanel.Resources.ImgTotalLineLength16.png");
-            data.LargeImage = NewBitmapImage(exe, "MyRibbonPanel.Resources.ImgTotalLineLength32.png");
-            PushButton totLentgths = rvtRibbonPanel.AddItem(data) as PushButton;
-
             //PipeInsulationVisibility
             data = new PushButtonData("PipeInsulationVisibility", "Visible", ExecutingAssemblyPath, "MyRibbonPanel.PipeInsulationVisibility");
             data.ToolTip = myRibbonPanelToolTip;
@@ -139,32 +132,6 @@ More than two elements selected + CTRL
                 {
                     trans.Start("Connect the Connectors!");
                     cn.ConnectTheConnectors(commandData);
-                    trans.Commit();
-                }
-                return Result.Succeeded;
-            }
-
-            catch (Autodesk.Revit.Exceptions.OperationCanceledException) { return Result.Cancelled; }
-
-            catch (Exception ex)
-            {
-                message = ex.Message;
-                return Result.Failed;
-            }
-        }
-    }
-
-    [Autodesk.Revit.Attributes.Transaction(Autodesk.Revit.Attributes.TransactionMode.Manual)]
-    class TotalLineLengths : IExternalCommand
-    {
-        public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
-        {
-            try
-            {
-                using (Transaction trans = new Transaction(commandData.Application.ActiveUIDocument.Document))
-                {
-                    trans.Start("Calculate total length of selected lines!");
-                    tll.TotalLineLengths(commandData);
                     trans.Commit();
                 }
                 return Result.Succeeded;

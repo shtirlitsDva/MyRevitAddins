@@ -18,7 +18,7 @@ namespace MEPUtils
 {
     public class TotalLineLength
     {
-        public static void TotalLineLengths(ExternalCommandData commandData)
+        public static Result TotalLineLengths(ExternalCommandData commandData)
         {
             var app = commandData.Application;
             var uiDoc = app.ActiveUIDocument;
@@ -44,6 +44,8 @@ namespace MEPUtils
             }
 
             ut.InfoMsg(totalLength.FtToMm().Round4().ToString());
+
+            return Result.Succeeded;
         }
     }
 }
