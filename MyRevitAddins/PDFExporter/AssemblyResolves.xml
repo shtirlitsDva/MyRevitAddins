@@ -1,6 +1,0 @@
-﻿<?xml version='1.0' encoding='utf-8' ?>
-<!-- This file contains info about location of assemblies. -->
-<Assemblies>
-  <Assembly Name='RevitDevTools'
-            Location='%AppData%\Bushman\Revit\2018\RevitDevTools\RevitDevTools.dll'/>
-</Assemblies>

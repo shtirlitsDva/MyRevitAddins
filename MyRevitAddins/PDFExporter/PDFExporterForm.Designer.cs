@@ -1,4 +1,4 @@
-﻿namespace MGTek.PDFExporter
+﻿namespace MEPUtils
 {
     partial class PDFExporterForm
     {

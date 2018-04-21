@@ -21,6 +21,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PED", "PED\PED.csproj", "{9
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MEPUtils", "MEPUtils\MEPUtils.csproj", "{51413598-89E7-48B9-A192-8087207AC1A7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PDFExporter", "PDFExporter\PDFExporter.csproj", "{8241CA55-0163-471E-97ED-ADC4E40C3E86}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug via Revit Add-In Manager|Any CPU = Debug via Revit Add-In Manager|Any CPU
@@ -132,6 +134,18 @@ Global
 		{51413598-89E7-48B9-A192-8087207AC1A7}.Release|Any CPU.Build.0 = Release|Any CPU
 		{51413598-89E7-48B9-A192-8087207AC1A7}.Release|x64.ActiveCfg = Release|Any CPU
 		{51413598-89E7-48B9-A192-8087207AC1A7}.Release|x64.Build.0 = Release|Any CPU
+		{8241CA55-0163-471E-97ED-ADC4E40C3E86}.Debug via Revit Add-In Manager|Any CPU.ActiveCfg = Debug|Any CPU
+		{8241CA55-0163-471E-97ED-ADC4E40C3E86}.Debug via Revit Add-In Manager|Any CPU.Build.0 = Debug|Any CPU
+		{8241CA55-0163-471E-97ED-ADC4E40C3E86}.Debug via Revit Add-In Manager|x64.ActiveCfg = Debug|Any CPU
+		{8241CA55-0163-471E-97ED-ADC4E40C3E86}.Debug via Revit Add-In Manager|x64.Build.0 = Debug|Any CPU
+		{8241CA55-0163-471E-97ED-ADC4E40C3E86}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8241CA55-0163-471E-97ED-ADC4E40C3E86}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8241CA55-0163-471E-97ED-ADC4E40C3E86}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{8241CA55-0163-471E-97ED-ADC4E40C3E86}.Debug|x64.Build.0 = Debug|Any CPU
+		{8241CA55-0163-471E-97ED-ADC4E40C3E86}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8241CA55-0163-471E-97ED-ADC4E40C3E86}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8241CA55-0163-471E-97ED-ADC4E40C3E86}.Release|x64.ActiveCfg = Release|Any CPU
+		{8241CA55-0163-471E-97ED-ADC4E40C3E86}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

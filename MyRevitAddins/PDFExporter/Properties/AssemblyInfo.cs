@@ -1,13 +1,4 @@
-// This is an independent project of an individual developer. Dear PVS-Studio, please check it.
-// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
-/* PDFExporter
- * AssemblyInfo.cs
- * 
- * © MGTek, 2017
- *
- * The 'PDFExporter.dll' assembly attributes.
- */
-using System.Reflection;
+﻿using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -15,11 +6,11 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("PDFExporter")]
-[assembly: AssemblyDescription("PDFExporter is the Revit 2018 Add-In.")]
+[assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("MGTek")]
+[assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("PDFExporter")]
-[assembly: AssemblyCopyright("Copyright 2017 © MGTek")]
+[assembly: AssemblyCopyright("Copyright ©  2018")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -29,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("3cbc2a4a-23f6-49c1-ac60-8406c8c44847")]
+[assembly: Guid("8241ca55-0163-471e-97ed-adc4e40c3e86")]
 
 // Version information for an assembly consists of the following four values:
 //
@@ -41,5 +32,5 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("2017.0.0.*")]
-[assembly: AssemblyFileVersion("2017.0.0.*")]
+[assembly: AssemblyVersion("1.0.0.0")]
+[assembly: AssemblyFileVersion("1.0.0.0")]

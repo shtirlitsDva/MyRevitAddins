@@ -92,13 +92,6 @@
     </Compile>
     <Compile Include="03 PipeCreator\PipeCreator.cs" />
     <Compile Include="01 InsulationHandler\InsulationHandler.cs" />
-    <Compile Include="04 PDFExporter\PDFExporterForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="04 PDFExporter\PDFExporterForm.Designer.cs">
-      <DependentUpon>PDFExporterForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="04 PDFExporter\PDFExporter.cs" />
     <Compile Include="05 ConnectConnectors\ConnectConnectors.cs" />
     <Compile Include="MEPUtilsClass.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -121,7 +114,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="04 PDFExporter\Papirstørrelser.xlsx" />
     <None Include="app.config" />
     <None Include="01 InsulationHandler\Insulation.xlsx" />
     <None Include="packages.config" />
@@ -137,9 +129,6 @@
     <EmbeddedResource Include="01 InsulationHandler\InsulationSettingsWindow.resx">
       <DependentUpon>InsulationSettingsWindow.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="04 PDFExporter\PDFExporterForm.resx">
-      <DependentUpon>PDFExporterForm.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="MEPUtils.resx">
       <DependentUpon>MEPUtils.cs</DependentUpon>
     </EmbeddedResource>
@@ -150,9 +139,8 @@
       <Name>Shared</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
   <ItemGroup>
-    <Content Include="04 PDFExporter\prtPages_DRI.xml" />
+    <Folder Include="04 TotalLineLength\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

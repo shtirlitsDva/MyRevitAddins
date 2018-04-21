@@ -17,12 +17,12 @@ using Autodesk.Revit.Attributes;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
 using Autodesk.Revit.UI.Selection;
-using mySettings = MGTek.PDFExporter.Properties.Settings;
+using mySettings = MEPUtils.Properties.Settings;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using Shared;
 using fi = Shared.Filter;
 
-namespace MGTek.PDFExporter
+namespace MEPUtils
 {
     public partial class PDFExporterForm : System.Windows.Forms.Form
     {
@@ -32,20 +32,17 @@ namespace MGTek.PDFExporter
 
         private readonly Dictionary<int, Dictionary<int, string>> paperSizeDict;
 
-        private static ExternalCommandData commandData;
         private static UIApplication uiapp;
         private static UIDocument uidoc;
         private static Document doc;
-        private string _message;
 
-        public PDFExporterForm(ExternalCommandData commandData, ref String message, ElementSet elements)
+        public PDFExporterForm(ExternalCommandData commandData)
         {
             InitializeComponent();
 
             uiapp = commandData.Application;
             uidoc = uiapp.ActiveUIDocument;
             doc = uidoc.Document;
-            _message = message;
 
             //Init combobox (sheet set name)
             sheetSetNames = getSheetSetNames(doc);
