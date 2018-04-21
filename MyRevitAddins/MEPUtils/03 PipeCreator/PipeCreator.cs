@@ -8,6 +8,7 @@ using Autodesk.Revit.DB;
 using Autodesk.Revit.DB.Plumbing;
 using Autodesk.Revit.DB.Structure;
 using Autodesk.Revit.UI.Selection;
+using System.Windows.Input;
 using Shared;
 using fi = Shared.Filter;
 using ut = Shared.Util;
@@ -21,6 +22,16 @@ namespace MEPUtils
     {
         public static Result CreatePipeFromConnector(ExternalCommandData cData)
         {
+            bool ctrl = false;
+            if ((int)Keyboard.Modifiers == 2) ctrl = true;
+
+            string pipeTypeName = MEPUtils.Properties.Settings.Default.PipeCreator_SelectedPipeTypeName;
+
+            if (ctrl)
+            {
+
+            }
+
             try
             {
                 Document doc = cData.Application.ActiveUIDocument.Document;
