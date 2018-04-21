@@ -14,7 +14,7 @@ using op = Shared.Output;
 using mp = Shared.MyMepUtils;
 //using mySettings = GeneralStability.Properties.Settings;
 
-namespace TotalLineLength
+namespace MEPUtils
 {
     public class TotalLineLength
     {
@@ -36,19 +36,11 @@ namespace TotalLineLength
                     break;
                 }
 
-                if (el is DetailCurve)
-                {
-                    DetailCurve dc = el as DetailCurve;
-                    totalLength += dc.GeometryCurve.Length;
-                }
+                if (el is DetailCurve dc) totalLength += dc.GeometryCurve.Length;
 
-                else if (el is ModelCurve)
-                {
-                    ModelCurve mc = el as ModelCurve;
-                    totalLength += mc.GeometryCurve.Length;
-                }
-
-                else ut.ErrorMsg(el.Name.ToString()+" is not implemented!");
+                else if (el is ModelCurve mc) totalLength += mc.GeometryCurve.Length;
+                
+                else ut.ErrorMsg(el.Name.ToString() + " is not implemented!");
             }
 
             ut.InfoMsg(totalLength.FtToMm().Round4().ToString());

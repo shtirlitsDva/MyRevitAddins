@@ -14,11 +14,11 @@ using Autodesk.Revit.UI;
 //using adWin = Autodesk.Windows;
 using PlaceSupport;
 using cn = MEPUtils.ConnectConnectors;
-using tl = TotalLineLength.TotalLineLength;
 using piv = PipeInsulationVisibility.PipeInsulationVisibility;
 using ped = PED.InitPED;
 using mep = MEPUtils.MEPUtilsClass;
 using pdf = PDFExporter.PDFExporter;
+using tll = MEPUtils.TotalLineLength;
 using Shared;
 
 #endregion
@@ -164,7 +164,7 @@ More than two elements selected + CTRL
                 using (Transaction trans = new Transaction(commandData.Application.ActiveUIDocument.Document))
                 {
                     trans.Start("Calculate total length of selected lines!");
-                    tl.TotalLineLengths(commandData);
+                    tll.TotalLineLengths(commandData);
                     trans.Commit();
                 }
                 return Result.Succeeded;

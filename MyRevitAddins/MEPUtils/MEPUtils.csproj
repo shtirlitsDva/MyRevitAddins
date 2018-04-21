@@ -92,6 +92,7 @@
     </Compile>
     <Compile Include="03 PipeCreator\PipeCreator.cs" />
     <Compile Include="01 InsulationHandler\InsulationHandler.cs" />
+    <Compile Include="04 TotalLineLength\TotalLineLength.cs" />
     <Compile Include="05 ConnectConnectors\ConnectConnectors.cs" />
     <Compile Include="MEPUtilsClass.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -130,8 +131,6 @@
       <Name>Shared</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="04 TotalLineLength\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

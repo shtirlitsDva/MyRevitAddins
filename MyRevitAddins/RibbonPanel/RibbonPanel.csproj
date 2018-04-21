@@ -119,10 +119,6 @@
       <Project>{07df7622-cf58-4245-bf47-7cb8bf83520b}</Project>
       <Name>Shared</Name>
     </ProjectReference>
-    <ProjectReference Include="..\TotalLineLength\TotalLineLength.csproj">
-      <Project>{0224ac94-6e3a-421d-bf41-62f411082735}</Project>
-      <Name>TotalLineLength</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\Resources.resx">
