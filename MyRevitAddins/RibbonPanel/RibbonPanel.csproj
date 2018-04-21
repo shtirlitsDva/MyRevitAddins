@@ -107,10 +107,6 @@
       <Project>{90ab3a12-294b-42f2-8e60-c63f9cabde93}</Project>
       <Name>PED</Name>
     </ProjectReference>
-    <ProjectReference Include="..\PipeInsulationVisibility\PipeInsulationVisibility.csproj">
-      <Project>{1e6f7e46-c9c7-4dfa-afde-39864e00ef9e}</Project>
-      <Name>PipeInsulationVisibility</Name>
-    </ProjectReference>
     <ProjectReference Include="..\PlaceSupport\PlaceSupport.csproj">
       <Project>{d20177d9-4439-4c89-9231-b4eb8418301b}</Project>
       <Name>PlaceSupport</Name>

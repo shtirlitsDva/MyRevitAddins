@@ -14,12 +14,9 @@ using Autodesk.Revit.UI;
 //using adWin = Autodesk.Windows;
 using PlaceSupport;
 using cn = MEPUtils.ConnectConnectors;
-using piv = PipeInsulationVisibility.PipeInsulationVisibility;
 using ped = PED.InitPED;
 using mep = MEPUtils.MEPUtilsClass;
 using pdf = PDFExporter.PDFExporter;
-using tll = MEPUtils.TotalLineLength;
-using Shared;
 
 #endregion
 
@@ -86,7 +83,7 @@ More than two elements selected + CTRL
 
             //PipeInsulationVisibility
             data = new PushButtonData("PipeInsulationVisibility", "Visible", ExecutingAssemblyPath, "MyRibbonPanel.PipeInsulationVisibility");
-            data.ToolTip = myRibbonPanelToolTip;
+            data.ToolTip = "Toggle visibility of pipe insulation in current view.";
             data.Image = NewBitmapImage(exe, "MyRibbonPanel.Resources.ImgPipeInsulationVisibility16.png");
             data.LargeImage = NewBitmapImage(exe, "MyRibbonPanel.Resources.ImgPipeInsulationVisibility32.png");
             PushButton pipeInsulationVisibility = rvtRibbonPanel.AddItem(data) as PushButton;
@@ -157,7 +154,7 @@ More than two elements selected + CTRL
                 using (Transaction trans = new Transaction(commandData.Application.ActiveUIDocument.Document))
                 {
                     trans.Start("Toggle Pipe Insulation visibility!");
-                    piv.TogglePipeInsulationVisibility(commandData);
+                    MEPUtils.PipeInsulationVisibility.TogglePipeInsulationVisibility(commandData);
                     trans.Commit();
                 }
                 return Result.Succeeded;

@@ -11,7 +11,7 @@ using op = Shared.Output;
 using mp = Shared.MyMepUtils;
 //using mySettings = GeneralStability.Properties.Settings;
 
-namespace PipeInsulationVisibility
+namespace MEPUtils
 {
     public class PipeInsulationVisibility
     {
