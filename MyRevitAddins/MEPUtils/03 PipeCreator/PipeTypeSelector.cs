@@ -30,6 +30,8 @@ namespace MEPUtils
             this.tableLayoutPanel1.ColumnStyles.Clear();
             this.tableLayoutPanel1.RowStyles.Clear();
 
+            this.Height = pipeTypeNames.Count * 50;
+
             for (int i = 0; i < columnCount; i++)
             {
                 this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100 / columnCount));
@@ -63,5 +65,7 @@ namespace MEPUtils
         {
             MEPUtils.Properties.Settings.Default.Save();
         }
+
+        
     }
 }

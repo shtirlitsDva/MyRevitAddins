@@ -29,8 +29,10 @@ namespace MEPUtils
 
             string pipeTypeName = MEPUtils.Properties.Settings.Default.PipeCreator_SelectedPipeTypeName;
 
+            bool test = string.IsNullOrEmpty(pipeTypeName);
+
             //If the name of pipeType is null or empty for some reason -- reinitialize
-            if (pipeTypeName.IsNullOrEmpty()) ctrl = true;
+            if (string.IsNullOrEmpty(pipeTypeName)) ctrl = true;
 
             if (ctrl)
             {
@@ -38,6 +40,10 @@ namespace MEPUtils
                 var pipeTypes = colPipeTypes.OfClass(typeof(PipeType)).ToElements();
 
                 var pipeTypeNames = colPipeTypes.Select(x => x.Name).ToList();
+
+                int count = pipeTypeNames.Count;
+
+
 
                 var pc = new PipeTypeSelector(cData, pipeTypeNames);
                 pc.ShowDialog();
