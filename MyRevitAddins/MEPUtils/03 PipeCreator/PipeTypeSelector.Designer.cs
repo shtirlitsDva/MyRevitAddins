@@ -53,6 +53,7 @@
             this.Controls.Add(this.tableLayoutPanel1);
             this.Name = "PipeTypeSelector";
             this.Text = "PipeTypeSelector";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.PipeTypeSelector_FormClosing);
             this.ResumeLayout(false);
 
         }

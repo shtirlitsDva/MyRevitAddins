@@ -58,5 +58,10 @@ namespace MEPUtils
             pipeTypeName = b.Text;
             this.Close();
         }
+
+        private void PipeTypeSelector_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            MEPUtils.Properties.Settings.Default.Save();
+        }
     }
 }

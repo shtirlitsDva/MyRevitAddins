@@ -100,6 +100,7 @@
     <ProjectReference Include="..\MEPUtils\MEPUtils.csproj">
       <Project>{51413598-89e7-48b9-a192-8087207ac1a7}</Project>
       <Name>MEPUtils</Name>
+      <Private>True</Private>
     </ProjectReference>
     <ProjectReference Include="..\PDFExporter\PDFExporter.csproj">
       <Project>{8241ca55-0163-471e-97ed-adc4e40c3e86}</Project>

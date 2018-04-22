@@ -25,7 +25,7 @@ namespace MEPUtils
             MEPUtilsChooser mepuc = new MEPUtilsChooser(Cursor.Position.X, Cursor.Position.Y);
             mepuc.ShowDialog();
             //mepuc.Close();
-
+            ;
             if (mepuc.MethodToExecute == null) return Result.Cancelled;
 
             return mepuc.MethodToExecute.Invoke(cData);

@@ -44,7 +44,6 @@ namespace MEPUtils
 
                 pipeTypeName = pc.pipeTypeName;
                 MEPUtils.Properties.Settings.Default.PipeCreator_SelectedPipeTypeName = pipeTypeName;
-                MEPUtils.Properties.Settings.Default.Save();
             }
 
             try
