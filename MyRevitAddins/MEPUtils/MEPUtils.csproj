@@ -92,6 +92,12 @@
     </Compile>
     <Compile Include="03 PipeCreator\PipeCreator.cs" />
     <Compile Include="01 InsulationHandler\InsulationHandler.cs" />
+    <Compile Include="03 PipeCreator\PipeTypeSelector.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="03 PipeCreator\PipeTypeSelector.Designer.cs">
+      <DependentUpon>PipeTypeSelector.cs</DependentUpon>
+    </Compile>
     <Compile Include="04 TotalLineLength\TotalLineLength.cs" />
     <Compile Include="05 ConnectConnectors\ConnectConnectors.cs" />
     <Compile Include="06 PipeInsulationVisibility\PipeInsulationVisibility.cs" />
@@ -130,6 +136,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="01 InsulationHandler\InsulationSettingsWindow.resx">
       <DependentUpon>InsulationSettingsWindow.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="03 PipeCreator\PipeTypeSelector.resx">
+      <DependentUpon>PipeTypeSelector.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MEPUtils.resx">
       <DependentUpon>MEPUtils.cs</DependentUpon>

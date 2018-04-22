@@ -22,20 +22,33 @@ namespace MEPUtils
     {
         public static Result CreatePipeFromConnector(ExternalCommandData cData)
         {
+            Document doc = cData.Application.ActiveUIDocument.Document;
+
             bool ctrl = false;
             if ((int)Keyboard.Modifiers == 2) ctrl = true;
 
             string pipeTypeName = MEPUtils.Properties.Settings.Default.PipeCreator_SelectedPipeTypeName;
 
+            //If the name of pipeType is null or empty for some reason -- reinitialize
+            if (pipeTypeName.IsNullOrEmpty()) ctrl = true;
+
             if (ctrl)
             {
+                FilteredElementCollector colPipeTypes = new FilteredElementCollector(doc);
+                var pipeTypes = colPipeTypes.OfClass(typeof(PipeType)).ToElements();
 
+                var pipeTypeNames = colPipeTypes.Select(x => x.Name).ToList();
+
+                var pc = new PipeTypeSelector(cData, pipeTypeNames);
+                pc.ShowDialog();
+
+                pipeTypeName = pc.pipeTypeName;
+                MEPUtils.Properties.Settings.Default.PipeCreator_SelectedPipeTypeName = pipeTypeName;
+                MEPUtils.Properties.Settings.Default.Save();
             }
 
             try
             {
-                Document doc = cData.Application.ActiveUIDocument.Document;
-
                 //One element selected, creates pipe at random connector
                 Selection selection = cData.Application.ActiveUIDocument.Selection;
                 ElementId id = selection.GetElementIds().FirstOrDefault();
@@ -52,7 +65,7 @@ namespace MEPUtils
                 XYZ pointInSpace = origin.Add(direction);
 
                 //Get the typeId of most used pipeType
-                var filter = fi.ParameterValueFilter("Stålrør, sømløse", BuiltInParameter.ALL_MODEL_TYPE_NAME);
+                var filter = fi.ParameterValueFilter(pipeTypeName, BuiltInParameter.ALL_MODEL_TYPE_NAME);
                 FilteredElementCollector col = new FilteredElementCollector(doc);
                 var pipeType = col.OfClass(typeof(PipeType)).WherePasses(filter).ToElements().FirstOrDefault();
                 if (pipeType == null) throw new Exception("Collection of PipeType failed!");
