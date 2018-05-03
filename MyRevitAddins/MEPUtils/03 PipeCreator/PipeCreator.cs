@@ -75,10 +75,20 @@ namespace MEPUtils
                 var pipeType = col.OfClass(typeof(PipeType)).WherePasses(filter).ToElements().FirstOrDefault();
                 if (pipeType == null) throw new Exception("Collection of PipeType failed!");
 
+                //LevelId can be null -> work around
+                ElementId levelId;
+                if (element.LevelId == null)
+                {
+                    FilteredElementCollector lcol = new FilteredElementCollector(doc);
+                    levelId = lcol.OfClass(typeof(Level)).ToElementIds().FirstOrDefault(); //Select random levelid
+                }
+                else levelId = element.LevelId;
+
+                //Transaction that creates the pipe
                 Transaction tx = new Transaction(doc);
                 tx.Start("Create pipe!");
                 //Create the pipe
-                Pipe.Create(doc, pipeType.Id, element.LevelId, con, pointInSpace);
+                Pipe.Create(doc, pipeType.Id, levelId, con, pointInSpace);
                 tx.Commit();
             }
             catch (Exception e)
