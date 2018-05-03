@@ -77,10 +77,12 @@ namespace MEPUtils
 
                 //LevelId can be null -> work around
                 ElementId levelId;
-                if (element.LevelId == null)
+                ;
+                if (element.LevelId.IntegerValue == -1)
                 {
                     FilteredElementCollector lcol = new FilteredElementCollector(doc);
-                    levelId = lcol.OfClass(typeof(Level)).ToElementIds().FirstOrDefault(); //Select random levelid
+                    var randomLvl = lcol.OfClass(typeof(Level)).ToElements().FirstOrDefault(); //Select random levelid
+                    levelId = randomLvl.Id;
                 }
                 else levelId = element.LevelId;
 
