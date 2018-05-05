@@ -18,11 +18,11 @@ using ut = Shared.Util;
 using op = Shared.Output;
 using tr = Shared.Transformation;
 using mp = Shared.MyMepUtils;
-using pd = PED.ParameterData;
-using pdef = PED.ParameterDefinition;
-using pl = PED.ParameterList;
+using pd = MEPUtils.PED.ParameterData;
+using pdef = MEPUtils.PED.ParameterDefinition;
+using pl = MEPUtils.PED.ParameterList;
 
-namespace PED
+namespace MEPUtils.PED
 {
     public class InitPED
     {
