@@ -13,7 +13,7 @@ using op = Shared.Output;
 using tr = Shared.Transformation;
 using mp = Shared.MyMepUtils;
 
-namespace PlaceSupport
+namespace MEPUtils.PlaceSupport
 {
     public class PlaceSupport
     {

@@ -104,6 +104,13 @@
     <Compile Include="05 ConnectConnectors\ConnectConnectors.cs" />
     <Compile Include="06 PipeInsulationVisibility\PipeInsulationVisibility.cs" />
     <Compile Include="07 PED\PED.cs" />
+    <Compile Include="08 PlaceSupport\PlaceSupport.cs" />
+    <Compile Include="08 PlaceSupport\SupportChooser.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="08 PlaceSupport\SupportChooser.Designer.cs">
+      <DependentUpon>SupportChooser.cs</DependentUpon>
+    </Compile>
     <Compile Include="MEPUtilsClass.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="MEPUtils.cs">
@@ -142,6 +149,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="03 PipeCreator\PipeTypeSelector.resx">
       <DependentUpon>PipeTypeSelector.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="08 PlaceSupport\SupportChooser.resx">
+      <DependentUpon>SupportChooser.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MEPUtils.resx">
       <DependentUpon>MEPUtils.cs</DependentUpon>

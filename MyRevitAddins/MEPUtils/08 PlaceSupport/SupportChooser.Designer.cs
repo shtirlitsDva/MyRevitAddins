@@ -1,4 +1,4 @@
-﻿namespace PlaceSupport
+﻿namespace MEPUtils.PlaceSupport
 {
     partial class SupportChooser
     {

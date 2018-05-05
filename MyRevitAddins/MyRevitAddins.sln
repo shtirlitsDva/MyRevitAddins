@@ -11,8 +11,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GeneralStabilityPrime", "Ge
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RibbonPanel", "RibbonPanel\RibbonPanel.csproj", "{54CE8CFC-0BE2-40BF-8C60-E732FCF5A896}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlaceSupport", "PlaceSupport\PlaceSupport.csproj", "{D20177D9-4439-4C89-9231-B4EB8418301B}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MEPUtils", "MEPUtils\MEPUtils.csproj", "{51413598-89E7-48B9-A192-8087207AC1A7}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PDFExporter", "PDFExporter\PDFExporter.csproj", "{8241CA55-0163-471E-97ED-ADC4E40C3E86}"
@@ -67,18 +65,6 @@ Global
 		{54CE8CFC-0BE2-40BF-8C60-E732FCF5A896}.Release|Any CPU.Deploy.0 = Release|Any CPU
 		{54CE8CFC-0BE2-40BF-8C60-E732FCF5A896}.Release|x64.ActiveCfg = Release|x64
 		{54CE8CFC-0BE2-40BF-8C60-E732FCF5A896}.Release|x64.Build.0 = Release|x64
-		{D20177D9-4439-4C89-9231-B4EB8418301B}.Debug via Revit Add-In Manager|Any CPU.ActiveCfg = Debug|Any CPU
-		{D20177D9-4439-4C89-9231-B4EB8418301B}.Debug via Revit Add-In Manager|Any CPU.Build.0 = Debug|Any CPU
-		{D20177D9-4439-4C89-9231-B4EB8418301B}.Debug via Revit Add-In Manager|x64.ActiveCfg = Debug|x64
-		{D20177D9-4439-4C89-9231-B4EB8418301B}.Debug via Revit Add-In Manager|x64.Build.0 = Debug|x64
-		{D20177D9-4439-4C89-9231-B4EB8418301B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D20177D9-4439-4C89-9231-B4EB8418301B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D20177D9-4439-4C89-9231-B4EB8418301B}.Debug|x64.ActiveCfg = Debug|x64
-		{D20177D9-4439-4C89-9231-B4EB8418301B}.Debug|x64.Build.0 = Debug|x64
-		{D20177D9-4439-4C89-9231-B4EB8418301B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D20177D9-4439-4C89-9231-B4EB8418301B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D20177D9-4439-4C89-9231-B4EB8418301B}.Release|x64.ActiveCfg = Release|x64
-		{D20177D9-4439-4C89-9231-B4EB8418301B}.Release|x64.Build.0 = Release|x64
 		{51413598-89E7-48B9-A192-8087207AC1A7}.Debug via Revit Add-In Manager|Any CPU.ActiveCfg = Debug|Any CPU
 		{51413598-89E7-48B9-A192-8087207AC1A7}.Debug via Revit Add-In Manager|Any CPU.Build.0 = Debug|Any CPU
 		{51413598-89E7-48B9-A192-8087207AC1A7}.Debug via Revit Add-In Manager|x64.ActiveCfg = Debug|Any CPU

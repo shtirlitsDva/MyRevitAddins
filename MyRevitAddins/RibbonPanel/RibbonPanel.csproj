@@ -108,10 +108,6 @@
       <Project>{8241ca55-0163-471e-97ed-adc4e40c3e86}</Project>
       <Name>PDFExporter</Name>
     </ProjectReference>
-    <ProjectReference Include="..\PlaceSupport\PlaceSupport.csproj">
-      <Project>{d20177d9-4439-4c89-9231-b4eb8418301b}</Project>
-      <Name>PlaceSupport</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Shared\Shared.csproj">
       <Project>{07df7622-cf58-4245-bf47-7cb8bf83520b}</Project>
       <Name>Shared</Name>

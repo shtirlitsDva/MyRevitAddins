@@ -12,11 +12,11 @@ using Autodesk.Revit.DB;
 using Autodesk.Revit.DB.Plumbing;
 using Autodesk.Revit.UI;
 //using adWin = Autodesk.Windows;
-using PlaceSupport;
 using cn = MEPUtils.ConnectConnectors;
 using ped = MEPUtils.PED.InitPED;
 using mep = MEPUtils.MEPUtilsClass;
 using pdf = PDFExporter.PDFExporter;
+using sup = MEPUtils.PlaceSupport.PlaceSupport;
 
 #endregion
 
@@ -175,7 +175,7 @@ More than two elements selected + CTRL
     {
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
-            Result result = PlaceSupport.PlaceSupport.StartPlaceSupportsProcedure(commandData);
+            Result result = sup.StartPlaceSupportsProcedure(commandData);
             return result;
         }
     }
