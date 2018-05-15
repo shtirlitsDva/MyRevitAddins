@@ -40,7 +40,7 @@ namespace MEPUtils.CreateInstrumentation
                 //If true use another axis to define point
                 Plane plane;
 
-                if (c1.Origin.Y.Equalz(c2.Origin.Y, ut._epx) && c1.Origin.Z.Equalz(c2.Origin.Z, ut._epx))
+                if (ut.Compare(c1.Origin.Y, c2.Origin.Y) == 0 && ut.Compare(c1.Origin.Z, c2.Origin.Z) == 0)
                     plane = Plane.CreateByThreePoints(c1.Origin, c2.Origin, new XYZ(c1.Origin.X, c1.Origin.Y + 5, c1.Origin.Z));
                 else
                     plane = Plane.CreateByThreePoints(c1.Origin, c2.Origin, new XYZ(c1.Origin.X + 5, c1.Origin.Y, c1.Origin.Z));
@@ -57,6 +57,7 @@ namespace MEPUtils.CreateInstrumentation
                 _02_DirectionSelector ds = new _02_DirectionSelector(new List<string> { "Top", "Bottom", "Front", "Back", "Left", "Right" });
                 ut.InfoMsg(ds.strTR);
 
+                //SKETCHPOINT NEEEEEEEDS TRANSACTION --- enclose code in transaction
 
                 return Result.Succeeded;
             }
@@ -65,6 +66,7 @@ namespace MEPUtils.CreateInstrumentation
 
             catch (Exception ex)
             {
+                throw new Exception(ex.Message);
                 return Result.Failed;
             }
         }
