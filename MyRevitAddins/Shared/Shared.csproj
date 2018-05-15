@@ -84,6 +84,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BaseFormTableLayoutPanel_BasicList.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="BaseFormTableLayoutPanel_BasicList.Designer.cs">
+      <DependentUpon>BaseFormTableLayoutPanel_BasicList.cs</DependentUpon>
+    </Compile>
     <Compile Include="clipper.cs" />
     <Compile Include="FileReader.cs" />
     <Compile Include="MyUtils.cs" />
@@ -99,6 +105,11 @@
   <ItemGroup>
     <None Include="app.config" />
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="BaseFormTableLayoutPanel_BasicList.resx">
+      <DependentUpon>BaseFormTableLayoutPanel_BasicList.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

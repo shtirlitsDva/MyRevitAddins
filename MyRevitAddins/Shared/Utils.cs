@@ -26,8 +26,8 @@ namespace Shared
     public static class Util
     {
         #region Geometrical Comparison
-        //const double _eps = 1.0e-9; //Original tolerance
-        const double _eps = 0.00328; //Tolerance equal to 1 mm
+        public const double _epx = 1.0e-9; //Original tolerance
+        public const double _eps = 0.00328; //Tolerance equal to 1 mm
 
         public static double Eps => _eps;
 
@@ -57,7 +57,7 @@ namespace Shared
             return IsZero(b - a, tolerance);
         }
 
-        public static bool Equalz(this double a, double b, double tolerance)
+        public static bool Equalz(this double a, double b, double tolerance = _eps)
         {
             return IsZero(b - a, tolerance);
         }
