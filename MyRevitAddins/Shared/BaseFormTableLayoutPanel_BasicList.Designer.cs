@@ -1,6 +1,6 @@
 ﻿namespace Shared
 {
-    partial class BaseFormTableLayoutPanel_BasicList
+    partial class BaseFormTableLayoutPanel_Basic
     {
         /// <summary>
         /// Required designer variable.

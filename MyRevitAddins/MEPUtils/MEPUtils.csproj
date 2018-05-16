@@ -112,12 +112,7 @@
       <DependentUpon>SupportChooser.cs</DependentUpon>
     </Compile>
     <Compile Include="09 CreateInstrumentation\01 CreateInstrumentation.cs" />
-    <Compile Include="09 CreateInstrumentation\02 DirectionSelector.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="09 CreateInstrumentation\02 DirectionSelector.Designer.cs">
-      <DependentUpon>02 DirectionSelector.cs</DependentUpon>
-    </Compile>
+    <Compile Include="09 CreateInstrumentation\03 ListsAndDicts.cs" />
     <Compile Include="MEPUtilsClass.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="MEPUtils.cs">

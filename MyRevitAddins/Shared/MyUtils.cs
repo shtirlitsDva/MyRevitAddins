@@ -697,4 +697,41 @@ namespace Shared
             else return null;
         }
     }
+
+    public class Dbg
+    {
+        /// <summary>
+        /// This method is used to place an adaptive family which helps in debugging
+        /// </summary>
+        /// <param name="typeName"></param>
+        /// <param name="p1"></param>
+        /// <param name="p2"></param>
+        /// <returns></returns>
+        public static FamilyInstance PlaceAdaptiveFamilyInstance(Document doc, string famAndTypeName, XYZ p1, XYZ p2)
+        {
+            //Get the symbol
+            ElementParameterFilter filter = Filter.ParameterValueFilter(famAndTypeName,
+                BuiltInParameter.SYMBOL_FAMILY_AND_TYPE_NAMES_PARAM); //Hardcoded until implements
+
+            FamilySymbol markerSymbol =
+                new FilteredElementCollector(doc).WherePasses(filter)
+                    .Cast<FamilySymbol>()
+                    .FirstOrDefault();
+
+            // Create a new instance of an adaptive component family
+            FamilyInstance instance = AdaptiveComponentInstanceUtils.CreateAdaptiveComponentInstance(doc,
+                markerSymbol);
+
+            // Get the placement points of this instance
+            IList<ElementId> placePointIds = new List<ElementId>();
+            placePointIds = AdaptiveComponentInstanceUtils.GetInstancePlacementPointElementRefIds(instance);
+            // Set the position of each placement point
+            ReferencePoint point1 = doc.GetElement(placePointIds[0]) as ReferencePoint;
+            point1.Position = p1;
+            ReferencePoint point2 = doc.GetElement(placePointIds[1]) as ReferencePoint;
+            point2.Position = p2;
+
+            return instance;
+        }
+    }
 }

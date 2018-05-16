@@ -11,6 +11,8 @@ using fi = Shared.Filter;
 using ut = Shared.Util;
 using tr = Shared.Transformation;
 using mp = Shared.MyMepUtils;
+using lad = MEPUtils.CreateInstrumentation.ListsAndDicts;
+using dbg = Shared.Dbg;
 
 namespace MEPUtils.CreateInstrumentation
 {
@@ -24,40 +26,77 @@ namespace MEPUtils.CreateInstrumentation
 
             try
             {
-                //Select the pipe to operate on
-                var selectedPipe = ut.SelectSingleElementOfType(uidoc, typeof(Pipe),
-                    "Select a pipe where to place a support!", false);
-                //Get end connectors
-                var conQuery = (from Connector c in mp.GetALLConnectorsFromElements(selectedPipe)
-                                where (int)c.ConnectorType == 1
-                                select c).ToList();
+                using (TransactionGroup txGp = new TransactionGroup(doc))
+                {
+                    txGp.Start("Create Instrumentation!");
 
-                Connector c1 = conQuery.First();
-                Connector c2 = conQuery.Last();
+                    Pipe selectedPipe;
+                    XYZ iP;
 
-                //Define a plane by three points
-                //Detect if the pipe concides with X-axis
-                //If true use another axis to define point
-                Plane plane;
+                    using (Transaction trans1 = new Transaction(doc))
+                    {
+                        trans1.Start("SelectPipePoint");
+                        (selectedPipe, iP) = SelectPipePoint(doc, uidoc);
+                        trans1.Commit();
+                    }
 
-                if (ut.Compare(c1.Origin.Y, c2.Origin.Y) == 0 && ut.Compare(c1.Origin.Z, c2.Origin.Z) == 0)
-                    plane = Plane.CreateByThreePoints(c1.Origin, c2.Origin, new XYZ(c1.Origin.X, c1.Origin.Y + 5, c1.Origin.Z));
-                else
-                    plane = Plane.CreateByThreePoints(c1.Origin, c2.Origin, new XYZ(c1.Origin.X + 5, c1.Origin.Y, c1.Origin.Z));
+                    string direction;
 
-                //Set view sketch plane to the be the created plane
-                var sp = SketchPlane.Create(doc, plane);
-                uidoc.ActiveView.SketchPlane = sp;
-                //Get a 3d point by picking a point
-                XYZ point_in_3d = null;
-                try {point_in_3d = uidoc.Selection.PickPoint("Please pick a point on the plane defined by the selected face");}
-                catch (OperationCanceledException) {}
+                    //Select the direction to create in
+                    BaseFormTableLayoutPanel_Basic ds = new BaseFormTableLayoutPanel_Basic(lad.Directions());
+                    ds.ShowDialog();
+                    direction = ds.strTR;
+                    //ut.InfoMsg(ds.strTR);
 
-                //Select the direction to create in
-                _02_DirectionSelector ds = new _02_DirectionSelector(new List<string> { "Top", "Bottom", "Front", "Back", "Left", "Right" });
-                ut.InfoMsg(ds.strTR);
+                    string PipeTypeName;
 
-                //SKETCHPOINT NEEEEEEEDS TRANSACTION --- enclose code in transaction
+                    //Select type of Olet
+                    BaseFormTableLayoutPanel_Basic oletSelector = new BaseFormTableLayoutPanel_Basic(lad.PipeTypeByOlet());
+                    oletSelector.ShowDialog();
+                    PipeTypeName = oletSelector.strTR;
+                    //ut.InfoMsg(PipeTypeName);
+
+                    PipeType pipeType = fi.GetElements<PipeType>(doc, PipeTypeName, BuiltInParameter.SYMBOL_NAME_PARAM).First();
+
+                    FamilyInstance olet;
+
+                    XYZ dirPoint = null;
+
+                    using (Transaction trans2 = new Transaction(doc))
+                    {
+                        trans2.Start("Create Olet");
+
+                        switch (direction)
+                        {
+                            case "Top":
+                                dirPoint = new XYZ(iP.X, iP.Y, iP.Z + 5);
+                                break;
+                            case "Bottom":
+                                dirPoint = new XYZ(iP.X, iP.Y, iP.Z - 5);
+                                break;
+                            case "Front":
+                                dirPoint = new XYZ(iP.X, iP.Y - 5, iP.Z);
+                                break;
+                            case "Back":
+                                dirPoint = new XYZ(iP.X, iP.Y + 5, iP.Z);
+                                break;
+                            case "Left":
+                                dirPoint = new XYZ(iP.X - 5, iP.Y, iP.Z);
+                                break;
+                            case "Right":
+                                dirPoint = new XYZ(iP.X + 5, iP.Y, iP.Z);
+                                break;
+                            default:
+                                break;
+                        }
+
+                        dbg.PlaceAdaptiveFamilyInstance(doc, "Marker Line: Red", iP, dirPoint);
+
+                        trans2.Commit();
+                    }
+
+                    txGp.Assimilate();
+                }
 
                 return Result.Succeeded;
             }
@@ -69,6 +108,41 @@ namespace MEPUtils.CreateInstrumentation
                 throw new Exception(ex.Message);
                 return Result.Failed;
             }
+        }
+
+        private static (Pipe pipe, XYZ point) SelectPipePoint(Document doc, UIDocument uidoc)
+        {
+            //Select the pipe to operate on
+            var selectedPipe = ut.SelectSingleElementOfType(uidoc, typeof(Pipe),
+                "Select a pipe where to place a support!", false);
+            //Get end connectors
+            var conQuery = (from Connector c in mp.GetALLConnectorsFromElements(selectedPipe)
+                            where (int)c.ConnectorType == 1
+                            select c).ToList();
+
+            Connector c1 = conQuery.First();
+            Connector c2 = conQuery.Last();
+
+            //Define a plane by three points
+            //Detect if the pipe concides with X-axis
+            //If true use another axis to define point
+            Plane plane;
+
+            if (ut.Compare(c1.Origin.Y, c2.Origin.Y) == 0 && ut.Compare(c1.Origin.Z, c2.Origin.Z) == 0)
+                plane = Plane.CreateByThreePoints(c1.Origin, c2.Origin, new XYZ(c1.Origin.X, c1.Origin.Y + 5, c1.Origin.Z));
+            else
+                plane = Plane.CreateByThreePoints(c1.Origin, c2.Origin, new XYZ(c1.Origin.X + 5, c1.Origin.Y, c1.Origin.Z));
+
+            //Set view sketch plane to the be the created plane
+            var sp = SketchPlane.Create(doc, plane);
+            uidoc.ActiveView.SketchPlane = sp;
+            //Get a 3d point by picking a point
+            XYZ point_in_3d = null;
+            try { point_in_3d = uidoc.Selection.PickPoint("Please pick a point on the plane defined by the selected face"); }
+            catch (OperationCanceledException) { }
+
+
+            return ((Pipe)selectedPipe, point_in_3d);
         }
 
         private static (Pipe pipe, Element element) PlaceSupports(ExternalCommandData commandData, string name)
