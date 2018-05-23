@@ -28,26 +28,29 @@ namespace MEPUtils
 
             if (selection.Count == 0) //If no elements selected, connect ALL connectors to ALL connectors
             {
-                //To filter out PCF_ELEM_EXCL set to true
-                //Collecting pipes, fittings, accessories
-                //Filtering out those with "true" value
-                //The Guid below is for PCF_ELEM_EXCL
-                FilteredElementCollector col1 = new FilteredElementCollector(doc);
-                col1.WherePasses(
-                        new LogicalOrFilter(
-                            new List<ElementFilter>
-                            {
-                                new ElementCategoryFilter(BuiltInCategory.OST_PipeFitting),
-                                new ElementCategoryFilter(BuiltInCategory.OST_PipeAccessory),
-                                new ElementClassFilter(typeof (Pipe))
-                            })).WherePasses(fi.ParameterValueGenericFilter(doc, false, new Guid("CC8EC292-226C-4677-A32D-10B9736BFC1A")));
-                var col2 = mp.GetElementsOfBuiltInCategory(doc, BuiltInCategory.OST_MechanicalEquipment);
+                //Argh! It seems Revit2019 doesn't break when connecting pipes at angle!!!
+                ////To filter out PCF_ELEM_EXCL set to true
+                ////Collecting pipes, fittings, accessories
+                ////Filtering out those with "true" value
+                ////The Guid below is for PCF_ELEM_EXCL
+                //var exclFilter = fi.ParameterValueGenericFilter(doc, 0, new Guid("CC8EC292-226C-4677-A32D-10B9736BFC1A"));
 
-                HashSet<Element> elements = new HashSet<Element>();
-                elements.UnionWith(col1);
-                elements.UnionWith(col2);
+                //FilteredElementCollector col1 = new FilteredElementCollector(doc);
+                //col1.WherePasses(
+                //        new LogicalOrFilter(
+                //            new List<ElementFilter>
+                //            {
+                //                new ElementCategoryFilter(BuiltInCategory.OST_PipeFitting),
+                //                new ElementCategoryFilter(BuiltInCategory.OST_PipeAccessory),
+                //                new ElementClassFilter(typeof (Pipe))
+                //            }));//.WherePasses(exclFilter);
+                //var col2 = mp.GetElementsOfBuiltInCategory(doc, BuiltInCategory.OST_MechanicalEquipment);
 
-                var allConnectors = mp.GetALLConnectorsFromElements(elements).Where(c => !c.IsConnected).ToList();
+                //HashSet<Element> elements = new HashSet<Element>();
+                //elements.UnionWith(col1);
+                //elements.UnionWith(col2);
+
+                var allConnectors = mp.GetALLConnectorsInDocument(doc).Where(c => !c.IsConnected).ToList();
 
                 //Employ reverse iteration to be able to modify the collection while iterating over it
                 for (int i = allConnectors.Count - 1; i > 0; i--)
