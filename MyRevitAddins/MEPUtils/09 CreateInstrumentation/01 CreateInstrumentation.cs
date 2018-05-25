@@ -119,7 +119,7 @@ namespace MEPUtils.CreateInstrumentation
 
                         //Find the connector from the dummy pipe at intersection
                         var cons = mp.GetALLConnectorsFromElements(dummyPipe);
-                        Connector con = cons.Where(c => c.Origin.IsEqual(iP)).FirstOrDefault();
+                        Connector con = cons.Where(c => c.Origin.IsEquals(iP)).FirstOrDefault();
 
                         Element element = doc.Create.NewTakeoffFitting(con, (MEPCurve)dummyPipe);
 

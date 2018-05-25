@@ -314,10 +314,9 @@ namespace Shared
             return Math.Round(number, decimals, MidpointRounding.AwayFromZero);
         }
 
-        public static bool IsEqual(this XYZ p, XYZ q)
-        {
-            return 0 == Util.Compare(p, q);
-        }
+        public static bool IsEqual(this XYZ p, XYZ q) => 0 == Util.Compare(p, q);
+
+        public static bool IsEqual(this Connector c1, Connector c2) => c1.Origin.IsEqual(c2.Origin);
     }
 
     public static class Transformation

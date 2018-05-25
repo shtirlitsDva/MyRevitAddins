@@ -10,6 +10,7 @@ using fi = Shared.Filter;
 using ut = Shared.Util;
 using op = Shared.Output;
 using mp = Shared.MyMepUtils;
+using Shared;
 //using mySettings = GeneralStability.Properties.Settings;
 
 namespace MEPUtils
@@ -19,7 +20,9 @@ namespace MEPUtils
         public static void ConnectTheConnectors(ExternalCommandData commandData)
         {
             bool ctrl = false;
+            bool shft = false;
             if ((int)Keyboard.Modifiers == 2) ctrl = true;
+            if ((int)Keyboard.Modifiers == 4) shft = true;
 
             var app = commandData.Application;
             var uiDoc = app.ActiveUIDocument;
@@ -62,6 +65,17 @@ namespace MEPUtils
                     Connector c2 = (from Connector c in allConnectors where ut.IsEqual(c.Origin, c1.Origin) select c).FirstOrDefault();
                     c2?.ConnectTo(c1);
                 }
+            }
+
+            else if (selection.Count == 1 && shft)
+            {
+                ElementId hangerId = selection.First();
+                Element hanger = doc.GetElement(hangerId);
+                Shared.Cons cons = new Shared.Cons(hanger);
+
+                var allConnectors = mp.GetALLConnectorsInDocument(doc).ToList();
+
+                var query = allConnectors.Select(c => c.IsEqual(cons.Primary));
             }
 
             else if (selection.Count == 1 && !ctrl) //If one and no CTRL key, connect the element
