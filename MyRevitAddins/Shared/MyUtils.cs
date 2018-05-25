@@ -17,14 +17,55 @@ namespace Shared
 {
     public static class Filter
     {
-        public static ElementParameterFilter ParameterValueFilter(string valueQualifier, BuiltInParameter parameterName)
+        public static ElementParameterFilter ParameterValueFilter(string valueQualifier, BuiltInParameter bip)
         {
-            BuiltInParameter testParam = parameterName;
-            ParameterValueProvider pvp = new ParameterValueProvider(new ElementId((int)testParam));
+            ParameterValueProvider pvp = new ParameterValueProvider(new ElementId((int)bip));
             FilterStringRuleEvaluator str = new FilterStringEquals();
             FilterStringRule paramFr = new FilterStringRule(pvp, str, valueQualifier, false);
             ElementParameterFilter epf = new ElementParameterFilter(paramFr);
             return epf;
+        }
+
+        /// <summary>
+        /// Generic Parameter value filter. An attempt to write a generic method,
+        /// that returns an element filter consumed by FilteredElementCollector.
+        /// </summary>
+        /// <typeparam name="T1">Type of the parameter VALUE to filter by.</typeparam>
+        /// <typeparam name="T2">Type of the PARAMETER to filter.</typeparam>
+        /// <param name="value">Currently: string, bool.</param>
+        /// <param name="parameterId">Currently: Guid, BuiltInCategory.</param>
+        /// <returns>ElementParameterFilter consumed by FilteredElementCollector.</returns>
+        public static ElementParameterFilter ParameterValueGenericFilter<T1, T2>(Document doc, T1 value, T2 parameterId)
+        {
+            //Initialize ParameterValueProvider
+            ParameterValueProvider pvp = null;
+            if (parameterId is BuiltInParameter bip) pvp = new ParameterValueProvider(new ElementId((int)bip));
+            else if (parameterId is Guid guid)
+            {
+                SharedParameterElement spe = SharedParameterElement.Lookup(doc, guid);
+                pvp = new ParameterValueProvider(spe.Id);
+            }
+            else throw new NotImplementedException("ParameterValueGenericFilter: T2 (parameter) type not implemented!");
+
+            //Branch off to value types
+            if (value is string str)
+            {
+                FilterStringRuleEvaluator fsrE = new FilterStringEquals();
+                FilterStringRule fsr = new FilterStringRule(pvp, fsrE, str, false);
+                return new ElementParameterFilter(fsr);
+            }
+            else if (value is bool bol)
+            {
+                int _value;
+
+                if (bol == true) _value = 1;
+                else _value = 0;
+
+                FilterNumericRuleEvaluator fnrE = new FilterNumericEquals();
+                FilterIntegerRule fir = new FilterIntegerRule(pvp, fnrE, _value);
+                return new ElementParameterFilter(fir);
+            }
+            else throw new NotImplementedException("ParameterValueGenericFilter: T1 (value) type not implemented!");
         }
 
         public static LogicalOrFilter FamSymbolsAndPipeTypes()
