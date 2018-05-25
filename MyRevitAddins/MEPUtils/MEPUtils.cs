@@ -60,7 +60,8 @@ namespace MEPUtils
                 {3, PipeCreator.CreatePipeFromConnector },
                 {4, FlangeCreator.CreateFlangeForElements },
                 {5, TotalLineLength.TotalLineLengths },
-                {6, CreateInstrumentation.StartCreatingInstrumentation.StartCreating }
+                {6, CreateInstrumentation.StartCreatingInstrumentation.StartCreating },
+                {7, PAHangers.CalculateHeight.Calculate }
             };
 
             //Place names for methods in this dict
@@ -72,7 +73,8 @@ namespace MEPUtils
                 {3, "Create pipe from connector" },
                 {4, "Create flanges" },
                 {5, "Total length of lines" },
-                {6, "Create Instrument!" }
+                {6, "Create Instrument!" },
+                {7, "Hanger height calc" }
             };
 
             for (int i = 0; i < methodDict.Count; i++)
