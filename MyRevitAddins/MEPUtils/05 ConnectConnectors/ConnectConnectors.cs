@@ -71,11 +71,32 @@ namespace MEPUtils
             {
                 ElementId hangerId = selection.First();
                 Element hanger = doc.GetElement(hangerId);
-                Shared.Cons cons = new Shared.Cons(hanger);
+                Cons cons = new Cons(hanger);
 
                 var allConnectors = mp.GetALLConnectorsInDocument(doc).ToList();
 
-                var query = allConnectors.Where(c => c.IsEqual(cons.Primary));
+                var query = allConnectors.Where(c => c.IsEqual(cons.Primary)).Where(c => c.Owner.Id.IntegerValue != hanger.Id.IntegerValue).ToList();
+
+                //Disconnect connectors
+                Connector con1 = query.FirstOrDefault();
+                if (con1 == null) throw new Exception("Detection of existing con1 failed!");
+                Connector con2 = query.LastOrDefault();
+                if (con2 == null) throw new Exception("Detection of existing con2 failed!");
+
+                if (con1.IsConnectedTo(con2)) con1.DisconnectFrom(con2);
+                doc.Regenerate();
+
+                //Start connecting hanger connetors
+                //https://stackoverflow.com/questions/7572640/how-do-i-know-if-two-vectors-are-near-parallel
+                var detectOpposite1 = query.Where(c => cons.Primary.CoordinateSystem.BasisZ.DotProduct(c.CoordinateSystem.BasisZ) < -1 + ut._epx);
+                Connector opposite1 = detectOpposite1.FirstOrDefault();
+                if (opposite1 == null) throw new Exception("Opposite primary detection failed!");
+                cons.Primary.ConnectTo(opposite1);
+
+                var detectOpposite2 = query.Where(c => cons.Secondary.CoordinateSystem.BasisZ.DotProduct(c.CoordinateSystem.BasisZ) < -1 + ut._epx);
+                Connector opposite2 = detectOpposite2.FirstOrDefault();
+                if (opposite2 == null) throw new Exception("Opposite secondary detection failed!");
+                cons.Secondary.ConnectTo(opposite2);
             }
 
             else if (selection.Count == 1 && !ctrl) //If one and no CTRL key, connect the element
