@@ -75,7 +75,7 @@ namespace MEPUtils
 
                 var allConnectors = mp.GetALLConnectorsInDocument(doc).ToList();
 
-                var query = allConnectors.Select(c => c.IsEqual(cons.Primary));
+                var query = allConnectors.Where(c => c.IsEqual(cons.Primary));
             }
 
             else if (selection.Count == 1 && !ctrl) //If one and no CTRL key, connect the element
