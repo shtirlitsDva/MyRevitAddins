@@ -6,6 +6,7 @@ using System.Reflection;
 using MoreLinq;
 using System.Text;
 using System.IO;
+using System.Windows.Input;
 using System.Threading.Tasks;
 using Autodesk.Revit.UI;
 using Autodesk.Revit.DB;
@@ -72,6 +73,11 @@ namespace MEPUtils.PED
 
         public static void SetWallThicknessPipes(HashSet<Element> elements)
         {
+            bool ctrl = false;
+            //bool shft = false;
+            if ((int)Keyboard.Modifiers == 2) ctrl = true;
+            //if ((int)Keyboard.Modifiers == 4) shft = true;
+
             //Wallthicknes for pipes are hardcoded until further notice
             //Values are from 10216-2 - Seamless steel tubes for pressure purposes
             //TODO: Implement a way to read values from excel
@@ -127,8 +133,9 @@ namespace MEPUtils.PED
 
             foreach (Element element in elements)
             {
+                //if ctrl is pressed, overwrite, else append
                 //See if the parameter already has value and skip element if it has
-                if (element.get_Parameter(wallThkDef.Guid).HasValue) continue;
+                if (!ctrl) if (element.get_Parameter(wallThkDef.Guid).HasValue) continue;
 
                 //Retrieve the correct wallthickness from dictionary and set it on the element
                 Parameter wallThkParameter = element.get_Parameter(wallThkDef.Guid);
