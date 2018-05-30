@@ -65,6 +65,8 @@ namespace MEPUtils
                     Connector c2 = (from Connector c in allConnectors where ut.IsEqual(c.Origin, c1.Origin) select c).FirstOrDefault();
                     c2?.ConnectTo(c1);
                 }
+
+                return;
             }
 
             else if (selection.Count == 1 && shft)
@@ -97,6 +99,8 @@ namespace MEPUtils
                 Connector opposite2 = detectOpposite2.FirstOrDefault();
                 if (opposite2 == null) throw new Exception("Opposite secondary detection failed!");
                 cons.Secondary.ConnectTo(opposite2);
+
+                return;
             }
 
             else if (selection.Count == 1 && !ctrl) //If one and no CTRL key, connect the element
@@ -126,6 +130,8 @@ namespace MEPUtils
                 {
                     c1.ConnectTo(c2);
                 }
+
+                return;
             }
 
             else if ((selection.Count == 1 || selection.Count > 2) && ctrl) //If one and CTRL key is pressed, disconnect the element
@@ -144,6 +150,8 @@ namespace MEPUtils
                         }
                     }
                 }
+
+                return;
             }
 
             //Connect or disconnect the connectors of selection
@@ -167,6 +175,7 @@ namespace MEPUtils
                     }
                 }
 
+                return;
             }
             else throw new Exception("Not correct amount of elements selected for the command! Choose none, one or two!");
         }
