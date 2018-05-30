@@ -110,9 +110,6 @@ namespace MEPUtils
         private static void InsulatePipe(Document doc, Element e, DataTable insPar)
         {
             #region Initialization
-            //Read configuration data
-            //var insPar = GetInsulationParameters();
-
             //Read common configuration values
             string sysAbbr = e.get_Parameter(BuiltInParameter.RBS_DUCT_PIPE_SYSTEM_ABBREVIATION_PARAM).AsString();
 
@@ -135,6 +132,7 @@ namespace MEPUtils
                 {
                     ElementId id = InsulationLiningBase.GetInsulationIds(doc, e.Id).FirstOrDefault();
                     if (id == null) return;
+                    if (specifiedInsulationThickness.Equalz(0, ut._epx)) { doc.Delete(id); return; }
                     PipeInsulation insulation = doc.GetElement(id) as PipeInsulation;
                     if (insulation == null) return;
                     insulation.Thickness = specifiedInsulationThickness;
@@ -149,6 +147,9 @@ namespace MEPUtils
                 PipeInsulationType pipeInsulationType =
                     fi.GetElements<PipeInsulationType>(doc, pipeInsulationName, BuiltInParameter.ALL_MODEL_TYPE_NAME).FirstOrDefault();
                 if (pipeInsulationType == null) throw new Exception($"No pipe insulation type named {pipeInsulationName}!");
+
+                //Test to see if the specified insulation is 0
+                if (specifiedInsulationThickness.Equalz(0, ut._epx)) return;
 
                 //Create insulation
                 PipeInsulation.Create(doc, e.Id, pipeInsulationType.Id, specifiedInsulationThickness);
@@ -265,7 +266,7 @@ namespace MEPUtils
                 //Local method to insulate Tees
                 void InsulateTee()
                 {
-                    if (specifiedInsulationThickness == 0) return;
+                    if (specifiedInsulationThickness.Equalz(0, ut._epx)) return;
 
                     //Set insulation
                     Parameter par1 = e.LookupParameter("Insulation Projected");
