@@ -19,11 +19,37 @@ namespace MEPUtils.CreateInstrumentation
             {
                 {"Weldolet", "Stålrør, sømløse weldolet" },
                 {"Sockolet", "Stålrør, sømløse sockolet" },
-                {"Termolomme", "Stålrør, sømløse termolomme" },
+                {"Termolomme", "Stålrør, sømløse, termolomme" },
                 {"Intet olet", "Stålrør, sømløse" }
             };
         }
 
+        public static Dictionary<int, double> StdPipeSchedule()
+        {
+            return new Dictionary<int, double>()
+            {
+                [10] = 17.2,
+                [15] = 21.3,
+                [20] = 26.9,
+                [25] = 33.7,
+                [32] = 42.4,
+                [40] = 48.3,
+                [50] = 60.3,
+                [65] = 76.1,
+                [80] = 88.9,
+                [100] = 114.3,
+                [125] = 139.7,
+                [150] = 168.3,
+                [200] = 219.1,
+                [250] = 273.0,
+                [300] = 323.9,
+                [350] = 355.6,
+                [400] = 406.4,
+                [450] = 457.0,
+                [500] = 508.0,
+                [600] = 610.0
+            };
+        }
         /// <summary>
         /// Returns a list of valid general Pipe DNs
         /// </summary>
@@ -52,9 +78,9 @@ namespace MEPUtils.CreateInstrumentation
         }
 
         /// <summary>
-        /// Returns a list of valid Weldolet NDs
+        /// Returns a list of valid Sockolet NDs
         /// </summary>
-        public static List<string> WList()
+        public static List<string> SockoletList()
         {
             return new List<string>()
             {
@@ -65,9 +91,9 @@ namespace MEPUtils.CreateInstrumentation
         }
 
         /// <summary>
-        /// Returns a list of valid Sockolet NDs
+        /// Returns a list of valid Weldolet NDs
         /// </summary>
-        public static List<string> SList()
+        public static List<string> WeldoletList()
         {
             return new List<string>()
             {

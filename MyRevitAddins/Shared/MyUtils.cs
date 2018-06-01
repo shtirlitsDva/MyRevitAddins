@@ -309,7 +309,7 @@ namespace Shared
             return Math.Round(number, 3, MidpointRounding.AwayFromZero);
         }
 
-        public static double Round(this Double number, int decimals)
+        public static double Round(this Double number, int decimals = 0)
         {
             return Math.Round(number, decimals, MidpointRounding.AwayFromZero);
         }

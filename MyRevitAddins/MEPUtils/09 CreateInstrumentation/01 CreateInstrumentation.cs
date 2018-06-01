@@ -58,26 +58,28 @@ namespace MEPUtils.CreateInstrumentation
                     PipeType pipeType = fi.GetElements<PipeType>(doc, PipeTypeName, BuiltInParameter.SYMBOL_NAME_PARAM).First();
 
                     //Limit sizes for Olets
-                    List<string> sizeList;
+                    List<string> sizeListing;
                     switch (oletSelector.strTR)
                     {
-                        case "Weldolet":
-                            sizeList = lad.WList();
+                        case "Stålrør, sømløse, termolomme":
+                        case "Stålrør, sømløse sockolet":
+                            sizeListing = lad.SockoletList();
                             break;
-                        case "Sockolet":
-                            sizeList = lad.SList();
+                        case "Stålrør, sømløse weldolet":
+                            sizeListing = lad.WeldoletList();
                             break;
                         default:
-                            sizeList = lad.SizeList();
+                            sizeListing = lad.SizeList();
                             break;
                     }
 
-                    BaseFormTableLayoutPanel_Basic sizeSelector = new BaseFormTableLayoutPanel_Basic(sizeList);
+                    BaseFormTableLayoutPanel_Basic sizeSelector = new BaseFormTableLayoutPanel_Basic(sizeListing);
                     sizeSelector.ShowDialog();
                     double size = double.Parse(sizeSelector.strTR);
 
                     FamilyInstance olet;
                     XYZ dirPoint = null;
+
                     ElementId curLvlId = selectedPipe.ReferenceLevel.Id;
                     ElementId curPipingSysTypeId = selectedPipe.MEPSystem.GetTypeId();
                     ElementId curPipeTypeId = pipeType.Id;
@@ -116,14 +118,14 @@ namespace MEPUtils.CreateInstrumentation
                         //Change size of the pipe
                         Parameter par = dummyPipe.get_Parameter(BuiltInParameter.RBS_PIPE_DIAMETER_PARAM);
                         par.Set(size.MmToFt());
-
+                        
                         //Find the connector from the dummy pipe at intersection
                         var cons = mp.GetALLConnectorsFromElements(dummyPipe);
                         Connector con = cons.Where(c => c.Origin.IsEqual(iP)).FirstOrDefault();
 
-                        Element element = doc.Create.NewTakeoffFitting(con, (MEPCurve)dummyPipe);
+                        olet = doc.Create.NewTakeoffFitting(con, (MEPCurve)selectedPipe);
 
-                        //dbg.PlaceAdaptiveFamilyInstance(doc, "Marker Line: Red", iP, dirPoint);
+                        //dbg.PlaceAdaptiveFamilyInstance(doc, "Marker Line: Red", offsetPoint, dirPoint);
 
                         trans2.Commit();
                     }
