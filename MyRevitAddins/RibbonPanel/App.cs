@@ -72,6 +72,9 @@ One element selected -> Connect the element to adjacent
 
 One element selected + CTRL -> Disconnect the element
 
+One element selected + SHIFT -> Connect a special pipe accessory
+                                support if placed at connection
+
 Two elements selected -> If disconnected - connect
                          If connected - disconnect
 
