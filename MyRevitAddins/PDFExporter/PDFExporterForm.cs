@@ -118,7 +118,7 @@ namespace PDFExporter
                 pm.SelectNewPrintDriver("Bluebeam PDF");
                 var paperSizes = pm.PaperSizes;
 
-                string title = doc.Title.Remove(doc.Title.Length-4);
+                string title = doc.Title; //<- THIS CAN CAUSE PROBLEMS RECOGNISING THE ORIGINAL FILE NAME
 
                 foreach (ViewSheet sheet in sheetSet.Views)
                 {
@@ -130,9 +130,9 @@ namespace PDFExporter
 
                     if (revision.IsNullOrEmpty())
                     {
-                        sheetFileName = sheet.SheetNumber + "-" + revision + " " + sheet.Name + ".pdf";
+                        sheetFileName = sheet.SheetNumber + "-" + revision + " - " + sheet.Name + ".pdf";
                     }
-                    else sheetFileName = sheet.SheetNumber + " " + sheet.Name + ".pdf";
+                    else sheetFileName = sheet.SheetNumber + " - " + sheet.Name + ".pdf";
 
                     fullSheetFileName = pathToExport + sheetFileName; //Used to copy files later
                     fileNamesDestination.Add(fullSheetFileName);
