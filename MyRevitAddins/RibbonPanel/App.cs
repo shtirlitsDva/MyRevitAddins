@@ -97,7 +97,7 @@ More than two elements selected + CTRL
 
             //PED
             data = new PushButtonData("PED", "PED", ExecutingAssemblyPath, "MyRibbonPanel.PEDclass");
-            data.ToolTip = myRibbonPanelToolTip;
+            data.ToolTip = "LMB: Append PED data.\nCtrl+LMB: Overwrite PED data.";
             data.Image = NewBitmapImage(exe, "MyRibbonPanel.Resources.ImgPED16.png");
             data.LargeImage = NewBitmapImage(exe, "MyRibbonPanel.Resources.ImgPED32.png");
             PushButton PED = rvtRibbonPanel.AddItem(data) as PushButton;
