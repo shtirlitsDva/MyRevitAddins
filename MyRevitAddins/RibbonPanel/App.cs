@@ -213,6 +213,14 @@ More than two elements selected + CTRL
                     trans2.Commit();
                 }
 
+                using (Transaction trans3 = new Transaction(doc))
+                {
+                    trans3.Start("Populate Olets");
+                    ped ped = new ped();
+                    ped.processOlets(commandData);
+                    trans3.Commit();
+                }
+
                 txGp.Assimilate();
             }
 

@@ -144,7 +144,7 @@ namespace MEPUtils.PED
                 ConnectorSet connectorSet = mp.GetConnectorSet(element);
 
                 Connector c1 = null;
-                
+
                 //Filter out non-end types of connectors
                 c1 = (from Connector connector in connectorSet
                       where connector.ConnectorType.ToString().Equals("End")
@@ -160,7 +160,7 @@ namespace MEPUtils.PED
         internal void CreateBinding(string domain, string tempFile, Application app, Document doc, CategorySet catSet, StringBuilder sbFeedback)
         {
             //Parameter query
-            
+
             var query = from pdef p in new pl().PL where string.Equals(p.Domain, domain) select p;
             //Create parameter bindings
             try
@@ -193,6 +193,45 @@ namespace MEPUtils.PED
             catch (Exception ex)
             {
                 throw new Exception(ex.Message);
+            }
+        }
+
+        public void processOlets(ExternalCommandData commandData)
+        {
+            Document doc = commandData.Application.ActiveUIDocument.Document;
+
+            //Collect and filter Olets
+            ElementParameterFilter epf = fi.ParameterValueGenericFilter(doc, "Olet", new Guid("e0baa750-22ba-4e60-9466-803137a0cba8"));
+            FilteredElementCollector col = new FilteredElementCollector(doc);
+            var olets = col.OfCategory(BuiltInCategory.OST_PipeFitting).OfClass(typeof(FamilyInstance)).WherePasses(epf).ToHashSet();
+
+            foreach (Element olet in olets)
+            {
+                Cons cons = mp.GetConnectors(olet);
+                Connector prim = cons.Primary;
+                //Test if Connector is connected
+                if (prim.IsConnected)
+                {
+                    ConnectorSet refConSet = prim.AllRefs;
+                    var refCons = mp.GetAllConnectorsFromConnectorSet(refConSet);
+                    Connector refCon = refCons.Where(x => isPipe(x.Owner)).SingleOrDefault();
+                    if (refCon == null) throw new Exception("refCon Owner cannot find a Pipe!");
+                    Pipe pipe = (Pipe)refCon.Owner;
+                    double dia = pipe.get_Parameter(BuiltInParameter.RBS_PIPE_OUTER_DIAMETER).AsDouble().FtToMm().Round(1);
+                    Parameter weldsToPar = olet.get_Parameter(new Guid("c3401bb0-2e6c-4831-9917-73d6784a4a6f"));
+                    weldsToPar.Set("ø" + dia.ToString());
+                }
+            }
+
+            bool isPipe(Element elem)
+            {
+                switch (elem)
+                {
+                    case Pipe pipe:
+                        return true;
+                    default:
+                        return false;
+                }
             }
         }
     }

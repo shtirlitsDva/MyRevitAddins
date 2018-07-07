@@ -561,6 +561,13 @@ namespace Shared
             return (from Connector c in GetConnectorSet(element) select c).ToHashSet();
         }
 
+        public static HashSet<Connector> GetAllConnectorsFromConnectorSet(ConnectorSet conSet)
+        {
+            IList<Connector> list = new List<Connector>();
+            foreach (Connector con in conSet) list.Add(con);
+            return list.ToHashSet();
+        }
+
         public static HashSet<Connector> GetALLConnectorsInDocument(Document doc)
         {
             return (from e in GetElementsWithConnectors(doc) from Connector c in GetConnectorSet(e) select c).ToHashSet();
