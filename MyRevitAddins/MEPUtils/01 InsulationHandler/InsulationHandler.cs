@@ -11,10 +11,10 @@ using Autodesk.Revit.DB.Structure;
 using Autodesk.Revit.DB.Mechanical;
 using Shared;
 using fi = Shared.Filter;
-using ut = Shared.Util;
+using ut = Shared.BuildingCoder.Util;
 using op = Shared.Output;
 using tr = Shared.Transformation;
-using mp = Shared.MyMepUtils;
+using mp = Shared.MepUtils;
 using dh = Shared.DataHandler;
 
 namespace MEPUtils
@@ -42,9 +42,9 @@ namespace MEPUtils
             Document doc = cData.Application.ActiveUIDocument.Document;
 
             //Collect all the elements to insulate
-            var pipes = fi.GetElements(doc, BuiltInCategory.OST_PipeCurves);
-            var fittings = fi.GetElements(doc, BuiltInCategory.OST_PipeFitting);
-            var accessories = fi.GetElements(doc, BuiltInCategory.OST_PipeAccessory);
+            var pipes = fi.GetElements<Element, BuiltInCategory>(doc, BuiltInCategory.OST_PipeCurves);
+            var fittings = fi.GetElements<Element, BuiltInCategory>(doc, BuiltInCategory.OST_PipeFitting);
+            var accessories = fi.GetElements<Element, BuiltInCategory>(doc, BuiltInCategory.OST_PipeAccessory);
 
             var insPar = GetInsulationParameters();
             var insSet = GetInsulationSettings(doc);
@@ -145,7 +145,7 @@ namespace MEPUtils
                 string pipeInsulationName = dh.ReadParameterFromDataTable(sysAbbr, insPar, "Type");
                 if (pipeInsulationName == null) return;
                 PipeInsulationType pipeInsulationType =
-                    fi.GetElements<PipeInsulationType>(doc, pipeInsulationName, BuiltInParameter.ALL_MODEL_TYPE_NAME).FirstOrDefault();
+                    fi.GetElements<PipeInsulationType, BuiltInParameter>(doc, BuiltInParameter.ALL_MODEL_TYPE_NAME, pipeInsulationName).FirstOrDefault();
                 if (pipeInsulationType == null) throw new Exception($"No pipe insulation type named {pipeInsulationName}!");
 
                 //Test to see if the specified insulation is 0
@@ -255,7 +255,7 @@ namespace MEPUtils
                         string pipeInsulationName = dh.ReadParameterFromDataTable(sysAbbr, insPar, "Type");
                         if (pipeInsulationName == null) return;
                         PipeInsulationType pipeInsulationType =
-                            fi.GetElements<PipeInsulationType>(doc, pipeInsulationName, BuiltInParameter.ALL_MODEL_TYPE_NAME).FirstOrDefault();
+                            fi.GetElements<PipeInsulationType, BuiltInParameter>(doc, BuiltInParameter.ALL_MODEL_TYPE_NAME, pipeInsulationName).FirstOrDefault();
                         if (pipeInsulationType == null) throw new Exception($"No pipe insulation type named {pipeInsulationName}!");
 
                         //Create insulation
@@ -357,7 +357,7 @@ namespace MEPUtils
                     string pipeInsulationName = dh.ReadParameterFromDataTable(sysAbbr, insPar, "Type");
                     if (pipeInsulationName == null) return;
                     PipeInsulationType pipeInsulationType =
-                        fi.GetElements<PipeInsulationType>(doc, pipeInsulationName, BuiltInParameter.ALL_MODEL_TYPE_NAME).FirstOrDefault();
+                        fi.GetElements<PipeInsulationType, BuiltInParameter>(doc, BuiltInParameter.ALL_MODEL_TYPE_NAME, pipeInsulationName).FirstOrDefault();
                     if (pipeInsulationType == null) throw new Exception($"No pipe insulation type named {pipeInsulationName}!");
 
                     //Create insulation
@@ -377,11 +377,11 @@ namespace MEPUtils
         {
             Document doc = cData.Application.ActiveUIDocument.Document;
 
-            var allInsulation = fi.GetElements<PipeInsulation>(doc);
+            var allInsulation = fi.GetElements<PipeInsulation, BuiltInParameter>(doc, BuiltInParameter.INVALID);
             if (allInsulation == null) return Result.Failed;
             else if (allInsulation.Count == 0) return Result.Failed;
 
-            var fittings = fi.GetElements(doc, BuiltInCategory.OST_PipeFitting).Cast<FamilyInstance>().ToHashSet();
+            var fittings = fi.GetElements<FamilyInstance, BuiltInCategory>(doc, BuiltInCategory.OST_PipeFitting).ToHashSet();
 
 
 

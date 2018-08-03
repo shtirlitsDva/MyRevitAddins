@@ -11,10 +11,10 @@ using Autodesk.Revit.DB.Structure;
 using Autodesk.Revit.UI.Selection;
 using Shared;
 using fi = Shared.Filter;
-using ut = Shared.Util;
+using ut = Shared.BuildingCoder.Util;
 using op = Shared.Output;
 using tr = Shared.Transformation;
-using mp = Shared.MyMepUtils;
+using mp = Shared.MepUtils;
 
 namespace MEPUtils
 {
@@ -38,11 +38,8 @@ namespace MEPUtils
                 string familyAndTypeName = fcc.flangeName;
 
                 //Collect the family symbol of the flange
-                var collector = new FilteredElementCollector(doc);
-                var symbolFilter = fi.ParameterValueFilter(familyAndTypeName,
-                    BuiltInParameter.SYMBOL_FAMILY_AND_TYPE_NAMES_PARAM);
-                var classFilter = fi.FamSymbolsAndPipeTypes();
-                Element familySymbol = collector.WherePasses(classFilter).WherePasses(symbolFilter).FirstElement();
+                Element familySymbol = 
+                    fi.GetElements<FamilySymbol, BuiltInParameter>(doc, BuiltInParameter.SYMBOL_FAMILY_AND_TYPE_NAMES_PARAM, familyAndTypeName).First();
 
                 using (Transaction trans = new Transaction(doc))
                 {
@@ -120,9 +117,10 @@ namespace MEPUtils
                     select c).FirstOrDefault();
 
                 //Get the typeId of most used pipeType
-                var filter = fi.ParameterValueFilter("Stålrør, sømløse", BuiltInParameter.ALL_MODEL_TYPE_NAME);
-                FilteredElementCollector col = new FilteredElementCollector(doc);
-                var pipeType = col.OfClass(typeof(PipeType)).WherePasses(filter).FirstElement();
+                //var filter = fi.ParameterValueFilter("Stålrør, sømløse", BuiltInParameter.ALL_MODEL_TYPE_NAME);
+                //FilteredElementCollector col = new FilteredElementCollector(doc);
+                //var pipeType = col.OfClass(typeof(PipeType)).WherePasses(filter).FirstElement();
+                var pipeType = fi.GetElements<PipeType, BuiltInParameter>(doc, BuiltInParameter.ALL_MODEL_TYPE_NAME, "Stålrør, sømløse").FirstOrDefault();
 
                 //Create new pipe
                 Pipe newPipe = Pipe.Create(doc, pipingSystemTypeId, pipeType.Id, element.LevelId, flangeCons.Secondary.Origin, modCon2.Origin);
@@ -206,7 +204,7 @@ namespace MEPUtils
                 // if pipe is straight up and down, 
                 // kludge it my way else
 
-                if (dir.X.Round3() == 0 && dir.Y.Round3() == 0 && dir.Z.Round3() != 0)
+                if (dir.X.Round(3) == 0 && dir.Y.Round(3) == 0 && dir.Z.Round(3) != 0)
                 {
                     XYZ yaxis = new XYZ(0.0, 1.0, 0.0);
 

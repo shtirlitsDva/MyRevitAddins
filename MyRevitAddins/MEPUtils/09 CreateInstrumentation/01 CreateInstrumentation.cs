@@ -8,9 +8,9 @@ using Autodesk.Revit.DB.Plumbing;
 using Autodesk.Revit.DB.Structure;
 using Shared;
 using fi = Shared.Filter;
-using ut = Shared.Util;
+using ut = Shared.BuildingCoder.Util;
 using tr = Shared.Transformation;
-using mp = Shared.MyMepUtils;
+using mp = Shared.MepUtils;
 using lad = MEPUtils.CreateInstrumentation.ListsAndDicts;
 using dbg = Shared.Dbg;
 
@@ -55,7 +55,7 @@ namespace MEPUtils.CreateInstrumentation
                     oletSelector.ShowDialog();
                     PipeTypeName = oletSelector.strTR;
                     //ut.InfoMsg(PipeTypeName);
-                    PipeType pipeType = fi.GetElements<PipeType>(doc, PipeTypeName, BuiltInParameter.SYMBOL_NAME_PARAM).First();
+                    PipeType pipeType = fi.GetElements<PipeType, BuiltInParameter>(doc, BuiltInParameter.SYMBOL_NAME_PARAM, PipeTypeName).First();
 
                     //Limit sizes for Olets
                     List<string> sizeListing;
@@ -141,7 +141,6 @@ namespace MEPUtils.CreateInstrumentation
             catch (Exception ex)
             {
                 throw new Exception(ex.Message);
-                return Result.Failed;
             }
         }
 
@@ -229,17 +228,20 @@ namespace MEPUtils.CreateInstrumentation
                 }
 
                 //Get family symbol
-                FilteredElementCollector collector = new FilteredElementCollector(doc);
-                ElementParameterFilter filter = fi.ParameterValueFilter(name, BuiltInParameter.SYMBOL_FAMILY_AND_TYPE_NAMES_PARAM);
-                LogicalOrFilter classFilter = fi.FamSymbolsAndPipeTypes();
-                FamilySymbol familySymbol = (FamilySymbol)collector.WherePasses(classFilter).WherePasses(filter).FirstOrDefault();
-                if (familySymbol == null) throw new Exception("No SUPPORT FamilySymbol loaded in project!");
+                //FilteredElementCollector collector = new FilteredElementCollector(doc);
+                //ElementParameterFilter filter = fi.ParameterValueFilter(name, BuiltInParameter.SYMBOL_FAMILY_AND_TYPE_NAMES_PARAM);
+                //LogicalOrFilter classFilter = fi.FamSymbolsAndPipeTypes();
+                //FamilySymbol familySymbol = (FamilySymbol)collector.WherePasses(classFilter).WherePasses(filter).FirstOrDefault();
+
+                FamilySymbol famSym = 
+                    fi.GetElements<FamilySymbol, BuiltInParameter>(doc, BuiltInParameter.SYMBOL_FAMILY_AND_TYPE_NAMES_PARAM, name).FirstOrDefault();
+                if (famSym == null) throw new Exception("No SUPPORT FamilySymbol loaded in project!");
 
                 //The strange symbol activation thingie...
                 //See: http://thebuildingcoder.typepad.com/blog/2014/08/activate-your-family-symbol-before-using-it.html
-                if (!familySymbol.IsActive)
+                if (!famSym.IsActive)
                 {
-                    familySymbol.Activate();
+                    famSym.Activate();
                     doc.Regenerate();
                 }
 
@@ -247,7 +249,7 @@ namespace MEPUtils.CreateInstrumentation
                 Level level = (Level)doc.GetElement(selectedPipe.LevelId);
 
                 //Create the support instance
-                Element support = doc.Create.NewFamilyInstance(point_in_3d, familySymbol, level, StructuralType.NonStructural);
+                Element support = doc.Create.NewFamilyInstance(point_in_3d, famSym, level, StructuralType.NonStructural);
 
                 //Get the connector from the support
                 ConnectorSet connectorSetToAdd = mp.GetConnectorSet(support);

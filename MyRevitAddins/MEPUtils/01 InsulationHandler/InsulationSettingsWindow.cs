@@ -16,10 +16,10 @@ using Autodesk.Revit.DB.Structure;
 using Shared;
 using Color = System.Drawing.Color;
 using fi = Shared.Filter;
-using ut = Shared.Util;
+using ut = Shared.BuildingCoder.Util;
 using op = Shared.Output;
 using tr = Shared.Transformation;
-using mp = Shared.MyMepUtils;
+using mp = Shared.MepUtils;
 
 namespace MEPUtils
 {
@@ -62,12 +62,12 @@ namespace MEPUtils
             }
 
             //Collect all pipe fittings and accessories names and types to determine number of rows
-            var fittings = fi.GetElements(doc, BuiltInCategory.OST_PipeFitting)
+            var fittings = fi.GetElements<Element, BuiltInCategory>(doc, BuiltInCategory.OST_PipeFitting)
                 .DistinctBy(d => d.get_Parameter(BuiltInParameter.ELEM_FAMILY_AND_TYPE_PARAM).AsValueString())
                 .OrderBy(o => o.get_Parameter(BuiltInParameter.ELEM_FAMILY_AND_TYPE_PARAM).AsValueString())
                 .ToList();
 
-            var accessories = fi.GetElements(doc, BuiltInCategory.OST_PipeAccessory)
+            var accessories = fi.GetElements<Element, BuiltInCategory>(doc, BuiltInCategory.OST_PipeAccessory)
                 .DistinctBy(d => d.get_Parameter(BuiltInParameter.ELEM_FAMILY_AND_TYPE_PARAM).AsValueString())
                 .OrderBy(o => o.get_Parameter(BuiltInParameter.ELEM_FAMILY_AND_TYPE_PARAM).AsValueString())
                 .ToList();

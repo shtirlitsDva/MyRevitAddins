@@ -9,9 +9,9 @@ using Shared;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.UI.Selection;
 using fi = Shared.Filter;
-using ut = Shared.Util;
+using ut = Shared.BuildingCoder.Util;
 using op = Shared.Output;
-using mp = Shared.MyMepUtils;
+using mp = Shared.MepUtils;
 //using mySettings = GeneralStability.Properties.Settings;
 
 namespace MEPUtils
@@ -43,7 +43,7 @@ namespace MEPUtils
                 else ut.ErrorMsg(el.Name.ToString() + " is not implemented!");
             }
 
-            ut.InfoMsg(totalLength.FtToMm().Round4().ToString());
+            ut.InfoMsg(totalLength.FtToMm().Round(4).ToString());
 
             return Result.Succeeded;
         }

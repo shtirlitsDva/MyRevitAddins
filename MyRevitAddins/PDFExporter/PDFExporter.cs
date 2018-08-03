@@ -10,10 +10,10 @@ using Autodesk.Revit.DB.Structure;
 using Autodesk.Revit.UI.Selection;
 using Shared;
 using fi = Shared.Filter;
-using ut = Shared.Util;
+using ut = Shared.BuildingCoder.Util;
 using op = Shared.Output;
 using tr = Shared.Transformation;
-using mp = Shared.MyMepUtils;
+using mp = Shared.MepUtils;
 
 namespace PDFExporter
 {

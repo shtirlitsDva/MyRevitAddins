@@ -8,10 +8,10 @@ using Autodesk.Revit.DB.Plumbing;
 using Autodesk.Revit.DB.Structure;
 using Shared;
 using fi = Shared.Filter;
-using ut = Shared.Util;
+using ut = Shared.BuildingCoder.Util;
 using op = Shared.Output;
 using tr = Shared.Transformation;
-using mp = Shared.MyMepUtils;
+using mp = Shared.MepUtils;
 
 namespace MEPUtils.PlaceSupport
 {
@@ -140,10 +140,12 @@ namespace MEPUtils.PlaceSupport
                 }
 
                 //Get family symbol
-                FilteredElementCollector collector = new FilteredElementCollector(doc);
-                ElementParameterFilter filter = fi.ParameterValueFilter(name, BuiltInParameter.SYMBOL_FAMILY_AND_TYPE_NAMES_PARAM);
-                LogicalOrFilter classFilter = fi.FamSymbolsAndPipeTypes();
-                FamilySymbol familySymbol = (FamilySymbol)collector.WherePasses(classFilter).WherePasses(filter).FirstOrDefault();
+                //FilteredElementCollector collector = new FilteredElementCollector(doc);
+                //ElementParameterFilter filter = fi.ParameterValueGenericFilter(doc, BuiltInParameter.SYMBOL_FAMILY_AND_TYPE_NAMES_PARAM, name);
+                //LogicalOrFilter classFilter = fi.FamSymbolsAndPipeTypes();
+                //FamilySymbol familySymbol = (FamilySymbol)collector.WherePasses(classFilter).WherePasses(filter).FirstOrDefault();
+                FamilySymbol familySymbol = 
+                    Filter.GetElements<FamilySymbol, BuiltInParameter>(doc, BuiltInParameter.SYMBOL_FAMILY_AND_TYPE_NAMES_PARAM, name).FirstOrDefault();
                 if (familySymbol == null) throw new Exception("No SUPPORT FamilySymbol loaded in project!");
 
                 //The strange symbol activation thingie...

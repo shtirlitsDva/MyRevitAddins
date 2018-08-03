@@ -146,14 +146,9 @@ namespace PDFExporter
 
                     pm.PrintToFileName = printfilename;
                     #endregion
-
-                    var filterSheetNumber = fi.ParameterValueFilter(sheet.SheetNumber, BuiltInParameter.SHEET_NUMBER);
-                    FilteredElementCollector bCol = new FilteredElementCollector(doc);
-                    var titleBlock = bCol.OfCategory(BuiltInCategory.OST_TitleBlocks)
-                        .OfClass(typeof(FamilyInstance))
-                        .WherePasses(filterSheetNumber)
-                        .Cast<FamilyInstance>()
-                        .FirstOrDefault();
+                    
+                    FamilyInstance titleBlock = 
+                        fi.GetElements<FamilyInstance, BuiltInParameter>(doc, BuiltInParameter.SHEET_NUMBER, sheet.SheetNumber).FirstOrDefault();
 
                     var widthPar = titleBlock.get_Parameter(BuiltInParameter.SHEET_WIDTH);
                     var width = Convert.ToInt32(widthPar.AsDouble().FtToMm().Round(0));
@@ -201,7 +196,7 @@ namespace PDFExporter
                 else throw new Exception("Filename handling FAILED AGAIN!!!!!!!");
                 
             }
-            else Util.ErrorMsg("The copying of files failed for some reason!");
+            else Shared.BuildingCoder.Util.ErrorMsg("The copying of files failed for some reason!");
         }
 
         /// <summary>
@@ -289,13 +284,8 @@ namespace PDFExporter
 
             foreach (ViewSheet sheet in sheetSet.Views)
             {
-                var filterSheetNumber = fi.ParameterValueFilter(sheet.SheetNumber, BuiltInParameter.SHEET_NUMBER);
-                FilteredElementCollector bCol = new FilteredElementCollector(doc);
-                var titleBlock = bCol.OfCategory(BuiltInCategory.OST_TitleBlocks)
-                    .OfClass(typeof(FamilyInstance))
-                    .WherePasses(filterSheetNumber)
-                    .Cast<FamilyInstance>()
-                    .FirstOrDefault();
+                FamilyInstance titleBlock =
+                        fi.GetElements<FamilyInstance, BuiltInParameter>(doc, BuiltInParameter.SHEET_NUMBER, sheet.SheetNumber).FirstOrDefault();
 
                 var widthPar = titleBlock.get_Parameter(BuiltInParameter.SHEET_WIDTH);
                 var width = Convert.ToInt32(widthPar.AsDouble().FtToMm().Round(0));

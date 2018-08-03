@@ -15,10 +15,10 @@ using Autodesk.Revit.DB.Structure;
 using Autodesk.Revit.ApplicationServices;
 using Shared;
 using fi = Shared.Filter;
-using ut = Shared.Util;
+using ut = Shared.BuildingCoder.Util;
 using op = Shared.Output;
 using tr = Shared.Transformation;
-using mp = Shared.MyMepUtils;
+using mp = Shared.MepUtils;
 using pd = MEPUtils.PED.ParameterData;
 using pdef = MEPUtils.PED.ParameterDefinition;
 using pl = MEPUtils.PED.ParameterList;
@@ -66,7 +66,7 @@ namespace MEPUtils.PED
         public Result PopulateParameters(ExternalCommandData commandData)
         {
             Document doc = commandData.Application.ActiveUIDocument.Document;
-            HashSet<Element> elements = fi.GetElements<Pipe>(doc).Cast<Element>().ToHashSet();
+            HashSet<Element> elements = fi.GetElements<Pipe, BuiltInCategory>(doc, BuiltInCategory.INVALID).Cast<Element>().ToHashSet();
             SetWallThicknessPipes(elements);
             return Result.Succeeded;
         }

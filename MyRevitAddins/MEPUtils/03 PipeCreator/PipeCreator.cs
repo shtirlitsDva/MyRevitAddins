@@ -11,10 +11,10 @@ using Autodesk.Revit.UI.Selection;
 using System.Windows.Input;
 using Shared;
 using fi = Shared.Filter;
-using ut = Shared.Util;
+using ut = Shared.BuildingCoder.Util;
 using op = Shared.Output;
 using tr = Shared.Transformation;
-using mp = Shared.MyMepUtils;
+using mp = Shared.MepUtils;
 
 namespace MEPUtils
 {
@@ -70,7 +70,7 @@ namespace MEPUtils
                 XYZ pointInSpace = origin.Add(direction);
 
                 //Get the typeId of most used pipeType
-                var filter = fi.ParameterValueFilter(pipeTypeName, BuiltInParameter.ALL_MODEL_TYPE_NAME);
+                var filter = fi.ParameterValueGenericFilter(doc, pipeTypeName, BuiltInParameter.ALL_MODEL_TYPE_NAME);
                 FilteredElementCollector col = new FilteredElementCollector(doc);
                 var pipeType = col.OfClass(typeof(PipeType)).WherePasses(filter).ToElements().FirstOrDefault();
                 if (pipeType == null) throw new Exception("Collection of PipeType failed!");

@@ -8,10 +8,10 @@ using Autodesk.Revit.DB.Plumbing;
 using Autodesk.Revit.DB.Structure;
 using Shared;
 using fi = Shared.Filter;
-using ut = Shared.Util;
+using ut = Shared.BuildingCoder.Util;
 using op = Shared.Output;
 using tr = Shared.Transformation;
-using mp = Shared.MyMepUtils;
+using mp = Shared.MepUtils;
 
 namespace MEPUtils.PAHangers
 {
@@ -42,12 +42,12 @@ namespace MEPUtils.PAHangers
 
                     string lvlName = lvlSelector.strTR;
 
-                    var topLvl = fi.GetElements<Level>(doc, lvlName, BuiltInParameter.DATUM_TEXT).First();
+                    var topLvl = fi.GetElements<Level, BuiltInParameter>(doc, BuiltInParameter.DATUM_TEXT, lvlName).First();
                     double topLvlElevation = topLvl.Elevation;
 
                     //Collect elements
-                    var springs = fi.GetElements<FamilyInstance>(doc, "Spring Hanger - Simple", BuiltInParameter.ELEM_FAMILY_PARAM);
-                    var rigids = fi.GetElements<FamilyInstance>(doc, "Rigid Hanger - Simple", BuiltInParameter.ELEM_FAMILY_PARAM);
+                    var springs = fi.GetElements<FamilyInstance, BuiltInParameter>(doc, BuiltInParameter.ELEM_FAMILY_PARAM, "Spring Hanger - Simple");
+                    var rigids = fi.GetElements<FamilyInstance, BuiltInParameter>(doc, BuiltInParameter.ELEM_FAMILY_PARAM, "Rigid Hanger - Simple");
                     HashSet<Element> allHangers = new HashSet<Element>();
                     allHangers.UnionWith(springs.Cast<Element>().ToHashSet());
                     allHangers.UnionWith(rigids.Cast<Element>().ToHashSet());
