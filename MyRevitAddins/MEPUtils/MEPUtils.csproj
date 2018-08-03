@@ -130,12 +130,6 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Shared\Shared.csproj">
-      <Project>{07df7622-cf58-4245-bf47-7cb8bf83520b}</Project>
-      <Name>Shared</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="app.config" />
     <None Include="01 InsulationHandler\Insulation.xlsx" />
     <None Include="packages.config" />
