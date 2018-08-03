@@ -52,15 +52,7 @@ namespace Shared
             return IsZero(b - a);
         }
 
-        public static bool IsEqual(double a, double b, double tolerance)
-        {
-            return IsZero(b - a, tolerance);
-        }
-
-        public static bool Equalz(this double a, double b, double tolerance = _eps)
-        {
-            return IsZero(b - a, tolerance);
-        }
+        
 
         public static int Compare(double a, double b)
         {
