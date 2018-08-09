@@ -36,11 +36,18 @@ namespace MEPUtils
                     break;
                 }
 
-                if (el is DetailCurve dc) totalLength += dc.GeometryCurve.Length;
-
-                else if (el is ModelCurve mc) totalLength += mc.GeometryCurve.Length;
-                
-                else ut.ErrorMsg(el.Name.ToString() + " is not implemented!");
+                switch (el)
+                {
+                    case DetailCurve dc:
+                        totalLength += dc.GeometryCurve.Length;
+                        break;
+                    case ModelCurve mc:
+                        totalLength += mc.GeometryCurve.Length;
+                        break;
+                    default:
+                        ut.ErrorMsg(el.Name.ToString() + " is not implemented!");
+                        break;
+                }
             }
 
             ut.InfoMsg(totalLength.FtToMm().Round(4).ToString());
