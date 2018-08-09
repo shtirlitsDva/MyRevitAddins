@@ -21,38 +21,40 @@ namespace MEPUtils
             var uiDoc = app.ActiveUIDocument;
             var doc = uiDoc.Document;
 
+            //Get Pipe Insulation Category reference
             Category pipeInsCat = Category.GetCategory(doc, BuiltInCategory.OST_PipeInsulations);
-
+            //Get current view reference
             View curView = doc.ActiveView;
 
-            //Handle built in category Pipe Insulations
-            if (curView.GetCategoryHidden(pipeInsCat.Id))
-            {
-                curView.SetCategoryHidden(pipeInsCat.Id, false);
-            }
-            else
-            {
-                curView.SetCategoryHidden(pipeInsCat.Id, true);
-            }
-
-            //Handle custom Insulation category I use in Tees
+            //Get custom Insulation category I use in Tees
             Category pipeFitCat = Category.GetCategory(doc, BuiltInCategory.OST_PipeFitting);
-
             var pipeFitCatSubs = pipeFitCat.SubCategories;
             var insulCat = (from Category cat in pipeFitCatSubs where cat.Name == "Insulation" select cat).FirstOrDefault();
 
             if (insulCat != null)
             {
-                if (!curView.GetCategoryHidden(pipeInsCat.Id))
+                if (curView.GetCategoryHidden(pipeInsCat.Id))
                 {
+                    curView.SetCategoryHidden(pipeInsCat.Id, false);
                     curView.SetCategoryHidden(insulCat.Id, false);
                 }
                 else
                 {
+                    curView.SetCategoryHidden(pipeInsCat.Id, true);
                     curView.SetCategoryHidden(insulCat.Id, true);
                 }
             }
-
+            else
+            {
+                if (curView.GetCategoryHidden(pipeInsCat.Id))
+                {
+                    curView.SetCategoryHidden(pipeInsCat.Id, false);
+                }
+                else
+                {
+                    curView.SetCategoryHidden(pipeInsCat.Id, true);
+                }
+            }
         }
     }
 }
