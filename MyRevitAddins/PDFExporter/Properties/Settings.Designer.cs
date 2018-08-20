@@ -8,42 +8,97 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace PDFExporter.Properties {
-    
-    
+namespace PDFExporter.Properties
+{
+
+
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "15.6.0.0")]
-    internal sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase {
-        
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "15.7.0.0")]
+    internal sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase
+    {
+
         private static Settings defaultInstance = ((Settings)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new Settings())));
-        
-        public static Settings Default {
-            get {
+
+        public static Settings Default
+        {
+            get
+            {
                 return defaultInstance;
             }
         }
-        
+
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string selectedSheetSet {
-            get {
+        public string selectedSheetSet
+        {
+            get
+            {
                 return ((string)(this["selectedSheetSet"]));
             }
-            set {
+            set
+            {
                 this["selectedSheetSet"] = value;
             }
         }
-        
+
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string selectedFolderToExportTo {
-            get {
+        public string selectedFolderToExportTo
+        {
+            get
+            {
                 return ((string)(this["selectedFolderToExportTo"]));
             }
-            set {
+            set
+            {
                 this["selectedFolderToExportTo"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool Setting_Colour_Colour
+        {
+            get
+            {
+                return ((bool)(this["Setting_Colour_Colour"]));
+            }
+            set
+            {
+                this["Setting_Colour_Colour"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool Setting_Colour_GrayScale
+        {
+            get
+            {
+                return ((bool)(this["Setting_Colour_GrayScale"]));
+            }
+            set
+            {
+                this["Setting_Colour_GrayScale"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool Setting_Colour_BlackWhite
+        {
+            get
+            {
+                return ((bool)(this["Setting_Colour_BlackWhite"]));
+            }
+            set
+            {
+                this["Setting_Colour_BlackWhite"] = value;
             }
         }
     }

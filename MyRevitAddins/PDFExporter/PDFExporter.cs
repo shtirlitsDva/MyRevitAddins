@@ -14,6 +14,7 @@ using ut = Shared.BuildingCoder.Util;
 using op = Shared.Output;
 using tr = Shared.Transformation;
 using mp = Shared.MepUtils;
+using mySettings = PDFExporter.Properties.Settings;
 
 namespace PDFExporter
 {
@@ -25,7 +26,7 @@ namespace PDFExporter
             {
                 PDFExporterForm ef = new PDFExporterForm(cData);
                 ef.ShowDialog();
-
+                mySettings.Default.Save();
                 return Result.Succeeded;
 
             }

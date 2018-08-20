@@ -54,6 +54,12 @@ namespace PDFExporter
             pathToExport = mySettings.Default.selectedFolderToExportTo;
             textBox2.Text = pathToExport;
 
+            //Init Settings
+            //Init Colour
+            radioButton1.Checked = mySettings.Default.Setting_Colour_Colour;
+            radioButton2.Checked = mySettings.Default.Setting_Colour_GrayScale;
+            radioButton3.Checked = mySettings.Default.Setting_Colour_BlackWhite;
+
 
             #region PaperSizeDictionary
             //Init papersize dict
@@ -146,8 +152,8 @@ namespace PDFExporter
 
                     pm.PrintToFileName = printfilename;
                     #endregion
-                    
-                    FamilyInstance titleBlock = 
+
+                    FamilyInstance titleBlock =
                         fi.GetElements<FamilyInstance, BuiltInParameter>(doc, BuiltInParameter.SHEET_NUMBER, sheet.SheetNumber).FirstOrDefault();
 
                     var widthPar = titleBlock.get_Parameter(BuiltInParameter.SHEET_WIDTH);
@@ -194,7 +200,7 @@ namespace PDFExporter
                     }
                 }
                 else throw new Exception("Filename handling FAILED AGAIN!!!!!!!");
-                
+
             }
             else Shared.BuildingCoder.Util.ErrorMsg("The copying of files failed for some reason!");
         }
@@ -214,7 +220,7 @@ namespace PDFExporter
                 {
                     break;
                 }
-                
+
                 if (numTries > 50) return false; //TODO: Set it to 1000
                 // Wait for the lock to be released
                 System.Threading.Thread.Sleep(300);
@@ -232,11 +238,11 @@ namespace PDFExporter
                 if (numTries > 1000) return false;
                 // Wait for the lock to be released
                 System.Threading.Thread.Sleep(300);
-                
+
             }
         }
 
-        private static (bool, bool) tryOpenFiles (string first, string second)
+        private static (bool, bool) tryOpenFiles(string first, string second)
         {
             bool firstOK = false;
             bool secondOK = false;
@@ -250,7 +256,7 @@ namespace PDFExporter
                     firstOK = true;
                 }
             }
-            catch (Exception){}
+            catch (Exception) { }
 
             try
             {
@@ -261,7 +267,7 @@ namespace PDFExporter
                     secondOK = true;
                 }
             }
-            catch (Exception){}
+            catch (Exception) { }
 
             return (firstOK, secondOK);
         }
@@ -314,7 +320,9 @@ namespace PDFExporter
                     pParams.Zoom = 100;
                     pParams.PageOrientation = PageOrientationType.Landscape;
                     pParams.PaperPlacement = PaperPlacementType.Center;
-                    pParams.ColorDepth = ColorDepthType.Color;
+                    if (radioButton1.Checked) pParams.ColorDepth = ColorDepthType.Color;
+                    else if (radioButton2.Checked) pParams.ColorDepth = ColorDepthType.GrayScale;
+                    else if (radioButton3.Checked) pParams.ColorDepth = ColorDepthType.BlackLine;
                     pParams.RasterQuality = RasterQualityType.Presentation;
                     pParams.HiddenLineViews = HiddenLineViewsType.VectorProcessing;
                     pParams.ViewLinksinBlue = false;
@@ -422,7 +430,24 @@ namespace PDFExporter
             return Columns[index - 1];
         }
 
+        private void radioButton1_CheckedChanged(object sender, EventArgs e)
+        {
+            if (radioButton1.Checked) { mySettings.Default.Setting_Colour_Colour = true; }
+            else mySettings.Default.Setting_Colour_Colour = false;
+        }
 
+        private void radioButton2_CheckedChanged(object sender, EventArgs e)
+        {
+            if (radioButton2.Checked) { mySettings.Default.Setting_Colour_GrayScale = true; }
+            else mySettings.Default.Setting_Colour_GrayScale = false;
+        }
+
+        private void radioButton3_CheckedChanged(object sender, EventArgs e)
+        {
+            if (radioButton3.Checked) { mySettings.Default.Setting_Colour_BlackWhite = true; }
+            else mySettings.Default.Setting_Colour_BlackWhite = false;
+        }
     }
 }
+
 
