@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Input;
-//using MoreLinq;
+using MoreLinq;
 using Autodesk.Revit.UI;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.DB.Plumbing;
@@ -29,7 +29,9 @@ namespace MEPUtils
             var doc = uiDoc.Document;
             var selection = uiDoc.Selection.GetElementIds();
 
-            if (selection.Count == 0) //If no elements selected, connect ALL connectors to ALL connectors
+            //If no elements selected, connect ALL connectors to ALL connectors
+            //Or if more than two -- connect to each other
+            if (selection.Count == 0 || selection.Count > 2)
             {
                 //Argh! It seems Revit2019 doesn't break when connecting pipes at angle!!!
                 ////To filter out PCF_ELEM_EXCL set to true
@@ -53,7 +55,12 @@ namespace MEPUtils
                 //elements.UnionWith(col1);
                 //elements.UnionWith(col2);
 
-                var allConnectors = mp.GetALLConnectorsInDocument(doc).Where(c => !c.IsConnected).ToList();
+                //When selection is 0
+                IList<Connector> allConnectors;
+                if (selection.Count == 0) allConnectors = mp.GetALLConnectorsInDocument(doc, true).Where(c => !c.IsConnected).ToList();
+                //Selection is more than 2
+                else allConnectors = mp.GetALLConnectorsFromElements((from ElementId id in selection select doc.GetElement(id)).ToHashSet()).ToList();
+                
 
                 //Employ reverse iteration to be able to modify the collection while iterating over it
                 for (int i = allConnectors.Count - 1; i > 0; i--)
@@ -107,7 +114,7 @@ namespace MEPUtils
             {
                 var elements = new HashSet<Element>(from ElementId id in selection select doc.GetElement(id));
                 var elementConnectors = mp.GetALLConnectorsFromElements(elements);
-                var allConnectors = mp.GetALLConnectorsInDocument(doc).Where(c => !c.IsConnected).ToList();
+                var allConnectors = mp.GetALLConnectorsInDocument(doc, true).Where(c => !c.IsConnected).ToList();
 
                 IList<Connector> list1 = new List<Connector>();
                 IList<Connector> list2 = new List<Connector>();
