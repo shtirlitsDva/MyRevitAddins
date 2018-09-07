@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Data;
 using System.Reflection;
+using System.Globalization;
 using MoreLinq;
 using System.Text;
 using System.IO;
@@ -200,6 +201,9 @@ namespace MEPUtils.PED
         {
             Document doc = commandData.Application.ActiveUIDocument.Document;
 
+            NumberFormatInfo nfi = new NumberFormatInfo();
+            nfi.NumberDecimalSeparator = ",";
+
             //Collect and filter Olets
             ElementParameterFilter epf = fi.ParameterValueGenericFilter(doc, "Olet", new Guid("e0baa750-22ba-4e60-9466-803137a0cba8"));
             FilteredElementCollector col = new FilteredElementCollector(doc);
@@ -219,7 +223,7 @@ namespace MEPUtils.PED
                     Pipe pipe = (Pipe)refCon.Owner;
                     double dia = pipe.get_Parameter(BuiltInParameter.RBS_PIPE_OUTER_DIAMETER).AsDouble().FtToMm().Round(1);
                     Parameter weldsToPar = olet.get_Parameter(new Guid("c3401bb0-2e6c-4831-9917-73d6784a4a6f"));
-                    weldsToPar.Set("ø" + dia.ToString());
+                    weldsToPar.Set("ø" + dia.ToString(nfi));
                 }
             }
 
