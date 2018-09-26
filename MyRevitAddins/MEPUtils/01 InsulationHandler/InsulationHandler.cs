@@ -47,9 +47,9 @@ namespace MEPUtils
             var accessories = fi.GetElements<Element, BuiltInCategory>(doc, BuiltInCategory.OST_PipeAccessory);
 
             //Filter out grouped items
-            pipes = pipes.ExceptWhere(e => e.GroupId == null).ToHashSet();
-            fittings = fittings.ExceptWhere(e => e.GroupId == null).ToHashSet();
-            accessories = accessories.ExceptWhere(e => e.GroupId == null).ToHashSet();
+            pipes = pipes.Where(e => e.GroupId.IntegerValue == -1).ToHashSet();
+            fittings = fittings.Where(e => e.GroupId.IntegerValue == -1).ToHashSet();
+            accessories = accessories.Where(e => e.GroupId.IntegerValue == -1).ToHashSet();
 
             var insPar = GetInsulationParameters();
             var insSet = GetInsulationSettings(doc);
