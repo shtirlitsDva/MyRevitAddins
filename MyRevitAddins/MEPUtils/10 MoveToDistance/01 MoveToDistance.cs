@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using MoreLinq;
 using Autodesk.Revit.UI;
+using Autodesk.Revit.UI.Selection;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.DB.Plumbing;
 using Autodesk.Revit.DB.Structure;
@@ -29,25 +30,16 @@ namespace MEPUtils.MoveToDistance
             {
                 using (TransactionGroup txGp = new TransactionGroup(doc))
                 {
-                    txGp.Start("Create Instrumentation!");
+                    txGp.Start("Move elements to distance!");
 
-                    Element elToMove;
+                    Selection selection = uidoc.Selection;
+                    var selIds = selection.GetElementIds();
+                    if (selIds.Count == 0) throw new Exception("Empty selection: must select element(s) to move first!");
 
-                    using (Transaction trans1 = new Transaction(doc))
-                    {
-                        trans1.Start("SelectElementToMove");
-                        elToMove = SelectElement(doc, uidoc, "Select element TO MOVE!");
-                        trans1.Commit();
-                    }
+                    HashSet<Element> elsToMove = selIds.Select(x => doc.GetElement(x)).ToHashSet();
 
-                    Element MoveToEl;
-
-                    using (Transaction trans2 = new Transaction(doc))
-                    {
-                        trans2.Start("SelectElementToMoveTo");
-                        MoveToEl = SelectElement(doc, uidoc, "Select element to MOVE TO!");
-                        trans2.Commit();
-                    }
+                    var elId = uidoc.Selection.PickObject(ObjectType.Element, "Select element to move to!");
+                    Element MoveToEl = doc.GetElement(elId);
 
                     double distanceToKeep;
 
@@ -57,19 +49,9 @@ namespace MEPUtils.MoveToDistance
                     distanceToKeep = double.Parse(ds.DistanceToKeep).MmToFt();
 
                     //Business logic to move but keep desired distance
-                    //Argh!!! too much typing!!!
-                    //TODO: Add a collection that holds all cons to Cons
-                    Cons toMoveConsCons = new Cons(elToMove);
-                    HashSet<Connector> toMoveCons = new HashSet<Connector>();
-                    if (toMoveConsCons.Primary != null) toMoveCons.Add(toMoveConsCons.Primary);
-                    if (toMoveConsCons.Secondary != null) toMoveCons.Add(toMoveConsCons.Secondary);
-                    if (toMoveConsCons.Tertiary != null) toMoveCons.Add(toMoveConsCons.Tertiary);
+                    HashSet<Connector> toMoveCons = Shared.MepUtils.GetALLConnectorsFromElements(elsToMove);
 
-                    Cons moveToConsCons = new Cons(MoveToEl);
-                    HashSet<Connector> moveToCons = new HashSet<Connector>();
-                    if (moveToConsCons.Primary != null) moveToCons.Add(moveToConsCons.Primary);
-                    if (moveToConsCons.Secondary != null) moveToCons.Add(moveToConsCons.Secondary);
-                    if (moveToConsCons.Tertiary != null) moveToCons.Add(moveToConsCons.Tertiary);
+                    HashSet<Connector> moveToCons = Shared.MepUtils.GetALLConnectorsFromElements(MoveToEl);
 
                     var listToCompare = new List<(Connector toMoveCon, Connector MoveToCon, double Distance)>();
 
@@ -83,9 +65,12 @@ namespace MEPUtils.MoveToDistance
                     {
                         trans3.Start("Move Element!");
                         {
-                            ElementTransformUtils.MoveElement(doc, elToMove.Id,
-                                (minDist.MoveToCon.Origin - minDist.toMoveCon.Origin) *
-                                (1 - distanceToKeep / origDist));
+                            foreach (Element elToMove in elsToMove)
+                            {
+                                ElementTransformUtils.MoveElement(doc, elToMove.Id,
+                                    (minDist.MoveToCon.Origin - minDist.toMoveCon.Origin) *
+                                    (1 - distanceToKeep / origDist));
+                            }
                         }
                         trans3.Commit();
                     }
