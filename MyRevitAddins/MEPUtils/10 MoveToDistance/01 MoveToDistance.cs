@@ -40,7 +40,7 @@ namespace MEPUtils.MoveToDistance
 
                     var elId = uidoc.Selection.PickObject(ObjectType.Element, "Select element to move to!");
                     Element MoveToEl = doc.GetElement(elId);
-
+                    elId.
                     double distanceToKeep;
 
                     //Select the direction to create in
