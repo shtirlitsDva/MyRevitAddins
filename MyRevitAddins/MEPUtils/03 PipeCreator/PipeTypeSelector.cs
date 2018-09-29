@@ -51,7 +51,6 @@ namespace MEPUtils
                 b.AutoSizeMode = 0;
                 this.tableLayoutPanel1.Controls.Add(b);
             }
-
         }
 
         private void b_Click(object sender, EventArgs e)
@@ -63,9 +62,8 @@ namespace MEPUtils
 
         private void PipeTypeSelector_FormClosing(object sender, FormClosingEventArgs e)
         {
+            MEPUtils.Properties.Settings.Default.PipeCreator_SelectedPipeTypeName = pipeTypeName;
             MEPUtils.Properties.Settings.Default.Save();
         }
-
-        
     }
 }
