@@ -28,6 +28,3 @@ Places symbolic pipe support elements to facilitate export of support conditions
 
 ## RibbonPanel
 The entry point for all addins, creates buttons to call the functions.
-
-## Shared
-Shared library of generic useful methods.
