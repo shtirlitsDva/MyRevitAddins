@@ -60,7 +60,7 @@ namespace MEPUtils
                 if (selection.Count == 0) allConnectors = mp.GetALLConnectorsInDocument(doc, true).Where(c => !c.IsConnected).ToList();
                 //Selection is more than 2
                 else allConnectors = mp.GetALLConnectorsFromElements((from ElementId id in selection select doc.GetElement(id)).ToHashSet()).ToList();
-                
+
 
                 //Employ reverse iteration to be able to modify the collection while iterating over it
                 for (int i = allConnectors.Count - 1; i > 0; i--)
@@ -86,13 +86,31 @@ namespace MEPUtils
 
                 var query = allConnectors.Where(c => c.IsEqual(cons.Primary)).Where(c => c.Owner.Id.IntegerValue != hanger.Id.IntegerValue).ToList();
 
-                //Disconnect connectors
+                //Disconnect connectors of the existing components if the hanger was moved in place
                 Connector con1 = query.FirstOrDefault();
                 if (con1 == null) throw new Exception("Detection of existing con1 failed!");
                 Connector con2 = query.LastOrDefault();
                 if (con2 == null) throw new Exception("Detection of existing con2 failed!");
 
                 if (con1.IsConnectedTo(con2)) con1.DisconnectFrom(con2);
+
+                //If the hanger was created by placing on element and thus auto connected -> disconnect both connectors
+                //Dunno if this is needed and placing by auto connect does orient the connectors correctly
+                //Until it is proven true, both connectors are disconnected
+                if (cons.Primary.IsConnected)
+                {
+                    var refCons = cons.Primary.AllRefs;
+                    var refCon = MepUtils.GetAllConnectorsFromConnectorSet(refCons)
+                        .Where(c => c.Owner.IsType<Pipe>() || c.Owner.IsType<FamilyInstance>()).FirstOrDefault();
+                    if (refCon != null) cons.Primary.DisconnectFrom(refCon);
+                }
+                if (cons.Secondary.IsConnected)
+                {
+                    var refCons = cons.Secondary.AllRefs;
+                    var refCon = MepUtils.GetAllConnectorsFromConnectorSet(refCons)
+                        .Where(c => c.Owner.IsType<Pipe>() || c.Owner.IsType<FamilyInstance>()).FirstOrDefault();
+                    if (refCon != null) cons.Primary.DisconnectFrom(refCon);
+                }
                 doc.Regenerate();
 
                 //Start connecting hanger connetors
