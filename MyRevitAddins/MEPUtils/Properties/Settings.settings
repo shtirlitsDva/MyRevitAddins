@@ -8,5 +8,8 @@
     <Setting Name="MoveToDistance_DistanceValueFromLast" Type="System.String" Scope="User">
       <Value Profile="(Default)">200</Value>
     </Setting>
+    <Setting Name="CountWelds_PathToExportJson" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
   </Settings>
 </SettingsFile>

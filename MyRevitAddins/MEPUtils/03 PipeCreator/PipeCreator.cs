@@ -81,9 +81,8 @@ namespace MEPUtils
                 if (con == null) throw new Exception("No not connected connectors in element!");
 
                 //If the element is a Pipe -> Create a bend in a specified direction
-                if (element is Pipe)
+                if (element is Pipe selectedPipe)
                 {
-                    Pipe selectedPipe = (Pipe)element;
                     string bendDir;
 
                     //Get Pipe Size
@@ -143,14 +142,14 @@ namespace MEPUtils
                             tx1.Commit();
                         }
 
-                    //Find the connector from the dummy pipe at intersection
-                    var newCons = mp.GetALLConnectorsFromElements(newPipe);
-                    Connector newCon = newCons.Where(c => c.Origin.IsEqual(con.Origin)).FirstOrDefault();
+                        //Find the connector from the dummy pipe at intersection
+                        var newCons = mp.GetALLConnectorsFromElements(newPipe);
+                        Connector newCon = newCons.Where(c => c.Origin.IsEqual(con.Origin)).FirstOrDefault();
 
-                    using (Transaction tx2 = new Transaction(doc))
+                        using (Transaction tx2 = new Transaction(doc))
                         {
                             tx2.Start("Create new bend!");
-                            
+
                             doc.Create.NewElbowFitting(con, newCon);
 
                             tx2.Commit();
