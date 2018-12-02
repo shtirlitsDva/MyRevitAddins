@@ -73,11 +73,25 @@ namespace MEPUtils.CountWelds
                 //Create collection with distinct connectors
                 var DistinctCons = AllCons.ToHashSet(new ConnectorXyzComparer());
 
+                int count = 0;
+
+                foreach (var item in DistinctCons)
+                {
+                    var query = DistinctCons.Where(x => item.Origin.X.Equalz(x.Origin.X) &&
+                                                        item.Origin.Y.Equalz(x.Origin.Y) &&
+                                                        item.Origin.Z.Equalz(x.Origin.Z));
+                    if (query.Count() > 1)
+                    {
+                        count++;
+                    }
+                }
+
                 //For each distinct connector find the corresponding local spatial group connectors
                 List<connectorSpatialGroup> csgList = new List<connectorSpatialGroup>();
                 foreach (Connector distinctCon in DistinctCons)
                 {
                     csgList.Add(new connectorSpatialGroup(AllCons.Where(x => distinctCon.IsEqual(x))));
+                    //AllCons = AllCons.ExceptWhere(x => distinctCon.IsEqual(x)).ToHashSet();
                 }
 
                 //Write serialized data
@@ -119,7 +133,7 @@ namespace MEPUtils.CountWelds
     [DataContract]
     internal class connectorSpatialGroup
     {
-        List<Connector> Connectors = new List<Connector>();
+        public List<Connector> Connectors = new List<Connector>();
         //Welds can only be of one DN
         [DataMember]
         double DN = 0;
