@@ -57,14 +57,15 @@ namespace MEPUtils.CountWelds
                 }
 
                 //Gather all connectors from the document
-                //HashSet<Connector> AllCons = mp.GetALLConnectorsInDocument(doc);
-                var Pipes = fi.GetElements<Element, BuiltInCategory>(doc, BuiltInCategory.OST_PipeCurves);
-                var Fittings = fi.GetElements<Element, BuiltInCategory>(doc, BuiltInCategory.OST_PipeFitting);
-                var Accessories = fi.GetElements<Element, BuiltInCategory>(doc, BuiltInCategory.OST_PipeAccessory);
+                HashSet<Connector> AllCons = mp.GetALLConnectorsInDocument(doc);
+                //var Pipes = fi.GetElements<Element, BuiltInCategory>(doc, BuiltInCategory.OST_PipeCurves);
+                //var Fittings = fi.GetElements<Element, BuiltInCategory>(doc, BuiltInCategory.OST_PipeFitting);
+                //var Accessories = fi.GetElements<Element, BuiltInCategory>(doc, BuiltInCategory.OST_PipeAccessory);
 
                 //Apply some early filtering
-                //1) Pipes from "Rigid" PipeType disallowed
-                Pipes = Pipes.ExceptWhere(x => x.get_Parameter(BuiltInParameter.ELEM_TYPE_PARAM).AsValueString() == "Rigid").ToHashSet();
+                //1) Connectors from ARGD system disallowed
+                //Pipes = Pipes.ExceptWhere(x => x.get_Parameter(BuiltInParameter.ELEM_TYPE_PARAM).AsValueString() == "Rigid").ToHashSet();
+                AllCons = AllCons.ExceptWhere(x => x.MEPSystemAbbreviation(doc) == "ARGD").ToHashSet();
 
                 //Gather all connectors   
                 //TODO: Continue here!
