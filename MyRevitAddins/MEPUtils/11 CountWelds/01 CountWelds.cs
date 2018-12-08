@@ -31,6 +31,8 @@ namespace MEPUtils.CountWelds
             Document doc = commandData.Application.ActiveUIDocument.Document;
             UIDocument uidoc = uiApp.ActiveUIDocument;
 
+            var watch = System.Diagnostics.Stopwatch.StartNew();
+
             try
             {
                 bool ctrl = false;
@@ -122,8 +124,8 @@ namespace MEPUtils.CountWelds
                 List<connectorSpatialGroup> csgList = new List<connectorSpatialGroup>();
                 foreach (Connector distinctCon in DistinctCons)
                 {
-                    csgList.Add(new connectorSpatialGroup(AllCons.Where(x => distinctCon.IsEqual(x))));
-                    //AllCons = AllCons.ExceptWhere(x => distinctCon.IsEqual(x)).ToHashSet();
+                    csgList.Add(new connectorSpatialGroup(AllCons.Where(x => distinctCon.Equalz(x, Shared.Extensions._1mmTol))));
+                    //AllCons = AllCons.ExceptWhere(x => distinctCon.Equalz(x, Shared.Extensions._1mmTol)).ToHashSet();
                 }
 
                 //Write serialized data
@@ -149,6 +151,9 @@ namespace MEPUtils.CountWelds
                     w.Write(json);
                     w.Close();
                 }
+
+                watch.Stop();
+                Shared.BuildingCoder.BuildingCoderUtilities.InfoMsg(watch.ElapsedMilliseconds.ToString());
 
                 return Result.Succeeded;
             }

@@ -16,7 +16,6 @@ using Autodesk.Revit.DB.Structure;
 using Shared;
 using Color = System.Drawing.Color;
 using fi = Shared.Filter;
-using ut = Shared.BuildingCoder.Util;
 using op = Shared.Output;
 using tr = Shared.Transformation;
 using mp = Shared.MepUtils;

@@ -9,7 +9,6 @@ using Shared;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.UI.Selection;
 using fi = Shared.Filter;
-using ut = Shared.BuildingCoder.Util;
 using op = Shared.Output;
 using mp = Shared.MepUtils;
 //using mySettings = GeneralStability.Properties.Settings;
@@ -32,7 +31,7 @@ namespace MEPUtils
             {
                 if (el == null)
                 {
-                    ut.ErrorMsg("One of the selected elements is null.");
+                    Shared.BuildingCoder.BuildingCoderUtilities.ErrorMsg("One of the selected elements is null.");
                     break;
                 }
 
@@ -45,12 +44,12 @@ namespace MEPUtils
                         totalLength += mc.GeometryCurve.Length;
                         break;
                     default:
-                        ut.ErrorMsg(el.Name.ToString() + " is not implemented!");
+                        Shared.BuildingCoder.BuildingCoderUtilities.ErrorMsg(el.Name.ToString() + " is not implemented!");
                         break;
                 }
             }
 
-            ut.InfoMsg(totalLength.FtToMm().Round(4).ToString());
+            Shared.BuildingCoder.BuildingCoderUtilities.InfoMsg(totalLength.FtToMm().Round(4).ToString());
 
             return Result.Succeeded;
         }

@@ -11,7 +11,6 @@ using Autodesk.Revit.DB.Structure;
 using Autodesk.Revit.DB.Mechanical;
 using Shared;
 using fi = Shared.Filter;
-using ut = Shared.BuildingCoder.Util;
 using op = Shared.Output;
 using tr = Shared.Transformation;
 using mp = Shared.MepUtils;
@@ -137,7 +136,7 @@ namespace MEPUtils
                 {
                     ElementId id = InsulationLiningBase.GetInsulationIds(doc, e.Id).FirstOrDefault();
                     if (id == null) return;
-                    if (specifiedInsulationThickness.Equalz(0, ut._epx)) { doc.Delete(id); return; }
+                    if (specifiedInsulationThickness.Equalz(0, Extensions._epx)) { doc.Delete(id); return; }
                     PipeInsulation insulation = doc.GetElement(id) as PipeInsulation;
                     if (insulation == null) return;
                     insulation.Thickness = specifiedInsulationThickness;
@@ -154,7 +153,7 @@ namespace MEPUtils
                 if (pipeInsulationType == null) throw new Exception($"No pipe insulation type named {pipeInsulationName}!");
 
                 //Test to see if the specified insulation is 0
-                if (specifiedInsulationThickness.Equalz(0, ut._epx)) return;
+                if (specifiedInsulationThickness.Equalz(0, Extensions._epx)) return;
 
                 //Create insulation
                 PipeInsulation.Create(doc, e.Id, pipeInsulationType.Id, specifiedInsulationThickness);
@@ -271,7 +270,7 @@ namespace MEPUtils
                 //Local method to insulate Tees
                 void InsulateTee()
                 {
-                    if (specifiedInsulationThickness.Equalz(0, ut._epx)) return;
+                    if (specifiedInsulationThickness.Equalz(0, Extensions._epx)) return;
 
                     //Set insulation
                     Parameter par1 = e.LookupParameter("Insulation Projected");

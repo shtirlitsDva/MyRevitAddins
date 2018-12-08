@@ -7,7 +7,6 @@ using Autodesk.Revit.UI;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.DB.Plumbing;
 using fi = Shared.Filter;
-using ut = Shared.BuildingCoder.Util;
 using op = Shared.Output;
 using mp = Shared.MepUtils;
 using Shared;
@@ -69,7 +68,7 @@ namespace MEPUtils
                     Connector c1 = allConnectors[i];
                     allConnectors.RemoveAt(i);
                     if (c1.IsConnected) continue; //Need: connectors connected in this loop are still in collection
-                    Connector c2 = (from Connector c in allConnectors where ut.IsEqual(c.Origin, c1.Origin) select c).FirstOrDefault();
+                    Connector c2 = (from Connector c in allConnectors where c.Equalz(c1, Extensions._1mmTol) select c).FirstOrDefault();
                     c2?.ConnectTo(c1);
                 }
 
@@ -84,7 +83,7 @@ namespace MEPUtils
 
                 var allConnectors = mp.GetALLConnectorsInDocument(doc).ToList();
 
-                var query = allConnectors.Where(c => c.IsEqual(cons.Primary)).Where(c => c.Owner.Id.IntegerValue != hanger.Id.IntegerValue).ToList();
+                var query = allConnectors.Where(c => c.Equalz(cons.Primary, Extensions._1mmTol)).Where(c => c.Owner.Id.IntegerValue != hanger.Id.IntegerValue).ToList();
 
                 //Disconnect connectors of the existing components if the hanger was moved in place
                 Connector con1 = query.FirstOrDefault();
@@ -115,12 +114,12 @@ namespace MEPUtils
 
                 //Start connecting hanger connetors
                 //https://stackoverflow.com/questions/7572640/how-do-i-know-if-two-vectors-are-near-parallel
-                var detectOpposite1 = query.Where(c => cons.Primary.CoordinateSystem.BasisZ.DotProduct(c.CoordinateSystem.BasisZ) < -1 + ut._epx);
+                var detectOpposite1 = query.Where(c => cons.Primary.CoordinateSystem.BasisZ.DotProduct(c.CoordinateSystem.BasisZ) < -1 + Extensions._epx);
                 Connector opposite1 = detectOpposite1.FirstOrDefault();
                 if (opposite1 == null) throw new Exception("Opposite primary detection failed!");
                 cons.Primary.ConnectTo(opposite1);
 
-                var detectOpposite2 = query.Where(c => cons.Secondary.CoordinateSystem.BasisZ.DotProduct(c.CoordinateSystem.BasisZ) < -1 + ut._epx);
+                var detectOpposite2 = query.Where(c => cons.Secondary.CoordinateSystem.BasisZ.DotProduct(c.CoordinateSystem.BasisZ) < -1 + Extensions._epx);
                 Connector opposite2 = detectOpposite2.FirstOrDefault();
                 if (opposite2 == null) throw new Exception("Opposite secondary detection failed!");
                 cons.Secondary.ConnectTo(opposite2);
@@ -141,7 +140,7 @@ namespace MEPUtils
                 {
                     foreach (var c2 in allConnectors)
                     {
-                        if (c1.Id != c2.Id && !c1.IsConnected && ut.IsEqual(c1.Origin, c2.Origin))
+                        if (c1.Id != c2.Id && !c1.IsConnected && c1.Equalz(c2, Extensions._1mmTol))
                         {
                             list1.Add(c1);
                             list2.Add(c2);
@@ -192,7 +191,7 @@ namespace MEPUtils
                     if (connectors.Count < 2) throw new Exception("No eligible connectors found! Check alignment.");
                     Connector c1 = connectors[i];
                     connectors.RemoveAt(i);
-                    Connector c2 = (from Connector c in connectors where ut.IsEqual(c.Origin, c1.Origin) select c).FirstOrDefault();
+                    Connector c2 = (from Connector c in connectors where c.Equalz(c1, Extensions._1mmTol) select c).FirstOrDefault();
                     if (c2 != null)
                     {
                         if (c1.IsConnected) c2.DisconnectFrom(c1);

@@ -15,7 +15,6 @@ using lad = MEPUtils.CreateInstrumentation.ListsAndDicts;
 using mp = Shared.MepUtils;
 using op = Shared.Output;
 using tr = Shared.Transformation;
-using ut = Shared.BuildingCoder.Util;
 
 namespace MEPUtils
 {
@@ -144,7 +143,7 @@ namespace MEPUtils
 
                         //Find the connector from the dummy pipe at intersection
                         var newCons = mp.GetALLConnectorsFromElements(newPipe);
-                        Connector newCon = newCons.Where(c => c.Origin.IsEqual(con.Origin)).FirstOrDefault();
+                        Connector newCon = newCons.Where(c => c.Equalz(con, Extensions._1mmTol)).FirstOrDefault();
 
                         using (Transaction tx2 = new Transaction(doc))
                         {

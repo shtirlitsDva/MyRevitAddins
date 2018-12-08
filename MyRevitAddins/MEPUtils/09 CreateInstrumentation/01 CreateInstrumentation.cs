@@ -8,7 +8,6 @@ using Autodesk.Revit.DB.Plumbing;
 using Autodesk.Revit.DB.Structure;
 using Shared;
 using fi = Shared.Filter;
-using ut = Shared.BuildingCoder.Util;
 using tr = Shared.Transformation;
 using mp = Shared.MepUtils;
 using lad = MEPUtils.CreateInstrumentation.ListsAndDicts;
@@ -121,7 +120,7 @@ namespace MEPUtils.CreateInstrumentation
                         
                         //Find the connector from the dummy pipe at intersection
                         var cons = mp.GetALLConnectorsFromElements(dummyPipe);
-                        Connector con = cons.Where(c => c.Origin.IsEqual(iP)).FirstOrDefault();
+                        Connector con = cons.Where(c => c.Origin.Equalz(iP, Extensions._1mmTol)).FirstOrDefault();
 
                         olet = doc.Create.NewTakeoffFitting(con, (MEPCurve)selectedPipe);
 
@@ -147,7 +146,7 @@ namespace MEPUtils.CreateInstrumentation
         private static (Pipe pipe, XYZ point) SelectPipePoint(Document doc, UIDocument uidoc)
         {
             //Select the pipe to operate on
-            var selectedPipe = ut.SelectSingleElementOfType(uidoc, typeof(Pipe),
+            var selectedPipe = Shared.BuildingCoder.BuildingCoderUtilities.SelectSingleElementOfType(uidoc, typeof(Pipe),
                 "Select a pipe where to place a support!", false);
             //Get end connectors
             var conQuery = (from Connector c in mp.GetALLConnectorsFromElements(selectedPipe)
@@ -162,7 +161,7 @@ namespace MEPUtils.CreateInstrumentation
             //If true use another axis to define point
             Plane plane;
 
-            if (ut.Compare(c1.Origin.Y, c2.Origin.Y) == 0 && ut.Compare(c1.Origin.Z, c2.Origin.Z) == 0)
+            if (c1.Origin.Y.Equalz(c2.Origin.Y, Extensions._epx) && c1.Origin.Z.Equalz(c2.Origin.Z, Extensions._epx))
                 plane = Plane.CreateByThreePoints(c1.Origin, c2.Origin, new XYZ(c1.Origin.X, c1.Origin.Y + 5, c1.Origin.Z));
             else
                 plane = Plane.CreateByThreePoints(c1.Origin, c2.Origin, new XYZ(c1.Origin.X + 5, c1.Origin.Y, c1.Origin.Z));
@@ -188,7 +187,7 @@ namespace MEPUtils.CreateInstrumentation
             try
             {
                 //Select a pipe
-                var selectedPipe = ut.SelectSingleElementOfType(uiDoc, typeof(Pipe),
+                var selectedPipe = Shared.BuildingCoder.BuildingCoderUtilities.SelectSingleElementOfType(uiDoc, typeof(Pipe),
                     "Select a pipe where to place a support!", false);
                 //Get end connectors
                 var conQuery = (from Connector c in mp.GetALLConnectorsFromElements(selectedPipe)
@@ -203,7 +202,7 @@ namespace MEPUtils.CreateInstrumentation
                 //If true use another axis to define point
                 Plane plane;
 
-                if (ut.Compare(c1.Origin.Y, c2.Origin.Y) == 0 && ut.Compare(c1.Origin.Z, c2.Origin.Z) == 0)
+                if (c1.Origin.Y.Equalz(c2.Origin.Y, Extensions._epx) && c1.Origin.Z.Equalz(c2.Origin.Z, Extensions._epx))
                 {
                     plane = Plane.CreateByThreePoints(c1.Origin, c2.Origin, new XYZ(c1.Origin.X, c1.Origin.Y + 5, c1.Origin.Z));
                 }

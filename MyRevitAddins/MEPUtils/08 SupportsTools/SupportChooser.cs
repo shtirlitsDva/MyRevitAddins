@@ -11,7 +11,6 @@ using System.Windows.Forms;
 using Autodesk.Revit.UI;
 using Autodesk.Revit.DB;
 using fi = Shared.Filter;
-using ut = Shared.BuildingCoder.Util;
 using op = Shared.Output;
 using tr = Shared.Transformation;
 using mp = Shared.MepUtils;

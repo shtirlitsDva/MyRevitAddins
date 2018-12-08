@@ -8,7 +8,6 @@ using Autodesk.Revit.DB.Plumbing;
 using Autodesk.Revit.DB.Structure;
 using Shared;
 using fi = Shared.Filter;
-using ut = Shared.BuildingCoder.Util;
 using op = Shared.Output;
 using tr = Shared.Transformation;
 using mp = Shared.MepUtils;
@@ -100,7 +99,7 @@ namespace MEPUtils.PlaceSupport
             try
             {
                 //Select a pipe
-                var selectedPipe = ut.SelectSingleElementOfType(uiDoc, typeof(Pipe),
+                var selectedPipe = Shared.BuildingCoder.BuildingCoderUtilities.SelectSingleElementOfType(uiDoc, typeof(Pipe),
                     "Select a pipe where to place a support!", false);
                 //Get end connectors
                 var conQuery = (from Connector c in mp.GetALLConnectorsFromElements(selectedPipe)
@@ -115,7 +114,7 @@ namespace MEPUtils.PlaceSupport
                 //If true use another axis to define point
                 Plane plane;
 
-                if (ut.Compare(c1.Origin.Y, c2.Origin.Y) == 0 && ut.Compare(c1.Origin.Z, c2.Origin.Z) == 0)
+                if (c1.Origin.Y.Equalz(c2.Origin.Y, Extensions._epx) && c1.Origin.Z.Equalz(c2.Origin.Z, Extensions._epx))
                 {
                     plane = Plane.CreateByThreePoints(c1.Origin, c2.Origin, new XYZ(c1.Origin.X, c1.Origin.Y + 5, c1.Origin.Z));
                 }

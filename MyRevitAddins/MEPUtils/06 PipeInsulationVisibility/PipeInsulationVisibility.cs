@@ -6,7 +6,6 @@ using Autodesk.Revit.UI;
 using Autodesk.Revit.DB;
 using System.Text;
 using fi = Shared.Filter;
-using ut = Shared.BuildingCoder.Util;
 using op = Shared.Output;
 using mp = Shared.MepUtils;
 //using mySettings = GeneralStability.Properties.Settings;

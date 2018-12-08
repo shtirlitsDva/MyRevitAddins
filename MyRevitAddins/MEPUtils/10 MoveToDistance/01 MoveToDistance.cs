@@ -9,7 +9,6 @@ using Autodesk.Revit.DB.Plumbing;
 using Autodesk.Revit.DB.Structure;
 using Shared;
 using fi = Shared.Filter;
-using ut = Shared.BuildingCoder.Util;
 using tr = Shared.Transformation;
 using mp = Shared.MepUtils;
 using lad = MEPUtils.CreateInstrumentation.ListsAndDicts;
@@ -56,9 +55,9 @@ namespace MEPUtils.MoveToDistance
 
                     foreach (Connector c1 in toMoveCons) foreach (Connector c2 in moveToCons) listToCompare.Add((c1, c2, c1.Origin.DistanceTo(c2.Origin)));
 
-                    var minDist = listToCompare.MinBy(x => x.Distance).FirstOrDefault();
+                    var (toMoveCon, MoveToCon, Distance) = listToCompare.MinBy(x => x.Distance).FirstOrDefault();
 
-                    double origDist = minDist.toMoveCon.Origin.DistanceTo(minDist.MoveToCon.Origin);
+                    double origDist = toMoveCon.Origin.DistanceTo(MoveToCon.Origin);
 
                     using (Transaction trans3 = new Transaction(doc))
                     {
@@ -67,7 +66,7 @@ namespace MEPUtils.MoveToDistance
                             foreach (Element elToMove in elsToMove)
                             {
                                 ElementTransformUtils.MoveElement(doc, elToMove.Id,
-                                    (minDist.MoveToCon.Origin - minDist.toMoveCon.Origin) *
+                                    (MoveToCon.Origin - toMoveCon.Origin) *
                                     (1 - distanceToKeep / origDist));
                             }
                         }
@@ -91,7 +90,7 @@ namespace MEPUtils.MoveToDistance
         private static Element SelectElement(Document doc, UIDocument uidoc, string msg)
         {
             //Select the pipe to operate on
-            return ut.SelectSingleElementOfType(uidoc, typeof(Element), msg, true);
+            return Shared.BuildingCoder.BuildingCoderUtilities.SelectSingleElementOfType(uidoc, typeof(Element), msg, true);
         }
     }
 }
