@@ -73,55 +73,51 @@ namespace MEPUtils.CountWelds
                 //Create collection with distinct connectors
                 var DistinctCons = AllCons.ToHashSet(new ConnectorXyzComparer2());
 
-                StringBuilder sb = new StringBuilder();
+                #region Debug ConnectorXyzComparer
+                //StringBuilder sb = new StringBuilder();
+                //int count = 0;
+                //List<double> deltas = new List<double>();
+                //foreach (var item in DistinctCons)
+                //{
+                //    var query = DistinctCons.Where(x => item.IsEqual(x, 0.001)).ToList();
+                //    if (query.Count() > 1)
+                //    {
+                //        Connector first = query.First();
+                //        Connector last = query.Last();
 
-                int count = 0;
+                //        count++;
+                //        sb.AppendLine(count.ToString());
+                //        sb.AppendLine(first.Owner.Id.ToString());
+                //        sb.AppendLine(last.Owner.Id.ToString());
+                //        sb.AppendLine("X1: " + first.Origin.X);
+                //        sb.AppendLine("X2: " + last.Origin.X);
+                //        sb.AppendLine("DX: " + (first.Origin.X - last.Origin.X));
+                //        sb.AppendLine("Y1: " + first.Origin.Y);
+                //        sb.AppendLine("Y2: " + last.Origin.Y);
+                //        sb.AppendLine("DY: " + (first.Origin.Y - last.Origin.Y));
+                //        sb.AppendLine("Z1: " + first.Origin.Z);
+                //        sb.AppendLine("Z2: " + last.Origin.Z);
+                //        sb.AppendLine("DZ: " + (first.Origin.Z - last.Origin.Z));
+                //        sb.AppendLine(Comparer.HashString(first.Origin));
+                //        sb.AppendLine(Comparer.HashString(last.Origin));
+                //        sb.AppendLine();
 
-                List<double> deltas = new List<double>();
-
-                foreach (var item in DistinctCons)
-                {
-                    var query = DistinctCons.Where(x => item.IsEqual(x, 0.001)).ToList();
-                    if (query.Count() > 1)
-                    {
-                        Connector first = query.First();
-                        Connector last = query.Last();
-
-                        count++;
-                        sb.AppendLine(count.ToString());
-                        sb.AppendLine(first.Owner.Id.ToString());
-                        sb.AppendLine(last.Owner.Id.ToString());
-                        sb.AppendLine("X1: " + first.Origin.X);
-                        sb.AppendLine("X2: " + last.Origin.X);
-                        sb.AppendLine("DX: " + (first.Origin.X - last.Origin.X));
-                        sb.AppendLine("Y1: " + first.Origin.Y);
-                        sb.AppendLine("Y2: " + last.Origin.Y);
-                        sb.AppendLine("DY: " + (first.Origin.Y - last.Origin.Y));
-                        sb.AppendLine("Z1: " + first.Origin.Z);
-                        sb.AppendLine("Z2: " + last.Origin.Z);
-                        sb.AppendLine("DZ: " + (first.Origin.Z - last.Origin.Z));
-                        sb.AppendLine(Comparer.HashString(first.Origin));
-                        sb.AppendLine(Comparer.HashString(last.Origin));
-                        sb.AppendLine();
-
-                        deltas.Add(Math.Abs(first.Origin.X - last.Origin.X));
-                        deltas.Add(Math.Abs(first.Origin.Y - last.Origin.Y));
-                        deltas.Add(Math.Abs(first.Origin.Z - last.Origin.Z));
-                    }
-                }
-
-                //sb.AppendLine("Largest delta: " + deltas.Max());
-                sb.AppendLine();
-
-                // Clear the output file
-                System.IO.File.WriteAllBytes(pathToExport + "\\XYZ_Accuracy.txt", new byte[0]);
-
-                // Write to output file
-                using (StreamWriter w = File.AppendText(pathToExport + "\\XYZ_Accuracy.txt"))
-                {
-                    w.Write(sb);
-                    w.Close();
-                }
+                //        deltas.Add(Math.Abs(first.Origin.X - last.Origin.X));
+                //        deltas.Add(Math.Abs(first.Origin.Y - last.Origin.Y));
+                //        deltas.Add(Math.Abs(first.Origin.Z - last.Origin.Z));
+                //    }
+                //}
+                ////sb.AppendLine("Largest delta: " + deltas.Max());
+                //sb.AppendLine();
+                //// Clear the output file
+                //System.IO.File.WriteAllBytes(pathToExport + "\\XYZ_Accuracy.txt", new byte[0]);
+                //// Write to output file
+                //using (StreamWriter w = File.AppendText(pathToExport + "\\XYZ_Accuracy.txt"))
+                //{
+                //    w.Write(sb);
+                //    w.Close();
+                //}
+                #endregion
 
                 //For each distinct connector find the corresponding local spatial group connectors
                 List<connectorSpatialGroup> csgList = new List<connectorSpatialGroup>();

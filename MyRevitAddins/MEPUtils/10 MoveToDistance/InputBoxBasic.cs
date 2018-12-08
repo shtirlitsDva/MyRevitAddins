@@ -11,7 +11,7 @@ using System.Windows.Forms;
 using Shared;
 using stgs = MEPUtils.Properties.Settings;
 
-namespace MEPUtils._00_SharedStaging
+namespace MEPUtils.MoveToDistance
 {
     public partial class InputBoxBasic : Form
     {

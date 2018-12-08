@@ -1,4 +1,4 @@
-﻿namespace MEPUtils._00_SharedStaging
+﻿namespace MEPUtils.MoveToDistance
 {
     partial class InputBoxBasic
     {
