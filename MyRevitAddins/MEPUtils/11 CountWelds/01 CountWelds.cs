@@ -31,8 +31,6 @@ namespace MEPUtils.CountWelds
             Document doc = commandData.Application.ActiveUIDocument.Document;
             UIDocument uidoc = uiApp.ActiveUIDocument;
 
-            var watch = System.Diagnostics.Stopwatch.StartNew();
-
             try
             {
                 bool ctrl = false;
@@ -59,17 +57,13 @@ namespace MEPUtils.CountWelds
 
                 //Gather all connectors from the document
                 HashSet<Connector> AllCons = mp.GetALLConnectorsInDocument(doc);
-                //var Pipes = fi.GetElements<Element, BuiltInCategory>(doc, BuiltInCategory.OST_PipeCurves);
-                //var Fittings = fi.GetElements<Element, BuiltInCategory>(doc, BuiltInCategory.OST_PipeFitting);
-                //var Accessories = fi.GetElements<Element, BuiltInCategory>(doc, BuiltInCategory.OST_PipeAccessory);
 
                 //Apply some early filtering
-                //1) Connectors from ARGD system disallowed
-                //Pipes = Pipes.ExceptWhere(x => x.get_Parameter(BuiltInParameter.ELEM_TYPE_PARAM).AsValueString() == "Rigid").ToHashSet();
+                //1) Connectors from ARGD system disallowed (Rigids for equipment analytical model)
                 AllCons = AllCons.ExceptWhere(x => x.MEPSystemAbbreviation(doc) == "ARGD").ToHashSet();
 
-                //Gather all connectors   
-                //TODO: Continue here!
+                //2) Remove all "Curve" Connectors -- Olet welds are counted in comp. schedule
+                AllCons = AllCons.ExceptWhere(x => x.ConnectorType == ConnectorType.Curve).ToHashSet();
 
                 //Create collection with distinct connectors
                 var DistinctCons = AllCons.ToHashSet(new ConnectorXyzComparer());
@@ -125,17 +119,55 @@ namespace MEPUtils.CountWelds
                 foreach (Connector distinctCon in DistinctCons)
                 {
                     csgList.Add(new connectorSpatialGroup(AllCons.Where(x => distinctCon.Equalz(x, Shared.Extensions._1mmTol))));
-                    //AllCons = AllCons.ExceptWhere(x => distinctCon.Equalz(x, Shared.Extensions._1mmTol)).ToHashSet();
+                    AllCons = AllCons.ExceptWhere(x => distinctCon.Equalz(x, Shared.Extensions._1mmTol)).ToHashSet();
                 }
+
+                #region Filtering
+                //1) If SpatialGroup contains only one connector -> discard
+                csgList = csgList.ExceptWhere(x => x.Connectors.Count < 2).ToList();
+
+                //2) If all specs are EXISTING ignore group
+                csgList = csgList.ExceptWhere(x => x.SpecList.Distinct().Count() < 2 && x.SpecList.First() == "EXISTING" ).ToList();
+
+                
+
+                #endregion
+
+                #region QualityAssurance
+                //List<string> allids = new List<string>();
+                //foreach (connectorSpatialGroup csg in csgList)
+                //{
+                //    foreach (Connector con in csg.Connectors)
+                //    {
+                //        Element owner = con.Owner;
+                //        ElementId elId = owner.Id;
+                //        string elIdString = elId.ToString();
+                //        allids.Add(elIdString);
+                //    }
+                //}
+
+                ////using (Transaction tx = new Transaction(doc))
+                ////{
+                ////    tx.Start("Place marker!");
+                ////    Shared.Dbg.PlaceAdaptiveFamilyInstance(doc, "Marker Line: Red", new XYZ(15.658937314, 3.170790710, 9.219160105), new XYZ());
+                ////    tx.Commit();
+
+                ////}
+
+                //Dictionary<string, int> grp = allids.GroupBy(x => x).ToDictionary(g => g.Key, g => g.Count());
+
+                #endregion
 
                 //Write serialized data
                 var ser = new DataContractJsonSerializer(typeof(List<connectorSpatialGroup>));
+                //var ser = new DataContractJsonSerializer(typeof(Dictionary<string, int>));
 
                 StringBuilder json = new StringBuilder();
 
                 using (var ms = new MemoryStream())
                 {
                     ser.WriteObject(ms, csgList);
+                    //ser.WriteObject(ms, grp);
                     string output = Encoding.UTF8.GetString(ms.ToArray());
                     json.Append(output);
                 }
@@ -152,8 +184,10 @@ namespace MEPUtils.CountWelds
                     w.Close();
                 }
 
-                watch.Stop();
-                Shared.BuildingCoder.BuildingCoderUtilities.InfoMsg(watch.ElapsedMilliseconds.ToString());
+                //var watch = System.Diagnostics.Stopwatch.StartNew();
+                //Code()
+                //watch.Stop();
+                //Shared.BuildingCoder.BuildingCoderUtilities.InfoMsg(watch.ElapsedMilliseconds.ToString());
 
                 return Result.Succeeded;
             }
@@ -176,6 +210,9 @@ namespace MEPUtils.CountWelds
         double DN = 0;
         [DataMember]
         int nrOfCons = 0;
+        [DataMember]
+        public List<string> SpecList = new List<string>();
+
 
         public connectorSpatialGroup(IEnumerable<Connector> collection)
         {
@@ -186,6 +223,13 @@ namespace MEPUtils.CountWelds
             DN = (sampleCon.Radius * 2).FtToMm().Round();
 
             nrOfCons = Connectors.Count();
+
+            foreach (Connector con in collection)
+            {
+                Element owner = con.Owner;
+                Parameter par = owner.get_Parameter(new Guid("90be8246-25f7-487d-b352-554f810fcaa7"));
+                SpecList.Add(par.AsString());
+            }
         }
     }
 }

@@ -202,7 +202,7 @@ namespace PDFExporter
                 else throw new Exception("Filename handling FAILED AGAIN!!!!!!!");
 
             }
-            else Shared.BuildingCoder.Util.ErrorMsg("The copying of files failed for some reason!");
+            else Shared.BuildingCoder.BuildingCoderUtilities.ErrorMsg("The copying of files failed for some reason!");
         }
 
         /// <summary>
