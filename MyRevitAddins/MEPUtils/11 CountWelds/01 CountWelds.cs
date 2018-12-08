@@ -71,7 +71,7 @@ namespace MEPUtils.CountWelds
                 //TODO: Continue here!
 
                 //Create collection with distinct connectors
-                var DistinctCons = AllCons.ToHashSet(new ConnectorXyzComparer2());
+                var DistinctCons = AllCons.ToHashSet(new ConnectorXyzComparer());
 
                 #region Debug ConnectorXyzComparer
                 //StringBuilder sb = new StringBuilder();
