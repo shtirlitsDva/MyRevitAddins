@@ -124,13 +124,17 @@ namespace MEPUtils.CountWelds
 
                 #region Filtering
                 //1) If SpatialGroup contains only one connector -> discard
-                csgList = csgList.ExceptWhere(x => x.Connectors.Count < 2).ToList();
+                csgList = csgList.ExceptWhere(x => x.nrOfCons < 2).ToList();
 
                 //2) If all specs are EXISTING ignore group
                 csgList = csgList.ExceptWhere(x => x.SpecList.Distinct().Count() < 2 && x.SpecList.First() == "EXISTING" ).ToList();
+                #endregion
 
-                
-
+                #region Analysis
+                foreach (var csg in csgList)
+                {
+                    csg.
+                }
                 #endregion
 
                 #region QualityAssurance
@@ -201,34 +205,104 @@ namespace MEPUtils.CountWelds
         }
     }
 
+    internal enum ConnectionType
+    {
+        Uninitialized, //Assigned at object creation -> can be used to check if alle objects are processed -> all objects must get another type assigned
+        Unknown, //Assigned if the program cannot determine the connection type -> the program must be modified to accomodate for causing case
+        Invalid, //The conditions state that the connection should not be there at all -> investigate
+        PipeToPipe,
+        PipeToFitting,
+        PipeToAccessory,
+        FittingToFitting,
+        FittingToAccessory,
+        PipeSupport
+    }
+
     [DataContract]
     internal class connectorSpatialGroup
     {
         public List<Connector> Connectors = new List<Connector>();
         //Welds can only be of one DN
         [DataMember]
-        double DN = 0;
+        public double DN = 0;
         [DataMember]
-        int nrOfCons = 0;
+        public int nrOfCons = 0;
         [DataMember]
         public List<string> SpecList = new List<string>();
+        [DataMember]
+        ConnectionType connectionType = 0;
+        [DataMember]
+        Element pipe1 = null;
+        [DataMember]
+        Element pipe2 = null;
+        [DataMember]
+        Element fitting1 = null;
+        [DataMember]
+        Element fitting2 = null;
+        [DataMember]
+        Element accessory1 = null;
+        [DataMember]
+        Element accessory2 = null;
+        [DataMember]
+        Element pipeSupport = null;
 
-
-        public connectorSpatialGroup(IEnumerable<Connector> collection)
+        internal connectorSpatialGroup(IEnumerable<Connector> collection)
         {
             Connectors = collection.ToList();
+            nrOfCons = Connectors.Count();
+            foreach (Connector con in collection)
+            {
+                Element owner = con.Owner;
+                Parameter par = owner.get_Parameter(new Guid("90be8246-25f7-487d-b352-554f810fcaa7")); //PCF_ELEM_SPEC parameter
+                SpecList.Add(par.AsString());
+            }
+        }
 
+        public void Analyze()
+        {
             //Determine DN of weld
             Connector sampleCon = Connectors.FirstOrDefault();
             DN = (sampleCon.Radius * 2).FtToMm().Round();
 
-            nrOfCons = Connectors.Count();
-
-            foreach (Connector con in collection)
+            //Analyze connectors
+            switch (nrOfCons)
             {
-                Element owner = con.Owner;
-                Parameter par = owner.get_Parameter(new Guid("90be8246-25f7-487d-b352-554f810fcaa7"));
-                SpecList.Add(par.AsString());
+                case 1:
+                    connectionType = ConnectionType.Invalid;
+                    break;
+                case 2:
+                    Element firstEl = null;
+                    Element secondEl = null;
+                    BuiltInCategory firstCat = BuiltInCategory.INVALID;
+                    BuiltInCategory secondCat = BuiltInCategory.INVALID;
+
+                    int counter = 0;
+                    foreach (Connector con in Connectors)
+                    {
+                        Element owner = con.Owner;
+                        Category cat = owner.Category;
+                        BuiltInCategory bic = (BuiltInCategory)cat.Id.IntegerValue;
+
+                        if (counter == 0) { firstEl = owner; firstCat = bic; }
+                        else { secondEl = owner; secondCat = bic; }
+                        counter++;
+                    }
+
+                    switch (firstCat)
+                    {
+                        case BuiltInCategory.OST_PipeCurves:
+                            break;
+                        default:
+                            break;
+                    }
+
+                    break;
+                case 3:
+                    break;
+                case 4:
+                    break;
+                default:
+                    break;
             }
         }
     }
