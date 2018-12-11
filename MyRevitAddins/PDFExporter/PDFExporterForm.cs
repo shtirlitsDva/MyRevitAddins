@@ -134,7 +134,7 @@ namespace PDFExporter
                     Parameter curRevision = sheet.get_Parameter(BuiltInParameter.SHEET_CURRENT_REVISION);
                     string revision = curRevision.AsString();
 
-                    if (revision.IsNullOrEmpty())
+                    if (!revision.IsNullOrEmpty())
                     {
                         sheetFileName = sheet.SheetNumber + "-" + revision + " - " + sheet.Name + ".pdf";
                     }
@@ -288,25 +288,27 @@ namespace PDFExporter
             FilteredElementCollector colPs = new FilteredElementCollector(doc);
             var printSettings = colPs.OfClass(typeof(PrintSetting)).Cast<PrintSetting>().ToHashSet();
 
-            foreach (ViewSheet sheet in sheetSet.Views)
+            using (Transaction trans = new Transaction(doc))
             {
-                FamilyInstance titleBlock =
-                        fi.GetElements<FamilyInstance, BuiltInParameter>(doc, BuiltInParameter.SHEET_NUMBER, sheet.SheetNumber).FirstOrDefault();
+                trans.Start("PrintSettings");
+                //PrintManager pm = doc.PrintManager;
 
-                var widthPar = titleBlock.get_Parameter(BuiltInParameter.SHEET_WIDTH);
-                var width = Convert.ToInt32(widthPar.AsDouble().FtToMm().Round(0));
-
-                var heightPar = titleBlock.get_Parameter(BuiltInParameter.SHEET_HEIGHT);
-                var height = Convert.ToInt32(heightPar.AsDouble().FtToMm().Round(0));
-
-                var nameOfPaperSize = paperSizeDict[height][width];
-
-                if (printSettings.Any(x => x.Name == nameOfPaperSize)) continue;
-
-                using (Transaction trans = new Transaction(doc))
+                foreach (ViewSheet sheet in sheetSet.Views)
                 {
-                    trans.Start("PrintSettings");
-                    //PrintManager pm = doc.PrintManager;
+                    FamilyInstance titleBlock =
+                            fi.GetElements<FamilyInstance, BuiltInParameter>(doc, BuiltInParameter.SHEET_NUMBER, sheet.SheetNumber).FirstOrDefault();
+
+                    var widthPar = titleBlock.get_Parameter(BuiltInParameter.SHEET_WIDTH);
+                    var width = Convert.ToInt32(widthPar.AsDouble().FtToMm().Round(0));
+
+                    var heightPar = titleBlock.get_Parameter(BuiltInParameter.SHEET_HEIGHT);
+                    var height = Convert.ToInt32(heightPar.AsDouble().FtToMm().Round(0));
+
+                    var nameOfPaperSize = paperSizeDict[height][width];
+
+                    if (printSettings.Any(x => x.Name == nameOfPaperSize)) continue;
+
+
 
 
                     pm.PrintRange = PrintRange.Select;
@@ -338,10 +340,20 @@ namespace PDFExporter
 
                     pm.Apply();
 
-                    pm.PrintSetup.SaveAs(paperSize.Name);
+                    try
+                    {
+                        pm.PrintSetup.SaveAs(paperSize.Name);
+                    }
+                    catch (Exception)
+                    {
 
-                    trans.Commit();
+                    }
+
+
+
                 }
+
+                trans.Commit();
             }
         }
 

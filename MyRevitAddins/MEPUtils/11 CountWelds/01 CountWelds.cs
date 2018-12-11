@@ -133,7 +133,7 @@ namespace MEPUtils.CountWelds
                 #region Analysis
                 foreach (var csg in csgList)
                 {
-                    csg.
+                    //csg.
                 }
                 #endregion
 
