@@ -215,7 +215,8 @@ namespace MEPUtils.CountWelds
         PipeToAccessory,
         FittingToFitting,
         FittingToAccessory,
-        PipeSupport
+        PipeSupportOnExisting,
+        PipeSupportValid
     }
 
     [DataContract]
@@ -231,6 +232,8 @@ namespace MEPUtils.CountWelds
         public List<string> SpecList = new List<string>();
         [DataMember]
         public string Description = string.Empty;
+
+        public bool IncludeInCount = false;
         //[DataMember]
         //ConnectionType connectionType = 0;
         //[DataMember]
@@ -274,27 +277,29 @@ namespace MEPUtils.CountWelds
                     Description = "Invalid 1 connector group!";
                     break;
                 case 2:
-                    Element firstEl = null;
-                    Element secondEl = null;
-                    BuiltInCategory firstCat = BuiltInCategory.INVALID;
-                    BuiltInCategory secondCat = BuiltInCategory.INVALID;
-
-                    int counter = 0;
-                    foreach (Connector con in Connectors)
                     {
-                        Element owner = con.Owner;
-                        Category cat = owner.Category;
-                        BuiltInCategory bic = (BuiltInCategory)cat.Id.IntegerValue;
+                        Element firstEl = null;
+                        Element secondEl = null;
+                        BuiltInCategory firstCat = BuiltInCategory.INVALID;
+                        BuiltInCategory secondCat = BuiltInCategory.INVALID;
 
-                        if (counter == 0) { firstEl = owner; firstCat = bic; }
-                        else { secondEl = owner; secondCat = bic; }
-                        counter++;
+                        int counter = 0;
+                        foreach (Connector con in Connectors)
+                        {
+                            Element owner = con.Owner;
+                            Category cat = owner.Category;
+                            BuiltInCategory bic = (BuiltInCategory)cat.Id.IntegerValue;
+
+                            if (counter == 0) { firstEl = owner; firstCat = bic; }
+                            else { secondEl = owner; secondCat = bic; }
+                            counter++;
+                        }
+
+                        Parameter par1 = firstEl.get_Parameter(new Guid("d39418f2-fcb3-4dd1-b0be-3d647486ebe6")); //PCF_MAT_DESCR
+                        Parameter par2 = secondEl.get_Parameter(new Guid("d39418f2-fcb3-4dd1-b0be-3d647486ebe6")); //PCF_MAT_DESCR
+
+                        Description = par1.AsString() + " to " + par2.AsString(); 
                     }
-
-                    Parameter par1 = firstEl.get_Parameter(new Guid("d39418f2-fcb3-4dd1-b0be-3d647486ebe6")); //PCF_MAT_DESCR
-                    Parameter par2 = secondEl.get_Parameter(new Guid("d39418f2-fcb3-4dd1-b0be-3d647486ebe6")); //PCF_MAT_DESCR
-
-                    Description = par1.AsString() + " to " + par2.AsString();
 
                     //switch (firstCat)
                     //{
@@ -330,6 +335,32 @@ namespace MEPUtils.CountWelds
                 case 3:
                     break;
                 case 4:
+	                {
+                        Element firstEl = null;
+                        Element secondEl = null;
+                        Element thirdEl = null;
+                        Element fourthEl = null;
+                        BuiltInCategory firstCat = BuiltInCategory.INVALID;
+                        BuiltInCategory secondCat = BuiltInCategory.INVALID;
+                        BuiltInCategory thirdCat = BuiltInCategory.INVALID;
+                        BuiltInCategory fourthCat = BuiltInCategory.INVALID;
+
+                        int counter = 0;
+                        foreach (Connector con in Connectors)
+                        {
+                            Element owner = con.Owner;
+                            Category cat = owner.Category;
+                            BuiltInCategory bic = (BuiltInCategory)cat.Id.IntegerValue;
+
+                            if (counter == 0) { firstEl = owner; firstCat = bic; }
+                            else if (counter == 1) { secondEl = owner; secondCat = bic; }
+                            else if (counter == 2) { thirdEl = owner; thirdCat = bic; }
+                            else { fourthEl = owner; fourthCat = bic; }
+                            counter++;
+                        } 
+
+
+                    }
                     break;
                 default:
                     break;
