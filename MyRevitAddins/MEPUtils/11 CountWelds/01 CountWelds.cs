@@ -133,7 +133,7 @@ namespace MEPUtils.CountWelds
                 #region Analysis
                 foreach (var csg in csgList)
                 {
-                    //csg.
+                    csg.Analyze();
                 }
                 #endregion
 
@@ -230,21 +230,23 @@ namespace MEPUtils.CountWelds
         [DataMember]
         public List<string> SpecList = new List<string>();
         [DataMember]
-        ConnectionType connectionType = 0;
-        [DataMember]
-        Element pipe1 = null;
-        [DataMember]
-        Element pipe2 = null;
-        [DataMember]
-        Element fitting1 = null;
-        [DataMember]
-        Element fitting2 = null;
-        [DataMember]
-        Element accessory1 = null;
-        [DataMember]
-        Element accessory2 = null;
-        [DataMember]
-        Element pipeSupport = null;
+        public string Description = string.Empty;
+        //[DataMember]
+        //ConnectionType connectionType = 0;
+        //[DataMember]
+        //Element pipe1 = null;
+        //[DataMember]
+        //Element pipe2 = null;
+        //[DataMember]
+        //Element fitting1 = null;
+        //[DataMember]
+        //Element fitting2 = null;
+        //[DataMember]
+        //Element accessory1 = null;
+        //[DataMember]
+        //Element accessory2 = null;
+        //[DataMember]
+        //Element pipeSupport = null;
 
         internal connectorSpatialGroup(IEnumerable<Connector> collection)
         {
@@ -268,7 +270,8 @@ namespace MEPUtils.CountWelds
             switch (nrOfCons)
             {
                 case 1:
-                    connectionType = ConnectionType.Invalid;
+                    //connectionType = ConnectionType.Invalid;
+                    Description = "Invalid 1 connector group!";
                     break;
                 case 2:
                     Element firstEl = null;
@@ -288,13 +291,40 @@ namespace MEPUtils.CountWelds
                         counter++;
                     }
 
-                    switch (firstCat)
-                    {
-                        case BuiltInCategory.OST_PipeCurves:
-                            break;
-                        default:
-                            break;
-                    }
+                    Parameter par1 = firstEl.get_Parameter(new Guid("d39418f2-fcb3-4dd1-b0be-3d647486ebe6")); //PCF_MAT_DESCR
+                    Parameter par2 = secondEl.get_Parameter(new Guid("d39418f2-fcb3-4dd1-b0be-3d647486ebe6")); //PCF_MAT_DESCR
+
+                    Description = par1.AsString() + " to " + par2.AsString();
+
+                    //switch (firstCat)
+                    //{
+                    //    case BuiltInCategory.OST_PipeCurves:
+                    //        pipe1 = firstEl;
+                    //        break;
+                    //    case BuiltInCategory.OST_PipeFitting:
+                    //        fitting1 = firstEl;
+                    //        break;
+                    //    case BuiltInCategory.OST_PipeAccessory:
+                    //        accessory1 = firstEl;
+                    //        break;
+                    //    default:
+                    //        break;
+                    //}
+
+                    //switch (secondCat)
+                    //{
+                    //    case BuiltInCategory.OST_PipeCurves:
+                    //        pipe2 = secondEl;
+                    //        break;
+                    //    case BuiltInCategory.OST_PipeFitting:
+                    //        fitting2 = secondEl;
+                    //        break;
+                    //    case BuiltInCategory.OST_PipeAccessory:
+                    //        accessory2 = secondEl;
+                    //        break;
+                    //    default:
+                    //        break;
+                    //}
 
                     break;
                 case 3:
