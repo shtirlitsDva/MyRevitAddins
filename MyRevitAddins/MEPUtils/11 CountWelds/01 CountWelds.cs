@@ -215,8 +215,10 @@ namespace MEPUtils.CountWelds
         PipeToAccessory,
         FittingToFitting,
         FittingToAccessory,
+        FittingToMechanicalEquipment,
         PipeSupportOnExisting,
-        PipeSupportValid
+        PipeSupportValid,
+        AccessoryToAccessory
     }
 
     [DataContract]
@@ -231,11 +233,11 @@ namespace MEPUtils.CountWelds
         [DataMember]
         public List<string> SpecList = new List<string>();
         [DataMember]
-        public string Description = string.Empty;
+        public string Description = "Not initialized";
 
         public bool IncludeInCount = false;
-        //[DataMember]
-        //ConnectionType connectionType = 0;
+        [DataMember]
+        ConnectionType connectionType = 0;
         //[DataMember]
         //Element pipe1 = null;
         //[DataMember]
@@ -273,7 +275,7 @@ namespace MEPUtils.CountWelds
             switch (nrOfCons)
             {
                 case 1:
-                    //connectionType = ConnectionType.Invalid;
+                    connectionType = ConnectionType.Invalid;
                     Description = "Invalid 1 connector group!";
                     break;
                 case 2:
@@ -282,6 +284,7 @@ namespace MEPUtils.CountWelds
                         Element secondEl = null;
                         BuiltInCategory firstCat = BuiltInCategory.INVALID;
                         BuiltInCategory secondCat = BuiltInCategory.INVALID;
+                        string catCombine = firstCat.ToString() + ", " + secondCat.ToString();
 
                         int counter = 0;
                         foreach (Connector con in Connectors)
@@ -295,42 +298,47 @@ namespace MEPUtils.CountWelds
                             counter++;
                         }
 
-                        Parameter par1 = firstEl.get_Parameter(new Guid("d39418f2-fcb3-4dd1-b0be-3d647486ebe6")); //PCF_MAT_DESCR
-                        Parameter par2 = secondEl.get_Parameter(new Guid("d39418f2-fcb3-4dd1-b0be-3d647486ebe6")); //PCF_MAT_DESCR
+                        //NOTE: Only connection to mechanical equipment through fittings eg. flanges are implemented
 
-                        Description = par1.AsString() + " to " + par2.AsString(); 
+                        switch (catCombine)
+                        {
+                            case "OST_PipeCurves, OST_PipeCurves":
+                                connectionType = ConnectionType.PipeToPipe;
+                                Description = "Pipe to Pipe";
+                                break;
+                            case "OST_PipeCurves, OST_PipeFitting":
+                            case "OST_PipeFitting, OST_PipeCurves":
+                                connectionType = ConnectionType.PipeToFitting;
+                                Description = "Pipe to Fitting";
+                                break;
+                            case "OST_PipeCurves, OST_PipeAccessory":
+                            case "OST_PipeAccessory, OST_PipeCurves":
+                                connectionType = ConnectionType.PipeToAccessory;
+                                Description = "Pipe to Accessory";
+                                break;
+                            case "OST_PipeFitting, OST_PipeAccessory":
+                            case "OST_PipeAccessory, OST_PipeFitting":
+                                connectionType = ConnectionType.FittingToAccessory;
+                                Description = "Fitting to Accessory";
+                                break;
+                            case "OST_PipeFitting, OST_PipeFitting":
+                                connectionType = ConnectionType.FittingToFitting;
+                                Description = "Fitting to Fitting";
+                                break;
+                            case "OST_PipeAccessory, OST_PipeAccessory":
+                                connectionType = ConnectionType.AccessoryToAccessory;
+                                Description = "Accessory to Accessory";
+                                break;
+                            case "OST_PipeFitting, OST_MechanicalEquipment":
+                                connectionType = ConnectionType.FittingToMechanicalEquipment;
+                                Description = "Fitting to Mech Equipment";
+                                break;
+                            default:
+                                connectionType = ConnectionType.Unknown;
+                                Description = "Elements " + firstEl.Id.ToString() + " and " + secondEl.Id.ToString() + " form an unknown connection type!";
+                                break;
+                        }
                     }
-
-                    //switch (firstCat)
-                    //{
-                    //    case BuiltInCategory.OST_PipeCurves:
-                    //        pipe1 = firstEl;
-                    //        break;
-                    //    case BuiltInCategory.OST_PipeFitting:
-                    //        fitting1 = firstEl;
-                    //        break;
-                    //    case BuiltInCategory.OST_PipeAccessory:
-                    //        accessory1 = firstEl;
-                    //        break;
-                    //    default:
-                    //        break;
-                    //}
-
-                    //switch (secondCat)
-                    //{
-                    //    case BuiltInCategory.OST_PipeCurves:
-                    //        pipe2 = secondEl;
-                    //        break;
-                    //    case BuiltInCategory.OST_PipeFitting:
-                    //        fitting2 = secondEl;
-                    //        break;
-                    //    case BuiltInCategory.OST_PipeAccessory:
-                    //        accessory2 = secondEl;
-                    //        break;
-                    //    default:
-                    //        break;
-                    //}
-
                     break;
                 case 3:
                     break;
