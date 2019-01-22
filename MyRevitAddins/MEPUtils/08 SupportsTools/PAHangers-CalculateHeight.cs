@@ -45,8 +45,7 @@ namespace MEPUtils.PAHangers
                     double topLvlElevation = topLvl.Elevation;
 
                     //Collect elements
-                    var springs = fi.GetElements<FamilyInstance, BuiltInParameter>(doc, BuiltInParameter.ELEM_FAMILY_PARAM, "Spring Hanger - Simple");
-                    var rigids = fi.GetElements<FamilyInstance, BuiltInParameter>(doc, BuiltInParameter.ELEM_FAMILY_PARAM, "Rigid Hanger - Simple");
+                    var  = fi.GetElements<FamilyInstance, BuiltInParameter>(doc, BuiltInParameter.ELEM_FAMILY_PARAM, "Spring Hanger - Simple");
                     HashSet<Element> allHangers = new HashSet<Element>();
                     allHangers.UnionWith(springs.Cast<Element>().ToHashSet());
                     allHangers.UnionWith(rigids.Cast<Element>().ToHashSet());
