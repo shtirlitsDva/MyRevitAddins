@@ -127,7 +127,7 @@ namespace MEPUtils.CountWelds
                 csgList = csgList.ExceptWhere(x => x.nrOfCons < 2).ToList();
 
                 //2) If all specs are EXISTING ignore group
-                csgList = csgList.ExceptWhere(x => x.SpecList.Distinct().Count() < 2 && x.SpecList.First() == "EXISTING" ).ToList();
+                csgList = csgList.ExceptWhere(x => x.SpecList.Distinct().Count() < 2 && x.SpecList.First() == "EXISTING").ToList();
                 #endregion
 
                 #region Analysis
@@ -271,6 +271,12 @@ namespace MEPUtils.CountWelds
             Connector sampleCon = Connectors.FirstOrDefault();
             DN = (sampleCon.Radius * 2).FtToMm().Round();
 
+            //For shorter reference in the code
+            BuiltInCategory pipeBic = BuiltInCategory.OST_PipeCurves;
+            BuiltInCategory fitBic = BuiltInCategory.OST_PipeFitting;
+            BuiltInCategory accBic = BuiltInCategory.OST_PipeAccessory;
+            BuiltInCategory mechBic = BuiltInCategory.OST_MechanicalEquipment;
+
             //Analyze connectors
             switch (nrOfCons)
             {
@@ -284,7 +290,6 @@ namespace MEPUtils.CountWelds
                         Element secondEl = null;
                         BuiltInCategory firstCat = BuiltInCategory.INVALID;
                         BuiltInCategory secondCat = BuiltInCategory.INVALID;
-                        string catCombine = firstCat.ToString() + ", " + secondCat.ToString();
 
                         int counter = 0;
                         foreach (Connector con in Connectors)
@@ -298,38 +303,47 @@ namespace MEPUtils.CountWelds
                             counter++;
                         }
 
+                        //string catCombine = firstCat.ToString() + ", " + secondCat.ToString();
+
                         //NOTE: Only connection to mechanical equipment through fittings eg. flanges are implemented
 
-                        switch (catCombine)
+                        //I would like to use switching on tuple type
+                        //It is more terse with switchin on a combined string
+                        //But I want to have an example of more advanced switch
+                        //In my code even if it means more complexity
+                        (BuiltInCategory, BuiltInCategory) switchTuple = (firstCat, secondCat);
+
+                        switch (switchTuple)
                         {
-                            case "OST_PipeCurves, OST_PipeCurves":
+                            case var tuple when tuple.Item1 == pipeBic && tuple.Item2 == pipeBic:
                                 connectionType = ConnectionType.PipeToPipe;
                                 Description = "Pipe to Pipe";
                                 break;
-                            case "OST_PipeCurves, OST_PipeFitting":
-                            case "OST_PipeFitting, OST_PipeCurves":
+                            case var tuple when (tuple.Item1 == pipeBic && tuple.Item2 == fitBic) ||
+                                                (tuple.Item1 == fitBic && tuple.Item2 == pipeBic):
                                 connectionType = ConnectionType.PipeToFitting;
                                 Description = "Pipe to Fitting";
                                 break;
-                            case "OST_PipeCurves, OST_PipeAccessory":
-                            case "OST_PipeAccessory, OST_PipeCurves":
+                            case var tuple when (tuple.Item1 == pipeBic && tuple.Item2 == accBic) ||
+                                                (tuple.Item1 == accBic && tuple.Item2 == pipeBic):
                                 connectionType = ConnectionType.PipeToAccessory;
                                 Description = "Pipe to Accessory";
                                 break;
-                            case "OST_PipeFitting, OST_PipeAccessory":
-                            case "OST_PipeAccessory, OST_PipeFitting":
+                            case var tuple when (tuple.Item1 == fitBic && tuple.Item2 == accBic) ||
+                                                (tuple.Item1 == accBic && tuple.Item2 == fitBic):
                                 connectionType = ConnectionType.FittingToAccessory;
                                 Description = "Fitting to Accessory";
                                 break;
-                            case "OST_PipeFitting, OST_PipeFitting":
+                            case var tuple when (tuple.Item1 == fitBic && tuple.Item2 == fitBic):
                                 connectionType = ConnectionType.FittingToFitting;
                                 Description = "Fitting to Fitting";
                                 break;
-                            case "OST_PipeAccessory, OST_PipeAccessory":
+                            case var tuple when (tuple.Item1 == accBic && tuple.Item2 == accBic):
                                 connectionType = ConnectionType.AccessoryToAccessory;
                                 Description = "Accessory to Accessory";
                                 break;
-                            case "OST_PipeFitting, OST_MechanicalEquipment":
+                            case var tuple when (tuple.Item1 == fitBic && tuple.Item2 == mechBic) ||
+                                                (tuple.Item1 == mechBic && tuple.Item2 == fitBic):
                                 connectionType = ConnectionType.FittingToMechanicalEquipment;
                                 Description = "Fitting to Mech Equipment";
                                 break;
@@ -343,7 +357,7 @@ namespace MEPUtils.CountWelds
                 case 3:
                     break;
                 case 4:
-	                {
+                    {
                         Element firstEl = null;
                         Element secondEl = null;
                         Element thirdEl = null;
@@ -365,7 +379,7 @@ namespace MEPUtils.CountWelds
                             else if (counter == 2) { thirdEl = owner; thirdCat = bic; }
                             else { fourthEl = owner; fourthCat = bic; }
                             counter++;
-                        } 
+                        }
 
 
                     }
