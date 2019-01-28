@@ -223,6 +223,7 @@ namespace MEPUtils.CountWelds
         FlangeConnection,
         PipeSupportOnExisting,
         PipeSupportValid,
+        PipeSupportCoincidentWithWeld,
         ScrewedConnection
     }
 
@@ -419,6 +420,8 @@ namespace MEPUtils.CountWelds
                         if (bicSet.Where(x => x == BuiltInCategory.OST_PipeCurves).Count() < 2)
                         {
                             IncludeInCount = true;
+                            Description = "Support on a weld";
+                            connectionType = ConnectionType.PipeSupportCoincidentWithWeld;
                         }
                     }
                     break;
