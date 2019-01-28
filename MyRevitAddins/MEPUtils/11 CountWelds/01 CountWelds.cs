@@ -135,6 +135,9 @@ namespace MEPUtils.CountWelds
                 {
                     csg.Analyze();
                 }
+                //Remove the CSGs that are determined not to be counted
+                csgList = csgList.Where(x => x.IncludeInCount == true).ToList();
+
                 #endregion
 
                 #region QualityAssurance
@@ -210,15 +213,17 @@ namespace MEPUtils.CountWelds
         Uninitialized, //Assigned at object creation -> can be used to check if alle objects are processed -> all objects must get another type assigned
         Unknown, //Assigned if the program cannot determine the connection type -> the program must be modified to accomodate for causing case
         Invalid, //The conditions state that the connection should not be there at all -> investigate
+        AccessoryToAccessory,
         PipeToPipe,
         PipeToFitting,
         PipeToAccessory,
         FittingToFitting,
         FittingToAccessory,
         FittingToMechanicalEquipment,
+        FlangeConnection,
         PipeSupportOnExisting,
         PipeSupportValid,
-        AccessoryToAccessory
+        ScrewedConnection
     }
 
     [DataContract]
@@ -230,38 +235,27 @@ namespace MEPUtils.CountWelds
         public double DN = 0;
         [DataMember]
         public int nrOfCons = 0;
-        [DataMember]
+        [DataMember] //More of a debug property, maybe should be removed later on
         public List<string> SpecList = new List<string>();
         [DataMember]
         public string Description = "Not initialized";
-
         public bool IncludeInCount = false;
         [DataMember]
         ConnectionType connectionType = 0;
-        //[DataMember]
-        //Element pipe1 = null;
-        //[DataMember]
-        //Element pipe2 = null;
-        //[DataMember]
-        //Element fitting1 = null;
-        //[DataMember]
-        //Element fitting2 = null;
-        //[DataMember]
-        //Element accessory1 = null;
-        //[DataMember]
-        //Element accessory2 = null;
-        //[DataMember]
-        //Element pipeSupport = null;
+        [DataMember] //More of a debug property
+        List<string> ListOfIds = null;
 
         internal connectorSpatialGroup(IEnumerable<Connector> collection)
         {
             Connectors = collection.ToList();
             nrOfCons = Connectors.Count();
+            ListOfIds = new List<string>(nrOfCons);
             foreach (Connector con in collection)
             {
                 Element owner = con.Owner;
                 Parameter par = owner.get_Parameter(new Guid("90be8246-25f7-487d-b352-554f810fcaa7")); //PCF_ELEM_SPEC parameter
                 SpecList.Add(par.AsString());
+                ListOfIds.Add(owner.Id.ToString());
             }
         }
 
@@ -277,20 +271,31 @@ namespace MEPUtils.CountWelds
             BuiltInCategory accBic = BuiltInCategory.OST_PipeAccessory;
             BuiltInCategory mechBic = BuiltInCategory.OST_MechanicalEquipment;
 
+            Element firstEl = null;
+            Element secondEl = null;
+            Element thirdEl = null;
+            Element fourthEl = null;
+
+            BuiltInCategory firstCat = BuiltInCategory.INVALID;
+            BuiltInCategory secondCat = BuiltInCategory.INVALID;
+            BuiltInCategory thirdCat = BuiltInCategory.INVALID;
+            BuiltInCategory fourthCat = BuiltInCategory.INVALID;
+
+            Connector firstCon = null;
+            Connector secondCon = null;
+            Connector thirdCon = null;
+            Connector fourthCon = null;
+
             //Analyze connectors
             switch (nrOfCons)
             {
                 case 1:
+                    //These should have been discarded earlier
                     connectionType = ConnectionType.Invalid;
                     Description = "Invalid 1 connector group!";
                     break;
                 case 2:
                     {
-                        Element firstEl = null;
-                        Element secondEl = null;
-                        BuiltInCategory firstCat = BuiltInCategory.INVALID;
-                        BuiltInCategory secondCat = BuiltInCategory.INVALID;
-
                         int counter = 0;
                         foreach (Connector con in Connectors)
                         {
@@ -298,8 +303,8 @@ namespace MEPUtils.CountWelds
                             Category cat = owner.Category;
                             BuiltInCategory bic = (BuiltInCategory)cat.Id.IntegerValue;
 
-                            if (counter == 0) { firstEl = owner; firstCat = bic; }
-                            else { secondEl = owner; secondCat = bic; }
+                            if (counter == 0) { firstEl = owner; firstCat = bic; firstCon = con; }
+                            else { secondEl = owner; secondCat = bic; secondCon = con; }
                             counter++;
                         }
 
@@ -315,58 +320,79 @@ namespace MEPUtils.CountWelds
 
                         switch (switchTuple)
                         {
-                            case var tuple when tuple.Item1 == pipeBic && tuple.Item2 == pipeBic:
+                            case var tpl when tpl.Item1 == pipeBic && tpl.Item2 == pipeBic:
                                 connectionType = ConnectionType.PipeToPipe;
                                 Description = "Pipe to Pipe";
+                                IncludeInCount = true;
                                 break;
-                            case var tuple when (tuple.Item1 == pipeBic && tuple.Item2 == fitBic) ||
-                                                (tuple.Item1 == fitBic && tuple.Item2 == pipeBic):
+                            case var tpl when (tpl.Item1 == pipeBic && tpl.Item2 == fitBic) ||
+                                                (tpl.Item1 == fitBic && tpl.Item2 == pipeBic):
                                 connectionType = ConnectionType.PipeToFitting;
                                 Description = "Pipe to Fitting";
+                                IncludeInCount = true;
                                 break;
-                            case var tuple when (tuple.Item1 == pipeBic && tuple.Item2 == accBic) ||
-                                                (tuple.Item1 == accBic && tuple.Item2 == pipeBic):
+                            case var tpl when (tpl.Item1 == pipeBic && tpl.Item2 == accBic) ||
+                                                (tpl.Item1 == accBic && tpl.Item2 == pipeBic):
                                 connectionType = ConnectionType.PipeToAccessory;
                                 Description = "Pipe to Accessory";
+                                IncludeInCount = true;
                                 break;
-                            case var tuple when (tuple.Item1 == fitBic && tuple.Item2 == accBic) ||
-                                                (tuple.Item1 == accBic && tuple.Item2 == fitBic):
+                            case var tpl when (tpl.Item1 == fitBic && tpl.Item2 == accBic) ||
+                                                (tpl.Item1 == accBic && tpl.Item2 == fitBic):
                                 connectionType = ConnectionType.FittingToAccessory;
                                 Description = "Fitting to Accessory";
+                                IncludeInCount = true;
                                 break;
-                            case var tuple when (tuple.Item1 == fitBic && tuple.Item2 == fitBic):
+                            case var tpl when (tpl.Item1 == fitBic && tpl.Item2 == fitBic):
                                 connectionType = ConnectionType.FittingToFitting;
                                 Description = "Fitting to Fitting";
+                                IncludeInCount = true;
                                 break;
-                            case var tuple when (tuple.Item1 == accBic && tuple.Item2 == accBic):
+                            case var tpl when (tpl.Item1 == accBic && tpl.Item2 == accBic):
                                 connectionType = ConnectionType.AccessoryToAccessory;
                                 Description = "Accessory to Accessory";
+                                IncludeInCount = true;
                                 break;
-                            case var tuple when (tuple.Item1 == fitBic && tuple.Item2 == mechBic) ||
-                                                (tuple.Item1 == mechBic && tuple.Item2 == fitBic):
+                            case var tpl when (tpl.Item1 == fitBic && tpl.Item2 == mechBic) ||
+                                                (tpl.Item1 == mechBic && tpl.Item2 == fitBic):
                                 connectionType = ConnectionType.FittingToMechanicalEquipment;
                                 Description = "Fitting to Mech Equipment";
+                                IncludeInCount = true;
                                 break;
                             default:
                                 connectionType = ConnectionType.Unknown;
                                 Description = "Elements " + firstEl.Id.ToString() + " and " + secondEl.Id.ToString() + " form an unknown connection type!";
+                                IncludeInCount = false;
                                 break;
                         }
+
+                        //Handle special cases
+                        //1. Flange connection
+                        //The primary connector of flanges is always a flange end, secondary is weld.
+                        //TODO: implement a generic setup routine or something for FamilyNames
+                        if (firstEl.FamilyName() == "Flange weld collar" ||
+                            firstEl.FamilyName() == "Blind Flange")
+                        {
+                            if (firstCon.GetMEPConnectorInfo().IsPrimary) { IncludeInCount = false; connectionType = ConnectionType.FlangeConnection; }
+                        }
+                        if (secondEl.FamilyName() == "Flange weld collar" ||
+                            secondEl.FamilyName() == "Blind Flange")
+                        {
+                            if (secondCon.GetMEPConnectorInfo().IsPrimary) { IncludeInCount = false; connectionType = ConnectionType.FlangeConnection; }
+                        }
+
+                        //2. Screwed connections -> mainly small bore instruments
+                        if (firstCon.Description == "SC" || secondCon.Description == "SC")
+                        { IncludeInCount = false; connectionType = ConnectionType.ScrewedConnection; }
                     }
                     break;
                 case 3:
+                    //These should not occure
+                    connectionType = ConnectionType.Invalid;
+                    Description = "Invalid 3 connector group!";
                     break;
                 case 4:
                     {
-                        Element firstEl = null;
-                        Element secondEl = null;
-                        Element thirdEl = null;
-                        Element fourthEl = null;
-                        BuiltInCategory firstCat = BuiltInCategory.INVALID;
-                        BuiltInCategory secondCat = BuiltInCategory.INVALID;
-                        BuiltInCategory thirdCat = BuiltInCategory.INVALID;
-                        BuiltInCategory fourthCat = BuiltInCategory.INVALID;
-
                         int counter = 0;
                         foreach (Connector con in Connectors)
                         {
@@ -374,17 +400,31 @@ namespace MEPUtils.CountWelds
                             Category cat = owner.Category;
                             BuiltInCategory bic = (BuiltInCategory)cat.Id.IntegerValue;
 
-                            if (counter == 0) { firstEl = owner; firstCat = bic; }
-                            else if (counter == 1) { secondEl = owner; secondCat = bic; }
-                            else if (counter == 2) { thirdEl = owner; thirdCat = bic; }
-                            else { fourthEl = owner; fourthCat = bic; }
-                            counter++;
+                            switch (counter)
+                            {
+                                case 0: firstEl = owner; firstCat = bic; firstCon = con; counter++; break;
+                                case 1: secondEl = owner; secondCat = bic; secondCon = con; counter++; break;
+                                case 2: thirdEl = owner; thirdCat = bic; thirdCon = con; counter++; break;
+                                case 3: fourthEl = owner; fourthCat = bic; fourthCon = con; counter++; break;
+                            }
                         }
 
+                        HashSet<BuiltInCategory> bicSet = new HashSet<BuiltInCategory> { firstCat, secondCat, thirdCat, fourthCat };
 
+                        //4 connector groups are only occuring with pipesupports
+                        //Therefore they are by default, in current state at least, noncountable
+                        IncludeInCount = false;
+                        //So countable cases must be actively detected
+                        //1. Support coincides with a weld -> no pipes or one is present in group
+                        if (bicSet.Where(x => x == BuiltInCategory.OST_PipeCurves).Count() < 2)
+                        {
+                            IncludeInCount = true;
+                        }
                     }
                     break;
                 default:
+                    connectionType = ConnectionType.Invalid;
+                    Description = "Illegal combination of " + nrOfCons + " connectors!";
                     break;
             }
         }
