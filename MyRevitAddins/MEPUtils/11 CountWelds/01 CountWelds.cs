@@ -264,7 +264,7 @@ namespace MEPUtils.CountWelds
         {
             //Determine DN of weld
             Connector sampleCon = Connectors.FirstOrDefault();
-            DN = (sampleCon.Radius * 2).FtToMm().Round().ToString("00");
+            DN = (sampleCon.Radius * 2).FtToMm().Round().ToString("000");
 
             //For shorter reference in the code
             BuiltInCategory pipeBic = BuiltInCategory.OST_PipeCurves;
