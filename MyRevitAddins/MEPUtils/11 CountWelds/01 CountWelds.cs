@@ -233,7 +233,7 @@ namespace MEPUtils.CountWelds
         public List<Connector> Connectors = new List<Connector>();
         //Welds can only be of one DN
         [DataMember]
-        public double DN = 0;
+        public string DN = "0";
         [DataMember]
         public int nrOfCons = 0;
         [DataMember] //More of a debug property, maybe should be removed later on
@@ -264,7 +264,7 @@ namespace MEPUtils.CountWelds
         {
             //Determine DN of weld
             Connector sampleCon = Connectors.FirstOrDefault();
-            DN = (sampleCon.Radius * 2).FtToMm().Round();
+            DN = (sampleCon.Radius * 2).FtToMm().Round().ToString("00");
 
             //For shorter reference in the code
             BuiltInCategory pipeBic = BuiltInCategory.OST_PipeCurves;
