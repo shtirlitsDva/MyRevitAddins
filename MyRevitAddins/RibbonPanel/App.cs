@@ -118,6 +118,13 @@ More than two elements selected + CTRL
             data.Image = NewBitmapImage(exe, "MyRibbonPanel.Resources.ImgPDF16.png");
             data.LargeImage = NewBitmapImage(exe, "MyRibbonPanel.Resources.ImgPDF32.png");
             PushButton PDFExporter = rvtRibbonPanel.AddItem(data) as PushButton;
+
+            //PED
+            data = new PushButtonData("Mark", "Mark", ExecutingAssemblyPath, "MyRibbonPanel.SetMarkCaller");
+            data.ToolTip = "Sets the mark of selected element(s).";
+            data.Image = NewBitmapImage(exe, "MyRibbonPanel.Resources.ImgSetMark16.png");
+            data.LargeImage = NewBitmapImage(exe, "MyRibbonPanel.Resources.ImgSetMark32.png");
+            PushButton SetMark = rvtRibbonPanel.AddItem(data) as PushButton;
         }
     }
 
@@ -254,6 +261,16 @@ More than two elements selected + CTRL
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
             Result result = RevitUICustomization.RevitUICustomization.test(commandData);
+            return result;
+        }
+    }
+
+    [Autodesk.Revit.Attributes.Transaction(Autodesk.Revit.Attributes.TransactionMode.Manual)]
+    class SetMarkCaller : IExternalCommand
+    {
+        public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
+        {
+            Result result = MEPUtils.SetMark.SetMark.SetMarkExecute(commandData);
             return result;
         }
     }

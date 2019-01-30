@@ -11,5 +11,8 @@
     <Setting Name="CountWelds_PathToExportJson" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
+    <Setting Name="SetMark_ValueToSet" Type="System.String" Scope="User">
+      <Value Profile="(Default)">200</Value>
+    </Setting>
   </Settings>
 </SettingsFile>
