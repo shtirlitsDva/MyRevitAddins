@@ -46,7 +46,9 @@ namespace MEPUtils.PAHangers
 
                     //Collect elements
                     var hangerSupports = fi.GetElements<FamilyInstance, Guid>(doc, new Guid("e0baa750-22ba-4e60-9466-803137a0cba8"), "Hænger");
-                    HashSet<Element> allHangers = new HashSet<Element>(hangerSupports.Cast<Element>());
+                    //Hangers must be of Category PipeAccessory
+                    HashSet<Element> allHangers = new HashSet<Element>(hangerSupports.Cast<Element>()
+                    .Where(x => x.Category.Id.IntegerValue == (int)BuiltInCategory.OST_PipeAccessory));
 
                     using (Transaction trans1 = new Transaction(doc))
                     {
