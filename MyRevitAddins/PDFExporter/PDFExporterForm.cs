@@ -122,6 +122,8 @@ namespace PDFExporter
                 PrintManager pm = doc.PrintManager;
                 PrintSetup ps = pm.PrintSetup;
                 pm.SelectNewPrintDriver("Bluebeam PDF");
+                pm = doc.PrintManager;
+                ps = pm.PrintSetup;
                 var paperSizes = pm.PaperSizes;
 
                 string title = doc.Title; //<- THIS CAN CAUSE PROBLEMS RECOGNISING THE ORIGINAL FILE NAME
@@ -283,6 +285,8 @@ namespace PDFExporter
             PrintManager pm = doc.PrintManager;
             PrintSetup ps = pm.PrintSetup;
             pm.SelectNewPrintDriver("Bluebeam PDF");
+            pm = doc.PrintManager;
+            ps = pm.PrintSetup;
             var paperSizes = pm.PaperSizes;
 
             FilteredElementCollector colPs = new FilteredElementCollector(doc);
@@ -306,10 +310,13 @@ namespace PDFExporter
 
                     var nameOfPaperSize = paperSizeDict[height][width];
 
-                    if (printSettings.Any(x => x.Name == nameOfPaperSize)) continue;
-
-
-
+                    if (printSettings.Any(x => x.Name == nameOfPaperSize))
+                    {
+                        PrintSetting pset = printSettings.Where(x => x.Name == nameOfPaperSize).FirstOrDefault();
+                        printSettings = printSettings.ExceptWhere(x => x.Name == nameOfPaperSize).ToHashSet();
+                        doc.Delete(pset.Id);
+                        doc.Regenerate();
+                    }
 
                     pm.PrintRange = PrintRange.Select;
                     pm.PrintToFile = true;
