@@ -41,7 +41,7 @@ namespace MEPUtils.MoveToDistance
                     Element MoveToEl = doc.GetElement(elId);
                     double distanceToKeep;
 
-                    //Select the direction to create in
+                    //Ask for a length input
                     InputBoxBasic ds = new InputBoxBasic();
                     ds.ShowDialog();
                     distanceToKeep = double.Parse(ds.DistanceToKeep).MmToFt();
@@ -85,6 +85,11 @@ namespace MEPUtils.MoveToDistance
             {
                 throw new Exception(ex.Message);
             }
+        }
+
+        private static HashSet<Connector> SpecialGetAllConnectors(HashSet<Element> elements)
+        {
+            return new HashSet<Connector>();
         }
 
         private static Element SelectElement(Document doc, UIDocument uidoc, string msg)
