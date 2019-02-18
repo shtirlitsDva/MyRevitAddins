@@ -47,9 +47,9 @@ namespace MEPUtils.MoveToDistance
                     distanceToKeep = double.Parse(ds.DistanceToKeep).MmToFt();
 
                     //Business logic to move but keep desired distance
-                    HashSet<Connector> toMoveCons = Shared.MepUtils.GetALLConnectorsFromElements(elsToMove);
+                    HashSet<Connector> toMoveCons = SpecialGetAllConnectors(elsToMove);
 
-                    HashSet<Connector> moveToCons = Shared.MepUtils.GetALLConnectorsFromElements(MoveToEl);
+                    HashSet<Connector> moveToCons = SpecialGetAllConnectors(new HashSet<Element> { MoveToEl });
 
                     var listToCompare = new List<(Connector toMoveCon, Connector MoveToCon, double Distance)>();
 
@@ -87,9 +87,23 @@ namespace MEPUtils.MoveToDistance
             }
         }
 
+        /// <summary>
+        /// This method treats SpudAdjustables (Olets) as special apart from other elements.
+        /// </summary>
         private static HashSet<Connector> SpecialGetAllConnectors(HashSet<Element> elements)
         {
-            return new HashSet<Connector>();
+            HashSet<Connector> col = new HashSet<Connector>();
+            foreach (var e in elements)
+            {
+                if (e.MechFittingPartType() == PartType.SpudAdjustable)
+                {
+                    Cons cons = mp.GetConnectors(e);
+                    col.Union(mp.GetAllConnectorsFromConnectorSet(cons.Primary.AllRefs));
+                    col.Add(cons.Secondary);
+                }
+                else col.Union(mp.GetALLConnectorsFromElements(e));
+            }
+            return col;
         }
 
         private static Element SelectElement(Document doc, UIDocument uidoc, string msg)

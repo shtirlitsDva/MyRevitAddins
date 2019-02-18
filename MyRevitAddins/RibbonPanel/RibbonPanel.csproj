@@ -53,6 +53,7 @@
   </PropertyGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="MyRevitAddins.addin" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
