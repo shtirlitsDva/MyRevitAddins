@@ -98,10 +98,14 @@ namespace MEPUtils.MoveToDistance
                 if (e.MechFittingPartType() == PartType.SpudAdjustable)
                 {
                     Cons cons = mp.GetConnectors(e);
-                    col.Union(mp.GetAllConnectorsFromConnectorSet(cons.Primary.AllRefs));
+                    col.UnionWith(mp.GetAllConnectorsFromConnectorSet(cons.Primary.AllRefs));
                     col.Add(cons.Secondary);
                 }
-                else col.Union(mp.GetALLConnectorsFromElements(e));
+                else
+                {
+                    var cons = mp.GetALLConnectorsFromElements(e);
+                    col.UnionWith(cons);
+                }
             }
             return col;
         }
