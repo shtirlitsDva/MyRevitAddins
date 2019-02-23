@@ -1,17 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using MoreLinq;
-using Autodesk.Revit.UI;
-using Autodesk.Revit.DB;
+﻿using Autodesk.Revit.DB;
 using Autodesk.Revit.DB.Plumbing;
 using Autodesk.Revit.DB.Structure;
+using Autodesk.Revit.UI;
+using MoreLinq;
 using Shared;
-using fi = Shared.Filter;
-using tr = Shared.Transformation;
-using mp = Shared.MepUtils;
-using lad = MEPUtils.CreateInstrumentation.ListsAndDicts;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using dbg = Shared.Dbg;
+using fi = Shared.Filter;
+using lad = MEPUtils.CreateInstrumentation.ListsAndDicts;
+using mp = Shared.MepUtils;
+using tr = Shared.Transformation;
 
 namespace MEPUtils.CreateInstrumentation
 {
@@ -32,12 +32,20 @@ namespace MEPUtils.CreateInstrumentation
                     Pipe selectedPipe;
                     XYZ iP;
 
+                    //TODO: Implement a selection of: 1) Point on a pipe selected directly 2) Distance from element on the pipe
                     using (Transaction trans1 = new Transaction(doc))
                     {
                         trans1.Start("SelectPipePoint");
                         (selectedPipe, iP) = SelectPipePoint(doc, uidoc);
                         trans1.Commit();
                     }
+
+                    string operation;
+
+                    //Select operation to perform
+                    BaseFormTableLayoutPanel_Basic op = new BaseFormTableLayoutPanel_Basic(lad.Operations());
+                    op.ShowDialog();
+                    operation = op.strTR;
 
                     string direction;
 
@@ -48,86 +56,175 @@ namespace MEPUtils.CreateInstrumentation
                     //ut.InfoMsg(ds.strTR);
 
                     string PipeTypeName;
+                    PipeType pipeType;
+                    double size;
+                    FamilyInstance olet;
+                    ElementId curLvlId;
+                    ElementId curPipingSysTypeId;
+                    ElementId curPipeTypeId;
 
-                    //Select type of Olet
-                    BaseFormTableLayoutPanel_Basic oletSelector = new BaseFormTableLayoutPanel_Basic(lad.PipeTypeByOlet());
-                    oletSelector.ShowDialog();
-                    PipeTypeName = oletSelector.strTR;
-                    //ut.InfoMsg(PipeTypeName);
-                    PipeType pipeType = fi.GetElements<PipeType, BuiltInParameter>(doc, BuiltInParameter.SYMBOL_NAME_PARAM, PipeTypeName).First();
-
-                    //Limit sizes for Olets
-                    List<string> sizeListing;
-                    switch (oletSelector.strTR)
+                    switch (operation)
                     {
-                        case "Stålrør, sømløse, termolomme":
-                        case "Stålrør, sømløse sockolet":
-                            sizeListing = lad.SockoletList();
+                        case "Auto ML":
+                            PipeTypeName = "Stålrør, sømløse sockolet";
+                            pipeType = fi.GetElements<PipeType, BuiltInParameter>(doc, BuiltInParameter.SYMBOL_NAME_PARAM, PipeTypeName).First();
+                            size = 20;
+
+                            curLvlId = selectedPipe.ReferenceLevel.Id;
+                            curPipingSysTypeId = selectedPipe.MEPSystem.GetTypeId();
+                            curPipeTypeId = pipeType.Id;
+
+                            using (Transaction trans2 = new Transaction(doc))
+                            {
+                                trans2.Start("Create Olet");
+
+                                Element dummyPipe;
+                                (olet, dummyPipe) = CreateOlet(doc, iP, direction, curPipingSysTypeId, curPipeTypeId,
+                                                  curLvlId, selectedPipe, size);
+                                if (olet == null || dummyPipe == null)
+                                {
+                                    txGp.RollBack();
+                                    return Result.Cancelled;
+                                };
+
+                                doc.Delete(dummyPipe.Id);
+
+                                trans2.Commit();
+                            }
+
+                            Cons oletCons = mp.GetConnectors(olet);
+
+                            Element elementSymbol = fi.GetElements<FamilySymbol, BuiltInParameter>(
+                                doc, BuiltInParameter.SYMBOL_FAMILY_AND_TYPE_NAMES_PARAM, "DN20-SM-EL: Udluftn.").FirstOrDefault();
+
+                            Element cpValve;
+
+                            using (Transaction trans3 = new Transaction(doc))
+                            {
+                                trans3.Start("Create CP Valve");
+
+                                cpValve = doc.Create.NewFamilyInstance(oletCons.Secondary.Origin, (FamilySymbol)elementSymbol,
+                                                                               StructuralType.NonStructural);
+                                trans3.Commit();
+                            }
+
+                            Cons valveCons = mp.GetConnectors(cpValve);
+
+
+                            using (Transaction trans4 = new Transaction(doc))
+                            {
+                                trans4.Start("Rotate cpValve in position");
+                                RotateElementInPosition(oletCons.Secondary.Origin, valveCons.Primary,
+                                    oletCons.Secondary, oletCons.Primary, cpValve);
+                                trans4.Commit();
+                            }
+
+                            using (Transaction trans = new Transaction(doc))
+                            {
+                                trans.Start("Move cpValve in position");
+                                ElementTransformUtils.MoveElement(doc, cpValve.Id,
+                                    oletCons.Secondary.Origin - valveCons.Primary.Origin);
+                                trans.Commit();
+                            }
+
+                            Element mlSymbol = fi.GetElements<FamilySymbol, BuiltInParameter>(
+                                doc, BuiltInParameter.SYMBOL_FAMILY_AND_TYPE_NAMES_PARAM,
+                                "Spirotop-Autotomatic-Air-Vent-PN25: Spirotop 1/2  150°C 25bar AB050/025").FirstOrDefault();
+
+                            Element mlValve;
+
+                            using (Transaction trans3 = new Transaction(doc))
+                            {
+                                trans3.Start("Create ML Valve");
+
+                                mlValve = doc.Create.NewFamilyInstance(valveCons.Secondary.Origin, (FamilySymbol)mlSymbol,
+                                                                               StructuralType.NonStructural);
+                                trans3.Commit();
+                            }
+
+                            Cons mlCons = mp.GetConnectors(mlValve);
+
+
+                            using (Transaction trans4 = new Transaction(doc))
+                            {
+                                trans4.Start("Rotate mlValve in position");
+                                RotateElementInPosition(valveCons.Secondary.Origin, mlCons.Primary,
+                                    valveCons.Secondary, valveCons.Primary, mlValve);
+                                trans4.Commit();
+                            }
+
+                            using (Transaction trans = new Transaction(doc))
+                            {
+                                trans.Start("Move mlValve in position");
+                                ElementTransformUtils.MoveElement(doc, mlValve.Id,
+                                    valveCons.Secondary.Origin - mlCons.Primary.Origin);
+                                trans.Commit();
+                            }
+
                             break;
-                        case "Stålrør, sømløse weldolet":
-                            sizeListing = lad.WeldoletList();
+                        case "PT":
+                            break;
+                        case "TT":
+                            break;
+                        case "Pipe":
+                            #region "Case PIPE"
+                            //Select type of Olet
+                            BaseFormTableLayoutPanel_Basic oletSelector = new BaseFormTableLayoutPanel_Basic(lad.PipeTypeByOlet());
+                            oletSelector.ShowDialog();
+                            PipeTypeName = oletSelector.strTR;
+                            //ut.InfoMsg(PipeTypeName);
+                            pipeType = fi.GetElements<PipeType, BuiltInParameter>(doc, BuiltInParameter.SYMBOL_NAME_PARAM, PipeTypeName).First();
+
+                            //Limit sizes for Olets
+                            List<string> sizeListing;
+                            switch (oletSelector.strTR)
+                            {
+                                case "Stålrør, sømløse, termolomme":
+                                case "Stålrør, sømløse sockolet":
+                                    sizeListing = lad.SockoletList();
+                                    break;
+                                case "Stålrør, sømløse weldolet":
+                                    sizeListing = lad.WeldoletList();
+                                    break;
+                                default:
+                                    sizeListing = lad.SizeList();
+                                    break;
+                            }
+
+                            BaseFormTableLayoutPanel_Basic sizeSelector = new BaseFormTableLayoutPanel_Basic(sizeListing);
+                            sizeSelector.ShowDialog();
+                            size = double.Parse(sizeSelector.strTR);
+
+                            curLvlId = selectedPipe.ReferenceLevel.Id;
+                            curPipingSysTypeId = selectedPipe.MEPSystem.GetTypeId();
+                            curPipeTypeId = pipeType.Id;
+
+                            using (Transaction trans2 = new Transaction(doc))
+                            {
+                                trans2.Start("Create Olet");
+
+                                Element dummyPipe;
+                                (olet, dummyPipe) = CreateOlet(doc, iP, direction, curPipingSysTypeId, curPipeTypeId,
+                                                  curLvlId, selectedPipe, size);
+                                if (olet == null || dummyPipe == null)
+                                {
+                                    txGp.RollBack();
+                                    return Result.Cancelled;
+                                };
+
+                                //dbg.PlaceAdaptiveFamilyInstance(doc, "Marker Line: Red", offsetPoint, dirPoint);
+
+                                trans2.Commit();
+                            }
+                            #endregion
                             break;
                         default:
-                            sizeListing = lad.SizeList();
-                            break;
+                            return Result.Cancelled;
                     }
 
-                    BaseFormTableLayoutPanel_Basic sizeSelector = new BaseFormTableLayoutPanel_Basic(sizeListing);
-                    sizeSelector.ShowDialog();
-                    double size = double.Parse(sizeSelector.strTR);
 
-                    FamilyInstance olet;
-                    XYZ dirPoint = null;
 
-                    ElementId curLvlId = selectedPipe.ReferenceLevel.Id;
-                    ElementId curPipingSysTypeId = selectedPipe.MEPSystem.GetTypeId();
-                    ElementId curPipeTypeId = pipeType.Id;
 
-                    using (Transaction trans2 = new Transaction(doc))
-                    {
-                        trans2.Start("Create Olet");
-
-                        //Create direction point
-                        switch (direction)
-                        {
-                            case "Top":
-                                dirPoint = new XYZ(iP.X, iP.Y, iP.Z + 5);
-                                break;
-                            case "Bottom":
-                                dirPoint = new XYZ(iP.X, iP.Y, iP.Z - 5);
-                                break;
-                            case "Front":
-                                dirPoint = new XYZ(iP.X, iP.Y - 5, iP.Z);
-                                break;
-                            case "Back":
-                                dirPoint = new XYZ(iP.X, iP.Y + 5, iP.Z);
-                                break;
-                            case "Left":
-                                dirPoint = new XYZ(iP.X - 5, iP.Y, iP.Z);
-                                break;
-                            case "Right":
-                                dirPoint = new XYZ(iP.X + 5, iP.Y, iP.Z);
-                                break;
-                            default:
-                                break;
-                        }
-
-                        Pipe dummyPipe = Pipe.Create(doc, curPipingSysTypeId, curPipeTypeId, curLvlId, iP, dirPoint);
-
-                        //Change size of the pipe
-                        Parameter par = dummyPipe.get_Parameter(BuiltInParameter.RBS_PIPE_DIAMETER_PARAM);
-                        par.Set(size.MmToFt());
-
-                        //Find the connector from the dummy pipe at intersection
-                        var cons = mp.GetALLConnectorsFromElements(dummyPipe);
-                        Connector con = cons.Where(c => c.Origin.Equalz(iP, Extensions._1mmTol)).FirstOrDefault();
-
-                        olet = doc.Create.NewTakeoffFitting(con, (MEPCurve)selectedPipe);
-
-                        //dbg.PlaceAdaptiveFamilyInstance(doc, "Marker Line: Red", offsetPoint, dirPoint);
-
-                        trans2.Commit();
-                    }
 
                     txGp.Assimilate();
                 }
@@ -140,6 +237,130 @@ namespace MEPUtils.CreateInstrumentation
             catch (Exception ex)
             {
                 throw new Exception(ex.Message);
+            }
+        }
+
+        private static void RotateElementInPosition(XYZ placementPoint, Connector conOnFamilyToConnect, Connector start, Connector end, Element element)
+        {
+            #region Geometric manipulation
+
+            //http://thebuildingcoder.typepad.com/blog/2012/05/create-a-pipe-cap.html
+
+            XYZ dir = (start.Origin - end.Origin);
+
+            // rotate the cap if necessary
+            // rotate about Z first
+
+            XYZ pipeHorizontalDirection = new XYZ(dir.X, dir.Y, 0.0).Normalize();
+            //XYZ pipeHorizontalDirection = new XYZ(dir.X, dir.Y, 0.0);
+
+            XYZ connectorDirection = -conOnFamilyToConnect.CoordinateSystem.BasisZ;
+
+            double zRotationAngle = pipeHorizontalDirection.AngleTo(connectorDirection);
+
+            Transform trf = Transform.CreateRotationAtPoint(XYZ.BasisZ, zRotationAngle, placementPoint);
+
+            XYZ testRotation = trf.OfVector(connectorDirection).Normalize();
+
+            if (Math.Abs(testRotation.DotProduct(pipeHorizontalDirection) - 1) > 0.00001) zRotationAngle = -zRotationAngle;
+
+            Line axis = Line.CreateBound(placementPoint, placementPoint + XYZ.BasisZ);
+
+            ElementTransformUtils.RotateElement(element.Document, element.Id, axis, zRotationAngle);
+
+            //Parameter comments = element.get_Parameter(BuiltInParameter.ALL_MODEL_INSTANCE_COMMENTS);
+            //comments.Set("Horizontal only");
+
+            // Need to rotate vertically?
+
+            if (Math.Abs(dir.DotProduct(XYZ.BasisZ)) > 0.000001)
+            {
+                // if pipe is straight up and down, 
+                // kludge it my way else
+
+                if (dir.X.Round(3) == 0 && dir.Y.Round(3) == 0 && dir.Z.Round(3) != 0)
+                {
+                    XYZ yaxis = new XYZ(0.0, 1.0, 0.0);
+
+                    double rotationAngle = dir.AngleTo(yaxis); //<-- value in radians
+
+                    if (dir.Z > 0) rotationAngle = -rotationAngle; //<-- Here is the culprit: Equals(1) was wrong!
+
+                    axis = Line.CreateBound(placementPoint, new XYZ(placementPoint.X, placementPoint.Y + 5, placementPoint.Z));
+
+                    ElementTransformUtils.RotateElement(element.Document, element.Id, axis, rotationAngle);
+
+                    //comments.Set("Vertical!");
+                }
+                else
+                {
+                    #region sloped pipes
+
+                    double rotationAngle = dir.AngleTo(pipeHorizontalDirection);
+
+                    XYZ normal = pipeHorizontalDirection.CrossProduct(XYZ.BasisZ);
+
+                    trf = Transform.CreateRotationAtPoint(normal, rotationAngle, placementPoint);
+
+                    testRotation = trf.OfVector(dir).Normalize();
+
+                    if (Math.Abs(testRotation.DotProduct(pipeHorizontalDirection) - 1) < 0.00001)
+                        rotationAngle = -rotationAngle;
+
+                    axis = Line.CreateBound(placementPoint, placementPoint + normal);
+
+                    ElementTransformUtils.RotateElement(element.Document, element.Id, axis, rotationAngle);
+
+                    //comments.Set("Sloped");
+
+                    #endregion
+                }
+            }
+            #endregion
+        }
+
+
+        private static (FamilyInstance, Pipe) CreateOlet(
+                Document doc, XYZ iP, string direction, ElementId curPipingSysTypeId,
+                ElementId curPipeTypeId, ElementId curLvlId, Element selectedPipe, double size)
+        {
+            XYZ dirPoint = CreateDummyDirectionPoint(iP, direction);
+            if (dirPoint == null) return (null, null);
+
+            Pipe dummyPipe = Pipe.Create(doc, curPipingSysTypeId, curPipeTypeId, curLvlId, iP, dirPoint);
+
+            //Change size of the pipe
+            Parameter par = dummyPipe.get_Parameter(BuiltInParameter.RBS_PIPE_DIAMETER_PARAM);
+            par.Set(size.MmToFt());
+
+            //Find the connector from the dummy pipe at intersection
+            var cons = mp.GetALLConnectorsFromElements(dummyPipe);
+            Connector con = cons.Where(c => c.Origin.Equalz(iP, Extensions._1mmTol)).FirstOrDefault();
+
+            return (doc.Create.NewTakeoffFitting(con, (MEPCurve)selectedPipe), dummyPipe);
+
+            //dbg.PlaceAdaptiveFamilyInstance(doc, "Marker Line: Red", offsetPoint, dirPoint);
+        }
+
+        private static XYZ CreateDummyDirectionPoint(XYZ iP, string direction)
+        {
+            //Create direction point
+            switch (direction)
+            {
+                case "Top":
+                    return new XYZ(iP.X, iP.Y, iP.Z + 5);
+                case "Bottom":
+                    return new XYZ(iP.X, iP.Y, iP.Z - 5);
+                case "Front":
+                    return new XYZ(iP.X, iP.Y - 5, iP.Z);
+                case "Back":
+                    return new XYZ(iP.X, iP.Y + 5, iP.Z);
+                case "Left":
+                    return new XYZ(iP.X - 5, iP.Y, iP.Z);
+                case "Right":
+                    return new XYZ(iP.X + 5, iP.Y, iP.Z);
+                default:
+                    return null;
             }
         }
 

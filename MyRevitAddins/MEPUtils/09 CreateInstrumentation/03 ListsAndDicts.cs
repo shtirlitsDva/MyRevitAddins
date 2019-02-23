@@ -8,6 +8,11 @@ namespace MEPUtils.CreateInstrumentation
 {
     static class ListsAndDicts
     {
+        public static List<string> Operations()
+        {
+            return new List<string> { "Auto ML", "PT", "TT", "Pipe"};
+        }
+
         public static List<string> Directions()
         {
             return new List<string> { "Top", "Bottom", "Front", "Back", "Left", "Right" };
