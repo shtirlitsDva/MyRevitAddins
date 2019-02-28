@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<RevitAddIns>
+   <AddIn Type="Application">
+      <Assembly>E:\GitHub\MyRevitAddins\MyRevitAddins\RibbonPanel\bin\Release\MyRibbonPanel.dll</Assembly>
+      <ClientId>973C4F18-300B-41A4-A998-C289820D1969</ClientId>
+      <FullClassName>MyRibbonPanel.App</FullClassName>
+      <Name>MyAddIns</Name>
+      <VendorId>MGTek</VendorId>
+      <VendorDescription>app@mgtek.dk</VendorDescription>	  
+   </AddIn>
+</RevitAddIns>

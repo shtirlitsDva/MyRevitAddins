@@ -343,7 +343,8 @@ namespace PDFExporter
                     pParams.MaskCoincidentLines = false;
 
                     var paperSize = (from PaperSize psize in paperSizes where psize.Name.Equals(nameOfPaperSize) select psize).FirstOrDefault();
-                    pParams.PaperSize = paperSize;
+
+                    pParams.PaperSize = paperSize ?? throw new Exception("Printer does not have specified paper size! Check paper size configuration.");
 
                     pm.Apply();
 

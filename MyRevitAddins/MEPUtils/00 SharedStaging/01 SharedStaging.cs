@@ -1,6 +1,7 @@
 ﻿using Autodesk.Revit.DB;
 using Autodesk.Revit.DB.Plumbing;
 using Autodesk.Revit.DB.Structure;
+using Autodesk.Revit.DB.Mechanical;
 using Autodesk.Revit.UI;
 using Autodesk.Revit.UI.Selection;
 using MEPUtils._00_SharedStaging;
@@ -25,6 +26,19 @@ namespace MEPUtils._00_SharedStaging
 {
     public static class Extensions
     {
-        
+        /// <summary>
+        /// Returns, for fittings only, the PartType of the element in question.
+        /// </summary>
+        /// <param name="e">Element to get the PartType property.</param>
+        /// <returns>The PartType of the passed element.</returns>
+        public static PartType MechFittingPartType(this Element e)
+        {
+            if (e.Category.Id.IntegerValue == (int)BuiltInCategory.OST_PipeFitting)
+            {
+                var mf = ((FamilyInstance)e).MEPModel as MechanicalFitting;
+                return mf.PartType;
+            }
+            else return PartType.Undefined;
+        }
     }
 }

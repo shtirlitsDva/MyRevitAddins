@@ -28,7 +28,7 @@ namespace MEPUtils
 
             FilteredElementCollector collector = new FilteredElementCollector(doc);
             var family = collector.OfClass(typeof(Family)).Where(e => e.Name == "Flange weld collar").Cast<Family>().FirstOrDefault();
-            if (family == null) throw new Exception("No Support Symbolic family in project!");
+            if (family == null) throw new Exception("No Flange Weld collar family in project!");
             var famSymbolList = family.GetFamilySymbolIds();
             var query = famSymbolList.Select(t => doc.GetElement(t)).ToHashSet();
             var list = query.Select(e => $"{family.Name}: {e.Name}").ToList();
