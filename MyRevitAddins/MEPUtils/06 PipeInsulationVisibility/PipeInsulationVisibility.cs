@@ -25,22 +25,54 @@ namespace MEPUtils
             //Get current view reference
             View curView = doc.ActiveView;
 
-            //Get custom Insulation category I use in Tees
+            //Get custom Insulation category I use in Tees and Valves
             Category pipeFitCat = Category.GetCategory(doc, BuiltInCategory.OST_PipeFitting);
             var pipeFitCatSubs = pipeFitCat.SubCategories;
-            var insulCat = (from Category cat in pipeFitCatSubs where cat.Name == "Insulation" select cat).FirstOrDefault();
+            var fitInsulCat = (from Category cat in pipeFitCatSubs where cat.Name == "Insulation" select cat).FirstOrDefault();
 
-            if (insulCat != null)
+            Category pipeAccCat = Category.GetCategory(doc, BuiltInCategory.OST_PipeAccessory);
+            var pipeAccCatSubs = pipeAccCat.SubCategories;
+            var accInsulCat = (from Category cat in pipeAccCatSubs where cat.Name == "Insulation" select cat).FirstOrDefault();
+
+            if (fitInsulCat != null && accInsulCat == null)
             {
                 if (curView.GetCategoryHidden(pipeInsCat.Id))
                 {
                     curView.SetCategoryHidden(pipeInsCat.Id, false);
-                    curView.SetCategoryHidden(insulCat.Id, false);
+                    curView.SetCategoryHidden(fitInsulCat.Id, false);
                 }
                 else
                 {
                     curView.SetCategoryHidden(pipeInsCat.Id, true);
-                    curView.SetCategoryHidden(insulCat.Id, true);
+                    curView.SetCategoryHidden(fitInsulCat.Id, true);
+                }
+            }
+            if (fitInsulCat != null && accInsulCat != null)
+            {
+                if (curView.GetCategoryHidden(pipeInsCat.Id))
+                {
+                    curView.SetCategoryHidden(pipeInsCat.Id, false);
+                    curView.SetCategoryHidden(fitInsulCat.Id, false);
+                    curView.SetCategoryHidden(accInsulCat.Id, false);
+                }
+                else
+                {
+                    curView.SetCategoryHidden(pipeInsCat.Id, true);
+                    curView.SetCategoryHidden(fitInsulCat.Id, true);
+                    curView.SetCategoryHidden(accInsulCat.Id, true);
+                }
+            }
+            else if (fitInsulCat == null && accInsulCat != null)
+            {
+                if (curView.GetCategoryHidden(pipeInsCat.Id))
+                {
+                    curView.SetCategoryHidden(pipeInsCat.Id, false);
+                    curView.SetCategoryHidden(accInsulCat.Id, false);
+                }
+                else
+                {
+                    curView.SetCategoryHidden(pipeInsCat.Id, true);
+                    curView.SetCategoryHidden(accInsulCat.Id, true);
                 }
             }
             else

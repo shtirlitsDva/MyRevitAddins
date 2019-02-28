@@ -60,14 +60,19 @@ namespace MEPUtils
                 //TODO: Split the InsulateElement into three methods for each kind -- I think it would make it more simple
                 foreach (Element element in pipes) InsulatePipe(doc, element, insPar); //Works
                 foreach (Element element in fittings) InsulateFitting(doc, element, insPar, insSet);
-                foreach (Element element in accessories) InsulateAccessory(doc, element, insPar, insSet);
+                foreach (Element element in accessories)
+                {
+                    Parameter par1 = element.LookupParameter("Insulation Projected");
+                    if (par1 != null) InsulateAccessoryWithDummyInsulation(doc, element, insPar, insSet, par1);
+                    else InsulateAccessory(doc, element, insPar, insSet);
+                }
 
                 tx.Commit();
             }
 
             return Result.Succeeded;
         }
-
+                
         private static DataTable GetInsulationSettings(Document doc)
         {
             //Manage Insulation creation settings
@@ -369,6 +374,83 @@ namespace MEPUtils
                 }
             }
         }
+
+        private static void InsulateAccessoryWithDummyInsulation(Document doc, Element e, DataTable insPar, DataTable insSet, Parameter par1)
+        {
+            #region Initialization
+            //Get the visibility parameter
+            Parameter visPar2 = e.LookupParameter("Dummy Insulation Visible");
+            
+            //Read common configuration values
+            string sysAbbr = e.get_Parameter(BuiltInParameter.RBS_DUCT_PIPE_SYSTEM_ABBREVIATION_PARAM).AsString();
+
+            //Declare insulation thickness vars
+            #region Retrieve accessory diameter
+            var cons = mp.GetConnectors(e);
+            double dia = (cons.Primary.Radius * 2).FtToMm().Round(0);
+            #endregion
+
+            #region Read specified Insulation Thickness
+
+            double specifiedInsulationThickness;
+
+            //This try/catch is introduced to catch exceptions where the specified diameter is not
+            //listed in the insulation excel table
+            try
+            {
+                specifiedInsulationThickness = ReadThickness(sysAbbr, insPar, dia); //In feet
+            }
+            catch (Exception)
+            {
+                specifiedInsulationThickness = 0;
+            }
+
+            #endregion
+            #endregion
+
+            //See if the accessory is in the settings list, else return no action done
+            if (insSet.AsEnumerable().Any(row => row.Field<string>("FamilyAndType")
+                == e.get_Parameter(BuiltInParameter.ELEM_FAMILY_AND_TYPE_PARAM).AsValueString()))
+            {
+                //See if element is not allowed to be insulated
+                var query = insSet.AsEnumerable()
+                    .Where(row => row.Field<string>("FamilyAndType") == e.get_Parameter(BuiltInParameter.ELEM_FAMILY_AND_TYPE_PARAM).AsValueString())
+                    .Select(row => row.Field<string>("AddInsulation"));
+                bool value = bool.Parse(query.FirstOrDefault());
+
+                //Check if Accessory already is insulated
+                double existingInsulationThickness = par1.AsDouble();
+
+                if (existingInsulationThickness.Equalz(0, Extensions._epx) == false)
+                {
+                    //If not allowed (false is read) negate the false to true to trigger the following if
+                    //Delete any existing insulation and return
+                    if (!value)
+                    {
+                        par1.Set(0);
+                        if (visPar2.AsInteger() == 1) visPar2.Set(0);
+                        return;
+                    }
+
+                    //Case: If the accessory is already insulated, check to see if insulation is correct
+                    //Test if existing thickness is as specified
+                    //If ok -> do nothing, if not -> fix it
+                    if (!specifiedInsulationThickness.Equalz(existingInsulationThickness, 1.0e-9))
+                    {
+                        par1.Set(specifiedInsulationThickness);
+                    }
+                }
+                else
+                {
+                    //Case: If no insulation -> add insulation if allowed
+                    if (!value) return;
+
+                    par1.Set(specifiedInsulationThickness);
+                    if (visPar2.AsInteger() == 0) visPar2.Set(1);
+                }
+            }
+        }
+
 
         private static double ReadThickness(string sysAbbr, DataTable insPar, double dia)
         {
