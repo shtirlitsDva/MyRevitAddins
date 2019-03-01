@@ -66,105 +66,52 @@ namespace MEPUtils.CreateInstrumentation
                     switch (operation)
                     {
                         case "Auto ML":
-                            PipeTypeName = "Stålrør, sømløse sockolet";
-                            pipeType = fi.GetElements<PipeType, BuiltInParameter>(doc, BuiltInParameter.SYMBOL_NAME_PARAM, PipeTypeName).First();
-                            size = 20;
-
-                            curLvlId = selectedPipe.ReferenceLevel.Id;
-                            curPipingSysTypeId = selectedPipe.MEPSystem.GetTypeId();
-                            curPipeTypeId = pipeType.Id;
-
                             using (Transaction trans2 = new Transaction(doc))
                             {
-                                trans2.Start("Create Olet");
+                                trans2.Start("Auto ML");
 
-                                Element dummyPipe;
-                                (olet, dummyPipe) = CreateOlet(doc, iP, direction, curPipingSysTypeId, curPipeTypeId,
-                                                  curLvlId, selectedPipe, size);
-                                if (olet == null || dummyPipe == null)
-                                {
-                                    txGp.RollBack();
-                                    return Result.Cancelled;
-                                };
+                                Element cpValve = createCpValve(20, doc, selectedPipe, iP, direction);
+                                if (cpValve == null) throw new Exception("Creation of cpValve failed for some reason!");
 
-                                doc.Delete(dummyPipe.Id);
+                                Element mlValve = createInstrument(doc, cpValve,
+                                    "Spirotop-Autotomatic-Air-Vent-PN25: Spirotop 1/2  150°C 25bar AB050/025");
+                                if (mlValve == null) throw new Exception("Creation of mlValve failed for some reason!");
 
                                 trans2.Commit();
                             }
-
-                            Cons oletCons = mp.GetConnectors(olet);
-
-                            Element elementSymbol = fi.GetElements<FamilySymbol, BuiltInParameter>(
-                                doc, BuiltInParameter.SYMBOL_FAMILY_AND_TYPE_NAMES_PARAM, "DN20-SM-EL: Udluftn.").FirstOrDefault();
-
-                            Element cpValve;
-
-                            using (Transaction trans3 = new Transaction(doc))
-                            {
-                                trans3.Start("Create CP Valve");
-
-                                cpValve = doc.Create.NewFamilyInstance(oletCons.Secondary.Origin, (FamilySymbol)elementSymbol,
-                                                                               StructuralType.NonStructural);
-                                trans3.Commit();
-                            }
-
-                            Cons valveCons = mp.GetConnectors(cpValve);
-
-
-                            using (Transaction trans4 = new Transaction(doc))
-                            {
-                                trans4.Start("Rotate cpValve in position");
-                                RotateElementInPosition(oletCons.Secondary.Origin, valveCons.Primary,
-                                    oletCons.Secondary, oletCons.Primary, cpValve);
-                                trans4.Commit();
-                            }
-
-                            using (Transaction trans = new Transaction(doc))
-                            {
-                                trans.Start("Move cpValve in position");
-                                ElementTransformUtils.MoveElement(doc, cpValve.Id,
-                                    oletCons.Secondary.Origin - valveCons.Primary.Origin);
-                                trans.Commit();
-                            }
-
-                            Element mlSymbol = fi.GetElements<FamilySymbol, BuiltInParameter>(
-                                doc, BuiltInParameter.SYMBOL_FAMILY_AND_TYPE_NAMES_PARAM,
-                                "Spirotop-Autotomatic-Air-Vent-PN25: Spirotop 1/2  150°C 25bar AB050/025").FirstOrDefault();
-
-                            Element mlValve;
-
-                            using (Transaction trans3 = new Transaction(doc))
-                            {
-                                trans3.Start("Create ML Valve");
-
-                                mlValve = doc.Create.NewFamilyInstance(valveCons.Secondary.Origin, (FamilySymbol)mlSymbol,
-                                                                               StructuralType.NonStructural);
-                                trans3.Commit();
-                            }
-
-                            Cons mlCons = mp.GetConnectors(mlValve);
-
-
-                            using (Transaction trans4 = new Transaction(doc))
-                            {
-                                trans4.Start("Rotate mlValve in position");
-                                RotateElementInPosition(valveCons.Secondary.Origin, mlCons.Primary,
-                                    valveCons.Secondary, valveCons.Primary, mlValve);
-                                trans4.Commit();
-                            }
-
-                            using (Transaction trans = new Transaction(doc))
-                            {
-                                trans.Start("Move mlValve in position");
-                                ElementTransformUtils.MoveElement(doc, mlValve.Id,
-                                    valveCons.Secondary.Origin - mlCons.Primary.Origin);
-                                trans.Commit();
-                            }
-
                             break;
                         case "PT":
+                            using (Transaction trans3 = new Transaction(doc))
+                            {
+                                trans3.Start("PT");
+
+                                Element cpValve = createCpValve(15, doc, selectedPipe, iP, direction);
+                                if (cpValve == null) throw new Exception("Creation of cpValve failed for some reason!");
+
+                                Element instr = createInstrument(doc, cpValve, "Sitrans_P200: Standard");
+                                if (instr == null) throw new Exception("Creation of instrument failed for some reason!");
+
+                                trans3.Commit();
+                            }
+                            break;
+                        case "Manometer":
+                            using (Transaction trans4 = new Transaction(doc))
+                            {
+                                trans4.Start("Manometer");
+
+                                Element cpValve = createCpValve(15, doc, selectedPipe, iP, direction);
+                                if (cpValve == null) throw new Exception("Creation of cpValve failed for some reason!");
+
+                                //TODO: Places the instrument at wrong angle!!!!
+                                Element instr = createInstrument(doc, cpValve, "WIKA.Manometer.233.50.100: Standard");
+                                if (instr == null) throw new Exception("Creation of instrument failed for some reason!");
+
+                                trans4.Commit();
+                            }
                             break;
                         case "TT":
+                            break;
+                        case "Termometer":
                             break;
                         case "Pipe":
                             #region "Case PIPE"
@@ -238,6 +185,70 @@ namespace MEPUtils.CreateInstrumentation
             {
                 throw new Exception(ex.Message);
             }
+        }
+
+        private static Element createInstrument(Document doc, Element prevElem, string instrFamTyp)
+        {
+            Cons valveCons = mp.GetConnectors(prevElem);
+
+            Element mlSymbol = fi.GetElements<FamilySymbol, BuiltInParameter>(
+            doc, BuiltInParameter.SYMBOL_FAMILY_AND_TYPE_NAMES_PARAM, instrFamTyp).FirstOrDefault();
+            if (mlSymbol == null)
+                throw new Exception(instrFamTyp + " not found!");
+
+            Element mlValve = doc.Create.NewFamilyInstance(valveCons.Secondary.Origin, (FamilySymbol)mlSymbol,
+                                                           StructuralType.NonStructural);
+            doc.Regenerate();
+
+            Cons mlCons = mp.GetConnectors(mlValve);
+            RotateElementInPosition(valveCons.Secondary.Origin, mlCons.Primary,
+                valveCons.Secondary, valveCons.Primary, mlValve);
+            ElementTransformUtils.MoveElement(doc, mlValve.Id,
+                valveCons.Secondary.Origin - mlCons.Primary.Origin);
+
+            return mlValve;
+        }
+
+        private static Element createCpValve(double size, Document doc, Pipe selectedPipe, XYZ iP, string direction)
+        {
+            string PipeTypeName = "Stålrør, sømløse sockolet";
+            PipeType pipeType = fi.GetElements<PipeType, BuiltInParameter>(doc, BuiltInParameter.SYMBOL_NAME_PARAM, PipeTypeName).First();
+
+            ElementId curLvlId = selectedPipe.ReferenceLevel.Id;
+            ElementId curPipingSysTypeId = selectedPipe.MEPSystem.GetTypeId();
+            ElementId curPipeTypeId = pipeType.Id;
+
+            Element dummyPipe;
+            Element olet;
+            (olet, dummyPipe) = CreateOlet(doc, iP, direction, curPipingSysTypeId, curPipeTypeId,
+                              curLvlId, selectedPipe, size);
+            if (olet == null || dummyPipe == null) return null;
+
+            doc.Delete(dummyPipe.Id);
+            doc.Regenerate();
+
+            Cons oletCons = mp.GetConnectors(olet);
+
+            string cpValveFamType;
+            if (size.Equalz(20, 1.0e-6)) cpValveFamType = "DN20-SM-EL: Udluftn.";
+            else cpValveFamType = "DN15-SM-EL: SM-EL";
+
+            Element elementSymbol = fi.GetElements<FamilySymbol, BuiltInParameter>(
+                doc, BuiltInParameter.SYMBOL_FAMILY_AND_TYPE_NAMES_PARAM, cpValveFamType).FirstOrDefault();
+            if (elementSymbol == null) throw new Exception(cpValveFamType + " not found!");
+
+            Element cpValve = doc.Create.NewFamilyInstance(oletCons.Secondary.Origin, (FamilySymbol)elementSymbol,
+                                                           StructuralType.NonStructural);
+            doc.Regenerate();
+            Cons valveCons = mp.GetConnectors(cpValve);
+
+            RotateElementInPosition(oletCons.Secondary.Origin, valveCons.Primary,
+                        oletCons.Secondary, oletCons.Primary, cpValve);
+
+            ElementTransformUtils.MoveElement(doc, cpValve.Id,
+                oletCons.Secondary.Origin - valveCons.Primary.Origin);
+
+            return cpValve;
         }
 
         private static void RotateElementInPosition(XYZ placementPoint, Connector conOnFamilyToConnect, Connector start, Connector end, Element element)

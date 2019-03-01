@@ -10,7 +10,7 @@ namespace MEPUtils.CreateInstrumentation
     {
         public static List<string> Operations()
         {
-            return new List<string> { "Auto ML", "PT", "TT", "Pipe"};
+            return new List<string> { "Auto ML", "PT", "Manometer", "TT", "Termometer", "Pipe"};
         }
 
         public static List<string> Directions()
