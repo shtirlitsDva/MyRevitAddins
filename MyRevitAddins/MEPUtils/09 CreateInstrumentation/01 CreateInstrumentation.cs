@@ -73,7 +73,7 @@ namespace MEPUtils.CreateInstrumentation
                                 (olet, dummyPipe) = CreateOlet(doc, iP, direction, selectedPipe, 20, "Stålrør, sømløse sockolet");
                                 doc.Delete(dummyPipe.Id);
                                 doc.Regenerate();
-                                
+
                                 //"DN20-SM-EL: Udluftn."
                                 Element cpValve = createNextElement(doc, olet, "DN20-SM-EL: Udluftn.");
                                 if (cpValve == null) throw new Exception("Creation of cpValve failed for some reason!");
@@ -216,7 +216,7 @@ namespace MEPUtils.CreateInstrumentation
                         default:
                             return Result.Cancelled;
                     }
-                    
+
                     txGp.Assimilate();
                 }
 
@@ -259,76 +259,97 @@ namespace MEPUtils.CreateInstrumentation
 
             //http://thebuildingcoder.typepad.com/blog/2012/05/create-a-pipe-cap.html
 
-            XYZ dir = (start.Origin - end.Origin);
+            XYZ dirToAlignTo = (start.Origin - end.Origin);
 
-            // rotate the cap if necessary
-            // rotate about Z first
+            //// rotate the cap if necessary
+            //// rotate about Z first
 
-            XYZ pipeHorizontalDirection = new XYZ(dir.X, dir.Y, 0.0).Normalize();
-            //XYZ pipeHorizontalDirection = new XYZ(dir.X, dir.Y, 0.0);
+            //XYZ pipeHorizontalDirection = new XYZ(dirToAlignTo.X, dirToAlignTo.Y, 0.0).Normalize();
+            ////XYZ pipeHorizontalDirection = new XYZ(dir.X, dir.Y, 0.0);
 
-            XYZ connectorDirection = -conOnFamilyToConnect.CoordinateSystem.BasisZ;
+            //XYZ connectorDirection = -conOnFamilyToConnect.CoordinateSystem.BasisZ;
 
-            double zRotationAngle = pipeHorizontalDirection.AngleTo(connectorDirection);
+            //double zRotationAngle = pipeHorizontalDirection.AngleTo(connectorDirection);
 
-            Transform trf = Transform.CreateRotationAtPoint(XYZ.BasisZ, zRotationAngle, placementPoint);
+            //Transform trf = Transform.CreateRotationAtPoint(XYZ.BasisZ, zRotationAngle, placementPoint);
 
-            XYZ testRotation = trf.OfVector(connectorDirection).Normalize();
+            //XYZ testRotation = trf.OfVector(connectorDirection).Normalize();
 
-            if (Math.Abs(testRotation.DotProduct(pipeHorizontalDirection) - 1) > 0.00001) zRotationAngle = -zRotationAngle;
+            //if (Math.Abs(testRotation.DotProduct(pipeHorizontalDirection) - 1) > 0.00001) zRotationAngle = -zRotationAngle;
 
-            Line axis = Line.CreateBound(placementPoint, placementPoint + XYZ.BasisZ);
+            //Line axis = Line.CreateBound(placementPoint, placementPoint + XYZ.BasisZ);
 
-            ElementTransformUtils.RotateElement(element.Document, element.Id, axis, zRotationAngle);
+            //ElementTransformUtils.RotateElement(element.Document, element.Id, axis, zRotationAngle);
 
-            //Parameter comments = element.get_Parameter(BuiltInParameter.ALL_MODEL_INSTANCE_COMMENTS);
-            //comments.Set("Horizontal only");
+            ////Parameter comments = element.get_Parameter(BuiltInParameter.ALL_MODEL_INSTANCE_COMMENTS);
+            ////comments.Set("Horizontal only");
 
-            // Need to rotate vertically?
+            //// Need to rotate vertically?
 
-            if (Math.Abs(dir.DotProduct(XYZ.BasisZ)) > 0.000001)
+            //if (Math.Abs(dirToAlignTo.DotProduct(XYZ.BasisZ)) > 0.000001)
+            //{
+            //    // if pipe is straight up and down, 
+            //    // kludge it my way else
+
+            //    if (dirToAlignTo.X.Round(3) == 0 && dirToAlignTo.Y.Round(3) == 0 && dirToAlignTo.Z.Round(3) != 0)
+            //    {
+            //        XYZ yaxis = new XYZ(0.0, 1.0, 0.0);
+
+            //        double rotationAngle = dirToAlignTo.AngleTo(yaxis); //<-- value in radians
+
+            //        if (dirToAlignTo.Z > 0) rotationAngle = -rotationAngle; //<-- Here is the culprit: Equals(1) was wrong!
+
+            //        axis = Line.CreateBound(placementPoint, new XYZ(placementPoint.X, placementPoint.Y + 5, placementPoint.Z));
+
+            //        ElementTransformUtils.RotateElement(element.Document, element.Id, axis, rotationAngle);
+
+            //        //comments.Set("Vertical!");
+            //    }
+            //    else
+            //    {
+            //        #region sloped pipes
+            XYZ dirToRotate = -conOnFamilyToConnect.CoordinateSystem.BasisZ;
+
+            double rotationAngle = dirToAlignTo.AngleTo(dirToRotate);
+
+            XYZ normal = dirToAlignTo.CrossProduct(dirToRotate);
+
+            //Case: Normal is 0 vector -> directions are already aligned, but may need flipping
+            if (normal.Equalz(new XYZ(), 1.0e-6))
             {
-                // if pipe is straight up and down, 
-                // kludge it my way else
-
-                if (dir.X.Round(3) == 0 && dir.Y.Round(3) == 0 && dir.Z.Round(3) != 0)
+                //Subcase: Element needs flipping
+                if (rotationAngle > 0)
                 {
-                    XYZ yaxis = new XYZ(0.0, 1.0, 0.0);
+                    Line axis2;
+                    if (dirToRotate.X.Equalz(1, 1.0e-6) || dirToRotate.Y.Equalz(1, 1.0e-6))
+                    {
+                        axis2 = Line.CreateBound(placementPoint, placementPoint + new XYZ(0, 0, 1));
+                    }
+                    else axis2 = Line.CreateBound(placementPoint, placementPoint + new XYZ(1, 0, 0));
 
-                    double rotationAngle = dir.AngleTo(yaxis); //<-- value in radians
-
-                    if (dir.Z > 0) rotationAngle = -rotationAngle; //<-- Here is the culprit: Equals(1) was wrong!
-
-                    axis = Line.CreateBound(placementPoint, new XYZ(placementPoint.X, placementPoint.Y + 5, placementPoint.Z));
-
-                    ElementTransformUtils.RotateElement(element.Document, element.Id, axis, rotationAngle);
-
-                    //comments.Set("Vertical!");
+                    ElementTransformUtils.RotateElement(element.Document, element.Id, axis2, rotationAngle);
+                    return;
                 }
-                else
-                {
-                    #region sloped pipes
-
-                    double rotationAngle = dir.AngleTo(pipeHorizontalDirection);
-
-                    XYZ normal = pipeHorizontalDirection.CrossProduct(XYZ.BasisZ);
-
-                    trf = Transform.CreateRotationAtPoint(normal, rotationAngle, placementPoint);
-
-                    testRotation = trf.OfVector(dir).Normalize();
-
-                    if (Math.Abs(testRotation.DotProduct(pipeHorizontalDirection) - 1) < 0.00001)
-                        rotationAngle = -rotationAngle;
-
-                    axis = Line.CreateBound(placementPoint, placementPoint + normal);
-
-                    ElementTransformUtils.RotateElement(element.Document, element.Id, axis, rotationAngle);
-
-                    //comments.Set("Sloped");
-
-                    #endregion
-                }
+                //Subcase: Element already in correct alignment
+                return;
             }
+
+            Transform trf = Transform.CreateRotationAtPoint(normal, rotationAngle, placementPoint);
+
+            XYZ testRotation = trf.OfVector(dirToAlignTo).Normalize();
+
+            if (testRotation.DotProduct(dirToAlignTo) < 0.00001)
+                rotationAngle = -rotationAngle;
+
+            Line axis = Line.CreateBound(placementPoint, placementPoint + normal);
+
+            ElementTransformUtils.RotateElement(element.Document, element.Id, axis, rotationAngle);
+
+            //comments.Set("Sloped");
+
+            //#endregion
+            //}
+            //}
             #endregion
         }
 
