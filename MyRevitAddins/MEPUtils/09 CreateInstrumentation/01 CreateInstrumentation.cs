@@ -133,17 +133,34 @@ namespace MEPUtils.CreateInstrumentation
                                 doc.Delete(dummyPipe.Id);
                                 doc.Regenerate();
 
-                                Element cpValve = createNextElement(doc, olet, "DN15-SM-EL: SM-EL");
+                                Element cpValve = createNextElement(doc, olet, "WIKA.Termolomme.TW55-6: L200.U65.G1/2.9");
                                 if (cpValve == null) throw new Exception("Creation of cpValve failed for some reason!");
 
                                 //TODO: Places the instrument at wrong angle!!!!
-                                Element instr = createNextElement(doc, cpValve, "WIKA.Manometer.233.50.100: Standard");
+                                Element instr = createNextElement(doc, cpValve, "Sitrans_TS500: Standard");
                                 if (instr == null) throw new Exception("Creation of instrument failed for some reason!");
 
                                 trans5.Commit();
                             }
                             break;
                         case "Termometer":
+                            using (Transaction trans6 = new Transaction(doc))
+                            {
+                                trans6.Start("Termometer");
+                                Element dummyPipe;
+                                (olet, dummyPipe) = CreateOlet(doc, iP, direction, selectedPipe, 20, "Stålrør, sømløse, termolomme");
+                                doc.Delete(dummyPipe.Id);
+                                doc.Regenerate();
+
+                                Element cpValve = createNextElement(doc, olet, "WIKA.Termolomme.TW55-6: L200.U65.G1/2.9");
+                                if (cpValve == null) throw new Exception("Creation of cpValve failed for some reason!");
+
+                                //TODO: Places the instrument at wrong angle!!!!
+                                Element instr = createNextElement(doc, cpValve, "WIKA.Termometer.A52.100: Standard");
+                                if (instr == null) throw new Exception("Creation of instrument failed for some reason!");
+
+                                trans6.Commit();
+                            }
                             break;
                         case "Pipe":
                             #region "Case PIPE"
@@ -199,11 +216,7 @@ namespace MEPUtils.CreateInstrumentation
                         default:
                             return Result.Cancelled;
                     }
-
-
-
-
-
+                    
                     txGp.Assimilate();
                 }
 
