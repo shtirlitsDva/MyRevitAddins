@@ -59,8 +59,16 @@ namespace MEPUtils.CountWelds
                 HashSet<Connector> AllCons = mp.GetALLConnectorsInDocument(doc);
 
                 //Apply some early filtering
-                //1) Connectors from ARGD system disallowed (Rigids for equipment analytical model)
-                AllCons = AllCons.ExceptWhere(x => x.MEPSystemAbbreviation(doc) == "ARGD").ToHashSet();
+                //1.1) Connectors from ARGD system disallowed (Rigids for equipment analytical model)
+                //1.2) Connectors from INSTR system disallowed (Kapillarrør til instrumenter)
+                //1.3) Connectors from UDLUFT system disallowed (Afløbsrør fra udluftninger)
+                //1.4) Connectors from Gevindrør Pipe Type
+                AllCons = AllCons
+                    .ExceptWhere(x => x.MEPSystemAbbreviation(doc) == "ARGD")
+                    .ExceptWhere(x => x.MEPSystemAbbreviation(doc) == "INSTR")
+                    .ExceptWhere(x => x.MEPSystemAbbreviation(doc) == "UDLUFT")
+                    .ExceptWhere(x => x.Owner.Name == "Gevindrør")
+                    .ToHashSet();
 
                 //2) Remove all "Curve" Connectors -- Olet welds are counted in comp. schedule
                 AllCons = AllCons.ExceptWhere(x => x.ConnectorType == ConnectorType.Curve).ToHashSet();
@@ -385,6 +393,10 @@ namespace MEPUtils.CountWelds
                         //2. Screwed connections -> mainly small bore instruments
                         if (firstCon.Description == "SC" || secondCon.Description == "SC")
                         { IncludeInCount = false; connectionType = ConnectionType.ScrewedConnection; }
+
+                        //3. Special flanged cases
+                        if (firstCon.Description == "FL" || secondCon.Description == "FL")
+                        { IncludeInCount = false; connectionType = ConnectionType.FlangeConnection; }
                     }
                     break;
                 case 3:
@@ -410,14 +422,14 @@ namespace MEPUtils.CountWelds
                             }
                         }
 
-                        HashSet<BuiltInCategory> bicSet = new HashSet<BuiltInCategory> { firstCat, secondCat, thirdCat, fourthCat };
+                        List<BuiltInCategory> bicSet = new List<BuiltInCategory> { firstCat, secondCat, thirdCat, fourthCat };
 
                         //4 connector groups are only occuring with pipesupports
                         //Therefore they are by default, in current state at least, noncountable
                         IncludeInCount = false;
                         //So countable cases must be actively detected
                         //1. Support coincides with a weld -> no pipes or one is present in group
-                        if (bicSet.Where(x => x == BuiltInCategory.OST_PipeCurves).Count() < 2)
+                        if (bicSet.Where(x => x == pipeBic).Count() < 2)
                         {
                             IncludeInCount = true;
                             Description = "Support on a weld";
