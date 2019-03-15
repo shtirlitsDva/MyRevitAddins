@@ -246,6 +246,10 @@ namespace MEPUtils
                         if (id == null) return;
                         PipeInsulation insulation = doc.GetElement(id) as PipeInsulation;
                         if (insulation == null) return;
+                        //Can cause exception if specifiedInsulation = 0
+                        //This can happen if the PipingSystem Type Abbreviation does not exist in the
+                        //Insulation.xlsx file and ReadThickness returns 0
+                        //TODO: Write a general fix for this
                         insulation.Thickness = specifiedInsulationThickness;
                     }
                 }
