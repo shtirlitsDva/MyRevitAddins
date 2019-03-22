@@ -47,7 +47,7 @@ namespace MEPUtils
                     curView.SetCategoryHidden(fitInsulCat.Id, true);
                 }
             }
-            if (fitInsulCat != null && accInsulCat != null)
+            else if (fitInsulCat != null && accInsulCat != null)
             {
                 if (curView.GetCategoryHidden(pipeInsCat.Id))
                 {
