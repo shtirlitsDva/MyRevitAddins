@@ -235,11 +235,20 @@ namespace MEPUtils.CreateInstrumentation
         {
             Cons prevElemCons = mp.GetConnectors(prevElem);
 
-            Element elementSymbol = fi.GetElements<FamilySymbol, BuiltInParameter>(
-                doc, BuiltInParameter.SYMBOL_FAMILY_AND_TYPE_NAMES_PARAM, elemFamType).FirstOrDefault();
-            if (elementSymbol == null) throw new Exception(elemFamType + " not found!");
+            FamilySymbol familySymbol =
+                    fi.GetElements<FamilySymbol, BuiltInParameter>
+                    (doc, BuiltInParameter.SYMBOL_FAMILY_AND_TYPE_NAMES_PARAM, elemFamType).FirstOrDefault();
+            if (familySymbol == null) throw new Exception(elemFamType + " not found!");
 
-            Element elem = doc.Create.NewFamilyInstance(prevElemCons.Secondary.Origin, (FamilySymbol)elementSymbol,
+            //The strange symbol activation thingie...
+            //See: http://thebuildingcoder.typepad.com/blog/2014/08/activate-your-family-symbol-before-using-it.html
+            if (!familySymbol.IsActive)
+            {
+                familySymbol.Activate();
+                doc.Regenerate();
+            }
+
+            Element elem = doc.Create.NewFamilyInstance(prevElemCons.Secondary.Origin, familySymbol,
                                                            StructuralType.NonStructural);
             doc.Regenerate();
             Cons elemCons = mp.GetConnectors(elem);
@@ -260,54 +269,7 @@ namespace MEPUtils.CreateInstrumentation
             //http://thebuildingcoder.typepad.com/blog/2012/05/create-a-pipe-cap.html
 
             XYZ dirToAlignTo = (start.Origin - end.Origin);
-
-            //// rotate the cap if necessary
-            //// rotate about Z first
-
-            //XYZ pipeHorizontalDirection = new XYZ(dirToAlignTo.X, dirToAlignTo.Y, 0.0).Normalize();
-            ////XYZ pipeHorizontalDirection = new XYZ(dir.X, dir.Y, 0.0);
-
-            //XYZ connectorDirection = -conOnFamilyToConnect.CoordinateSystem.BasisZ;
-
-            //double zRotationAngle = pipeHorizontalDirection.AngleTo(connectorDirection);
-
-            //Transform trf = Transform.CreateRotationAtPoint(XYZ.BasisZ, zRotationAngle, placementPoint);
-
-            //XYZ testRotation = trf.OfVector(connectorDirection).Normalize();
-
-            //if (Math.Abs(testRotation.DotProduct(pipeHorizontalDirection) - 1) > 0.00001) zRotationAngle = -zRotationAngle;
-
-            //Line axis = Line.CreateBound(placementPoint, placementPoint + XYZ.BasisZ);
-
-            //ElementTransformUtils.RotateElement(element.Document, element.Id, axis, zRotationAngle);
-
-            ////Parameter comments = element.get_Parameter(BuiltInParameter.ALL_MODEL_INSTANCE_COMMENTS);
-            ////comments.Set("Horizontal only");
-
-            //// Need to rotate vertically?
-
-            //if (Math.Abs(dirToAlignTo.DotProduct(XYZ.BasisZ)) > 0.000001)
-            //{
-            //    // if pipe is straight up and down, 
-            //    // kludge it my way else
-
-            //    if (dirToAlignTo.X.Round(3) == 0 && dirToAlignTo.Y.Round(3) == 0 && dirToAlignTo.Z.Round(3) != 0)
-            //    {
-            //        XYZ yaxis = new XYZ(0.0, 1.0, 0.0);
-
-            //        double rotationAngle = dirToAlignTo.AngleTo(yaxis); //<-- value in radians
-
-            //        if (dirToAlignTo.Z > 0) rotationAngle = -rotationAngle; //<-- Here is the culprit: Equals(1) was wrong!
-
-            //        axis = Line.CreateBound(placementPoint, new XYZ(placementPoint.X, placementPoint.Y + 5, placementPoint.Z));
-
-            //        ElementTransformUtils.RotateElement(element.Document, element.Id, axis, rotationAngle);
-
-            //        //comments.Set("Vertical!");
-            //    }
-            //    else
-            //    {
-            //        #region sloped pipes
+            
             XYZ dirToRotate = -conOnFamilyToConnect.CoordinateSystem.BasisZ;
 
             double rotationAngle = dirToAlignTo.AngleTo(dirToRotate);
@@ -345,11 +307,6 @@ namespace MEPUtils.CreateInstrumentation
 
             ElementTransformUtils.RotateElement(element.Document, element.Id, axis, rotationAngle);
 
-            //comments.Set("Sloped");
-
-            //#endregion
-            //}
-            //}
             #endregion
         }
 

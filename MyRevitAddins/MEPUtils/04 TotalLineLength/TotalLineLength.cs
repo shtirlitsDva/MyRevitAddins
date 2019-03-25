@@ -7,6 +7,7 @@ using System.Text;
 using Autodesk.Revit.UI;
 using Shared;
 using Autodesk.Revit.DB;
+using Autodesk.Revit.DB.Plumbing;
 using Autodesk.Revit.UI.Selection;
 using fi = Shared.Filter;
 using op = Shared.Output;
@@ -42,6 +43,10 @@ namespace MEPUtils
                         break;
                     case ModelCurve mc:
                         totalLength += mc.GeometryCurve.Length;
+                        break;
+                    case Pipe pipe:
+                        Parameter par = pipe.get_Parameter(BuiltInParameter.CURVE_ELEM_LENGTH);
+                        totalLength += par.AsDouble();
                         break;
                     default:
                         Shared.BuildingCoder.BuildingCoderUtilities.ErrorMsg(el.Name.ToString() + " is not implemented!");
