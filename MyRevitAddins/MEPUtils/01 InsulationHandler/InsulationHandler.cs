@@ -242,6 +242,13 @@ namespace MEPUtils
                     //If ok -> do nothing, if not -> fix it
                     if (!specifiedInsulationThickness.Equalz(existingInsulationThickness, 1.0e-9))
                     {
+                        //Case: specifiedInsulationThickness is 0
+                        if (specifiedInsulationThickness.Equalz(0, 1.0e-9))
+                        {
+                            doc.Delete(InsulationLiningBase.GetInsulationIds(doc, e.Id));
+                            return;
+                        }
+
                         ElementId id = InsulationLiningBase.GetInsulationIds(doc, e.Id).FirstOrDefault();
                         if (id == null) return;
                         PipeInsulation insulation = doc.GetElement(id) as PipeInsulation;
