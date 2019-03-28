@@ -33,12 +33,11 @@
             // 
             // textBox1
             // 
-            this.textBox1.DataBindings.Add(new System.Windows.Forms.Binding("Text", global::MEPUtils.Properties.Settings.Default, "SetMark_ValueToSet", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
             this.textBox1.Location = new System.Drawing.Point(12, 12);
             this.textBox1.Name = "textBox1";
             this.textBox1.Size = new System.Drawing.Size(95, 20);
             this.textBox1.TabIndex = 0;
-            this.textBox1.Text = global::MEPUtils.Properties.Settings.Default.SetMark_ValueToSet;
+            this.textBox1.Text = "200";
             this.textBox1.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             this.textBox1.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBox1_KeyDown);
             // 
@@ -51,6 +50,7 @@
             this.Name = "InputBoxBasic";
             this.Text = "InputBoxBasic";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.InputBoxBasic_FormClosing);
+            this.Shown += new System.EventHandler(this.InputBoxBasic_Shown);
             this.ResumeLayout(false);
             this.PerformLayout();
 

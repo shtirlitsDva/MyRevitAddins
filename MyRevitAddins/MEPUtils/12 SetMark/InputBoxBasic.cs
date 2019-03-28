@@ -20,10 +20,6 @@ namespace MEPUtils.SetMark
         public InputBoxBasic()
         {
             InitializeComponent();
-            if (!stgs.Default.SetMark_ValueToSet.IsNullOrEmpty()) textBox1.Text = stgs.Default.SetMark_ValueToSet;
-            else textBox1.Text = "0";
-            textBox1.SelectionStart = 0;
-            textBox1.SelectionLength = textBox1.Text.Length;
         }
 
         //private void textBox1_TextChanged(object sender, EventArgs e) => DistanceToKeep = textBox1.Text;
@@ -31,12 +27,18 @@ namespace MEPUtils.SetMark
         private void InputBoxBasic_FormClosing(object sender, FormClosingEventArgs e)
         {
             ValueToSet = textBox1.Text;
-            stgs.Default.Save();
         }
 
         private void textBox1_KeyDown(object sender, System.Windows.Forms.KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Enter) this.Close();
+        }
+
+        private void InputBoxBasic_Shown(object sender, EventArgs e)
+        {
+            textBox1.Text = ValueToSet;
+            textBox1.SelectionStart = 0;
+            textBox1.SelectionLength = textBox1.Text.Length;
         }
     }
 }

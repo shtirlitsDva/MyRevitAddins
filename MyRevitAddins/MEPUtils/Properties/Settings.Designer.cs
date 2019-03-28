@@ -58,17 +58,5 @@ namespace MEPUtils.Properties {
                 this["CountWelds_PathToExportJson"] = value;
             }
         }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("200")]
-        public string SetMark_ValueToSet {
-            get {
-                return ((string)(this["SetMark_ValueToSet"]));
-            }
-            set {
-                this["SetMark_ValueToSet"] = value;
-            }
-        }
     }
 }

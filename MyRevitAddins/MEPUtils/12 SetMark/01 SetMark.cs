@@ -35,21 +35,24 @@ namespace MEPUtils.SetMark
             var selIds = selection.GetElementIds();
             if (selIds.Count == 0) throw new Exception("Empty selection: must select element(s) to set values first!");
 
-            HashSet<Element> elToSet = selIds.Select(x => doc.GetElement(x)).ToHashSet();
+            Element elToSet = selIds.Select(x => doc.GetElement(x)).FirstOrDefault();
+
+            if (elToSet == null) throw new Exception("Failed to get an element! doc.GetElement returned null!");
+
+            Parameter par = elToSet.get_Parameter(BuiltInParameter.ALL_MODEL_MARK);
+
+            string existingValue = par.AsString();
+            if (existingValue == null) existingValue = "";
 
             //Type in the value to set
             InputBoxBasic ds = new InputBoxBasic();
+            ds.ValueToSet = existingValue;
             ds.ShowDialog();
-            string valueToSet = ds.ValueToSet;
 
             using (Transaction t1 = new Transaction(doc))
             {
                 t1.Start("Set Mark value!");
-                foreach (var item in elToSet)
-                {
-                    Parameter par = item.get_Parameter(BuiltInParameter.ALL_MODEL_MARK);
-                    par.Set(valueToSet);
-                }
+                par.Set(ds.ValueToSet);
                 t1.Commit();
             }
 
