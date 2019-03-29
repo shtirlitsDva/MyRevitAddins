@@ -58,5 +58,17 @@ namespace MEPUtils.Properties {
                 this["CountWelds_PathToExportJson"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Left")]
+        public string SetTags_pathToDataFile {
+            get {
+                return ((string)(this["SetTags_pathToDataFile"]));
+            }
+            set {
+                this["SetTags_pathToDataFile"] = value;
+            }
+        }
     }
 }

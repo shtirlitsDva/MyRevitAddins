@@ -28,14 +28,7 @@ namespace MEPUtils.SetTags
     {
         public Result SetTagsCommand(ExternalCommandData commandData)
         {
-            UIApplication uiApp = commandData.Application;
-            Document doc = commandData.Application.ActiveUIDocument.Document;
-            UIDocument uidoc = uiApp.ActiveUIDocument;
-
-            Selection selection = uidoc.Selection;
-            var selIds = selection.GetElementIds();
-
-            SetTagsInterface sti = new SetTagsInterface();
+            SetTagsInterface sti = new SetTagsInterface(commandData);
             sti.Show();
 
             return Result.Succeeded;

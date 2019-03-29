@@ -11,5 +11,8 @@
     <Setting Name="CountWelds_PathToExportJson" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
+    <Setting Name="SetTags_pathToDataFile" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Left</Value>
+    </Setting>
   </Settings>
 </SettingsFile>
