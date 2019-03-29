@@ -136,6 +136,13 @@
     <Compile Include="12 SetMark\InputBoxBasic.Designer.cs">
       <DependentUpon>InputBoxBasic.cs</DependentUpon>
     </Compile>
+    <Compile Include="13 SetTags\01 SetTags.cs" />
+    <Compile Include="13 SetTags\SetTagsInterface.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="13 SetTags\SetTagsInterface.Designer.cs">
+      <DependentUpon>SetTagsInterface.cs</DependentUpon>
+    </Compile>
     <Compile Include="MEPUtilsClass.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="MEPUtils.cs">
@@ -177,6 +184,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="12 SetMark\InputBoxBasic.resx">
       <DependentUpon>InputBoxBasic.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="13 SetTags\SetTagsInterface.resx">
+      <DependentUpon>SetTagsInterface.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MEPUtils.resx">
       <DependentUpon>MEPUtils.cs</DependentUpon>
