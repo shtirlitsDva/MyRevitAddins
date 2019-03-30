@@ -255,15 +255,15 @@ More than two elements selected + CTRL
         }
     }
 
-    [Autodesk.Revit.Attributes.Transaction(Autodesk.Revit.Attributes.TransactionMode.Manual)]
-    class UICusomizationCaller : IExternalCommand
-    {
-        public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
-        {
-            Result result = RevitUICustomization.RevitUICustomization.test(commandData);
-            return result;
-        }
-    }
+    //[Autodesk.Revit.Attributes.Transaction(Autodesk.Revit.Attributes.TransactionMode.Manual)]
+    //class UICusomizationCaller : IExternalCommand
+    //{
+    //    public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
+    //    {
+    //        Result result = RevitUICustomization.RevitUICustomization.test(commandData);
+    //        return result;
+    //    }
+    //}
 
     [Autodesk.Revit.Attributes.Transaction(Autodesk.Revit.Attributes.TransactionMode.Manual)]
     class SetMarkCaller : IExternalCommand

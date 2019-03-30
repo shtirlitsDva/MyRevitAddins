@@ -62,11 +62,11 @@
     </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="RevitAPI">
-      <HintPath>..\..\..\..\Revit 2019 SDK\RevitAPI.dll</HintPath>
+      <HintPath>..\..\..\..\..\Programs\IDSP19\Revit 2019\RevitAPI.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="RevitAPIUI">
-      <HintPath>..\..\..\..\Revit 2019 SDK\RevitAPIUI.dll</HintPath>
+      <HintPath>..\..\..\..\..\Programs\IDSP19\Revit 2019\RevitAPIUI.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="System" />
@@ -99,10 +99,6 @@
     <ProjectReference Include="..\PDFExporter\PDFExporter.csproj">
       <Project>{8241ca55-0163-471e-97ed-adc4e40c3e86}</Project>
       <Name>PDFExporter</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\RevitUICustomization\RevitUICustomization.csproj">
-      <Project>{352a4111-ed11-4546-814b-6118737d51bb}</Project>
-      <Name>RevitUICustomization</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
