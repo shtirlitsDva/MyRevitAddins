@@ -74,7 +74,7 @@ namespace MEPUtils.CountWelds
                 AllCons = AllCons.ExceptWhere(x => x.ConnectorType == ConnectorType.Curve).ToHashSet();
 
                 //Create collection with distinct connectors
-                var DistinctCons = AllCons.ToHashSet(new ConnectorXyzComparer());
+                var DistinctCons = AllCons.ToHashSet(new ConnectorXyzComparer(3.0.MmToFt()));
 
                 #region Debug ConnectorXyzComparer
                 //StringBuilder sb = new StringBuilder();
@@ -126,8 +126,8 @@ namespace MEPUtils.CountWelds
                 List<connectorSpatialGroup> csgList = new List<connectorSpatialGroup>();
                 foreach (Connector distinctCon in DistinctCons)
                 {
-                    csgList.Add(new connectorSpatialGroup(AllCons.Where(x => distinctCon.Equalz(x, Shared.Extensions._1mmTol))));
-                    AllCons = AllCons.ExceptWhere(x => distinctCon.Equalz(x, Shared.Extensions._1mmTol)).ToHashSet();
+                    csgList.Add(new connectorSpatialGroup(AllCons.Where(x => distinctCon.Equalz(x, 3.0.MmToFt()))));
+                    AllCons = AllCons.ExceptWhere(x => distinctCon.Equalz(x, 3.0.MmToFt())).ToHashSet();
                 }
 
                 #region Filtering
