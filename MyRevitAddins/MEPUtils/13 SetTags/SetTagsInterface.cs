@@ -15,6 +15,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
 using System.Text;
+using System.Windows.Forms;
 using System.Windows.Input;
 using dbg = Shared.Dbg;
 using fi = Shared.Filter;
@@ -100,6 +101,13 @@ namespace MEPUtils.SetTags
                 curNode = linkedListRows.First;
                 dataGridView1.Rows.Add(curNode.Value.ItemArray);
                 dataGridView1.Rows.Add();
+
+                i = 0;
+                foreach (DataColumn item in dataTable.Columns)
+                {
+                    dataGridView1.Rows[1].Cells[i].Value = "";
+                    i++;
+                }
             }
             else
             {
@@ -138,6 +146,39 @@ namespace MEPUtils.SetTags
             if (nextListNode == null) return;
             curNode = nextListNode;
             dataGridView1.Rows[0].SetValues(curNode.Value.ItemArray);
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            selection = uidoc.Selection;
+            selIds = selection.GetElementIds();
+            if (selIds.Count > 1)
+            {
+                Shared.BuildingCoder.BuildingCoderUtilities.ErrorMsg("More than one element selected! Please select only one element.");
+                return;
+            }
+            if (selIds.Count < 1)
+            {
+                Shared.BuildingCoder.BuildingCoderUtilities.ErrorMsg("No element selected! Please select only one element.");
+                return;
+            }
+            Element el = doc.GetElement(selIds.FirstOrDefault());
+
+            int i = 0;
+            foreach (DataGridViewColumn column in dataGridView1.Columns)
+            {
+                //Test to see if there's a name of parameter specified
+                string parName = dataGridView1.Rows[1].Cells[i].Value.ToString();
+                if (parName.IsNullOrEmpty()) { i++; continue; }
+
+                Parameter parToSet = el.LookupParameter(parName);
+                if (parToSet == null) throw new Exception($"Parameter name {parName} does not exist for element {el.Id.ToString()}!");
+
+                string value = dataGridView1.Rows[0].Cells[i].Value.ToString();
+                parToSet.Set(value);
+
+                i++;
+            }
         }
 
         ////private void textBox1_TextChanged(object sender, EventArgs e) => DistanceToKeep = textBox1.Text;
