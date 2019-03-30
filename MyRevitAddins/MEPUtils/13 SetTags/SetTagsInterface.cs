@@ -36,7 +36,7 @@ namespace MEPUtils.SetTags
         string pathToDataFile;
 
         DataSet dataSet;
-        LinkedList<DataRow> linkedListRows = null;
+        LinkedList<DataRow> linkedListRows = new LinkedList<DataRow>();
         LinkedListNode<DataRow> curNode;
 
         public SetTagsInterface(ExternalCommandData commandData)
@@ -48,15 +48,9 @@ namespace MEPUtils.SetTags
 
             selection = uidoc.Selection;
             selIds = selection.GetElementIds();
-            
 
             pathToDataFile = MEPUtils.Properties.Settings.Default.SetTags_pathToDataFile;
             textBox2.Text = pathToDataFile;
-        }
-
-        private void button1_Click(object sender, EventArgs e)
-        {
-            
         }
 
         bool ctrl = false;
@@ -72,15 +66,17 @@ namespace MEPUtils.SetTags
 
             if (ctrl || pathToDataFile.IsNullOrEmpty())
             {
-                CommonOpenFileDialog dialog = new CommonOpenFileDialog();
+                System.Windows.Forms.OpenFileDialog dialog = new System.Windows.Forms.OpenFileDialog();
+                //CommonOpenFileDialog dialog = new CommonOpenFileDialog();
                 if (pathToDataFile.IsNullOrEmpty()) dialog.InitialDirectory = Environment.ExpandEnvironmentVariables("%userprofile%");
                 else dialog.InitialDirectory = pathToDataFile;
-                if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
-                {
-                    pathToDataFile = dialog.FileName;
-                    MEPUtils.Properties.Settings.Default.SetTags_pathToDataFile = pathToDataFile;
-                    textBox2.Text = pathToDataFile;
-                }
+                //if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
+                dialog.ShowDialog();
+                //{
+                pathToDataFile = dialog.FileName;
+                MEPUtils.Properties.Settings.Default.SetTags_pathToDataFile = pathToDataFile;
+                textBox2.Text = pathToDataFile;
+                //}
             }
 
             if (File.Exists(pathToDataFile))
@@ -89,6 +85,8 @@ namespace MEPUtils.SetTags
                 List<string> dataTableNames = new List<string>();
                 foreach (DataTable item in dataSet.Tables) dataTableNames.Add(item.TableName);
                 BaseFormTableLayoutPanel_Basic form = new BaseFormTableLayoutPanel_Basic(dataTableNames);
+                form.ShowDialog();
+                if (form.strTR.IsNullOrEmpty()) return;
                 DataTable dataTable = DataHandler.ReadDataTable(dataSet.Tables, form.strTR);
                 foreach (DataRow row in dataTable.Rows) linkedListRows.AddLast(row);
 
@@ -97,9 +95,10 @@ namespace MEPUtils.SetTags
                 foreach (DataColumn item in dataTable.Columns)
                 {
                     dataGridView1.Columns[i].Name = item.ColumnName;
-                    curNode = linkedListRows.First;
-                    dataGridView1.Rows.Add(curNode.Value.ItemArray);
+                    i++;
                 }
+                curNode = linkedListRows.First;
+                dataGridView1.Rows.Add(curNode.Value.ItemArray);
             }
             else
             {
@@ -114,7 +113,31 @@ namespace MEPUtils.SetTags
             MEPUtils.Properties.Settings.Default.Save();
         }
 
+        /// <summary>
+        /// Previous button.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void button1_Click(object sender, EventArgs e)
+        {
+            LinkedListNode<DataRow> prevListNode = curNode.Previous;
+            if (prevListNode == null) return;
+            curNode = prevListNode;
+            dataGridView1.Rows[0].SetValues(curNode.Value.ItemArray);
+        }
 
+        /// <summary>
+        /// Next button.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void button3_Click(object sender, EventArgs e)
+        {
+            LinkedListNode<DataRow> nextListNode = curNode.Next;
+            if (nextListNode == null) return;
+            curNode = nextListNode;
+            dataGridView1.Rows[0].SetValues(curNode.Value.ItemArray);
+        }
 
         ////private void textBox1_TextChanged(object sender, EventArgs e) => DistanceToKeep = textBox1.Text;
 
