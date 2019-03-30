@@ -60,9 +60,6 @@
     <Reference Include="mg.revit-shared-utilities, Version=2019.1.3.19659, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\mg.revit-shared-utilities.2019.1.3.19659\lib\net47\mg.revit-shared-utilities.dll</HintPath>
     </Reference>
-    <Reference Include="MoreLinq, Version=3.0.0.0, Culture=neutral, PublicKeyToken=384d532d7e88985d, processorArchitecture=MSIL">
-      <HintPath>..\packages\morelinq.3.0.0\lib\net451\MoreLinq.dll</HintPath>
-    </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="RevitAPI">
       <HintPath>..\..\..\..\Revit 2019 SDK\RevitAPI.dll</HintPath>

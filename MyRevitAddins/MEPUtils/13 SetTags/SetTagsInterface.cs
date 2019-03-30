@@ -99,6 +99,7 @@ namespace MEPUtils.SetTags
                 }
                 curNode = linkedListRows.First;
                 dataGridView1.Rows.Add(curNode.Value.ItemArray);
+                dataGridView1.Rows.Add();
             }
             else
             {
