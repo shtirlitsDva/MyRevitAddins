@@ -40,8 +40,9 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="mg.revit-shared-utilities, Version=2019.1.4.41328, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\mg.revit-shared-utilities.2019.1.4.41328\lib\net47\mg.revit-shared-utilities.dll</HintPath>
+    <Reference Include="mg.revit-shared-utilities, Version=2019.1.4.19516, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\Revit-PCF-Exporter\revit-shared-utilities\bin\Release\mg.revit-shared-utilities.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.WindowsAPICodePack, Version=1.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\WindowsAPICodePack.1.1.0\lib\Microsoft.WindowsAPICodePack.dll</HintPath>
@@ -141,6 +142,12 @@
       <DependentUpon>InputBoxBasic.cs</DependentUpon>
     </Compile>
     <Compile Include="13 SetTags\01 SetTags.cs" />
+    <Compile Include="13 SetTags\BasicChooserForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="13 SetTags\BasicChooserForm.Designer.cs">
+      <DependentUpon>BasicChooserForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="13 SetTags\SetTagsInterface.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -188,6 +195,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="12 SetMark\InputBoxBasic.resx">
       <DependentUpon>InputBoxBasic.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="13 SetTags\BasicChooserForm.resx">
+      <DependentUpon>BasicChooserForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="13 SetTags\SetTagsInterface.resx">
       <DependentUpon>SetTagsInterface.cs</DependentUpon>

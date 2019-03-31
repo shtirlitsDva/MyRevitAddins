@@ -1,28 +1,21 @@
 ﻿using Autodesk.Revit.DB;
-using Autodesk.Revit.DB.Plumbing;
-using Autodesk.Revit.DB.Structure;
 using Autodesk.Revit.UI;
 using Autodesk.Revit.UI.Selection;
 using MEPUtils.SharedStaging;
 using Microsoft.WindowsAPICodePack.Dialogs;
+using System.Data.OleDb;
+using System.Text.RegularExpressions;
 using MoreLinq;
-using Shared;
+//using Shared;
 using System;
+using System.Diagnostics;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
-using System.Runtime.Serialization;
-using System.Runtime.Serialization.Json;
-using System.Text;
-using System.Threading;
 using System.Windows.Forms;
+using WinForms = System.Windows.Forms;
 using System.Windows.Input;
-using dbg = Shared.Dbg;
-using fi = Shared.Filter;
-using lad = MEPUtils.CreateInstrumentation.ListsAndDicts;
-using mp = Shared.MepUtils;
-using tr = Shared.Transformation;
 
 namespace MEPUtils.SetTags
 {
@@ -69,11 +62,11 @@ namespace MEPUtils.SetTags
         {
             if ((int)Keyboard.Modifiers == 2) ctrl = true;
 
-            if (ctrl || pathToDataFile.IsNullOrEmpty())
+            if (ctrl || string.IsNullOrEmpty(pathToDataFile))
             {
                 System.Windows.Forms.OpenFileDialog dialog = new System.Windows.Forms.OpenFileDialog();
                 //CommonOpenFileDialog dialog = new CommonOpenFileDialog();
-                if (pathToDataFile.IsNullOrEmpty()) dialog.InitialDirectory = Environment.ExpandEnvironmentVariables("%userprofile%");
+                if (string.IsNullOrEmpty(pathToDataFile)) dialog.InitialDirectory = Environment.ExpandEnvironmentVariables("%userprofile%");
                 else dialog.InitialDirectory = pathToDataFile;
                 //if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
                 dialog.ShowDialog();
@@ -86,13 +79,14 @@ namespace MEPUtils.SetTags
 
             if (File.Exists(pathToDataFile))
             {
-                dataSet = DataHandler.ImportExcelToDataSet(pathToDataFile, "Yes");
+                dataSet = ImportExcelToDataSet(pathToDataFile, "Yes");
                 List<string> dataTableNames = new List<string>();
                 foreach (DataTable item in dataSet.Tables) dataTableNames.Add(item.TableName);
-                BaseFormTableLayoutPanel_Basic form = new BaseFormTableLayoutPanel_Basic(dataTableNames);
+                BasicChooserForm form = new BasicChooserForm(dataTableNames);
                 form.ShowDialog();
-                if (form.strTR.IsNullOrEmpty()) return;
-                DataTable dataTable = DataHandler.ReadDataTable(dataSet.Tables, form.strTR);
+                string sheetName = form.strTR;
+                if (string.IsNullOrEmpty(sheetName)) return;
+                DataTable dataTable = ReadDataTable(dataSet.Tables, sheetName);
                 foreach (DataRow row in dataTable.Rows) linkedListRows.AddLast(row);
 
                 dataGridView1.ColumnCount = dataTable.Columns.Count;
@@ -159,19 +153,92 @@ namespace MEPUtils.SetTags
 
             if (selIds.Count > 1)
             {
-                Shared.BuildingCoder.BuildingCoderUtilities.ErrorMsg("More than one element selected! Please select only one element.");
+                ErrorMsg("More than one element selected! Please select only one element.");
                 return;
             }
             if (selIds.Count < 1)
             {
-                Shared.BuildingCoder.BuildingCoderUtilities.ErrorMsg("No element selected! Please select only one element.");
+                ErrorMsg("No element selected! Please select only one element.");
                 return;
             }
             ElementId elId = selIds.FirstOrDefault();
 
             AsyncUpdateParameterValues cmd = new AsyncUpdateParameterValues(elId, dataGridView1);
 
-            AsyncCommandManager.PostCommand(uiApp, cmd);
+            AsyncCommandManager.PostCommand(cmd);
+        }
+
+        public static void ErrorMsg(string msg)
+        {
+            Debug.WriteLine(msg);
+            WinForms.MessageBox.Show(msg,
+              "Error",
+              WinForms.MessageBoxButtons.OK,
+              WinForms.MessageBoxIcon.Error);
+        }
+
+        public static DataSet ImportExcelToDataSet(string fileName, string dataHasHeaders)
+        {
+            //On connection strings http://www.connectionstrings.com/excel/#p84
+            string connectionString =
+                string.Format(
+                    "provider=Microsoft.ACE.OLEDB.12.0;Data Source={0};Extended Properties=\"Excel 12.0;HDR={1};IMEX=1\"",
+                    fileName, dataHasHeaders);
+
+            DataSet data = new DataSet();
+
+            foreach (string sheetName in GetExcelSheetNames(connectionString))
+            {
+                using (OleDbConnection con = new OleDbConnection(connectionString))
+                {
+                    var dataTable = new DataTable();
+                    string query = string.Format("SELECT * FROM [{0}]", sheetName);
+                    con.Open();
+                    OleDbDataAdapter adapter = new OleDbDataAdapter(query, con);
+                    adapter.Fill(dataTable);
+
+                    //Remove ' and $ from sheetName
+                    Regex rgx = new Regex("[^a-zA-Z0-9 _-]");
+                    string tableName = rgx.Replace(sheetName, "");
+
+                    dataTable.TableName = tableName;
+                    data.Tables.Add(dataTable);
+                }
+            }
+
+            if (data == null) ErrorMsg("Data set is null");
+            if (data.Tables.Count < 1) ErrorMsg("Table count in DataSet is 0");
+
+            return data;
+        }
+
+        static string[] GetExcelSheetNames(string connectionString)
+        {
+            //OleDbConnection con = null;
+            DataTable dt = null;
+            using (OleDbConnection con = new OleDbConnection(connectionString))
+            {
+                con.Open();
+                dt = con.GetOleDbSchemaTable(OleDbSchemaGuid.Tables, null);
+            }
+
+            if (dt == null) return null;
+
+            string[] excelSheetNames = new string[dt.Rows.Count];
+            int i = 0;
+
+            foreach (DataRow row in dt.Rows)
+            {
+                excelSheetNames[i] = row["TABLE_NAME"].ToString();
+                i++;
+            }
+
+            return excelSheetNames;
+        }
+
+        public static DataTable ReadDataTable(DataTableCollection dataTableCollection, string tableName)
+        {
+            return (from DataTable dtbl in dataTableCollection where dtbl.TableName == tableName select dtbl).FirstOrDefault();
         }
 
         private class AsyncUpdateParameterValues : IAsyncCommand
@@ -197,25 +264,24 @@ namespace MEPUtils.SetTags
                     foreach (DataGridViewColumn column in Dgw.Columns)
                     {
                         //Test to see if there's a name of parameter specified
-                        string parName;
-                        try
-                        {
-                            parName = Dgw.Rows[1].Cells[i].Value.ToString();
-                        }
-                        catch (Exception)
-                        {
-                            i++;
-                            continue;
-                        }
-                        if (parName.IsNullOrEmpty()) { i++; continue; }
+                        var parNameValue = Dgw.Rows[1].Cells[i].Value;
+
+                        if (parNameValue == null) { i++; continue; }
+
+                        string parName = parNameValue.ToString();
+
+                        if (string.IsNullOrEmpty(parName)) { i++; continue; }
 
                         Element el = doc.GetElement(SelectedElementId);
 
                         Parameter parToSet = el.LookupParameter(parName);
                         if (parToSet == null) throw new Exception($"Parameter name {parName} does not exist for element {el.Id.ToString()}!");
 
-                        string value = Dgw.Rows[0].Cells[i].Value.ToString();
-                        parToSet.Set(value);
+                        var parValue = Dgw.Rows[0].Cells[i].Value;
+
+                        if (parValue == null) { i++; continue; }
+
+                        parToSet.Set(parValue.ToString());
 
                         i++;
                     }

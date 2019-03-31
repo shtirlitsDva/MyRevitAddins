@@ -54,27 +54,33 @@ namespace MEPUtils.SharedStaging
     {
         private static List<IAsyncCommand> CommandList = new List<IAsyncCommand>();
         private static bool IsRegistered { get; set; }
+        private static UIApplication UiApp { get; set; }
 
-        public static void PostCommand(UIApplication uiApp, IAsyncCommand cmd)
+        public static void CacheApplication(UIApplication uiApp)
         {
-            CommandList.Add(cmd);
-            RegisterIdlingEvent(uiApp);
+            UiApp = uiApp;
         }
 
-        private static void RegisterIdlingEvent(UIApplication uiApp)
+        public static void PostCommand(IAsyncCommand cmd)
+        {
+            CommandList.Add(cmd);
+            RegisterIdlingEvent();
+        }
+
+        private static void RegisterIdlingEvent()
         {
             if (!IsRegistered)
             {
-                uiApp.Idling += new EventHandler<IdlingEventArgs>(Execute);
+                UiApp.Idling += new EventHandler<IdlingEventArgs>(Execute);
                 IsRegistered = true;
             }
         }
 
-        private static void UnregisterIdlingEvent(UIApplication uiApp)
+        private static void UnregisterIdlingEvent()
         {
             if (IsRegistered)
             {
-                uiApp.Idling -= new EventHandler<IdlingEventArgs>(Execute);
+                UiApp.Idling -= new EventHandler<IdlingEventArgs>(Execute);
                 IsRegistered = false;
             }
         }
@@ -106,7 +112,7 @@ namespace MEPUtils.SharedStaging
 
                     if (CommandList.Count == 0)
                     {
-                        UnregisterIdlingEvent(uiApp);
+                        UnregisterIdlingEvent();
                     }
 
                 }

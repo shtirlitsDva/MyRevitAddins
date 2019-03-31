@@ -12,6 +12,7 @@ using Autodesk.Revit.DB;
 using Autodesk.Revit.DB.Plumbing;
 using Autodesk.Revit.UI;
 //using adWin = Autodesk.Windows;
+using MEPUtils.SharedStaging;
 using cn = MEPUtils.ConnectConnectors;
 using ped = MEPUtils.PED.InitPED;
 using mep = MEPUtils.MEPUtilsClass;
@@ -240,6 +241,7 @@ More than two elements selected + CTRL
     {
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
+            AsyncCommandManager.CacheApplication(commandData.Application);
             Result result = mep.FormCaller(commandData);
             return result;
         }
