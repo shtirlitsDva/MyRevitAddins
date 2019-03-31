@@ -3,7 +3,7 @@ using Autodesk.Revit.DB.Plumbing;
 using Autodesk.Revit.DB.Structure;
 using Autodesk.Revit.UI;
 using Autodesk.Revit.UI.Selection;
-using MEPUtils._00_SharedStaging;
+using MEPUtils.SharedStaging;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using MoreLinq;
 using Shared;
@@ -42,7 +42,6 @@ namespace MEPUtils.SetTags
         LinkedListNode<DataRow> curNode;
 
         //Modeless stuff
-        public Request Request { get; private set; }
 
         public SetTagsInterface(ExternalCommandData commandData)
         {
@@ -57,7 +56,6 @@ namespace MEPUtils.SetTags
             pathToDataFile = MEPUtils.Properties.Settings.Default.SetTags_pathToDataFile;
             textBox2.Text = pathToDataFile;
 
-            Request = new Request();
         }
 
         bool ctrl = false;
@@ -158,6 +156,7 @@ namespace MEPUtils.SetTags
         {
             selection = uidoc.Selection;
             selIds = selection.GetElementIds();
+
             if (selIds.Count > 1)
             {
                 Shared.BuildingCoder.BuildingCoderUtilities.ErrorMsg("More than one element selected! Please select only one element.");
@@ -168,95 +167,62 @@ namespace MEPUtils.SetTags
                 Shared.BuildingCoder.BuildingCoderUtilities.ErrorMsg("No element selected! Please select only one element.");
                 return;
             }
-            Element el = doc.GetElement(selIds.FirstOrDefault());
+            ElementId elId = selIds.FirstOrDefault();
 
-            //using (Transaction tx = new Transaction(doc))
-            //{
-            //    tx.Start("Update parameter values");
+            AsyncUpdateParameterValues cmd = new AsyncUpdateParameterValues(elId, dataGridView1);
 
-            int i = 0;
-            foreach (DataGridViewColumn column in dataGridView1.Columns)
+            AsyncCommandManager.PostCommand(uiApp, cmd);
+        }
+
+        private class AsyncUpdateParameterValues : IAsyncCommand
+        {
+            private ElementId SelectedElementId { get; set; }
+            private DataGridView Dgw { get; set; }
+
+            private AsyncUpdateParameterValues() { }
+
+            public AsyncUpdateParameterValues(ElementId selectedElementId, DataGridView dgw)
             {
-                //Test to see if there's a name of parameter specified
-                string parName;
-                try
-                {
-                    parName = dataGridView1.Rows[1].Cells[i].Value.ToString();
-                }
-                catch (Exception)
-                {
-                    i++;
-                    continue;
-                }
-                if (parName.IsNullOrEmpty()) { i++; continue; }
-
-                Parameter parToSet = el.LookupParameter(parName);
-                if (parToSet == null) throw new Exception($"Parameter name {parName} does not exist for element {el.Id.ToString()}!");
-
-                string value = dataGridView1.Rows[0].Cells[i].Value.ToString();
-                parToSet.Set(value);
-
-                i++;
+                SelectedElementId = selectedElementId;
+                Dgw = dgw;
             }
 
-            
-            //    tx.Commit();
-            //}
-
-        }
-
-        /// <summary>
-        ///   Control enabler / disabler 
-        /// </summary>
-        ///
-        private void EnableCommands(bool status)
-        {
-            foreach (System.Windows.Forms.Control ctrl in this.Controls)
+            public void Execute(Document doc)
             {
-                ctrl.Enabled = status;
+                using (Transaction tx = new Transaction(doc))
+                {
+                    tx.Start("Update parameter values");
+
+                    int i = 0;
+                    foreach (DataGridViewColumn column in Dgw.Columns)
+                    {
+                        //Test to see if there's a name of parameter specified
+                        string parName;
+                        try
+                        {
+                            parName = Dgw.Rows[1].Cells[i].Value.ToString();
+                        }
+                        catch (Exception)
+                        {
+                            i++;
+                            continue;
+                        }
+                        if (parName.IsNullOrEmpty()) { i++; continue; }
+
+                        Element el = doc.GetElement(SelectedElementId);
+
+                        Parameter parToSet = el.LookupParameter(parName);
+                        if (parToSet == null) throw new Exception($"Parameter name {parName} does not exist for element {el.Id.ToString()}!");
+
+                        string value = Dgw.Rows[0].Cells[i].Value.ToString();
+                        parToSet.Set(value);
+
+                        i++;
+                    }
+                    tx.Commit();
+                }
             }
-            //if (!status)
-            //{
-            //    this.btnExit.Enabled = true;
-            //}
         }
-
-        /// <summary>
-        ///   A private helper method to make a request
-        ///   and put the dialog to sleep at the same time.
-        /// </summary>
-        /// <remarks>
-        ///   It is expected that the process which executes the request 
-        ///   (the Idling helper in this particular case) will also
-        ///   wake the dialog up after finishing the execution.
-        /// </remarks>
-        ///
-        private void MakeRequest(RequestId request)
-        {
-            Request.Make(request);
-            DozeOff();
-        }
-
-        /// <summary>
-        ///   DozeOff -> disable all controls (but the Exit button)
-        /// </summary>
-        /// 
-        private void DozeOff()
-        {
-            EnableCommands(false);
-        }
-
-        /// <summary>
-        ///   WakeUp -> enable all controls
-        /// </summary>
-        /// 
-        public void WakeUp()
-        {
-            EnableCommands(true);
-        }
-
-
-
         ////private void textBox1_TextChanged(object sender, EventArgs e) => DistanceToKeep = textBox1.Text;
 
         //private void InputBoxBasic_FormClosing(object sender, FormClosingEventArgs e)
@@ -275,60 +241,5 @@ namespace MEPUtils.SetTags
         //    textBox1.SelectionStart = 0;
         //    textBox1.SelectionLength = textBox1.Text.Length;
         //}
-    }
-
-    /// <summary>
-    ///   A class around a variable holding the current request.
-    /// </summary>
-    /// <remarks>
-    ///   Access to it is made thread-safe, even though we don't necessarily
-    ///   need it if we always disable the dialog between individual requests.
-    /// </remarks>
-    /// 
-    public class Request
-    {
-        // Storing the value as a plain Int makes using the interlocking mechanism simpler
-        private int m_request = (int)RequestId.None;
-
-        /// <summary>
-        ///   Take - The Idling handler calls this to obtain the latest request. 
-        /// </summary>
-        /// <remarks>
-        ///   This is not a getter! It takes the request and replaces it
-        ///   with 'None' to indicate that the request has been "passed on".
-        /// </remarks>
-        /// 
-        public RequestId Take()
-        {
-            return (RequestId)Interlocked.Exchange(ref m_request, (int)RequestId.None);
-        }
-
-        /// <summary>
-        ///   Make - The Dialog calls this when the user presses a command button there. 
-        /// </summary>
-        /// <remarks>
-        ///   It replaces any older request previously made.
-        /// </remarks>
-        /// 
-        public void Make(RequestId request)
-        {
-            Interlocked.Exchange(ref m_request, (int)request);
-        }
-    }
-
-    /// <summary>
-    ///   A list of requests the dialog has available
-    /// </summary>
-    /// 
-    public enum RequestId : int
-    {
-        /// <summary>
-        /// None
-        /// </summary>
-        None = 0,
-        /// <summary>
-        /// "Update" request
-        /// </summary>
-        Update = 1,
     }
 }
