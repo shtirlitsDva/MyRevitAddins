@@ -25,6 +25,8 @@ using System.Collections.Generic;
 using System.Text;
 using System.Windows.Forms;
 using System.IO;
+using System.Windows.Media.Imaging;
+using System.Reflection;
 
 using Autodesk;
 using Autodesk.Revit;
@@ -39,6 +41,27 @@ namespace MEPUtils.SetTagsModeless
     /// </summary>
     public class Application : IExternalApplication
     {
+        public const string myRibbonPanelToolTip = "My Own Ribbon Panel";
+
+        //Method to get the button image
+        BitmapImage NewBitmapImage(Assembly a, string imageName)
+        {
+            Stream s = a.GetManifestResourceStream(imageName);
+
+            BitmapImage img = new BitmapImage();
+
+            img.BeginInit();
+            img.StreamSource = s;
+            img.EndInit();
+
+            return img;
+        }
+
+        // get the absolute path of this assembly
+        static string ExecutingAssemblyPath = Assembly.GetExecutingAssembly().Location;
+        // get ref to assembly
+        Assembly exe = Assembly.GetExecutingAssembly();
+
         // class instance
         internal static Application thisApp = null;
         // ModelessForm instance
@@ -67,10 +90,23 @@ namespace MEPUtils.SetTagsModeless
         /// <returns></returns>
         public Result OnStartup(UIControlledApplication application)
         {
+            AddMenu(application);
             m_MyForm = null;   // no dialog needed yet; the command will bring it
             thisApp = this;  // static access to this application instance
 
             return Result.Succeeded;
+        }
+
+        private void AddMenu(UIControlledApplication application)
+        {
+            RibbonPanel rvtRibbonPanel = application.CreateRibbonPanel("MyRevitAddins");
+
+            //MEPUtils.SetTagsModeless
+            PushButtonData data = new PushButtonData("SetTags", "TGS", ExecutingAssemblyPath, "MEPUtils.SetTagsModeless.Command");
+            data.ToolTip = "Modeless tag setter";
+            data.Image = NewBitmapImage(exe, "MEPUtils.SetTagsModeless.Resources.ImgSetTags16.png");
+            data.LargeImage = NewBitmapImage(exe, "MEPUtils.SetTagsModeless.Resources.ImgSetTags32.png");
+            PushButton MEPUtils = rvtRibbonPanel.AddItem(data) as PushButton;
         }
 
         /// <summary>
