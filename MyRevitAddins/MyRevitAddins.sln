@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PDFExporter", "PDFExporter\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RevitUICustomization", "RevitUICustomization\RevitUICustomization.csproj", "{352A4111-ED11-4546-814B-6118737D51BB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SetTagsModeless", "SetTagsModeless\SetTagsModeless.csproj", "{25A5F61C-F9AE-463A-A1A1-9C1EDA4EDAB9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug via Revit Add-In Manager|Any CPU = Debug via Revit Add-In Manager|Any CPU
@@ -70,6 +72,18 @@ Global
 		{352A4111-ED11-4546-814B-6118737D51BB}.Release|Any CPU.Build.0 = Release|Any CPU
 		{352A4111-ED11-4546-814B-6118737D51BB}.Release|x64.ActiveCfg = Release|Any CPU
 		{352A4111-ED11-4546-814B-6118737D51BB}.Release|x64.Build.0 = Release|Any CPU
+		{25A5F61C-F9AE-463A-A1A1-9C1EDA4EDAB9}.Debug via Revit Add-In Manager|Any CPU.ActiveCfg = Debug|Any CPU
+		{25A5F61C-F9AE-463A-A1A1-9C1EDA4EDAB9}.Debug via Revit Add-In Manager|Any CPU.Build.0 = Debug|Any CPU
+		{25A5F61C-F9AE-463A-A1A1-9C1EDA4EDAB9}.Debug via Revit Add-In Manager|x64.ActiveCfg = Debug|Any CPU
+		{25A5F61C-F9AE-463A-A1A1-9C1EDA4EDAB9}.Debug via Revit Add-In Manager|x64.Build.0 = Debug|Any CPU
+		{25A5F61C-F9AE-463A-A1A1-9C1EDA4EDAB9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{25A5F61C-F9AE-463A-A1A1-9C1EDA4EDAB9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{25A5F61C-F9AE-463A-A1A1-9C1EDA4EDAB9}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{25A5F61C-F9AE-463A-A1A1-9C1EDA4EDAB9}.Debug|x64.Build.0 = Debug|Any CPU
+		{25A5F61C-F9AE-463A-A1A1-9C1EDA4EDAB9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{25A5F61C-F9AE-463A-A1A1-9C1EDA4EDAB9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{25A5F61C-F9AE-463A-A1A1-9C1EDA4EDAB9}.Release|x64.ActiveCfg = Release|Any CPU
+		{25A5F61C-F9AE-463A-A1A1-9C1EDA4EDAB9}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
