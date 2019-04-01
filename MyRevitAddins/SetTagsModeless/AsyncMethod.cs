@@ -41,6 +41,18 @@ namespace MEPUtils.SetTagsModeless
 
             Selection selection = uidoc.Selection;
             var selIds = selection.GetElementIds();
+
+            if (selIds.Count > 1)
+            {
+                ErrorMsg("More than one element selected! Please select only one element.");
+                return;
+            }
+            if (selIds.Count < 1)
+            {
+                ErrorMsg("No element selected! Please select only one element.");
+                return;
+            }
+
             ElementId elId = selIds.FirstOrDefault();
 
             using (Transaction tx = new Transaction(doc))
@@ -74,6 +86,15 @@ namespace MEPUtils.SetTagsModeless
                 }
                 tx.Commit();
             }
+        }
+
+        public static void ErrorMsg(string msg)
+        {
+            Debug.WriteLine(msg);
+            WinForms.MessageBox.Show(msg,
+              "Error",
+              WinForms.MessageBoxButtons.OK,
+              WinForms.MessageBoxIcon.Error);
         }
     }
 }

@@ -1,9 +1,5 @@
-﻿using Autodesk.Revit.DB;
-using Autodesk.Revit.UI;
-using Autodesk.Revit.UI.Selection;
-using System.Data.OleDb;
+﻿using System.Data.OleDb;
 using System.Text.RegularExpressions;
-//using Shared;
 using System;
 using System.Diagnostics;
 using System.Collections.Generic;
@@ -18,13 +14,6 @@ namespace MEPUtils.SetTagsModeless
 {
     public partial class SetTagsInterface : System.Windows.Forms.Form
     {
-        UIApplication uiApp;
-        Document doc;
-        UIDocument uidoc;
-
-        Selection selection;
-        ICollection<ElementId> selIds;
-
         string pathToDataFile;
 
         DataSet dataSet;
@@ -145,32 +134,9 @@ namespace MEPUtils.SetTagsModeless
 
         private void button4_Click(object sender, EventArgs e)
         {
-            selection = uidoc.Selection;
-            selIds = selection.GetElementIds();
-
-            if (selIds.Count > 1)
-            {
-                ErrorMsg("More than one element selected! Please select only one element.");
-                return;
-            }
-            if (selIds.Count < 1)
-            {
-                ErrorMsg("No element selected! Please select only one element.");
-                return;
-            }
-
             AsyncUpdateParameterValues asUPV = new AsyncUpdateParameterValues(dataGridView1);
             ThisApp.asyncCommand = asUPV;
             m_ExEvent.Raise();
-        }
-
-        public static void ErrorMsg(string msg)
-        {
-            Debug.WriteLine(msg);
-            WinForms.MessageBox.Show(msg,
-              "Error",
-              WinForms.MessageBoxButtons.OK,
-              WinForms.MessageBoxIcon.Error);
         }
 
         public static DataSet ImportExcelToDataSet(string fileName, string dataHasHeaders)
@@ -242,11 +208,20 @@ namespace MEPUtils.SetTagsModeless
             // we own both the event and the handler
             // we should dispose it before we are closed
             m_ExEvent.Dispose();
-            m_ExEvent = null;
-            m_Handler = null;
+            //m_ExEvent = null;
+            //m_Handler = null;
 
             // do not forget to call the base class
-            base.OnFormClosed(e);
+            //base.OnFormClosed(e);
+        }
+
+        public static void ErrorMsg(string msg)
+        {
+            Debug.WriteLine(msg);
+            WinForms.MessageBox.Show(msg,
+              "Error",
+              WinForms.MessageBoxButtons.OK,
+              WinForms.MessageBoxIcon.Error);
         }
         ////private void textBox1_TextChanged(object sender, EventArgs e) => DistanceToKeep = textBox1.Text;
 
