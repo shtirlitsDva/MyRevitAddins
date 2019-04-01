@@ -110,6 +110,7 @@
             this.Name = "SetTagsInterface";
             this.Text = "InputBoxBasic";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.SetTagsInterface_FormClosing);
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.SetTagsInterface_FormClosed);
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();

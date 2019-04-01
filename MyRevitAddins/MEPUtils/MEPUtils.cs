@@ -62,8 +62,7 @@ namespace MEPUtils
                 {6, CreateInstrumentation.StartCreatingInstrumentation.StartCreating },
                 {7, PAHangers.CalculateHeight.Calculate },
                 {8, MoveToDistance.MoveToDistance.Move },
-                {9, new CountWelds.CountWelds().CountWeldsMethod },
-                {10, new SetTags.SetTags().SetTagsCommand }
+                {9, new CountWelds.CountWelds().CountWeldsMethod }
             };
 
             //Place names for methods in this dict
@@ -78,8 +77,7 @@ namespace MEPUtils
                 {6, "Create Instrument!" },
                 {7, "Hanger height calc" },
                 {8, "Move e to distance" },
-                {9, "(ctrl) Count welds" },
-                {10, "Set Tags" }
+                {9, "(ctrl) Count welds" }
             };
 
             for (int i = 0; i < methodDict.Count; i++)

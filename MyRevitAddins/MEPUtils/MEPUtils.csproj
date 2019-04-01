@@ -66,11 +66,11 @@
     </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="RevitAPI">
-      <HintPath>..\..\..\..\..\Programs\IDSP19\Revit 2019\RevitAPI.dll</HintPath>
+      <HintPath>..\..\..\..\..\Revit 2019.2 SDK\RevitAPI.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="RevitAPIUI">
-      <HintPath>..\..\..\..\..\Programs\IDSP19\Revit 2019\RevitAPIUI.dll</HintPath>
+      <HintPath>..\..\..\..\..\Revit 2019.2 SDK\RevitAPIUI.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="System" />
@@ -141,19 +141,6 @@
     <Compile Include="12 SetMark\InputBoxBasic.Designer.cs">
       <DependentUpon>InputBoxBasic.cs</DependentUpon>
     </Compile>
-    <Compile Include="13 SetTags\01 SetTags.cs" />
-    <Compile Include="13 SetTags\BasicChooserForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="13 SetTags\BasicChooserForm.Designer.cs">
-      <DependentUpon>BasicChooserForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="13 SetTags\SetTagsInterface.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="13 SetTags\SetTagsInterface.Designer.cs">
-      <DependentUpon>SetTagsInterface.cs</DependentUpon>
-    </Compile>
     <Compile Include="MEPUtilsClass.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="MEPUtils.cs">
@@ -195,12 +182,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="12 SetMark\InputBoxBasic.resx">
       <DependentUpon>InputBoxBasic.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="13 SetTags\BasicChooserForm.resx">
-      <DependentUpon>BasicChooserForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="13 SetTags\SetTagsInterface.resx">
-      <DependentUpon>SetTagsInterface.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MEPUtils.resx">
       <DependentUpon>MEPUtils.cs</DependentUpon>

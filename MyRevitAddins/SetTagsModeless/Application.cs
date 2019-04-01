@@ -24,15 +24,19 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Windows.Forms;
+using WinForms = System.Windows.Forms;
 using System.IO;
 using System.Windows.Media.Imaging;
 using System.Reflection;
+using System.Linq;
+using System.Diagnostics;
 
 using Autodesk;
 using Autodesk.Revit;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
 using Autodesk.Revit.ApplicationServices;
+using Autodesk.Revit.UI.Selection;
 
 namespace MEPUtils.SetTagsModeless
 {
@@ -65,9 +69,10 @@ namespace MEPUtils.SetTagsModeless
         // class instance
         internal static Application thisApp = null;
         // ModelessForm instance
-        private ModelessForm m_MyForm;
+        private SetTagsInterface m_MyForm;
+        //Modeless payload
+        public IAsyncCommand asyncCommand;
 
-        #region IExternalApplication Members
         /// <summary>
         /// Implements the OnShutdown event
         /// </summary>
@@ -102,7 +107,7 @@ namespace MEPUtils.SetTagsModeless
             RibbonPanel rvtRibbonPanel = application.CreateRibbonPanel("MyRevitAddins");
 
             //MEPUtils.SetTagsModeless
-            PushButtonData data = new PushButtonData("SetTags", "TGS", ExecutingAssemblyPath, "MEPUtils.SetTagsModeless.Command");
+            PushButtonData data = new PushButtonData("SetTGS", "TGS", ExecutingAssemblyPath, "MEPUtils.SetTagsModeless.SetTags");
             data.ToolTip = "Modeless tag setter";
             data.Image = NewBitmapImage(exe, "MEPUtils.SetTagsModeless.Resources.ImgSetTags16.png");
             data.LargeImage = NewBitmapImage(exe, "MEPUtils.SetTagsModeless.Resources.ImgSetTags32.png");
@@ -122,30 +127,37 @@ namespace MEPUtils.SetTagsModeless
             if (m_MyForm == null || m_MyForm.IsDisposed)
             {
                 // A new handler to handle request posting by the dialog
-                RequestHandler handler = new RequestHandler();
+                ExternalEventHandler handler = new ExternalEventHandler(thisApp);
 
                 // External Event for the dialog to use (to post requests)
                 ExternalEvent exEvent = ExternalEvent.Create(handler);
 
                 // We give the objects to the new dialog;
                 // The dialog becomes the owner responsible fore disposing them, eventually.
-                m_MyForm = new ModelessForm(exEvent, handler);
+                m_MyForm = new SetTagsInterface(exEvent, handler, thisApp);
                 m_MyForm.Show();
             }
         }
 
-
-        /// <summary>
-        ///   Waking up the dialog from its waiting state.
-        /// </summary>
-        /// 
-        public void WakeFormUp()
+        [Autodesk.Revit.Attributes.Transaction(Autodesk.Revit.Attributes.TransactionMode.Manual)]
+        [Autodesk.Revit.Attributes.Regeneration(Autodesk.Revit.Attributes.RegenerationOption.Manual)]
+        public class SetTags : IExternalCommand
         {
-            if (m_MyForm != null)
+
+            public virtual Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
             {
-                m_MyForm.WakeUp();
+
+                try
+                {
+                    MEPUtils.SetTagsModeless.Application.thisApp.ShowForm(commandData.Application);
+                    return Result.Succeeded;
+                }
+                catch (Exception ex)
+                {
+                    message = ex.Message;
+                    return Result.Failed;
+                }
             }
         }
-        #endregion
     }
 }

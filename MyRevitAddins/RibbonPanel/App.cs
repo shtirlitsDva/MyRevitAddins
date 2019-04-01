@@ -241,7 +241,6 @@ More than two elements selected + CTRL
     {
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
-            AsyncCommandManager.CacheApplication(commandData.Application);
             Result result = mep.FormCaller(commandData);
             return result;
         }

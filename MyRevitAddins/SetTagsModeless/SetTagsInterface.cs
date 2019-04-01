@@ -32,20 +32,20 @@ namespace MEPUtils.SetTagsModeless
         LinkedListNode<DataRow> curNode;
 
         //Modeless stuff
+        private Autodesk.Revit.UI.ExternalEvent m_ExEvent;
+        private ExternalEventHandler m_Handler;
+        Application ThisApp;
 
-        public SetTagsInterface(ExternalCommandData commandData)
+        public SetTagsInterface(Autodesk.Revit.UI.ExternalEvent exEvent, ExternalEventHandler handler, MEPUtils.SetTagsModeless.Application thisApp)
         {
             InitializeComponent();
-            uiApp = commandData.Application;
-            doc = commandData.Application.ActiveUIDocument.Document;
-            uidoc = uiApp.ActiveUIDocument;
 
-            selection = uidoc.Selection;
-            selIds = selection.GetElementIds();
+            m_ExEvent = exEvent;
+            m_Handler = handler;
+            ThisApp = thisApp;
 
             pathToDataFile = MEPUtils.SetTagsModeless.Properties.Settings.Default.pathToExcel;
             textBox2.Text = pathToDataFile;
-
         }
 
         bool ctrl = false;
@@ -158,10 +158,10 @@ namespace MEPUtils.SetTagsModeless
                 ErrorMsg("No element selected! Please select only one element.");
                 return;
             }
-            ElementId elId = selIds.FirstOrDefault();
 
-            AsyncUpdateParameterValues cmd = new AsyncUpdateParameterValues(elId, dataGridView1);
-
+            AsyncUpdateParameterValues asUPV = new AsyncUpdateParameterValues(dataGridView1);
+            ThisApp.asyncCommand = asUPV;
+            m_ExEvent.Raise();
         }
 
         public static void ErrorMsg(string msg)
@@ -237,53 +237,16 @@ namespace MEPUtils.SetTagsModeless
             return (from DataTable dtbl in dataTableCollection where dtbl.TableName == tableName select dtbl).FirstOrDefault();
         }
 
-        private class AsyncUpdateParameterValues
+        private void SetTagsInterface_FormClosed(object sender, FormClosedEventArgs e)
         {
-            private ElementId SelectedElementId { get; set; }
-            private DataGridView Dgw { get; set; }
+            // we own both the event and the handler
+            // we should dispose it before we are closed
+            m_ExEvent.Dispose();
+            m_ExEvent = null;
+            m_Handler = null;
 
-            private AsyncUpdateParameterValues() { }
-
-            public AsyncUpdateParameterValues(ElementId selectedElementId, DataGridView dgw)
-            {
-                SelectedElementId = selectedElementId;
-                Dgw = dgw;
-            }
-
-            public void Execute(Document doc)
-            {
-                using (Transaction tx = new Transaction(doc))
-                {
-                    tx.Start("Update parameter values");
-
-                    int i = 0;
-                    foreach (DataGridViewColumn column in Dgw.Columns)
-                    {
-                        //Test to see if there's a name of parameter specified
-                        var parNameValue = Dgw.Rows[1].Cells[i].Value;
-
-                        if (parNameValue == null) { i++; continue; }
-
-                        string parName = parNameValue.ToString();
-
-                        if (string.IsNullOrEmpty(parName)) { i++; continue; }
-
-                        Element el = doc.GetElement(SelectedElementId);
-
-                        Parameter parToSet = el.LookupParameter(parName);
-                        if (parToSet == null) throw new Exception($"Parameter name {parName} does not exist for element {el.Id.ToString()}!");
-
-                        var parValue = Dgw.Rows[0].Cells[i].Value;
-
-                        if (parValue == null) { i++; continue; }
-
-                        parToSet.Set(parValue.ToString());
-
-                        i++;
-                    }
-                    tx.Commit();
-                }
-            }
+            // do not forget to call the base class
+            base.OnFormClosed(e);
         }
         ////private void textBox1_TextChanged(object sender, EventArgs e) => DistanceToKeep = textBox1.Text;
 
