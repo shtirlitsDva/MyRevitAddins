@@ -138,25 +138,25 @@ namespace MEPUtils.SetTagsModeless
                 m_MyForm.Show();
             }
         }
+    }
 
-        [Autodesk.Revit.Attributes.Transaction(Autodesk.Revit.Attributes.TransactionMode.Manual)]
-        [Autodesk.Revit.Attributes.Regeneration(Autodesk.Revit.Attributes.RegenerationOption.Manual)]
-        public class SetTags : IExternalCommand
+    [Autodesk.Revit.Attributes.Transaction(Autodesk.Revit.Attributes.TransactionMode.Manual)]
+    [Autodesk.Revit.Attributes.Regeneration(Autodesk.Revit.Attributes.RegenerationOption.Manual)]
+    public class SetTags : IExternalCommand
+    {
+
+        public virtual Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
 
-            public virtual Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
+            try
             {
-
-                try
-                {
-                    MEPUtils.SetTagsModeless.Application.thisApp.ShowForm(commandData.Application);
-                    return Result.Succeeded;
-                }
-                catch (Exception ex)
-                {
-                    message = ex.Message;
-                    return Result.Failed;
-                }
+                MEPUtils.SetTagsModeless.Application.thisApp.ShowForm(commandData.Application);
+                return Result.Succeeded;
+            }
+            catch (Exception ex)
+            {
+                message = ex.Message;
+                return Result.Failed;
             }
         }
     }
