@@ -10,7 +10,7 @@
   </AddIn>
   <AddIn Type="Application">
     <Assembly>E:\GitHub\shtirlitsDva\MyRevitAddins\MyRevitAddins\SetTagsModeless\bin\Release\MEPUtils.SetTagsModeless.dll</Assembly>
-    <ClientId>1A1D1ECF-9569-4F1C-81EF-52D560369FBE></ClientId>
+    <ClientId>1A1D1ECF-9569-4F1C-81EF-52D560369FBE</ClientId>
     <FullClassName>MEPUtils.SetTagsModeless.Application</FullClassName>
     <Name>SetTags</Name>
     <VendorId>MGTek</VendorId>
