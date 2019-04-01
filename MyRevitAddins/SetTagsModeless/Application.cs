@@ -104,7 +104,7 @@ namespace MEPUtils.SetTagsModeless
 
         private void AddMenu(UIControlledApplication application)
         {
-            RibbonPanel rvtRibbonPanel = application.CreateRibbonPanel("MyRevitAddins");
+            RibbonPanel rvtRibbonPanel = application.CreateRibbonPanel("TAGS-M");
 
             //MEPUtils.SetTagsModeless
             PushButtonData data = new PushButtonData("SetTGS", "TGS", ExecutingAssemblyPath, "MEPUtils.SetTagsModeless.SetTags");
