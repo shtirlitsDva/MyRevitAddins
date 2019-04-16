@@ -22,13 +22,13 @@ namespace MEPUtils.SetMark
         public InputBoxBasic()
         {
             InitializeComponent();
-            textBox1.Text = Tag1Value;
-            textBox2.Text = Tag2Value;
-            textBox3.Text = Tag3Value;
         }
 
         private void InputBoxBasic_Shown(object sender, EventArgs e)
         {
+            textBox1.Text = Tag1Value;
+            textBox2.Text = Tag2Value;
+            textBox3.Text = Tag3Value;
             textBox1.SelectionStart = 0;
             textBox1.SelectionLength = textBox1.Text.Length;
         }
