@@ -20,7 +20,6 @@ namespace MEPUtils.SetTagsModeless
 {
     public class ExternalEventHandler : IExternalEventHandler
     {
-        private SetTagsInterface mForm;
         Application ThisApp;
 
         public ExternalEventHandler(Application thisApp)
