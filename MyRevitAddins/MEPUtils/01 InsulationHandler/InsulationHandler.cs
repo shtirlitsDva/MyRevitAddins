@@ -340,7 +340,7 @@ namespace MEPUtils
                 var query = insSet.AsEnumerable()
                     .Where(row => row.Field<string>("FamilyAndType") == e.get_Parameter(BuiltInParameter.ELEM_FAMILY_AND_TYPE_PARAM).AsValueString())
                     .Select(row => row.Field<string>("AddInsulation"));
-                bool value = bool.Parse(query.FirstOrDefault());
+                bool insulationAllowed = bool.Parse(query.FirstOrDefault());
 
                 //Retrieve insulation type parameter and see if the accessory is already insulated
                 Parameter parInsTypeCheck = e.get_Parameter(BuiltInParameter.RBS_REFERENCE_INSULATION_TYPE);
@@ -348,7 +348,7 @@ namespace MEPUtils
                 {
                     //If not allowed (false is read) negate the false to true to trigger the following if
                     //Delete any existing insulation and return
-                    if (!value)
+                    if (!insulationAllowed)
                     {
                         doc.Delete(InsulationLiningBase.GetInsulationIds(doc, e.Id));
                         return;
@@ -372,7 +372,7 @@ namespace MEPUtils
                 else
                 {
                     //Case: If no insulation -> add insulation if allowed
-                    if (!value) return;
+                    if (!insulationAllowed) return;
 
                     //Read pipeinsulation type and get the type
                     string pipeInsulationName = dh.ReadParameterFromDataTable(sysAbbr, insPar, "Type");
