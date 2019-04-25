@@ -62,8 +62,8 @@ namespace MEPUtils
                 foreach (Element element in fittings) InsulateFitting(doc, element, insPar, insSet);
                 foreach (Element element in accessories)
                 {
-                    Parameter par1 = element.LookupParameter("Insulation Projected");
-                    if (par1 != null) InsulateAccessoryWithDummyInsulation(doc, element, insPar, insSet, par1);
+                    Parameter insulationProjectedPar = element.LookupParameter("Insulation Projected");
+                    if (insulationProjectedPar != null) InsulateAccessoryWithDummyInsulation(doc, element, insPar, insSet, insulationProjectedPar);
                     else InsulateAccessory(doc, element, insPar, insSet);
                 }
 
@@ -72,7 +72,7 @@ namespace MEPUtils
 
             return Result.Succeeded;
         }
-                
+
         private static DataTable GetInsulationSettings(Document doc)
         {
             //Manage Insulation creation settings
@@ -211,9 +211,9 @@ namespace MEPUtils
                     //Retrieve connector dimensions
                     var cons = mp.GetConnectors(e);
                     dia = (cons.Primary.Radius * 2).FtToMm().Round(0);
-                } 
+                }
                 #endregion
-                
+
                 #endregion
 
                 #region Read specified Insulation Thickness
@@ -279,7 +279,7 @@ namespace MEPUtils
                         if (pipeInsulationType == null) throw new Exception($"No pipe insulation type named {pipeInsulationName}!");
 
                         //Create insulation
-                        PipeInsulation.Create(doc, e.Id, pipeInsulationType.Id, specifiedInsulationThickness); 
+                        PipeInsulation.Create(doc, e.Id, pipeInsulationType.Id, specifiedInsulationThickness);
                     }
                 }
 
@@ -325,6 +325,7 @@ namespace MEPUtils
             }
             catch (Exception)
             {
+                //This is to handle non standard valves -- usually small bore stuff for air venting and alike
                 specifiedInsulationThickness = 0;
             }
 
@@ -386,12 +387,12 @@ namespace MEPUtils
             }
         }
 
-        private static void InsulateAccessoryWithDummyInsulation(Document doc, Element e, DataTable insPar, DataTable insSet, Parameter par1)
+        private static void InsulateAccessoryWithDummyInsulation(Document doc, Element e, DataTable insPar, DataTable insSet, Parameter insulationProjectedPar)
         {
             #region Initialization
             //Get the visibility parameter
-            Parameter visPar2 = e.LookupParameter("Dummy Insulation Visible");
-            
+            Parameter insulationVisibilityPar = e.LookupParameter("Dummy Insulation Visible");
+
             //Read common configuration values
             string sysAbbr = e.get_Parameter(BuiltInParameter.RBS_DUCT_PIPE_SYSTEM_ABBREVIATION_PARAM).AsString();
 
@@ -399,6 +400,19 @@ namespace MEPUtils
             #region Retrieve accessory diameter
             var cons = mp.GetConnectors(e);
             double dia = (cons.Primary.Radius * 2).FtToMm().Round(0);
+            #endregion
+
+            #region Delete any existing built-in insulation
+
+            //Retrieve insulation type parameter and see if the accessory is already insulated
+            Parameter parInsTypeCheck = e.get_Parameter(BuiltInParameter.RBS_REFERENCE_INSULATION_TYPE);
+            if (parInsTypeCheck.HasValue)
+            {
+                //If not allowed (false is read) negate the false to true to trigger the following if
+                //Delete any existing insulation and return
+                doc.Delete(InsulationLiningBase.GetInsulationIds(doc, e.Id));
+            }
+
             #endregion
 
             #region Read specified Insulation Thickness
@@ -427,37 +441,40 @@ namespace MEPUtils
                 var query = insSet.AsEnumerable()
                     .Where(row => row.Field<string>("FamilyAndType") == e.get_Parameter(BuiltInParameter.ELEM_FAMILY_AND_TYPE_PARAM).AsValueString())
                     .Select(row => row.Field<string>("AddInsulation"));
-                bool value = bool.Parse(query.FirstOrDefault());
+                bool insulationAllowed = bool.Parse(query.FirstOrDefault());
 
-                //Check if Accessory already is insulated
-                double existingInsulationThickness = par1.AsDouble();
+                //Commense insulating if not and checking existing insulation for correctness
+                double existingInsulationThickness = insulationProjectedPar.AsDouble();
 
-                if (existingInsulationThickness.Equalz(0, Extensions._epx) == false)
+                //Case: Insulation allowed
+                if (insulationAllowed)
                 {
-                    //If not allowed (false is read) negate the false to true to trigger the following if
-                    //Delete any existing insulation and return
-                    if (!value)
+                    if (existingInsulationThickness.Equalz(specifiedInsulationThickness, 1.0e-6))
                     {
-                        par1.Set(0);
-                        if (visPar2.AsInteger() == 1) visPar2.Set(0);
-                        return;
+                        //Case: Existing insulation thickness equals specified
+                        if (insulationVisibilityPar.AsInteger() == 0 && specifiedInsulationThickness > 1.0e-6) insulationVisibilityPar.Set(1);
+                        else if (insulationVisibilityPar.AsInteger() == 1 && specifiedInsulationThickness < 1.0e-6) insulationVisibilityPar.Set(0);
                     }
-
-                    //Case: If the accessory is already insulated, check to see if insulation is correct
-                    //Test if existing thickness is as specified
-                    //If ok -> do nothing, if not -> fix it
-                    if (!specifiedInsulationThickness.Equalz(existingInsulationThickness, 1.0e-9))
+                    else
                     {
-                        par1.Set(specifiedInsulationThickness);
+                        //Case: Existing insulation does not equal specified
+                        insulationProjectedPar.Set(specifiedInsulationThickness);
+                        //Subcase: Specified insulation is 0
+                        if (specifiedInsulationThickness.Equalz(0, 1.0e-6))
+                        {
+                            if (insulationVisibilityPar.AsInteger() == 1) insulationVisibilityPar.Set(0);
+                        }
                     }
                 }
                 else
+                //Case: Insulation disallowed
                 {
-                    //Case: If no insulation -> add insulation if allowed
-                    if (!value) return;
+                    if (existingInsulationThickness > 1.0e-6)
+                    {
+                        insulationProjectedPar.Set(0);
+                    }
 
-                    par1.Set(specifiedInsulationThickness);
-                    if (visPar2.AsInteger() == 0) visPar2.Set(1);
+                    if (insulationVisibilityPar.AsInteger() == 1) insulationVisibilityPar.Set(0);
                 }
             }
         }
