@@ -413,7 +413,7 @@ namespace MEPUtils
             }
             catch (Exception)
             {
-                specifiedInsulationThickness = 0;
+                throw new Exception($"Element {e.Id.ToString()} has diameter not listen in Insulation excel file!");
             }
 
             #endregion
