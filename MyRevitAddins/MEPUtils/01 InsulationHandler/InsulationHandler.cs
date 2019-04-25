@@ -179,7 +179,7 @@ namespace MEPUtils
             #region Retrieve fitting diameter
             double dia;
 
-            //See if the accessory is in the settings list, else return no action done
+            //See if the fittings is in the settings list, else return no action done
             if (insSet.AsEnumerable().Any(row => row.Field<string>("FamilyAndType")
                 == e.get_Parameter(BuiltInParameter.ELEM_FAMILY_AND_TYPE_PARAM).AsValueString()))
             {
@@ -187,7 +187,7 @@ namespace MEPUtils
                 var query = insSet.AsEnumerable()
                     .Where(row => row.Field<string>("FamilyAndType") == e.get_Parameter(BuiltInParameter.ELEM_FAMILY_AND_TYPE_PARAM).AsValueString())
                     .Select(row => row.Field<string>("AddInsulation"));
-                bool value = bool.Parse(query.FirstOrDefault());
+                bool insulationAllowed = bool.Parse(query.FirstOrDefault());
 
 
                 #region DiameterRead
@@ -227,7 +227,7 @@ namespace MEPUtils
                 {
                     //Case Tee: If the element is a tee, delete any existing insulation
                     //Or it should not have insulation
-                    if (mf.PartType.ToString() == "Tee" || value == false)
+                    if (mf.PartType.ToString() == "Tee" || insulationAllowed == false)
                     {
                         doc.Delete(InsulationLiningBase.GetInsulationIds(doc, e.Id));
                         if (mf.PartType.ToString() == "Tee") InsulateTee();
@@ -240,7 +240,7 @@ namespace MEPUtils
 
                     //Test if existing thickness is as specified
                     //If ok -> do nothing, if not -> fix it
-                    if (!specifiedInsulationThickness.Equalz(existingInsulationThickness, 1.0e-9))
+                    if (specifiedInsulationThickness.Equalz(existingInsulationThickness, 1.0e-9) == false)
                     {
                         //Case: specifiedInsulationThickness is 0
                         if (specifiedInsulationThickness.Equalz(0, 1.0e-9))
@@ -262,13 +262,13 @@ namespace MEPUtils
                 }
                 else
                 {
-                    if (mf.PartType.ToString() == "Tee" && value == true)
+                    if (mf.PartType.ToString() == "Tee" && insulationAllowed == true)
                     {
                         InsulateTee();
                         return;
                     }
 
-                    if (value) //Insulate only if insulation is allowed
+                    if (insulationAllowed && specifiedInsulationThickness > 1.0e-6) //Insulate only if insulation is allowed and insulation thickness is above 0
                     {
                         //Case: If no insulation -> add insulation
                         //Read pipeinsulation type and get the type
