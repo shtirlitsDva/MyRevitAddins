@@ -59,13 +59,14 @@ namespace MEPUtils.CreateInstrumentation
                     PipeType pipeType;
                     double size;
                     FamilyInstance olet;
+                    FamilyInstance tee;
                     ElementId curLvlId;
                     ElementId curPipingSysTypeId;
                     ElementId curPipeTypeId;
 
                     switch (operation)
                     {
-                        case "Auto ML":
+                        case "Auto ML (Udlufter)":
                             using (Transaction trans2 = new Transaction(doc))
                             {
                                 trans2.Start("Auto ML");
@@ -85,7 +86,7 @@ namespace MEPUtils.CreateInstrumentation
                                 trans2.Commit();
                             }
                             break;
-                        case "PT":
+                        case "PT (Tryktransmitter)":
                             using (Transaction trans3 = new Transaction(doc))
                             {
                                 trans3.Start("PT");
@@ -105,7 +106,7 @@ namespace MEPUtils.CreateInstrumentation
                                 trans3.Commit();
                             }
                             break;
-                        case "Manometer":
+                        case "PI (Manometer)":
                             using (Transaction trans4 = new Transaction(doc))
                             {
                                 trans4.Start("Manometer");
@@ -124,7 +125,7 @@ namespace MEPUtils.CreateInstrumentation
                                 trans4.Commit();
                             }
                             break;
-                        case "TT":
+                        case "TT (Temp. transmitter)":
                             using (Transaction trans5 = new Transaction(doc))
                             {
                                 trans5.Start("Temperaturtransmitter");
@@ -143,7 +144,7 @@ namespace MEPUtils.CreateInstrumentation
                                 trans5.Commit();
                             }
                             break;
-                        case "Termometer":
+                        case "TI (Termometer)":
                             using (Transaction trans6 = new Transaction(doc))
                             {
                                 trans6.Start("Termometer");
@@ -167,6 +168,7 @@ namespace MEPUtils.CreateInstrumentation
                             //Select type of Olet
                             BaseFormTableLayoutPanel_Basic oletSelector = new BaseFormTableLayoutPanel_Basic(lad.PipeTypeByOlet());
                             oletSelector.ShowDialog();
+                            if (oletSelector.strTR.IsNullOrEmpty()) return Result.Cancelled;
                             PipeTypeName = oletSelector.strTR;
                             //ut.InfoMsg(PipeTypeName);
                             pipeType = fi.GetElements<PipeType, BuiltInParameter>(doc, BuiltInParameter.SYMBOL_NAME_PARAM, PipeTypeName).First();
@@ -195,21 +197,43 @@ namespace MEPUtils.CreateInstrumentation
                             curPipingSysTypeId = selectedPipe.MEPSystem.GetTypeId();
                             curPipeTypeId = pipeType.Id;
 
-                            using (Transaction trans2 = new Transaction(doc))
+                            if (oletSelector.strTR != "Stålrør, sømløse")
                             {
-                                trans2.Start("Create Olet");
-
-                                Element dummyPipe;
-                                (olet, dummyPipe) = CreateOlet(doc, iP, direction, selectedPipe, size, oletSelector.strTR);
-                                if (olet == null || dummyPipe == null)
+                                using (Transaction trans2 = new Transaction(doc))
                                 {
-                                    txGp.RollBack();
-                                    return Result.Cancelled;
-                                };
+                                    trans2.Start("Create Olet");
 
-                                //dbg.PlaceAdaptiveFamilyInstance(doc, "Marker Line: Red", offsetPoint, dirPoint);
+                                    Element dummyPipe;
+                                    (olet, dummyPipe) = CreateOlet(doc, iP, direction, selectedPipe, size, oletSelector.strTR);
+                                    if (olet == null || dummyPipe == null)
+                                    {
+                                        txGp.RollBack();
+                                        return Result.Cancelled;
+                                    };
 
-                                trans2.Commit();
+                                    //dbg.PlaceAdaptiveFamilyInstance(doc, "Marker Line: Red", offsetPoint, dirPoint);
+
+                                    trans2.Commit();
+                                }
+                            }
+                            else if (oletSelector.strTR == "Stålrør, sømløse")
+                            {
+                                using (Transaction trans2 = new Transaction(doc))
+                                {
+                                    trans2.Start("Create Tee");
+
+                                    Element dummyPipe;
+                                    (tee, dummyPipe) = CreateTee(doc, iP, direction, selectedPipe, size, oletSelector.strTR);
+                                    if (tee == null || dummyPipe == null)
+                                    {
+                                        txGp.RollBack();
+                                        return Result.Cancelled;
+                                    };
+
+                                    //dbg.PlaceAdaptiveFamilyInstance(doc, "Marker Line: Red", offsetPoint, dirPoint);
+
+                                    trans2.Commit();
+                                }
                             }
                             #endregion
                             break;
@@ -230,6 +254,8 @@ namespace MEPUtils.CreateInstrumentation
                 throw new Exception(ex.Message);
             }
         }
+
+        
 
         private static Element createNextElement(Document doc, Element prevElem, string elemFamType)
         {
@@ -337,6 +363,31 @@ namespace MEPUtils.CreateInstrumentation
             return (doc.Create.NewTakeoffFitting(con, (MEPCurve)selectedPipe), dummyPipe);
 
             //dbg.PlaceAdaptiveFamilyInstance(doc, "Marker Line: Red", offsetPoint, dirPoint);
+        }
+
+        private static (FamilyInstance tee, Element dummyPipe) CreateTee(Document doc, XYZ iP, string direction, Pipe selectedPipe, double size, string PipeTypeName)
+        {
+            PipeType pipeType = fi.GetElements<PipeType, BuiltInParameter>(doc, BuiltInParameter.SYMBOL_NAME_PARAM, PipeTypeName).FirstOrDefault();
+            if (pipeType == null) throw new Exception(PipeTypeName + " does not exist in current project!");
+
+            ElementId curLvlId = selectedPipe.ReferenceLevel.Id;
+            ElementId curPipingSysTypeId = selectedPipe.MEPSystem.GetTypeId();
+            ElementId curPipeTypeId = pipeType.Id;
+
+            XYZ dirPoint = CreateDummyDirectionPoint(iP, direction);
+            if (dirPoint == null) return (null, null);
+
+            Pipe dummyPipe = Pipe.Create(doc, curPipingSysTypeId, curPipeTypeId, curLvlId, iP, dirPoint);
+
+            //Change size of the pipe
+            Parameter par = dummyPipe.get_Parameter(BuiltInParameter.RBS_PIPE_DIAMETER_PARAM);
+            par.Set(size.MmToFt());
+
+            //Find the connector from the dummy pipe at intersection
+            var cons = mp.GetALLConnectorsFromElements(dummyPipe);
+            Connector con = cons.Where(c => c.Origin.Equalz(iP, Extensions._1mmTol)).FirstOrDefault();
+
+            return (doc.Create.NewTakeoffFitting(con, (MEPCurve)selectedPipe), dummyPipe);
         }
 
         private static XYZ CreateDummyDirectionPoint(XYZ iP, string direction)

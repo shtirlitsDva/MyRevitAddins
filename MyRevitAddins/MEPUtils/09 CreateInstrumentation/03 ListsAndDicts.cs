@@ -10,7 +10,13 @@ namespace MEPUtils.CreateInstrumentation
     {
         public static List<string> Operations()
         {
-            return new List<string> { "Auto ML", "PT", "Manometer", "TT", "Termometer", "Pipe"};
+            return new List<string> {
+                "Auto ML (Udlufter)",
+                "PT (Tryktransmitter)",
+                "PI (Manometer)",
+                "TT (Temp. transmitter)",
+                "TI (Termometer)",
+                "Pipe" };
         }
 
         public static List<string> Directions()
@@ -25,7 +31,7 @@ namespace MEPUtils.CreateInstrumentation
                 {"Weldolet", "Stålrør, sømløse weldolet" },
                 {"Sockolet", "Stålrør, sømløse sockolet" },
                 {"Termolomme", "Stålrør, sømløse, termolomme" },
-                {"Intet olet", "Stålrør, sømløse" }
+                {"Tee", "Stålrør, sømløse" }
             };
         }
 
@@ -73,12 +79,15 @@ namespace MEPUtils.CreateInstrumentation
                 {"80"},
                 {"100"},
                 {"125"},
-                {"150" },
+                {"150"},
                 {"200"},
                 {"250"},
                 {"300"},
-                {"350" },
-                {"400"}
+                {"350"},
+                {"400"},
+                {"450"},
+                {"500"},
+                {"600"}
             };
         }
 
