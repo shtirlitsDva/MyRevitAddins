@@ -59,7 +59,6 @@ namespace MEPUtils.CreateInstrumentation
                     PipeType pipeType;
                     double size;
                     FamilyInstance olet;
-                    FamilyInstance tee;
                     ElementId curLvlId;
                     ElementId curPipingSysTypeId;
                     ElementId curPipeTypeId;
@@ -189,9 +188,13 @@ namespace MEPUtils.CreateInstrumentation
                                     break;
                             }
 
-                            BaseFormTableLayoutPanel_Basic sizeSelector = new BaseFormTableLayoutPanel_Basic(sizeListing);
-                            sizeSelector.ShowDialog();
-                            size = double.Parse(sizeSelector.strTR);
+                            if (oletSelector.strTR != "Stålrør, sømløse")
+                            {
+                                BaseFormTableLayoutPanel_Basic sizeSelector = new BaseFormTableLayoutPanel_Basic(sizeListing);
+                                sizeSelector.ShowDialog();
+                                size = double.Parse(sizeSelector.strTR);
+                            }
+                            else size = selectedPipe.Diameter.FtToMm().Round(0);
 
                             curLvlId = selectedPipe.ReferenceLevel.Id;
                             curPipingSysTypeId = selectedPipe.MEPSystem.GetTypeId();
@@ -222,9 +225,9 @@ namespace MEPUtils.CreateInstrumentation
                                 {
                                     trans2.Start("Create Tee");
 
-                                    Element dummyPipe;
-                                    (tee, dummyPipe) = CreateTee(doc, iP, direction, selectedPipe, size, oletSelector.strTR);
-                                    if (tee == null || dummyPipe == null)
+                                    Pipe dummyPipe;
+                                    dummyPipe = CreateTee(doc, iP, direction, selectedPipe, size, oletSelector.strTR);
+                                    if (dummyPipe == null)
                                     {
                                         txGp.RollBack();
                                         return Result.Cancelled;
@@ -365,7 +368,7 @@ namespace MEPUtils.CreateInstrumentation
             //dbg.PlaceAdaptiveFamilyInstance(doc, "Marker Line: Red", offsetPoint, dirPoint);
         }
 
-        private static (FamilyInstance tee, Element dummyPipe) CreateTee(Document doc, XYZ iP, string direction, Pipe selectedPipe, double size, string PipeTypeName)
+        private static Pipe CreateTee(Document doc, XYZ iP, string direction, Pipe selectedPipe, double size, string PipeTypeName)
         {
             PipeType pipeType = fi.GetElements<PipeType, BuiltInParameter>(doc, BuiltInParameter.SYMBOL_NAME_PARAM, PipeTypeName).FirstOrDefault();
             if (pipeType == null) throw new Exception(PipeTypeName + " does not exist in current project!");
@@ -375,7 +378,7 @@ namespace MEPUtils.CreateInstrumentation
             ElementId curPipeTypeId = pipeType.Id;
 
             XYZ dirPoint = CreateDummyDirectionPoint(iP, direction);
-            if (dirPoint == null) return (null, null);
+            if (dirPoint == null) return null;
 
             Pipe dummyPipe = Pipe.Create(doc, curPipingSysTypeId, curPipeTypeId, curLvlId, iP, dirPoint);
 
@@ -384,10 +387,10 @@ namespace MEPUtils.CreateInstrumentation
             par.Set(size.MmToFt());
 
             //Find the connector from the dummy pipe at intersection
-            var cons = mp.GetALLConnectorsFromElements(dummyPipe);
-            Connector con = cons.Where(c => c.Origin.Equalz(iP, Extensions._1mmTol)).FirstOrDefault();
+            //var cons = mp.GetALLConnectorsFromElements(dummyPipe);
+            //Connector con = cons.Where(c => c.Origin.Equalz(iP, Extensions._1mmTol)).FirstOrDefault();
 
-            return (doc.Create.NewTakeoffFitting(con, (MEPCurve)selectedPipe), dummyPipe);
+            return dummyPipe;
         }
 
         private static XYZ CreateDummyDirectionPoint(XYZ iP, string direction)
