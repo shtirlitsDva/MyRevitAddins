@@ -63,7 +63,17 @@ namespace MEPUtils
                 foreach (Element element in accessories)
                 {
                     Parameter insulationProjectedPar = element.LookupParameter("Insulation Projected");
-                    if (insulationProjectedPar != null) InsulateAccessoryWithDummyInsulation(doc, element, insPar, insSet, insulationProjectedPar);
+                    if (insulationProjectedPar != null)
+                    {
+                        try
+                        {
+                            InsulateAccessoryWithDummyInsulation(doc, element, insPar, insSet, insulationProjectedPar);
+                        }
+                        catch (Exception e)
+                        {
+                            throw new Exception($"Element {element.Id} failed at InsulateAccessoryWithDummyInsulation with following Exception: {e.Message}");
+                        }
+                    }
                     else InsulateAccessory(doc, element, insPar, insSet);
                 }
 

@@ -75,7 +75,7 @@ namespace MEPUtils
                         {
                             c2?.ConnectTo(c1);
                         }
-                        catch (Exception e)
+                        catch (Exception)
                         {
                             throw new Exception($"Element {c1.Owner.Id.ToString()} is already connected to element {c2.Owner.Id.ToString()}");
                         }
