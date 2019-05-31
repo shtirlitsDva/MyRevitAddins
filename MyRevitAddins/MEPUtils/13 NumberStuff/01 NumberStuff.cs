@@ -49,7 +49,7 @@ namespace MEPUtils.NumberStuff
 
             settings = GetNumberStuffSettings(cData.Application.ActiveUIDocument.Document);
 
-            NumberStuffForm nsf = new NumberStuffForm(settings);
+            NumberStuffForm nsf = new NumberStuffForm(cData.Application.ActiveUIDocument.Document, settings);
             nsf.ShowDialog();
 
             return Result.Succeeded;
