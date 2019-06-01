@@ -1,19 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using Autodesk.Revit.DB;
+using Autodesk.Revit.UI;
+using System;
 using System.Data;
 using System.IO;
+using System.Linq;
 using System.Windows.Input;
-using Autodesk.Revit.DB;
-using Autodesk.Revit.DB.Plumbing;
-using Autodesk.Revit.DB.Structure;
-using Autodesk.Revit.UI;
-using MoreLinq;
-using Shared;
-using dbg = Shared.Dbg;
-using fi = Shared.Filter;
-using mp = Shared.MepUtils;
-using tr = Shared.Transformation;
+using System.Collections.Generic;
+using static Shared.Filter;
 
 namespace MEPUtils.NumberStuff
 {
@@ -51,6 +44,27 @@ namespace MEPUtils.NumberStuff
 
             NumberStuffForm nsf = new NumberStuffForm(cData.Application.ActiveUIDocument.Document, settings);
             nsf.ShowDialog();
+
+            //If Number button was pushed -- execute numbering
+            if (nsf.Result == Result.Succeeded)
+            {
+                var rowsToNumber = nsf.Settings.AsEnumerable()
+                    .Where(row => bool.Parse(row.Field<string>("Number")) == true);
+
+                var groupByPrefix = rowsToNumber.GroupBy(row => row["Prefix"]);
+
+                foreach (var group in groupByPrefix)
+                {
+                    int startNumber = 1;
+
+                    HashSet<Element> elements = new HashSet<Element>();
+
+                    foreach (var item in group)
+                    {
+                        elements.Union(GetElements<string, BuiltInParameter>())
+                    }
+                }
+            }
 
             return Result.Succeeded;
         }
