@@ -67,7 +67,7 @@ namespace MEPUtils.NumberStuff
 
                         foreach (DataRow item in group)
                         {
-                            elements.UnionWith(GetElements<Element, BuiltInParameter>
+                            elements.UnionWith(GetElements<FamilyInstance, BuiltInParameter>
                                 (doc, BuiltInParameter.ELEM_FAMILY_PARAM, item.Field<string>("Family")));
                             nrOfDigits = int.Parse(item.Field<string>("Digits"));
                         }
