@@ -4,9 +4,11 @@ using System;
 using System.Data;
 using System.IO;
 using System.Linq;
+using MoreLinq;
 using System.Windows.Input;
 using System.Collections.Generic;
 using static Shared.Filter;
+using static Shared.Extensions;
 
 namespace MEPUtils.NumberStuff
 {
@@ -22,6 +24,8 @@ namespace MEPUtils.NumberStuff
 
         public Result NumberStuffMethod(ExternalCommandData cData)
         {
+            Document doc = cData.Application.ActiveUIDocument.Document;
+
             bool ctrl = false;
             if ((int)Keyboard.Modifiers == 2) ctrl = true;
 
@@ -31,7 +35,7 @@ namespace MEPUtils.NumberStuff
             {
                 try
                 {
-                    settings = GetNumberStuffSettings(cData.Application.ActiveUIDocument.Document);
+                    settings = GetNumberStuffSettings(doc);
                 }
                 catch (Exception)
                 {
@@ -40,29 +44,52 @@ namespace MEPUtils.NumberStuff
             }
             else ExecuteNumberStuffSettings(cData);
 
-            settings = GetNumberStuffSettings(cData.Application.ActiveUIDocument.Document);
+            settings = GetNumberStuffSettings(doc);
 
-            NumberStuffForm nsf = new NumberStuffForm(cData.Application.ActiveUIDocument.Document, settings);
+            NumberStuffForm nsf = new NumberStuffForm(doc, settings);
             nsf.ShowDialog();
 
             //If Number button was pushed -- execute numbering
             if (nsf.Result == Result.Succeeded)
             {
-                var rowsToNumber = nsf.Settings.AsEnumerable()
-                    .Where(row => bool.Parse(row.Field<string>("Number")) == true);
-
-                var groupByPrefix = rowsToNumber.GroupBy(row => row["Prefix"]);
-
-                foreach (var group in groupByPrefix)
+                using (Transaction tx = new Transaction(doc))
                 {
-                    int startNumber = 1;
+                    tx.Start("(Re-)Number!");
+                    var rowsToNumber = nsf.Settings.AsEnumerable()
+                                .Where(row => bool.Parse(row.Field<string>("Number")) == true);
 
-                    HashSet<Element> elements = new HashSet<Element>();
+                    var groupByPrefix = rowsToNumber.GroupBy(row => row.Field<string>("Prefix"));
 
-                    foreach (var item in group)
+                    foreach (IGrouping<string, DataRow> group in groupByPrefix)
                     {
-                        elements.Union(GetElements<string, BuiltInParameter>())
+                        HashSet<Element> elements = new HashSet<Element>();
+                        int nrOfDigits = 2;
+
+                        foreach (DataRow item in group)
+                        {
+                            elements.UnionWith(GetElements<Element, BuiltInParameter>
+                                (doc, BuiltInParameter.ELEM_FAMILY_PARAM, item.Field<string>("Family")));
+                            nrOfDigits = int.Parse(item.Field<string>("Digits"));
+                        }
+
+                        List<Element> sortedElements = elements
+                            .OrderBy(x => ((LocationPoint)x.Location).Point.X.Round(1))
+                            .ThenBy(x => ((LocationPoint)x.Location).Point.Y.Round(1))
+                            .ThenBy(x => ((LocationPoint)x.Location).Point.Z.Round(1))
+                            .ToList();
+
+                        //Number the sorted elements sequentially
+                        int startNumber = 1;
+                        foreach (Element e in sortedElements)
+                        {
+                            Parameter Tag1 = e.get_Parameter(new Guid("a93679f7-ca9e-4a1e-bb44-0d890a5b4ba1"));
+                            Parameter Tag2 = e.get_Parameter(new Guid("3b2afba4-447f-422a-8280-fd394718ad4e"));
+                            Tag1.Set(group.Key);
+                            Tag2.Set(startNumber.ToString("D" + nrOfDigits.ToString()));
+                            startNumber++;
+                        }
                     }
+                    tx.Commit();
                 }
             }
 
