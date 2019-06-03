@@ -120,7 +120,7 @@ namespace MEPUtils
                     row["Family"] = tb.Text;
                     row["Number"] = cb.Checked;
                     row["Prefix"] = "NA";
-                    row["StartNumber"] = -1;
+                    row["StartNumber"] = 1;
                     row["Digits"] = 2;
                     Settings.Rows.Add(row);
                 }

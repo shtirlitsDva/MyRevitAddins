@@ -122,7 +122,7 @@ namespace MEPUtils
             string startNr = Settings.AsEnumerable()
                 .Where(row => row.Field<string>("Family") == familyName)
                 .Select(row => row.Field<string>("StartNumber")).FirstOrDefault()
-                ?? "-1";
+                ?? "1";
             string digits = Settings.AsEnumerable()
                 .Where(row => row.Field<string>("Family") == familyName)
                 .Select(row => row.Field<string>("Digits")).FirstOrDefault()
