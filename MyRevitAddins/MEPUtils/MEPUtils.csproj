@@ -65,11 +65,11 @@
     </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="RevitAPI">
-      <HintPath>..\..\..\..\..\Revit 2019.2 SDK\RevitAPI.dll</HintPath>
+      <HintPath>..\..\..\..\..\Revit2020 SDK\RevitAPI.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="RevitAPIUI">
-      <HintPath>..\..\..\..\..\Revit 2019.2 SDK\RevitAPIUI.dll</HintPath>
+      <HintPath>..\..\..\..\..\Revit2020 SDK\RevitAPIUI.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="System" />
