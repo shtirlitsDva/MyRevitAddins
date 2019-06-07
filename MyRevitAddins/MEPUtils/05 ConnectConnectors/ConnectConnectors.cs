@@ -58,7 +58,10 @@ namespace MEPUtils
 
                     //When selection is 0
                     IList<Connector> allConnectors;
-                    if (selection.Count == 0) allConnectors = mp.GetALLConnectorsInDocument(doc, true).Where(c => !c.IsConnected).ToList();
+                    if (selection.Count == 0) allConnectors = mp.GetALLConnectorsInDocument(doc, true)
+                            .Where(c => !c.IsConnected)
+                            .ExceptWhere(c => c.MEPSystemAbbreviation(doc) == "ARGD")
+                            .ToList();
                     //Selection is more than 2
                     else allConnectors = mp.GetALLConnectorsFromElements((from ElementId id in selection select doc.GetElement(id)).ToHashSet()).ToList();
 
