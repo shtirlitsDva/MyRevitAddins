@@ -26,7 +26,8 @@ namespace PDFExporter
 {
     public partial class PDFExporterForm : System.Windows.Forms.Form
     {
-        private IList<string> sheetSetNames;
+        private List<string> sheetSetNames;
+        List<FileNames> fileNames = new List<FileNames>();
         private string selectedSheetSet;
         private string pathToExport;
 
@@ -67,7 +68,7 @@ namespace PDFExporter
             #endregion
         }
 
-        private IList<string> getSheetSetNames(Document doc)
+        private List<string> getSheetSetNames(Document doc)
         {
             FilteredElementCollector collector = new FilteredElementCollector(doc);
             collector.OfClass(typeof(ViewSheetSet));
@@ -104,11 +105,13 @@ namespace PDFExporter
         /// </summary>
         private void button2_Click(object sender, EventArgs e)
         {
-            string sheetFileName;
-            string fullSheetFileName;
-            IList<string> fileNamesSource = new List<string>();
-            IList<string> fileNamesDestination = new List<string>();
-            IList<string> fileNamesDefault = new List<string>();
+            //string sheetFileName;
+            //string fullSheetFileName;
+            //IList<string> fileNamesSource = new List<string>();
+            //IList<string> fileNamesDefault = new List<string>();
+
+            //Clear the fileNamesDestination
+            fileNames.Clear();
 
             using (Transaction trans = new Transaction(doc))
             {
@@ -133,24 +136,31 @@ namespace PDFExporter
                     #region Naming
                     //var revisionType = sheet.GetCurrentRevision();
 
+                    FileNames fileName = new FileNames();
+                    fileNames.Add(fileName);
+
+                    Parameter sheetNumberPar = sheet.get_Parameter(BuiltInParameter.SHEET_NUMBER);
+                    string sheetNumber = sheetNumberPar.AsString();
+                    fileName.SheetNumber = sheetNumber;
+
+                    Parameter sheetNamePar = sheet.get_Parameter(BuiltInParameter.SHEET_NAME);
+                    string sheetName = sheetNamePar.AsString();
+                    fileName.SheetName = sheetName;
+
                     Parameter curRevision = sheet.get_Parameter(BuiltInParameter.SHEET_CURRENT_REVISION);
                     string revision = curRevision.AsString();
+                    fileName.Revision = revision;
 
-                    if (!revision.IsNullOrEmpty())
-                    {
-                        sheetFileName = sheet.SheetNumber + "-" + revision + " - " + sheet.Name + ".pdf";
-                    }
-                    else sheetFileName = sheet.SheetNumber + " - " + sheet.Name + ".pdf";
+                    fileName.GenerateFileName();
 
-                    fullSheetFileName = pathToExport + sheetFileName; //Used to copy files later
-                    fileNamesDestination.Add(fullSheetFileName);
+                    fileName.FileNameWithPath = pathToExport + fileName.FileName; //Used to copy files later
 
-                    string printfilename = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "\\" + sheetFileName; //Used to satisfy bluebeam
-                    fileNamesSource.Add(printfilename);
+                    string printfilename = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "\\" + fileName.FileName; //Used to satisfy bluebeam
+                    //fileNamesSource.Add(printfilename);
 
-                    string defaultFileName = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)
-                        + "\\" + title + " - Sheet - " + sheet.SheetNumber + " - " + sheet.Name + ".pdf";
-                    fileNamesDefault.Add(defaultFileName);
+                    //string defaultFileName = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)
+                    //    + "\\" + title + " - Sheet - " + sheet.SheetNumber + " - " + sheet.Name + ".pdf";
+                    //fileNamesDefault.Add(defaultFileName);
 
                     pm.PrintToFileName = printfilename;
                     #endregion
@@ -180,31 +190,31 @@ namespace PDFExporter
                 }
                 trans.Commit();
             }
-            //File handling
-            if (WaitForFile(fileNamesSource.Last(), fileNamesDefault.Last()))
-            {
-                var result = tryOpenFiles(fileNamesSource.Last(), fileNamesDefault.Last());
+            ////File handling
+            //if (WaitForFile(fileNamesSource.Last(), fileNamesDefault.Last()))
+            //{
+            //    var result = tryOpenFiles(fileNamesSource.Last(), fileNamesDefault.Last());
 
-                if (result.Item1)
-                {
-                    foreach (var files in fileNamesSource.Zip(fileNamesDestination, Tuple.Create))
-                    {
-                        if (File.Exists(files.Item2)) File.Delete(files.Item2);
-                        File.Move(files.Item1, files.Item2);
-                    }
-                }
-                else if (result.Item2)
-                {
-                    foreach (var files in fileNamesDefault.Zip(fileNamesDestination, Tuple.Create))
-                    {
-                        if (File.Exists(files.Item2)) File.Delete(files.Item2);
-                        File.Move(files.Item1, files.Item2);
-                    }
-                }
-                else throw new Exception("Filename handling FAILED AGAIN!!!!!!!");
+            //    if (result.Item1)
+            //    {
+            //        foreach (var files in fileNamesSource.Zip(fileNamesDestination, Tuple.Create))
+            //        {
+            //            if (File.Exists(files.Item2)) File.Delete(files.Item2);
+            //            File.Move(files.Item1, files.Item2);
+            //        }
+            //    }
+            //    else if (result.Item2)
+            //    {
+            //        foreach (var files in fileNamesDefault.Zip(fileNamesDestination, Tuple.Create))
+            //        {
+            //            if (File.Exists(files.Item2)) File.Delete(files.Item2);
+            //            File.Move(files.Item1, files.Item2);
+            //        }
+            //    }
+            //    else throw new Exception("Filename handling FAILED AGAIN!!!!!!!");
 
-            }
-            else Shared.BuildingCoder.BuildingCoderUtilities.ErrorMsg("The copying of files failed for some reason!");
+            //}
+            //else Shared.BuildingCoder.BuildingCoderUtilities.ErrorMsg("The copying of files failed for some reason!");
         }
 
         /// <summary>
@@ -466,6 +476,39 @@ namespace PDFExporter
         {
             if (radioButton3.Checked) { mySettings.Default.Setting_Colour_BlackWhite = true; }
             else mySettings.Default.Setting_Colour_BlackWhite = false;
+        }
+
+        /// <summary>
+        /// Copy files
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Button4_Click(object sender, EventArgs e)
+        {
+            foreach (FileNames fileName in fileNames)
+            {
+                string[] found = Directory.GetFiles(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), $"*{fileName.SheetNumber}*");
+                if (found.ToList().Count < 1) continue;
+                File.Move(found[0], fileName.FileNameWithPath);
+            }
+        }
+    }
+
+    internal class FileNames
+    {
+        public string SheetNumber { get; internal set; }
+        public string SheetName { get; internal set; }
+        public string FileName { get; internal set; }
+        public string Revision { get; internal set; }
+        public string FileNameWithPath { get; internal set; }
+
+        internal void GenerateFileName()
+        {
+            if (!Revision.IsNullOrEmpty())
+            {
+                FileName = SheetNumber + "-" + Revision + " - " + SheetName + ".pdf";
+            }
+            else FileName = SheetNumber + " - " + SheetName + ".pdf";
         }
     }
 }
