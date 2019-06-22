@@ -72,7 +72,9 @@ namespace PDFExporter
         {
             FilteredElementCollector collector = new FilteredElementCollector(doc);
             collector.OfClass(typeof(ViewSheetSet));
-            return collector.Select(x => x.Name).ToList();
+            List<string> sheetSetNames = new List<string> { "Current sheet only" };
+            foreach (var view in collector) sheetSetNames.Add(view.Name);
+            return sheetSetNames;
         }
 
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
@@ -116,8 +118,22 @@ namespace PDFExporter
             using (Transaction trans = new Transaction(doc))
             {
                 trans.Start("Print!");
-                FilteredElementCollector col = new FilteredElementCollector(doc);
-                var sheetSet = col.OfClass(typeof(ViewSheetSet)).Where(x => x.Name == selectedSheetSet).Cast<ViewSheetSet>().FirstOrDefault();
+
+                List<ViewSheet> viewSheetList = new List<ViewSheet>();
+
+                if (selectedSheetSet == "Current sheet only")
+                {
+                    Autodesk.Revit.DB.View view = doc.ActiveView;
+                    viewSheetList.Add((ViewSheet)view);
+                }
+                else
+                {
+                    FilteredElementCollector col = new FilteredElementCollector(doc);
+                    var sheetSet = col.OfClass(typeof(ViewSheetSet))
+                                      .Where(x => x.Name == selectedSheetSet)
+                                      .Cast<ViewSheetSet>().FirstOrDefault();
+                    foreach (ViewSheet vs in sheetSet.Views) viewSheetList.Add(vs);
+                }
 
                 FilteredElementCollector colPs = new FilteredElementCollector(doc);
                 var printSettings = colPs.OfClass(typeof(PrintSetting)).Cast<PrintSetting>().ToHashSet();
@@ -131,7 +147,7 @@ namespace PDFExporter
 
                 string title = doc.Title; //<- THIS CAN CAUSE PROBLEMS RECOGNISING THE ORIGINAL FILE NAME
 
-                foreach (ViewSheet sheet in sheetSet.Views)
+                foreach (ViewSheet sheet in viewSheetList)
                 {
                     #region Naming
                     //var revisionType = sheet.GetCurrentRevision();
