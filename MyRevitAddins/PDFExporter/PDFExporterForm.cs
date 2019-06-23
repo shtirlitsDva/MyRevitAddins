@@ -305,8 +305,21 @@ namespace PDFExporter
         /// </summary>
         private void button3_Click(object sender, EventArgs e)
         {
-            FilteredElementCollector col = new FilteredElementCollector(doc);
-            var sheetSet = col.OfClass(typeof(ViewSheetSet)).Where(x => x.Name == selectedSheetSet).Cast<ViewSheetSet>().FirstOrDefault();
+            List<ViewSheet> viewSheetList = new List<ViewSheet>();
+
+            if (selectedSheetSet == "Current sheet only")
+            {
+                Autodesk.Revit.DB.View view = doc.ActiveView;
+                viewSheetList.Add((ViewSheet)view);
+            }
+            else
+            {
+                FilteredElementCollector col = new FilteredElementCollector(doc);
+                var sheetSet = col.OfClass(typeof(ViewSheetSet))
+                                  .Where(x => x.Name == selectedSheetSet)
+                                  .Cast<ViewSheetSet>().FirstOrDefault();
+                foreach (ViewSheet vs in sheetSet.Views) viewSheetList.Add(vs);
+            }
 
             PrintManager pm = doc.PrintManager;
             PrintSetup ps = pm.PrintSetup;
@@ -323,7 +336,7 @@ namespace PDFExporter
                 trans.Start("PrintSettings");
                 //PrintManager pm = doc.PrintManager;
 
-                foreach (ViewSheet sheet in sheetSet.Views)
+                foreach (ViewSheet sheet in viewSheetList)
                 {
                     FamilyInstance titleBlock =
                             fi.GetElements<FamilyInstance, BuiltInParameter>(doc, BuiltInParameter.SHEET_NUMBER, sheet.SheetNumber).FirstOrDefault();
