@@ -43,5 +43,17 @@ namespace MEPUtils.SharedStaging
             }
             else return PartType.Undefined;
         }
+
+        public static string MEPSystemAbbreviationNew(this Connector con, Document doc)
+        {
+            if (con.MEPSystem != null)
+            {
+                MEPSystem ps = con.MEPSystem;
+                PipingSystemType pst = (PipingSystemType)doc.GetElement(ps.GetTypeId());
+                return pst.Abbreviation;
+            }
+            else return "";
+        }
+
     }
 }
