@@ -153,6 +153,7 @@
     <Compile Include="13 NumberStuff\NumberStuffFamilyChooser.Designer.cs">
       <DependentUpon>NumberStuffFamilyChooser.cs</DependentUpon>
     </Compile>
+    <Compile Include="14 ManageParameterValues\01 ManageParameterValues.cs" />
     <Compile Include="MEPUtilsClass.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="MEPUtils.cs">
