@@ -71,11 +71,9 @@ namespace MEPUtils.SharedStaging
                 default:
                     break;
             }
-
             return ret;
         }
-
-
+        
         public static string MEPSystemAbbreviationNew(this Connector con, Document doc)
         {
             if (con.MEPSystem != null)
@@ -86,6 +84,5 @@ namespace MEPUtils.SharedStaging
             }
             else return "";
         }
-
     }
 }
