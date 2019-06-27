@@ -129,7 +129,7 @@ namespace MEPUtils.CreateInstrumentation
                             {
                                 trans5.Start("Temperaturtransmitter");
                                 Element dummyPipe;
-                                (olet, dummyPipe) = CreateOlet(doc, iP, direction, selectedPipe, 20, "Stålrør, sømløse, termolomme");
+                                (olet, dummyPipe) = CreateOlet(doc, iP, direction, selectedPipe, 15, "Stålrør, sømløse, termolomme");
                                 doc.Delete(dummyPipe.Id);
                                 doc.Regenerate();
 
@@ -148,7 +148,7 @@ namespace MEPUtils.CreateInstrumentation
                             {
                                 trans6.Start("Termometer");
                                 Element dummyPipe;
-                                (olet, dummyPipe) = CreateOlet(doc, iP, direction, selectedPipe, 20, "Stålrør, sømløse, termolomme");
+                                (olet, dummyPipe) = CreateOlet(doc, iP, direction, selectedPipe, 15, "Stålrør, sømløse, termolomme");
                                 doc.Delete(dummyPipe.Id);
                                 doc.Regenerate();
 
@@ -160,6 +160,24 @@ namespace MEPUtils.CreateInstrumentation
                                 if (instr == null) throw new Exception("Creation of instrument failed for some reason!");
 
                                 trans6.Commit();
+                            }
+                            break;
+                        case "PS (Pressostat)":
+                            using (Transaction trans7 = new Transaction(doc))
+                            {
+                                trans7.Start("Pressostat");
+                                Element dummyPipe;
+                                (olet, dummyPipe) = CreateOlet(doc, iP, direction, selectedPipe, 15, "Stålrør, sømløse sockolet");
+                                doc.Delete(dummyPipe.Id);
+                                doc.Regenerate();
+
+                                Element cpValve = createNextElement(doc, olet, "DN15-SM-EL: SM-EL");
+                                if (cpValve == null) throw new Exception("Creation of cpValve failed for some reason!");
+
+                                Element instr = createNextElement(doc, cpValve, "Danfoss_pressostat_017-519166: Standard");
+                                if (instr == null) throw new Exception("Creation of instrument failed for some reason!");
+
+                                trans7.Commit();
                             }
                             break;
                         case "Pipe":

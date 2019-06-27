@@ -16,6 +16,7 @@ namespace MEPUtils.CreateInstrumentation
                 "PI (Manometer)",
                 "TT (Temp. transmitter)",
                 "TI (Termometer)",
+                "PS (Pressostat)",
                 "Pipe" };
         }
 
