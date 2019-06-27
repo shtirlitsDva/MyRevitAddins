@@ -57,7 +57,7 @@ namespace MEPUtils.MoveToDistance
 
                     var (toMoveCon, MoveToCon, Distance) = listToCompare.MinBy(x => x.Distance).FirstOrDefault();
 
-                    double origDist = toMoveCon.Origin.DistanceTo(MoveToCon.Origin);
+                    XYZ moveVector = (MoveToCon.Origin - toMoveCon.Origin) * (1 - distanceToKeep / Distance);
 
                     using (Transaction trans3 = new Transaction(doc))
                     {
@@ -65,9 +65,7 @@ namespace MEPUtils.MoveToDistance
                         {
                             foreach (Element elToMove in elsToMove)
                             {
-                                ElementTransformUtils.MoveElement(doc, elToMove.Id,
-                                    (MoveToCon.Origin - toMoveCon.Origin) *
-                                    (1 - distanceToKeep / origDist));
+                                ElementTransformUtils.MoveElement(doc, elToMove.Id, moveVector);
                             }
                         }
                         trans3.Commit();
