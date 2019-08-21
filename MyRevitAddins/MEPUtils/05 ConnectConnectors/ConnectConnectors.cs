@@ -32,7 +32,7 @@ namespace MEPUtils
 
                 //If no elements selected, connect ALL connectors to ALL connectors
                 //Or if more than two -- connect to each other
-                if (selection.Count == 0 || selection.Count > 2)
+                if ((selection.Count == 0 || selection.Count > 2) && !ctrl)
                 {
                     //Argh! It seems Revit2019 doesn't break when connecting pipes at angle!!!
                     ////To filter out PCF_ELEM_EXCL set to true
