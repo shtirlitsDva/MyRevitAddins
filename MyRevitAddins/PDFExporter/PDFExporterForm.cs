@@ -518,6 +518,7 @@ namespace PDFExporter
             {
                 string[] found = Directory.GetFiles(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), $"*{fileName.SheetNumber}*");
                 if (found.ToList().Count < 1) continue;
+                if (File.Exists(fileName.FileNameWithPath))	File.Delete(FileNameWithPath);
                 File.Move(found[0], fileName.FileNameWithPath);
             }
         }
