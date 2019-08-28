@@ -58,6 +58,10 @@ namespace MEPUtils.FlowCopy
                                 flow = fitting.LookupParameter("DRI.Mech.Flow");
                                 if (flow == null) throw new Exception($"DRI.Mech.Flow parameter not found for tee fitting {fitting.Id.IntegerValue}.");
                                 flow.Set(cons.Primary.Flow);
+
+                                Parameter flowBranch = fitting.LookupParameter("DRI.Mech.FlowBranch");
+                                if (flowBranch == null) throw new Exception($"DRI.Mech.FlowBranch parameter not found for tee fitting {fitting.Id.IntegerValue}.");
+                                flowBranch.Set(cons.Tertiary.Flow);
                                 break;
                             case PartType.Transition:
                                 cons = mp.GetConnectors(fitting);
