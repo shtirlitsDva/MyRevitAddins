@@ -16,11 +16,47 @@ using Autodesk.Revit.UI;
 using Autodesk.Revit.ApplicationServices;
 using Autodesk.Revit.UI.Selection;
 
+using static Shared.Filter;
+
 namespace MEPUtils.SetTagsModeless
 {
     public interface IAsyncCommand
     {
         void Execute(UIApplication uiApp);
+    }
+
+    class AsyncFindSelectElement : IAsyncCommand
+    {
+        private DataGridView Dgw { get; set; }
+        private AsyncFindSelectElement() { }
+        public AsyncFindSelectElement(DataGridView dgw)
+        {
+            Dgw = dgw;
+        }
+        public void Execute(UIApplication uiApp)
+        {
+            Document doc = uiApp.ActiveUIDocument.Document;
+            UIDocument uidoc = uiApp.ActiveUIDocument;
+
+            Selection selection = uidoc.Selection;
+
+            int i = 0;
+            foreach (DataGridViewColumn column in Dgw.Columns)
+            {
+                //Test to see if there's a name of parameter specified
+                var parNameValue = Dgw.Rows[1].Cells[i].Value;
+
+                if (parNameValue == null) { i++; continue; }
+
+                string parName = parNameValue.ToString();
+
+                if (string.IsNullOrEmpty(parName)) { i++; continue; }
+
+                ParameterValueGenericFilter
+
+                throw new NotImplementedException();
+            }
+        }
     }
 
     class AsyncUpdateParameterValues : IAsyncCommand

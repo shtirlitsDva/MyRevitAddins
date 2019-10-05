@@ -132,11 +132,22 @@ namespace MEPUtils.SetTagsModeless
             dataGridView1.Rows[0].SetValues(curNode.Value.ItemArray);
         }
 
+        /// <summary>
+        /// Update click button event.
+        /// </summary>
         private void button4_Click(object sender, EventArgs e)
         {
             AsyncUpdateParameterValues asUPV = new AsyncUpdateParameterValues(dataGridView1);
             ThisApp.asyncCommand = asUPV;
             m_ExEvent.Raise();
+        }
+
+        /// <summary>
+        /// Find/select button click.
+        /// </summary>
+        private void Button5_Click(object sender, EventArgs e)
+        {
+
         }
 
         public static DataSet ImportExcelToDataSet(string fileName, string dataHasHeaders)
@@ -223,6 +234,8 @@ namespace MEPUtils.SetTagsModeless
               WinForms.MessageBoxButtons.OK,
               WinForms.MessageBoxIcon.Error);
         }
+
+        
         ////private void textBox1_TextChanged(object sender, EventArgs e) => DistanceToKeep = textBox1.Text;
 
         //private void InputBoxBasic_FormClosing(object sender, FormClosingEventArgs e)
