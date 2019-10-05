@@ -147,7 +147,9 @@ namespace MEPUtils.SetTagsModeless
         /// </summary>
         private void Button5_Click(object sender, EventArgs e)
         {
-
+            AsyncFindSelectElement asFSE = new AsyncFindSelectElement(dataGridView1);
+            ThisApp.asyncCommand = asFSE;
+            m_ExEvent.Raise();
         }
 
         public static DataSet ImportExcelToDataSet(string fileName, string dataHasHeaders)

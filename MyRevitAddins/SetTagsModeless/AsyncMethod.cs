@@ -40,22 +40,38 @@ namespace MEPUtils.SetTagsModeless
 
             Selection selection = uidoc.Selection;
 
+            //I cannot find a way to get to a shared parameter element
+            //whithout GUID so I must assume I am working with
+            //Pipe Accessories and I use a first element as donor
+            FilteredElementCollector donorFec = new FilteredElementCollector(doc);
+            Element paDonor = donorFec.OfCategory(BuiltInCategory.OST_PipeAccessory).FirstElement();
+            FilteredElementCollector col = new FilteredElementCollector(doc);
+            col.OfCategory(BuiltInCategory.OST_PipeAccessory);
+
+            //Iterate over each column of dgw, only acting on filled out cells for parameter names
+            //then filter collector by a elementparameterfilter
             int i = 0;
             foreach (DataGridViewColumn column in Dgw.Columns)
             {
                 //Test to see if there's a name of parameter specified
                 var parNameValue = Dgw.Rows[1].Cells[i].Value;
-
                 if (parNameValue == null) { i++; continue; }
-
                 string parName = parNameValue.ToString();
-
                 if (string.IsNullOrEmpty(parName)) { i++; continue; }
+                Parameter parToTest = paDonor.LookupParameter(parName);
+                if (parToTest == null) continue;
 
-                ParameterValueGenericFilter
+                //Retrieve value to filter against
+                var parValue = Dgw.Rows[0].Cells[i].Value;
+                if (parValue == null) { i++; continue; }
+                string parValueString = parValue.ToString();
+                if (string.IsNullOrEmpty(parValueString)) { i++; continue; }
 
-                throw new NotImplementedException();
+                ElementParameterFilter epf = ParameterValueGenericFilter(doc, parValueString, parToTest.GUID);
+                col.WherePasses(epf);
             }
+
+            uidoc.Selection.SetElementIds(col.ToElementIds());
         }
     }
 
