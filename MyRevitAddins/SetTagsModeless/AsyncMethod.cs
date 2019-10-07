@@ -33,11 +33,13 @@ namespace MEPUtils.SetTagsModeless
             //Nlog configuration
             var nlogConfig = new NLog.Config.LoggingConfiguration();
             //Targets
-            var logfile = new NLog.Targets.FileTarget("logfile") { FileName = "e:\\GitHub\\log.txt" };
+            var logfile = new NLog.Targets.FileTarget("logfile") { FileName = "g:\\GitHub\\log.txt", DeleteOldFileOnStartup = true };
             //Rules
             nlogConfig.AddRule(LogLevel.Info, LogLevel.Fatal, logfile);
             //Apply config
             NLog.LogManager.Configuration = nlogConfig;
+            //DISABLE LOGGING
+            NLog.LogManager.DisableLogging();
             #endregion
             
             Document doc = uiApp.ActiveUIDocument.Document;
@@ -49,9 +51,9 @@ namespace MEPUtils.SetTagsModeless
             //whithout GUID so I must assume I am working with
             //Pipe Accessories and I use a first element as donor
             FilteredElementCollector donorFec = new FilteredElementCollector(doc);
-            Element paDonor = donorFec.OfCategory(BuiltInCategory.OST_PipeAccessory).FirstElement();
+            Element paDonor = donorFec.OfCategory(BuiltInCategory.OST_PipeAccessory).OfClass(typeof(FamilyInstance)).FirstElement();
             if (paDonor == null) { log.Info("Failed to get donor element! -> NULL"); }
-            log.Info($"Donor element collected {paDonor.Id.ToString()}.");
+            log.Info($"Donor element collected {paDonor.Id.ToString()}, {paDonor.Name}");
             FilteredElementCollector col = new FilteredElementCollector(doc);
             col = col.OfCategory(BuiltInCategory.OST_PipeAccessory).OfClass(typeof(FamilyInstance));
             log.Info($"Collected all Pipe Accessories: Count = {col.Count()}.");
@@ -82,6 +84,7 @@ namespace MEPUtils.SetTagsModeless
                 ElementParameterFilter epf = ParameterValueGenericFilter(doc, parValueString, parToTest.GUID);
                 col = col.WherePasses(epf);
                 log.Info($"Collector filtered to number of elements: {col.Count()}");
+                i++;
             }
 
             log.Info($"After last iteration collector contains elements: {col.Count()}");
