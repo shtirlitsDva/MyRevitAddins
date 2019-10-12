@@ -12,6 +12,7 @@ using fi = Shared.Filter;
 using lad = MEPUtils.CreateInstrumentation.ListsAndDicts;
 using mp = Shared.MepUtils;
 using tr = Shared.Transformation;
+using MEPUtils.SharedStaging;
 
 namespace MEPUtils.CreateInstrumentation
 {
@@ -29,32 +30,10 @@ namespace MEPUtils.CreateInstrumentation
                 {
                     txGp.Start("Create Instrumentation!");
 
-                    Pipe selectedPipe;
-                    XYZ iP;
-
-                    //TODO: Implement a selection of: 1) Point on a pipe selected directly 2) Distance from element on the pipe
-                    using (Transaction trans1 = new Transaction(doc))
-                    {
-                        trans1.Start("SelectPipePoint");
-                        (selectedPipe, iP) = SelectPipePoint(doc, uidoc);
-                        trans1.Commit();
-                    }
-
-                    string operation;
-
-                    //Select operation to perform
-                    BaseFormTableLayoutPanel_Basic op = new BaseFormTableLayoutPanel_Basic(lad.Operations());
-                    op.ShowDialog();
-                    operation = op.strTR;
-
-                    string direction;
-
-                    //Select the direction to create in
-                    BaseFormTableLayoutPanel_Basic ds = new BaseFormTableLayoutPanel_Basic(lad.Directions());
-                    ds.ShowDialog();
-                    direction = ds.strTR;
-                    //ut.InfoMsg(ds.strTR);
-
+                    Pipe selectedPipe = null;
+                    XYZ iP = null;
+                    string operation = string.Empty;
+                    string direction = string.Empty;
                     string PipeTypeName;
                     PipeType pipeType;
                     double size;
@@ -62,6 +41,42 @@ namespace MEPUtils.CreateInstrumentation
                     ElementId curLvlId;
                     ElementId curPipingSysTypeId;
                     ElementId curPipeTypeId;
+
+                    //Section to detect if an auto air vent selected and apply fittings to other end
+                    ElementId eId = uidoc.Selection.GetElementIds().FirstOrDefault();
+                    Element selectedElement = null;
+                    Parameter namePar;
+                    string famTyp = string.Empty;
+                    if (eId != null)
+                    {
+                        selectedElement = doc.GetElement(eId);
+                        namePar = selectedElement.get_Parameter(BuiltInParameter.ELEM_FAMILY_AND_TYPE_PARAM);
+                        famTyp = namePar.AsValueString();
+                        operation = "Add fittings to ML";
+                    }
+
+                    //If selection is not an Auto Air Vent, continue as normal
+                    if (famTyp != "SpiroTop_AB050-R004: Standard")
+                    {
+                        //TODO: Implement a selection of: 1) Point on a pipe selected directly 2) Distance from element on the pipe
+                        using (Transaction trans1 = new Transaction(doc))
+                        {
+                            trans1.Start("SelectPipePoint");
+                            (selectedPipe, iP) = SelectPipePoint(doc, uidoc);
+                            trans1.Commit();
+                        }
+
+                        //Select operation to perform
+                        BaseFormTableLayoutPanel_Basic op = new BaseFormTableLayoutPanel_Basic(lad.Operations());
+                        op.ShowDialog();
+                        operation = op.strTR;
+
+                        //Select the direction to create in
+                        BaseFormTableLayoutPanel_Basic ds = new BaseFormTableLayoutPanel_Basic(lad.Directions());
+                        ds.ShowDialog();
+                        direction = ds.strTR;
+                        //ut.InfoMsg(ds.strTR); 
+                    }
 
                     switch (operation)
                     {
@@ -86,8 +101,24 @@ namespace MEPUtils.CreateInstrumentation
 
                                 Element mlValve = createNextElement(doc, union1, "SpiroTop_AB050-R004: Standard");
                                 if (mlValve == null) throw new Exception("Creation of mlValve failed for some reason!");
-                                
+
                                 trans2.Commit();
+                            }
+                            break;
+                        case "Add fittings to ML":
+                            using (Transaction trans21 = new Transaction(doc))
+                            {
+                                trans21.Start("Finish Auto ML");
+
+                                Element union2 = createNextElement(doc, selectedElement,
+                                    "PIF_Cast Iron 330 union flat seat ISO-EN U1_GF: DN8 - DN100, Black",
+                                    "connection_diameter1", 15.0, true);
+
+                                Element adapter = createNextElement(doc, union2,
+                                    "PIF_Mapress-StSt Adapter MT_Geberit: Var. DN",
+                                    "connection_diameter1", 15.0);
+
+                                trans21.Commit();
                             }
                             break;
                         case "PT (Tryktransmitter)":
@@ -281,9 +312,10 @@ namespace MEPUtils.CreateInstrumentation
             }
         }
 
-        
 
-        private static Element createNextElement(Document doc, Element prevElem, string elemFamType)
+
+        private static Element createNextElement(Document doc, Element prevElem, string elemFamType,
+            bool rotateOnSingleConDirection = false)
         {
             Cons prevElemCons = mp.GetConnectors(prevElem);
 
@@ -305,7 +337,12 @@ namespace MEPUtils.CreateInstrumentation
             doc.Regenerate();
             Cons elemCons = mp.GetConnectors(elem);
 
-            RotateElementInPosition(prevElemCons.Secondary.Origin, elemCons.Primary,
+            if (rotateOnSingleConDirection)
+            {
+                RotateElementInPosition(prevElemCons.Secondary.Origin, elemCons.Primary,
+                        prevElemCons.Secondary, elem);
+            }
+            else RotateElementInPosition(prevElemCons.Secondary.Origin, elemCons.Primary,
                         prevElemCons.Secondary, prevElemCons.Primary, elem);
 
             ElementTransformUtils.MoveElement(doc, elem.Id,
@@ -315,7 +352,7 @@ namespace MEPUtils.CreateInstrumentation
         }
 
         private static Element createNextElement(Document doc, Element prevElem, string elemFamType,
-            string sizeParName, double sizeInMm)
+            string sizeParName, double sizeInMm, bool rotateOnSingleConDirection = false)
         {
             Cons prevElemCons = mp.GetConnectors(prevElem);
 
@@ -345,8 +382,14 @@ namespace MEPUtils.CreateInstrumentation
             //Rotate the element
             Cons elemCons = mp.GetConnectors(elem);
 
-            RotateElementInPosition(prevElemCons.Secondary.Origin, elemCons.Primary,
+            if (rotateOnSingleConDirection)
+            {
+                RotateElementInPosition(prevElemCons.Secondary.Origin, elemCons.Primary,
+                        prevElemCons.Secondary, elem);
+            }
+            else RotateElementInPosition(prevElemCons.Secondary.Origin, elemCons.Primary,
                         prevElemCons.Secondary, prevElemCons.Primary, elem);
+
 
             //Move in position
             ElementTransformUtils.MoveElement(doc, elem.Id,
@@ -355,6 +398,10 @@ namespace MEPUtils.CreateInstrumentation
             return elem;
         }
 
+        /// <summary>
+        /// Rotates the element based on the direction between Primary and Secondary
+        /// on the previous element.
+        /// </summary>
         private static void RotateElementInPosition(XYZ placementPoint, Connector conOnFamilyToConnect, Connector start, Connector end, Element element)
         {
             #region Geometric manipulation
@@ -362,7 +409,62 @@ namespace MEPUtils.CreateInstrumentation
             //http://thebuildingcoder.typepad.com/blog/2012/05/create-a-pipe-cap.html
 
             XYZ dirToAlignTo = (start.Origin - end.Origin);
-            
+
+            XYZ dirToRotate = -conOnFamilyToConnect.CoordinateSystem.BasisZ;
+
+            double rotationAngle = dirToAlignTo.AngleTo(dirToRotate);
+
+            XYZ normal = dirToAlignTo.CrossProduct(dirToRotate);
+
+            //Case: Normal is 0 vector -> directions are already aligned, but may need flipping
+            if (normal.Equalz(new XYZ(), 1.0e-6))
+            {
+                //Subcase: Element needs flipping
+                if (rotationAngle > 0)
+                {
+                    Line axis2;
+                    if (dirToRotate.X.Equalz(1, 1.0e-6) || dirToRotate.Y.Equalz(1, 1.0e-6))
+                    {
+                        axis2 = Line.CreateBound(placementPoint, placementPoint + new XYZ(0, 0, 1));
+                    }
+                    else axis2 = Line.CreateBound(placementPoint, placementPoint + new XYZ(1, 0, 0));
+
+                    ElementTransformUtils.RotateElement(element.Document, element.Id, axis2, rotationAngle);
+                    return;
+                }
+                //Subcase: Element already in correct alignment
+                return;
+            }
+
+            Transform trf = Transform.CreateRotationAtPoint(normal, rotationAngle, placementPoint);
+
+            XYZ testRotation = trf.OfVector(dirToAlignTo).Normalize();
+
+            if (testRotation.DotProduct(dirToAlignTo) < 0.00001)
+                rotationAngle = -rotationAngle;
+
+            Line axis = Line.CreateBound(placementPoint, placementPoint + normal);
+
+            ElementTransformUtils.RotateElement(element.Document, element.Id, axis, rotationAngle);
+
+            #endregion
+        }
+
+        /// <summary>
+        /// Rotates the element based only on the direction of the placement connector.
+        /// </summary>
+        private static void RotateElementInPosition(XYZ placementPoint, Connector conOnFamilyToConnect, Connector startCon, Element element)
+        {
+            #region Geometric manipulation
+
+            //http://thebuildingcoder.typepad.com/blog/2012/05/create-a-pipe-cap.html
+
+            XYZ start = startCon.Origin;
+
+            XYZ end = start - startCon.CoordinateSystem.BasisZ * 2;
+
+            XYZ dirToAlignTo = (start - end);
+
             XYZ dirToRotate = -conOnFamilyToConnect.CoordinateSystem.BasisZ;
 
             double rotationAngle = dirToAlignTo.AngleTo(dirToRotate);
@@ -425,7 +527,7 @@ namespace MEPUtils.CreateInstrumentation
 
             //Find the connector from the dummy pipe at intersection
             var cons = mp.GetALLConnectorsFromElements(dummyPipe);
-            Connector con = cons.Where(c => c.Origin.Equalz(iP, Extensions._1mmTol)).FirstOrDefault();
+            Connector con = cons.Where(c => c.Origin.Equalz(iP, Shared.Extensions._1mmTol)).FirstOrDefault();
 
             return (doc.Create.NewTakeoffFitting(con, (MEPCurve)selectedPipe), dummyPipe);
 
@@ -497,7 +599,7 @@ namespace MEPUtils.CreateInstrumentation
             //If true use another axis to define point
             Plane plane;
 
-            if (c1.Origin.Y.Equalz(c2.Origin.Y, Extensions._epx) && c1.Origin.Z.Equalz(c2.Origin.Z, Extensions._epx))
+            if (c1.Origin.Y.Equalz(c2.Origin.Y, Shared.Extensions._epx) && c1.Origin.Z.Equalz(c2.Origin.Z, Shared.Extensions._epx))
                 plane = Plane.CreateByThreePoints(c1.Origin, c2.Origin, new XYZ(c1.Origin.X, c1.Origin.Y + 5, c1.Origin.Z));
             else
                 plane = Plane.CreateByThreePoints(c1.Origin, c2.Origin, new XYZ(c1.Origin.X + 5, c1.Origin.Y, c1.Origin.Z));
