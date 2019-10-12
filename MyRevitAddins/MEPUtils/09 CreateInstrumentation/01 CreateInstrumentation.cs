@@ -70,18 +70,23 @@ namespace MEPUtils.CreateInstrumentation
                             {
                                 trans2.Start("Auto ML");
                                 Element dummyPipe;
-                                (olet, dummyPipe) = CreateOlet(doc, iP, direction, selectedPipe, 20, "Stålrør, sømløse sockolet");
+                                (olet, dummyPipe) = CreateOlet(doc, iP, direction, selectedPipe, 15, "Stålrør, sømløse sockolet");
                                 doc.Delete(dummyPipe.Id);
                                 doc.Regenerate();
 
-                                //"DN20-SM-EL: Udluftn."
-                                Element cpValve = createNextElement(doc, olet, "DN20-SM-EL: Udluftn.");
+                                //"DN15-SM-EL: SM-EL"
+                                Element cpValve = createNextElement(doc, olet, "DN15-SM-EL: SM-EL");
                                 if (cpValve == null) throw new Exception("Creation of cpValve failed for some reason!");
 
-                                Element mlValve = createNextElement(doc, cpValve,
-                                    "Spirotop-Autotomatic-Air-Vent-PN25: Spirotop 1/2  150°C 25bar AB050/025");
-                                if (mlValve == null) throw new Exception("Creation of mlValve failed for some reason!");
+                                Element union1 = createNextElement(doc, cpValve,
+                                    "PIF_Cast Iron 281 hex nipple RH and LH thread ISO EN N8 R-L_GF: DN10 - DN50, Galvanised",
+                                    "connection_diameter1", 15.0);
+                                if (union1 == null) throw new Exception("Creation of union1 failed for some reason!");
+                                doc.Regenerate();
 
+                                Element mlValve = createNextElement(doc, union1, "SpiroTop_AB050-R004: Standard");
+                                if (mlValve == null) throw new Exception("Creation of mlValve failed for some reason!");
+                                
                                 trans2.Commit();
                             }
                             break;
@@ -303,6 +308,47 @@ namespace MEPUtils.CreateInstrumentation
             RotateElementInPosition(prevElemCons.Secondary.Origin, elemCons.Primary,
                         prevElemCons.Secondary, prevElemCons.Primary, elem);
 
+            ElementTransformUtils.MoveElement(doc, elem.Id,
+                prevElemCons.Secondary.Origin - elemCons.Primary.Origin);
+
+            return elem;
+        }
+
+        private static Element createNextElement(Document doc, Element prevElem, string elemFamType,
+            string sizeParName, double sizeInMm)
+        {
+            Cons prevElemCons = mp.GetConnectors(prevElem);
+
+            FamilySymbol familySymbol =
+                    fi.GetElements<FamilySymbol, BuiltInParameter>
+                    (doc, BuiltInParameter.SYMBOL_FAMILY_AND_TYPE_NAMES_PARAM, elemFamType).FirstOrDefault();
+            if (familySymbol == null) throw new Exception(elemFamType + " not found!");
+
+            //The strange symbol activation thingie...
+            //See: http://thebuildingcoder.typepad.com/blog/2014/08/activate-your-family-symbol-before-using-it.html
+            if (!familySymbol.IsActive)
+            {
+                familySymbol.Activate();
+                doc.Regenerate();
+            }
+
+            //Create family instance
+            Element elem = doc.Create.NewFamilyInstance(prevElemCons.Secondary.Origin, familySymbol,
+                                                           StructuralType.NonStructural);
+            doc.Regenerate();
+
+            //Set size
+            Parameter sizeParameter = elem.LookupParameter(sizeParName);
+            sizeParameter.Set(sizeInMm.MmToFt());
+            doc.Regenerate();
+
+            //Rotate the element
+            Cons elemCons = mp.GetConnectors(elem);
+
+            RotateElementInPosition(prevElemCons.Secondary.Origin, elemCons.Primary,
+                        prevElemCons.Secondary, prevElemCons.Primary, elem);
+
+            //Move in position
             ElementTransformUtils.MoveElement(doc, elem.Id,
                 prevElemCons.Secondary.Origin - elemCons.Primary.Origin);
 
