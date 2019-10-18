@@ -90,17 +90,17 @@ namespace MEPUtils.CreateInstrumentation
                                 doc.Regenerate();
 
                                 //"DN15-SM-EL: SM-EL"
-                                Element cpValve = createNextElement(doc, olet, "DN15-SM-EL: SM-EL");
-                                if (cpValve == null) throw new Exception("Creation of cpValve failed for some reason!");
+                                Element cpValve = createNextElement(doc, olet, "DN15-SM-EL: SM-EL") ??
+                                    throw new Exception("Creation of cpValve failed for some reason!");
 
                                 Element union1 = createNextElement(doc, cpValve,
                                     "PIF_Cast Iron 281 hex nipple RH and LH thread ISO EN N8 R-L_GF: DN10 - DN50, Galvanised",
-                                    "connection_diameter1", 15.0);
-                                if (union1 == null) throw new Exception("Creation of union1 failed for some reason!");
+                                    "connection_diameter1", 15.0) ?? 
+                                    throw new Exception("Creation of union1 failed for some reason!");
                                 doc.Regenerate();
 
-                                Element mlValve = createNextElement(doc, union1, "SpiroTop_AB050-R004: Standard");
-                                if (mlValve == null) throw new Exception("Creation of mlValve failed for some reason!");
+                                Element mlValve = createNextElement(doc, union1, "SpiroTop_AB050-R004: Standard") ??
+                                    throw new Exception("Creation of mlValve failed for some reason!");
 
                                 trans2.Commit();
                             }
@@ -112,11 +112,13 @@ namespace MEPUtils.CreateInstrumentation
 
                                 Element union2 = createNextElement(doc, selectedElement,
                                     "PIF_Cast Iron 330 union flat seat ISO-EN U1_GF: DN8 - DN100, Black",
-                                    "connection_diameter1", 15.0, true);
+                                    "connection_diameter1", 15.0, true) ??
+                                    throw new Exception("Creation of union2 failed for some reason!");
 
                                 Element adapter = createNextElement(doc, union2,
                                     "PIF_Mapress-StSt Adapter MT_Geberit: Var. DN",
-                                    "connection_diameter1", 15.0);
+                                    "connection_diameter1", 15.0) ??
+                                    throw new Exception("Creation of adapter failed for some reason!");
 
                                 trans21.Commit();
                             }
@@ -132,11 +134,11 @@ namespace MEPUtils.CreateInstrumentation
                                 doc.Regenerate();
 
                                 //"DN15-SM-EL: SM-EL"
-                                Element cpValve = createNextElement(doc, olet, "DN15-SM-EL: SM-EL");
-                                if (cpValve == null) throw new Exception("Creation of cpValve failed for some reason!");
+                                Element cpValve = createNextElement(doc, olet, "DN15-SM-EL: SM-EL") ??
+                                    throw new Exception("Creation of cpValve failed for some reason!");
 
-                                Element instr = createNextElement(doc, cpValve, "Sitrans_P200: Standard");
-                                if (instr == null) throw new Exception("Creation of instrument failed for some reason!");
+                                Element instr = createNextElement(doc, cpValve, "Sitrans_P200: Standard") ??
+                                    throw new Exception("Creation of instrument failed for some reason!");
 
                                 trans3.Commit();
                             }
@@ -150,12 +152,11 @@ namespace MEPUtils.CreateInstrumentation
                                 doc.Delete(dummyPipe.Id);
                                 doc.Regenerate();
 
-                                Element cpValve = createNextElement(doc, olet, "DN15-SM-EL: SM-EL");
-                                if (cpValve == null) throw new Exception("Creation of cpValve failed for some reason!");
+                                Element cpValve = createNextElement(doc, olet, "DN15-SM-EL: SM-EL") ??
+                                    throw new Exception("Creation of cpValve failed for some reason!");
 
-                                //TODO: Places the instrument at wrong angle!!!!
-                                Element instr = createNextElement(doc, cpValve, "WIKA.Manometer.233.50.100: Standard");
-                                if (instr == null) throw new Exception("Creation of instrument failed for some reason!");
+                                Element instr = createNextElement(doc, cpValve, "WIKA.Manometer.233.50.100: Standard") ??
+                                    throw new Exception("Creation of instrument failed for some reason!");
 
                                 trans4.Commit();
                             }
@@ -169,12 +170,12 @@ namespace MEPUtils.CreateInstrumentation
                                 doc.Delete(dummyPipe.Id);
                                 doc.Regenerate();
 
-                                Element cpValve = createNextElement(doc, olet, "WIKA.Termolomme.TW55-6: L200.U65.G1/2.9");
-                                if (cpValve == null) throw new Exception("Creation of cpValve failed for some reason!");
+                                Element cpValve = createNextElement(doc, olet, "WIKA.Termolomme.TW55-6: L200.U65.G1/2.9") ??
+                                    throw new Exception("Creation of cpValve failed for some reason!");
 
                                 //TODO: Places the instrument at wrong angle!!!!
-                                Element instr = createNextElement(doc, cpValve, "Sitrans_TS500: Standard");
-                                if (instr == null) throw new Exception("Creation of instrument failed for some reason!");
+                                Element instr = createNextElement(doc, cpValve, "Sitrans_TS500: Standard") ??
+                                    throw new Exception("Creation of instrument failed for some reason!");
 
                                 trans5.Commit();
                             }
@@ -188,12 +189,12 @@ namespace MEPUtils.CreateInstrumentation
                                 doc.Delete(dummyPipe.Id);
                                 doc.Regenerate();
 
-                                Element cpValve = createNextElement(doc, olet, "WIKA.Termolomme.TW55-6: L200.U65.G1/2.9");
-                                if (cpValve == null) throw new Exception("Creation of cpValve failed for some reason!");
+                                Element cpValve = createNextElement(doc, olet, "WIKA.Termolomme.TW55-6: L200.U65.G1/2.9") ??
+                                    throw new Exception("Creation of cpValve failed for some reason!");
 
                                 //TODO: Places the instrument at wrong angle!!!!
-                                Element instr = createNextElement(doc, cpValve, "WIKA.Termometer.A52.100: Standard");
-                                if (instr == null) throw new Exception("Creation of instrument failed for some reason!");
+                                Element instr = createNextElement(doc, cpValve, "WIKA.Termometer.A52.100: Standard") ??
+                                    throw new Exception("Creation of instrument failed for some reason!");
 
                                 trans6.Commit();
                             }
@@ -207,11 +208,11 @@ namespace MEPUtils.CreateInstrumentation
                                 doc.Delete(dummyPipe.Id);
                                 doc.Regenerate();
 
-                                Element cpValve = createNextElement(doc, olet, "DN15-SM-EL: SM-EL");
-                                if (cpValve == null) throw new Exception("Creation of cpValve failed for some reason!");
+                                Element cpValve = createNextElement(doc, olet, "DN15-SM-EL: SM-EL") ??
+                                    throw new Exception("Creation of cpValve failed for some reason!");
 
-                                Element instr = createNextElement(doc, cpValve, "Danfoss_pressostat_017-519166: Standard");
-                                if (instr == null) throw new Exception("Creation of instrument failed for some reason!");
+                                Element instr = createNextElement(doc, cpValve, "Danfoss_pressostat_017-519166: Standard") ??
+                                    throw new Exception("Creation of instrument failed for some reason!");
 
                                 trans7.Commit();
                             }
