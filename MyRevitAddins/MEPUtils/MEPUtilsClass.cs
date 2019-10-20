@@ -27,7 +27,7 @@ namespace MEPUtils
             
             if (mepuc.MethodToExecute == null) return Result.Cancelled;
 
-            return mepuc.MethodToExecute.Invoke(cData);
+            return mepuc.MethodToExecute.Invoke(cData.Application);
         }
     }
 }

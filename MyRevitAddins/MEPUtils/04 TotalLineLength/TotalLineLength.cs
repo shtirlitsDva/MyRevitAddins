@@ -18,9 +18,9 @@ namespace MEPUtils
 {
     public class TotalLineLength
     {
-        public static Result TotalLineLengths(ExternalCommandData commandData)
+        public static Result TotalLineLengths(UIApplication uiApp)
         {
-            var app = commandData.Application;
+            var app = uiApp;
             var uiDoc = app.ActiveUIDocument;
             var doc = uiDoc.Document;
             var selection = uiDoc.Selection.GetElementIds();

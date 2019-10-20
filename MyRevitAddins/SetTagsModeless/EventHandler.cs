@@ -16,7 +16,7 @@ using Autodesk.Revit.UI;
 using Autodesk.Revit.ApplicationServices;
 using Autodesk.Revit.UI.Selection;
 
-namespace MEPUtils.SetTagsModeless
+namespace MEPUtils.ModelessForms
 {
     public class ExternalEventHandler : IExternalEventHandler
     {

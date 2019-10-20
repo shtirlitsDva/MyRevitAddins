@@ -15,20 +15,31 @@ using op = Shared.Output;
 using tr = Shared.Transformation;
 using mp = Shared.MepUtils;
 
-namespace MEPUtils
+namespace MEPUtils.ModelessForms
 {
     public partial class MEPUtilsChooser : System.Windows.Forms.Form
     {
         private Dictionary<int, Func<UIApplication, Result>> methodDict;
         private Dictionary<int, string> nameDict;
-        public Func<UIApplication, Result> MethodToExecute { get; private set; }
+        //public Func<ExternalCommandData, Result> MethodToExecute { get; private set; }
 
-        private int desiredStartLocationX;
-        private int desiredStartLocationY;
+        //private int desiredStartLocationX;
+        //private int desiredStartLocationY;
 
-        public MEPUtilsChooser()
+        //Modeless stuff
+        private Autodesk.Revit.UI.ExternalEvent m_ExEvent;
+        private ExternalEventHandler m_Handler;
+        Application ThisApp;
+
+        public MEPUtilsChooser(Autodesk.Revit.UI.ExternalEvent exEvent,
+                               ExternalEventHandler handler,
+                               MEPUtils.ModelessForms.Application thisApp)
         {
             InitializeComponent();
+
+            m_ExEvent = exEvent;
+            m_Handler = handler;
+            ThisApp = thisApp;
 
             //From here: http://stackoverflow.com/questions/34426888/dynamic-button-creation-placing-them-in-a-predefined-order-using-c-sharp
             //Edit the number of methods in rowCount here
@@ -82,7 +93,7 @@ namespace MEPUtils
                 {10, "(ctrl) (Re-)Number" }
             };
 
-            for (int i = 0; i < methodDict.Count; i++)
+            for (int i = 0; i < nameDict.Count; i++)
             {
                 var b = new Button
                 {
@@ -96,33 +107,36 @@ namespace MEPUtils
             }
         }
 
-        public MEPUtilsChooser(int x, int y) : this()
-        {
-            desiredStartLocationX = x;
-            desiredStartLocationY = y;
-
-            Load += new EventHandler(MEPUtilsChooser_Load);
-        }
-
         private void B_Click(object sender, EventArgs e)
         {
             var b = sender as Button;
             var position = tableLayoutPanel1.GetPositionFromControl(b);
-            var index = position.Row;
-            MethodToExecute = methodDict[index];
-            Close();
+            int index = position.Row;
+            AsyncExecuteCommand asCE = new AsyncExecuteCommand(methodDict[index]);
+            ThisApp.asyncCommand = asCE;
+            m_ExEvent.Raise();
         }
 
-        private void MEPUtilsChooser_Load(object sender, EventArgs e)
-        {
-            SetDesktopLocation(desiredStartLocationX, desiredStartLocationY);
-        }
+        #region Old stuff
+        //public MEPUtilsChooser(int x, int y) : this()
+        //{
+        //    desiredStartLocationX = x;
+        //    desiredStartLocationY = y;
+
+        //    Load += new EventHandler(MEPUtilsChooser_Load);
+        //}
+
+        //private void MEPUtilsChooser_Load(object sender, EventArgs e)
+        //{
+        //    SetDesktopLocation(desiredStartLocationX, desiredStartLocationY);
+        //}
 
         //StringBuilder sb = new StringBuilder();
         //foreach (var f in query)
         //{
         //    sb.AppendLine(f.Name);
         //}
-        //ut.InfoMsg(sb.ToString());
+        //ut.InfoMsg(sb.ToString()); 
+        #endregion
     }
 }

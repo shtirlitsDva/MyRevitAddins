@@ -20,9 +20,9 @@ namespace MEPUtils
 {
     public static class PipeCreator
     {
-        public static Result CreatePipeFromConnector(ExternalCommandData cData)
+        public static Result CreatePipeFromConnector(UIApplication uiApp)
         {
-            Document doc = cData.Application.ActiveUIDocument.Document;
+            Document doc = uiApp.ActiveUIDocument.Document;
 
             bool ctrl = false;
             if ((int)Keyboard.Modifiers == 2) ctrl = true;
@@ -41,7 +41,7 @@ namespace MEPUtils
 
                 int count = pipeTypeNames.Count;
 
-                var pc = new PipeTypeSelector(cData, pipeTypeNames);
+                var pc = new PipeTypeSelector(uiApp, pipeTypeNames);
                 pc.ShowDialog();
 
                 pipeTypeName = pc.pipeTypeName;
@@ -51,7 +51,7 @@ namespace MEPUtils
             {
                 //One element selected, creates pipe at random connector
                 //Or an elbow for pipe
-                Selection selection = cData.Application.ActiveUIDocument.Selection;
+                Selection selection = uiApp.ActiveUIDocument.Selection;
                 var elIds = selection.GetElementIds();
                 //if (elIds.Count == 0 || elIds.Count > 1) throw new Exception("Only works on single element! No or multiple elements selected!");
                 ElementId id = elIds.FirstOrDefault();

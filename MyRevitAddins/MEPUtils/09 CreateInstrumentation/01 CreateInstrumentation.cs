@@ -18,10 +18,10 @@ namespace MEPUtils.CreateInstrumentation
 {
     public class StartCreatingInstrumentation
     {
-        public static Result StartCreating(ExternalCommandData commandData)
+        public static Result StartCreating(UIApplication UiApp)
         {
-            UIApplication uiApp = commandData.Application;
-            Document doc = commandData.Application.ActiveUIDocument.Document;
+            UIApplication uiApp = UiApp;
+            Document doc = uiApp.ActiveUIDocument.Document;
             UIDocument uidoc = uiApp.ActiveUIDocument;
 
             try

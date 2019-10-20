@@ -10,7 +10,7 @@ using System.Windows.Forms;
 using System.Windows.Input;
 using WinForms = System.Windows.Forms;
 
-namespace MEPUtils.SetTagsModeless
+namespace MEPUtils.ModelessForms
 {
     public partial class SetTagsInterface : System.Windows.Forms.Form
     {
@@ -25,7 +25,9 @@ namespace MEPUtils.SetTagsModeless
         private ExternalEventHandler m_Handler;
         Application ThisApp;
 
-        public SetTagsInterface(Autodesk.Revit.UI.ExternalEvent exEvent, ExternalEventHandler handler, MEPUtils.SetTagsModeless.Application thisApp)
+        public SetTagsInterface(Autodesk.Revit.UI.ExternalEvent exEvent,
+                                ExternalEventHandler handler,
+                                MEPUtils.ModelessForms.Application thisApp)
         {
             InitializeComponent();
 
@@ -33,7 +35,7 @@ namespace MEPUtils.SetTagsModeless
             m_Handler = handler;
             ThisApp = thisApp;
 
-            pathToDataFile = MEPUtils.SetTagsModeless.Properties.Settings.Default.pathToExcel;
+            pathToDataFile = MEPUtils.ModelessForms.Properties.Settings.Default.pathToExcel;
             textBox2.Text = pathToDataFile;
         }
 
@@ -58,7 +60,7 @@ namespace MEPUtils.SetTagsModeless
                 dialog.ShowDialog();
                 //{
                 pathToDataFile = dialog.FileName;
-                MEPUtils.SetTagsModeless.Properties.Settings.Default.pathToExcel = pathToDataFile;
+                MEPUtils.ModelessForms.Properties.Settings.Default.pathToExcel = pathToDataFile;
                 textBox2.Text = pathToDataFile;
                 //}
             }
@@ -103,7 +105,7 @@ namespace MEPUtils.SetTagsModeless
 
         private void SetTagsInterface_FormClosing(object sender, System.Windows.Forms.FormClosingEventArgs e)
         {
-            MEPUtils.SetTagsModeless.Properties.Settings.Default.Save();
+            MEPUtils.ModelessForms.Properties.Settings.Default.Save();
         }
 
         /// <summary>

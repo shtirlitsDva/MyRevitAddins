@@ -23,9 +23,9 @@ namespace MEPUtils
         /// <summary>
         /// This method is used to set and save settings for insulation creation for Pipe Accessories (valves etc.)
         /// </summary>
-        public Result ExecuteInsulationSettings(ExternalCommandData cData)
+        public Result ExecuteInsulationSettings(UIApplication uiApp)
         {
-            InsulationSettingsWindow isw = new InsulationSettingsWindow(cData);
+            InsulationSettingsWindow isw = new InsulationSettingsWindow(uiApp);
             isw.ShowDialog();
             isw.Close();
             using (Stream stream = new FileStream(isw.PathToSettingsXml, FileMode.Create, FileAccess.Write))
@@ -36,9 +36,9 @@ namespace MEPUtils
             return Result.Succeeded;
         }
 
-        public static Result CreateAllInsulation(ExternalCommandData cData)
+        public static Result CreateAllInsulation(UIApplication uiApp)
         {
-            Document doc = cData.Application.ActiveUIDocument.Document;
+            Document doc = uiApp.ActiveUIDocument.Document;
 
             //Collect all the elements to insulate
             var pipes = fi.GetElements<Element, BuiltInCategory>(doc, BuiltInCategory.OST_PipeCurves);
@@ -497,9 +497,9 @@ namespace MEPUtils
             return double.Parse(insThicknessAsReadFromDataTable).Round(0).MmToFt();
         }
 
-        public static Result DeleteAllPipeInsulation(ExternalCommandData cData)
+        public static Result DeleteAllPipeInsulation(UIApplication uiApp)
         {
-            Document doc = cData.Application.ActiveUIDocument.Document;
+            Document doc = uiApp.ActiveUIDocument.Document;
 
             var allInsulation = fi.GetElements<PipeInsulation, BuiltInParameter>(doc, BuiltInParameter.INVALID);
             if (allInsulation == null) return Result.Failed;

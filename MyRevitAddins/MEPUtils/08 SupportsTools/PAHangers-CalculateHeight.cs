@@ -16,10 +16,9 @@ namespace MEPUtils.PAHangers
 {
     public class CalculateHeight
     {
-        public static Result Calculate(ExternalCommandData commandData)
+        public static Result Calculate(UIApplication uiApp)
         {
-            UIApplication uiApp = commandData.Application;
-            Document doc = commandData.Application.ActiveUIDocument.Document;
+            Document doc = uiApp.ActiveUIDocument.Document;
             UIDocument uidoc = uiApp.ActiveUIDocument;
 
             try

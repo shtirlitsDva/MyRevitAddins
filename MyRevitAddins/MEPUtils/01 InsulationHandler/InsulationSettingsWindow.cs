@@ -27,14 +27,14 @@ namespace MEPUtils
         public string PathToSettingsXml { get; }
         public DataTable Settings { get; }
 
-        public InsulationSettingsWindow(ExternalCommandData cData)
+        public InsulationSettingsWindow(UIApplication uiApp)
         {
             InitializeComponent();
 
             this.Height = 800;
             this.Width = 475;
 
-            Document doc = cData.Application.ActiveUIDocument.Document;
+            Document doc = uiApp.ActiveUIDocument.Document;
 
             //Test if settings file exist
             string pn = doc.ProjectInformation.Name;

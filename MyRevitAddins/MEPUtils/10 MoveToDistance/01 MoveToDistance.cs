@@ -19,10 +19,9 @@ namespace MEPUtils.MoveToDistance
 {
     public class MoveToDistance
     {
-        public static Result Move(ExternalCommandData commandData)
+        public static Result Move(UIApplication uiApp)
         {
-            UIApplication uiApp = commandData.Application;
-            Document doc = commandData.Application.ActiveUIDocument.Document;
+            Document doc = uiApp.ActiveUIDocument.Document;
             UIDocument uidoc = uiApp.ActiveUIDocument;
 
             try

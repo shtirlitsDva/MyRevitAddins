@@ -22,9 +22,9 @@ namespace MEPUtils.NumberStuff
         //  c. Column 3: TAG 2 -> Start number
         //  d. Column 4: How many digits number to be formatted (default: 2)
 
-        public Result NumberStuffMethod(ExternalCommandData cData)
+        public Result NumberStuffMethod(UIApplication uiApp)
         {
-            Document doc = cData.Application.ActiveUIDocument.Document;
+            Document doc = uiApp.ActiveUIDocument.Document;
 
             bool ctrl = false;
             if ((int)Keyboard.Modifiers == 2) ctrl = true;
@@ -39,10 +39,10 @@ namespace MEPUtils.NumberStuff
                 }
                 catch (Exception)
                 {
-                    ExecuteNumberStuffSettings(cData);
+                    ExecuteNumberStuffSettings(uiApp);
                 }
             }
-            else ExecuteNumberStuffSettings(cData);
+            else ExecuteNumberStuffSettings(uiApp);
 
             settings = GetNumberStuffSettings(doc);
 
@@ -96,9 +96,9 @@ namespace MEPUtils.NumberStuff
             return Result.Succeeded;
         }
 
-        public Result ExecuteNumberStuffSettings(ExternalCommandData cData)
+        public Result ExecuteNumberStuffSettings(UIApplication uiApp)
         {
-            NumberStuffFamilyChooser isw = new NumberStuffFamilyChooser(cData);
+            NumberStuffFamilyChooser isw = new NumberStuffFamilyChooser(uiApp);
             isw.ShowDialog();
             isw.Close();
             using (Stream stream = new FileStream(isw.PathToSettingsXml, FileMode.Create, FileAccess.Write))

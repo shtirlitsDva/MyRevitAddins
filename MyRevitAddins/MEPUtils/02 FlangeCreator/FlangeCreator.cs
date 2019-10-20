@@ -17,21 +17,21 @@ using mp = Shared.MepUtils;
 
 namespace MEPUtils
 {
-    class FlangeCreator
+    public class FlangeCreator
     {
-        public static Result CreateFlangeForElements(ExternalCommandData cData)
+        public static Result CreateFlangeForElements(UIApplication uiApp)
         {
             try
             {
-                Document doc = cData.Application.ActiveUIDocument.Document;
+                Document doc = uiApp.ActiveUIDocument.Document;
 
                 //One element selected, creates pipe at random connector
-                Selection selection = cData.Application.ActiveUIDocument.Selection;
+                Selection selection = uiApp.ActiveUIDocument.Selection;
                 var elemIds = selection.GetElementIds();
                 if (elemIds == null) throw new Exception("Getting element from selection failed!");
 
                 //Choose the right flange to create
-                FlangeCreatorChooser fcc = new FlangeCreatorChooser(cData);
+                FlangeCreatorChooser fcc = new FlangeCreatorChooser(uiApp);
                 fcc.ShowDialog();
                 fcc.Close();
                 string familyAndTypeName = fcc.flangeName;

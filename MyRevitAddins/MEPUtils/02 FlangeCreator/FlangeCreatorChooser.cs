@@ -21,10 +21,10 @@ namespace MEPUtils
     {
         public string flangeName { get; private set; }
 
-        public FlangeCreatorChooser(ExternalCommandData commandData)
+        public FlangeCreatorChooser(UIApplication uiApp)
         {
             InitializeComponent();
-            Document doc = commandData.Application.ActiveUIDocument.Document;
+            Document doc = uiApp.ActiveUIDocument.Document;
 
             FilteredElementCollector collector = new FilteredElementCollector(doc);
             var family = collector.OfClass(typeof(Family)).Where(e => e.Name == "Flange weld collar").Cast<Family>().FirstOrDefault();

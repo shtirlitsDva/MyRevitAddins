@@ -11,7 +11,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PDFExporter", "PDFExporter\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RevitUICustomization", "RevitUICustomization\RevitUICustomization.csproj", "{352A4111-ED11-4546-814B-6118737D51BB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SetTagsModeless", "SetTagsModeless\SetTagsModeless.csproj", "{25A5F61C-F9AE-463A-A1A1-9C1EDA4EDAB9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ModelessForms", "SetTagsModeless\ModelessForms.csproj", "{25A5F61C-F9AE-463A-A1A1-9C1EDA4EDAB9}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "pyRevitExtensions", "pyRevitExtensions\pyRevitExtensions.csproj", "{F3F5938E-D9EE-4889-B27E-8B372B11F25A}"
 EndProject

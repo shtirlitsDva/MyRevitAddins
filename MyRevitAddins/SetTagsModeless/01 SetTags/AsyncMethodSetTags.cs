@@ -9,7 +9,7 @@ using System.Windows.Forms;
 using static Shared.Filter;
 using WinForms = System.Windows.Forms;
 
-namespace MEPUtils.SetTagsModeless
+namespace MEPUtils.ModelessForms
 {
     public interface IAsyncCommand
     {

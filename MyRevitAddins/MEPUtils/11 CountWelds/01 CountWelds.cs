@@ -25,10 +25,9 @@ namespace MEPUtils.CountWelds
 {
     public class CountWelds
     {
-        public Result CountWeldsMethod(ExternalCommandData commandData)
+        public Result CountWeldsMethod(UIApplication uiApp)
         {
-            UIApplication uiApp = commandData.Application;
-            Document doc = commandData.Application.ActiveUIDocument.Document;
+            Document doc = uiApp.ActiveUIDocument.Document;
             UIDocument uidoc = uiApp.ActiveUIDocument;
 
             try

@@ -16,7 +16,7 @@ using Autodesk.Revit.UI;
 using Autodesk.Revit.ApplicationServices;
 using Autodesk.Revit.UI.Selection;
 
-namespace MEPUtils.SetTagsModeless
+namespace MEPUtils.ModelessForms
 {
     /// <summary>
     /// Implements the Revit add-in interface IExternalApplication
@@ -46,8 +46,10 @@ namespace MEPUtils.SetTagsModeless
 
         // class instance
         internal static Application thisApp = null;
-        // ModelessForm instance
-        private SetTagsInterface m_MyForm;
+        // ModelessTagsForm instance
+        private SetTagsInterface m_TagsForm;
+        // ModelessTagsForm instance
+        private MEPUtilsChooser m_MepUtilsForm;
         //Modeless payload
         public IAsyncCommand asyncCommand;
 
@@ -58,11 +60,7 @@ namespace MEPUtils.SetTagsModeless
         /// <returns></returns>
         public Result OnShutdown(UIControlledApplication application)
         {
-            if (m_MyForm != null && m_MyForm.Visible)
-            {
-                m_MyForm.Close();
-            }
-
+            if (m_TagsForm != null && m_TagsForm.Visible) m_TagsForm.Close();
             return Result.Succeeded;
         }
 
@@ -74,7 +72,7 @@ namespace MEPUtils.SetTagsModeless
         public Result OnStartup(UIControlledApplication application)
         {
             AddMenu(application);
-            m_MyForm = null;   // no dialog needed yet; the command will bring it
+            m_TagsForm = null;   // no dialog needed yet; the command will bring it
             thisApp = this;  // static access to this application instance
 
             return Result.Succeeded;
@@ -82,14 +80,21 @@ namespace MEPUtils.SetTagsModeless
 
         private void AddMenu(UIControlledApplication application)
         {
-            RibbonPanel rvtRibbonPanel = application.CreateRibbonPanel("TAGS-M");
+            RibbonPanel rvtRibbonPanel = application.CreateRibbonPanel("Modeless");
 
-            //MEPUtils.SetTagsModeless
-            PushButtonData data = new PushButtonData("SetTGS", "TGS", ExecutingAssemblyPath, "MEPUtils.SetTagsModeless.SetTags");
+            //MEPUtils.ModelessForms.SetTags
+            PushButtonData data = new PushButtonData("SetTGS", "TGS", ExecutingAssemblyPath, "MEPUtils.ModelessForms.SetTags");
             data.ToolTip = "Modeless tag setter";
-            data.Image = NewBitmapImage(exe, "MEPUtils.SetTagsModeless.Resources.ImgSetTags16.png");
-            data.LargeImage = NewBitmapImage(exe, "MEPUtils.SetTagsModeless.Resources.ImgSetTags32.png");
-            PushButton MEPUtils = rvtRibbonPanel.AddItem(data) as PushButton;
+            data.Image = NewBitmapImage(exe, "MEPUtils.ModelessForms.Resources.ImgSetTags16.png");
+            data.LargeImage = NewBitmapImage(exe, "MEPUtils.ModelessForms.Resources.ImgSetTags32.png");
+            PushButton SetTags = rvtRibbonPanel.AddItem(data) as PushButton;
+
+            //MEPUtils.ModelessForms.MepUtils
+            data = new PushButtonData("MepUtils", "MEPU", ExecutingAssemblyPath, "MEPUtils.ModelessForms.MepUtils");
+            data.ToolTip = "Modeless MEP utilities";
+            data.Image = NewBitmapImage(exe, "MEPUtils.ModelessForms.Resources.ImgMEPUtils16.png");
+            data.LargeImage = NewBitmapImage(exe, "MEPUtils.ModelessForms.Resources.ImgMEPUtils32.png");
+            PushButton MepUtils = rvtRibbonPanel.AddItem(data) as PushButton;
         }
 
         /// <summary>
@@ -99,10 +104,10 @@ namespace MEPUtils.SetTagsModeless
         ///   The external command invokes this on the end-user's request
         /// </remarks>
         /// 
-        public void ShowForm(UIApplication uiapp)
+        public void ShowTagsForm(UIApplication uiapp)
         {
             // If we do not have a dialog yet, create and show it
-            if (m_MyForm == null || m_MyForm.IsDisposed)
+            if (m_TagsForm == null || m_TagsForm.IsDisposed)
             {
                 // A new handler to handle request posting by the dialog
                 ExternalEventHandler handler = new ExternalEventHandler(thisApp);
@@ -112,8 +117,33 @@ namespace MEPUtils.SetTagsModeless
 
                 // We give the objects to the new dialog;
                 // The dialog becomes the owner responsible fore disposing them, eventually.
-                m_MyForm = new SetTagsInterface(exEvent, handler, thisApp);
-                m_MyForm.Show();
+                m_TagsForm = new SetTagsInterface(exEvent, handler, thisApp);
+                m_TagsForm.Show();
+            }
+        }
+
+        /// <summary>
+        ///   This method creates and shows a modeless dialog, unless it already exists.
+        /// </summary>
+        /// <remarks>
+        ///   The external command invokes this on the end-user's request
+        /// </remarks>
+        /// 
+        public void ShowMepUtilsForm(UIApplication uiapp)
+        {
+            // If we do not have a dialog yet, create and show it
+            if (m_MepUtilsForm == null || m_MepUtilsForm.IsDisposed)
+            {
+                // A new handler to handle request posting by the dialog
+                ExternalEventHandler handler = new ExternalEventHandler(thisApp);
+
+                // External Event for the dialog to use (to post requests)
+                ExternalEvent exEvent = ExternalEvent.Create(handler);
+
+                // We give the objects to the new dialog;
+                // The dialog becomes the owner responsible fore disposing them, eventually.
+                m_MepUtilsForm = new MEPUtilsChooser(exEvent, handler, thisApp);
+                m_MepUtilsForm.Show();
             }
         }
     }
@@ -128,7 +158,28 @@ namespace MEPUtils.SetTagsModeless
 
             try
             {
-                MEPUtils.SetTagsModeless.Application.thisApp.ShowForm(commandData.Application);
+                MEPUtils.ModelessForms.Application.thisApp.ShowTagsForm(commandData.Application);
+                return Result.Succeeded;
+            }
+            catch (Exception ex)
+            {
+                message = ex.Message;
+                return Result.Failed;
+            }
+        }
+    }
+
+    [Autodesk.Revit.Attributes.Transaction(Autodesk.Revit.Attributes.TransactionMode.Manual)]
+    [Autodesk.Revit.Attributes.Regeneration(Autodesk.Revit.Attributes.RegenerationOption.Manual)]
+    public class MepUtils : IExternalCommand
+    {
+
+        public virtual Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
+        {
+
+            try
+            {
+                MEPUtils.ModelessForms.Application.thisApp.ShowMepUtilsForm(commandData.Application);
                 return Result.Succeeded;
             }
             catch (Exception ex)

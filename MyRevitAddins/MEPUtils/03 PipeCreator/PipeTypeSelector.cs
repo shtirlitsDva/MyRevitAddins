@@ -16,10 +16,10 @@ namespace MEPUtils
     {
         public string pipeTypeName { get; private set; }
 
-        public PipeTypeSelector(ExternalCommandData cData, List<string> pipeTypeNames)
+        public PipeTypeSelector(UIApplication uiApp, List<string> pipeTypeNames)
         {
             InitializeComponent();
-            Document doc = cData.Application.ActiveUIDocument.Document;
+            Document doc = uiApp.ActiveUIDocument.Document;
 
             var rowCount = pipeTypeNames.Count;
             var columnCount = 1;
