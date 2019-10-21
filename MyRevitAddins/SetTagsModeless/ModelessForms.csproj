@@ -12,8 +12,8 @@
     <ProjectGuid>{25A5F61C-F9AE-463A-A1A1-9C1EDA4EDAB9}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MEPUtils.SetTagsModeless</RootNamespace>
-    <AssemblyName>MEPUtils.SetTagsModeless</AssemblyName>
+    <RootNamespace>MEPUtils.ModelessForms</RootNamespace>
+    <AssemblyName>MEPUtils.ModelessForms</AssemblyName>
     <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>false</Deterministic>
