@@ -2,14 +2,13 @@
 using Autodesk.Revit.UI;
 using Autodesk.Revit.DB;
 
-//using pyRevitLabs.PyRevit.Runtime;
-
 namespace pyRevitExtensions
 {
+    [Autodesk.Revit.Attributes.Transaction(Autodesk.Revit.Attributes.TransactionMode.Manual)]
+    [Autodesk.Revit.Attributes.Regeneration(Autodesk.Revit.Attributes.RegenerationOption.Manual)]
     public class ShowEdgesOFF : IExternalCommand
     {
         //public ExecParams execParams;
-
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
             UIApplication uiApp = commandData.Application;

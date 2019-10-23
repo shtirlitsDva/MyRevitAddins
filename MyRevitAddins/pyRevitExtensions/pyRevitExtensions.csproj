@@ -36,6 +36,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="pyRevitLabs.NLog">
+      <HintPath>C:\Users\xopko\AppData\Roaming\pyRevit-Master\bin\pyRevitLabs.NLog.dll</HintPath>
+    </Reference>
     <Reference Include="RevitAPI">
       <HintPath>..\..\..\..\..\Revit2020 SDK\RevitAPI.dll</HintPath>
       <Private>False</Private>
@@ -55,6 +58,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="01 ShowEdges OFF\script.cs" />
+    <Compile Include="02 NewTags\script.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
