@@ -23,7 +23,7 @@ namespace pyRevitExtensions
             //Nlog configuration
             var nlogConfig = new pyRevitLabs.NLog.Config.LoggingConfiguration();
             //Targets
-            var logfile = new pyRevitLabs.NLog.Targets.FileTarget("logfile") { FileName = "E:\\GitHub\\log.txt", DeleteOldFileOnStartup = true };
+            var logfile = new pyRevitLabs.NLog.Targets.FileTarget("logfile") { FileName = "G:\\GitHub\\log.txt", DeleteOldFileOnStartup = true };
             //Rules
             nlogConfig.AddRule(LogLevel.Info, LogLevel.Fatal, logfile);
             //Apply config
@@ -38,7 +38,7 @@ namespace pyRevitExtensions
 
             log.Info("Script starting!");
 
-            string pathToDataFile = @"E:\Damgaard Rådgivende Ingeniører ApS\058-1046 - Damvarmelager - Dokumenter\02 Vekslercentral\02 Komponenter\2.1 Komponentliste\Tags_Nye_Gamle_2019.10.23.xlsx";
+            string pathToDataFile = @"INPUD PATH TO EXCEL FILE HERE!";
             log.Info("Loading file: " + pathToDataFile);
             DataSet dataSet = ImportExcelToDataSet(pathToDataFile, "Yes");
             List<string> dataTableNames = new List<string>();
@@ -54,17 +54,60 @@ namespace pyRevitExtensions
 
             log.Info("Columns present in sheet:");
 
+            string allColumns = "";
+
             foreach (DataColumn dc in dataTable.Columns)
             {
-                log.Info(dc.ColumnName);
+                allColumns += dc.ColumnName + "|";
             }
+            log.Info(allColumns);
 
+            FilteredElementCollector donorFec = new FilteredElementCollector(doc);
+            Element paDonor = donorFec.OfCategory(BuiltInCategory.OST_PipeAccessory).OfClass(typeof(FamilyInstance)).FirstElement();
+            if (paDonor == null) { log.Info("Failed to get donor element! -> NULL"); }
+            log.Info($"Donor element collected {paDonor.Id.ToString()}, {paDonor.Name}");
+            Parameter filterTAG1 = paDonor.LookupParameter("TAG 1");
+            Parameter filterTAG2 = paDonor.LookupParameter("TAG 2");
 
-            foreach (DataRow dr in dataTable.Rows)
+            using (Transaction tx = new Transaction(doc))
             {
-                dr.
-            }
+                tx.Start("New tags!");
+                foreach (DataRow dr in dataTable.Rows)
+                {
+                    FilteredElementCollector col = new FilteredElementCollector(doc);
+                    col = col.OfCategory(BuiltInCategory.OST_PipeAccessory).OfClass(typeof(FamilyInstance));
 
+                    string GmlTag1 = dr.Field<string>("Gml Tag 1");
+                    string GmlTag2 = Convert.ToString(dr["Gml Tag 2"]).PadLeft(2, '0');
+
+                    string NewTag1 = dr.Field<string>("TAG 1");
+                    string NewTag2 = dr.Field<string>("TAG 2");
+                    string NewTag3 = Convert.ToString(dr["TAG 3"]).PadLeft(2, '0');
+
+                    ElementParameterFilter epf1 = ParameterValueGenericFilter(doc, GmlTag1, filterTAG1.GUID);
+                    ElementParameterFilter epf2 = ParameterValueGenericFilter(doc, GmlTag2, filterTAG2.GUID);
+
+                    col.WherePasses(epf1).WherePasses(epf2);
+                    string ids = "";
+                    foreach (var id in col.ToElementIds()) ids += id.IntegerValue + " | ";
+
+                    log.Info($"Gml Tag: {GmlTag1}_{GmlTag2} ->" +
+                        $"New tag: +{NewTag1}-{NewTag2}{NewTag3}: " +
+                        $"Matched existing elements: {ids}");
+
+                    foreach (var el in col.ToElements())
+                    {
+                        Parameter TAG1 = el.LookupParameter("TAG 1");
+                        Parameter TAG2 = el.LookupParameter("TAG 2");
+
+                        TAG1.Set(NewTag1);
+                        TAG2.Set(NewTag2 + NewTag3);
+                        log.Info($"Updated element {el.Id.IntegerValue}.");
+                    }
+                    
+                }
+                tx.Commit();
+            }
             return Result.Succeeded;
         }
 
@@ -130,6 +173,53 @@ namespace pyRevitExtensions
         public static DataTable ReadDataTable(DataTableCollection dataTableCollection, string tableName)
         {
             return (from DataTable dtbl in dataTableCollection where dtbl.TableName == tableName select dtbl).FirstOrDefault();
+        }
+
+        /// <summary>
+        /// Generic Parameter value filter. An attempt to write a generic method,
+        /// that returns an element filter consumed by FilteredElementCollector.
+        /// </summary>
+        /// <typeparam name="T1">Type of the parameter VALUE to filter by.</typeparam>
+        /// <typeparam name="T2">Type of the PARAMETER to filter.</typeparam>
+        /// <param name="value">Currently: string, bool.</param>
+        /// <param name="parameterId">Currently: Guid, BuiltInCategory.</param>
+        /// <returns>ElementParameterFilter consumed by FilteredElementCollector.</returns>
+        public static ElementParameterFilter ParameterValueGenericFilter<T1, T2>(Document doc, T1 value, T2 parameterId)
+        {
+            //Initialize ParameterValueProvider
+            ParameterValueProvider pvp = null;
+            switch (parameterId)
+            {
+                case BuiltInParameter bip:
+                    pvp = new ParameterValueProvider(new ElementId((int)bip));
+                    break;
+                case Guid guid:
+                    SharedParameterElement spe = SharedParameterElement.Lookup(doc, guid);
+                    pvp = new ParameterValueProvider(spe.Id);
+                    break;
+                default:
+                    throw new NotImplementedException("ParameterValueGenericFilter: T2 (parameter) type not implemented!");
+            }
+
+            //Branch off to value types
+            switch (value)
+            {
+                case string str:
+                    FilterStringRuleEvaluator fsrE = new FilterStringEquals();
+                    FilterStringRule fsr = new FilterStringRule(pvp, fsrE, str, false);
+                    return new ElementParameterFilter(fsr);
+                case bool bol:
+                    int _value;
+
+                    if (bol == true) _value = 1;
+                    else _value = 0;
+
+                    FilterNumericRuleEvaluator fnrE = new FilterNumericEquals();
+                    FilterIntegerRule fir = new FilterIntegerRule(pvp, fnrE, _value);
+                    return new ElementParameterFilter(fir);
+                default:
+                    throw new NotImplementedException("ParameterValueGenericFilter: T1 (value) type not implemented!");
+            }
         }
 
     }
