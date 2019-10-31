@@ -218,9 +218,27 @@ namespace MEPUtils.PED
                     ConnectorSet refConSet = prim.AllRefs;
                     var refCons = mp.GetAllConnectorsFromConnectorSet(refConSet);
                     Connector refCon = refCons.Where(x => isPipe(x.Owner)).SingleOrDefault();
-                    if (refCon == null) throw new Exception("refCon Owner cannot find a Pipe!");
-                    Pipe pipe = (Pipe)refCon.Owner;
-                    double dia = pipe.get_Parameter(BuiltInParameter.RBS_PIPE_OUTER_DIAMETER).AsDouble().FtToMm().Round(1);
+                    if (refCon == null) refCon = refCons.Where(x => x.Owner.IsType<FamilyInstance>()).FirstOrDefault();
+                    if (refCon == null) throw new Exception($"Element {olet.Id.IntegerValue} refCon Owner cannot find a Pipe of FamilyInstance!");
+
+                    double dia = 0;
+
+                    switch (refCon.Owner)
+                    {
+                        case Pipe pipe:
+                            dia = pipe.get_Parameter(BuiltInParameter.RBS_PIPE_OUTER_DIAMETER).AsDouble().FtToMm().Round(1);
+                            break;
+                        case FamilyInstance fis:
+                            Element element = (Element)fis;
+                            Cons consFis = mp.GetConnectors(element);
+                            dia = (consFis.Primary.Radius * 2).FtToMm().Round(1);
+                            break;
+                        default:
+                            break;
+                    }
+
+                    //Pipe pipe = (Pipe)refCon.Owner;
+                    
                     Parameter weldsToPar = olet.get_Parameter(new Guid("c3401bb0-2e6c-4831-9917-73d6784a4a6f"));
                     weldsToPar.Set("ø" + dia.ToString(nfi));
                 }
