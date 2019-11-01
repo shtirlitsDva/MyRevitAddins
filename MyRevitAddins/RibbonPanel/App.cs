@@ -18,6 +18,7 @@ using ped = MEPUtils.PED.InitPED;
 using mep = MEPUtils.MEPUtilsClass;
 using pdf = PDFExporter.PDFExporter;
 using sup = MEPUtils.PlaceSupport.PlaceSupport;
+using NLog;
 
 #endregion
 
@@ -194,6 +195,7 @@ More than two elements selected + CTRL
     [Autodesk.Revit.Attributes.Transaction(Autodesk.Revit.Attributes.TransactionMode.Manual)]
     class PEDclass : IExternalCommand
     {
+        private static readonly NLog.Logger log = NLog.LogManager.GetCurrentClassLogger();
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
 
@@ -201,23 +203,28 @@ More than two elements selected + CTRL
             Document doc = commandData.Application.ActiveUIDocument.Document;
             UIDocument uidoc = uiApp.ActiveUIDocument;
 
+            #region LoggerSetup
+            //Nlog configuration
+            var nlogConfig = new NLog.Config.LoggingConfiguration();
+            //Targets
+            var logfile = new NLog.Targets.FileTarget("logfile") { FileName = "g:\\GitHub\\log.txt", DeleteOldFileOnStartup = true };
+            //Rules
+            nlogConfig.AddRule(LogLevel.Info, LogLevel.Fatal, logfile);
+            //Apply config
+            NLog.LogManager.Configuration = nlogConfig;
+            //DISABLE LOGGING
+            NLog.LogManager.DisableLogging();
+            #endregion
+
             using (TransactionGroup txGp = new TransactionGroup(doc))
             {
                 txGp.Start("Initialize PED data");
-
-                using (Transaction trans1 = new Transaction(doc))
-                {
-                    trans1.Start("Create parameters");
-                    ped ped = new ped();
-                    ped.CreateElementBindings(commandData);
-                    trans1.Commit();
-                }
 
                 using (Transaction trans2 = new Transaction(doc))
                 {
                     trans2.Start("Populate parameters");
                     ped ped = new ped();
-                    ped.PopulateParameters(commandData);
+                    ped.PopulateParameters(commandData, log);
                     trans2.Commit();
                 }
 
