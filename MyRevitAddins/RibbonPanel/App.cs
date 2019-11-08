@@ -213,7 +213,7 @@ More than two elements selected + CTRL
             //Apply config
             NLog.LogManager.Configuration = nlogConfig;
             //Throw Exceptions
-            LogManager.ThrowExceptions = true;
+            //LogManager.ThrowExceptions = true;
             //DISABLE LOGGING
             NLog.LogManager.DisableLogging();
             #endregion
