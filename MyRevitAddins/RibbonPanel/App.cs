@@ -195,7 +195,7 @@ More than two elements selected + CTRL
     [Autodesk.Revit.Attributes.Transaction(Autodesk.Revit.Attributes.TransactionMode.Manual)]
     class PEDclass : IExternalCommand
     {
-        private static readonly NLog.Logger log = NLog.LogManager.GetCurrentClassLogger();
+        
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
 
@@ -207,14 +207,18 @@ More than two elements selected + CTRL
             //Nlog configuration
             var nlogConfig = new NLog.Config.LoggingConfiguration();
             //Targets
-            var logfile = new NLog.Targets.FileTarget("logfile") { FileName = "g:\\GitHub\\log.txt", DeleteOldFileOnStartup = true };
+            var logfile = new NLog.Targets.FileTarget("logfile") { FileName = "G:\\GitHub\\log.txt", DeleteOldFileOnStartup = true };
             //Rules
             nlogConfig.AddRule(LogLevel.Info, LogLevel.Fatal, logfile);
             //Apply config
             NLog.LogManager.Configuration = nlogConfig;
+            //Throw Exceptions
+            LogManager.ThrowExceptions = true;
             //DISABLE LOGGING
             NLog.LogManager.DisableLogging();
             #endregion
+            Logger log = LogManager.GetLogger("Log");
+            log.Info("Logging started!");
 
             using (TransactionGroup txGp = new TransactionGroup(doc))
             {

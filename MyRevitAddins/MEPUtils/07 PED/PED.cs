@@ -50,6 +50,8 @@ namespace MEPUtils.PED
                 Parameter wallThkParameter = element.LookupParameter("PED_PIPE_WTHK");
                 if (wallThkParameter == null) throw new Exception("Parameter missing! Add PED_PIPE_WTHK parameter to project! Datatype TEXT.");
 
+                int id = element.Id.IntegerValue;
+
                 //Retrieve parameter for outside diameter
                 Parameter oDiaPar = element.get_Parameter(BuiltInParameter.RBS_PIPE_OUTER_DIAMETER);
 
@@ -60,7 +62,7 @@ namespace MEPUtils.PED
                 double oDia = oDiaPar.AsDouble();
                 double iDia = iDiaPar.AsDouble();
                 double wallThk = ((oDia - iDia) / 2).FtToMm().Round(1);
-                log.Info($"Pipe element {element.Id.IntegerValue}: oDia: {oDia.FtToMm()}, iDia: {iDia.FtToMm()}, Wthk: {wallThk}");
+                log.Info($"Pipe element {element.Id.IntegerValue}: oDia: {oDia.FtToMm()}, iDia: {iDia.FtToMm()}, Wthk: {string.Format("{0:N1}", wallThk)}");
 
                 wallThkParameter.Set(string.Format("{0:N1}", wallThk));
             }
