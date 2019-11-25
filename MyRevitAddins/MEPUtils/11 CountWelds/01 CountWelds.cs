@@ -127,7 +127,7 @@ namespace MEPUtils.CountWelds
                 List<connectorSpatialGroup> csgList = new List<connectorSpatialGroup>();
                 foreach (Connector distinctCon in DistinctCons)
                 {
-                    csgList.Add(new connectorSpatialGroup(AllCons.Where(x => distinctCon.Equalz(x, 3.0.MmToFt()))));
+                    csgList.Add(new connectorSpatialGroup(AllCons.Where(x => distinctCon.Equalz(x, 3.0.MmToFt())), doc));
                     AllCons = AllCons.ExceptWhere(x => distinctCon.Equalz(x, 3.0.MmToFt())).ToHashSet();
                 }
 
@@ -245,8 +245,10 @@ namespace MEPUtils.CountWelds
         public string DN = "0";
         [DataMember]
         public int nrOfCons = 0;
-        [DataMember] //More of a debug property, maybe should be removed later on
+        [DataMember] //Also used for filtering
         public List<string> SpecList = new List<string>();
+        [DataMember] //Also used for filtering
+        public List<string> SysList = new List<string>();
         [DataMember]
         public string Description = "Not initialized";
         public bool IncludeInCount = false;
@@ -255,7 +257,7 @@ namespace MEPUtils.CountWelds
         [DataMember] //More of a debug property
         List<string> ListOfIds = null;
 
-        internal connectorSpatialGroup(IEnumerable<Connector> collection)
+        internal connectorSpatialGroup(IEnumerable<Connector> collection, Document doc)
         {
             Connectors = collection.ToList();
             nrOfCons = Connectors.Count();
@@ -266,7 +268,9 @@ namespace MEPUtils.CountWelds
                 Parameter par = owner.get_Parameter(new Guid("90be8246-25f7-487d-b352-554f810fcaa7")); //PCF_ELEM_SPEC parameter
                 SpecList.Add(par.AsString());
                 ListOfIds.Add(owner.Id.ToString());
+                SysList.Add(con.MEPSystemAbbreviationNew(doc));
             }
+            SysList = SysList.Distinct().ToList();
         }
 
         public void Analyze()
