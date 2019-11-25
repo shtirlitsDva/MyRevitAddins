@@ -247,8 +247,8 @@ namespace MEPUtils.CountWelds
         public int nrOfCons = 0;
         [DataMember] //Also used for filtering
         public List<string> SpecList = new List<string>();
-        [DataMember] //Also used for filtering
-        public List<string> SysList = new List<string>();
+        [DataMember] //Only one of systems present is written -> to simplify
+        public string Sys = "NoSys"; 
         [DataMember]
         public string Description = "Not initialized";
         public bool IncludeInCount = false;
@@ -268,9 +268,8 @@ namespace MEPUtils.CountWelds
                 Parameter par = owner.get_Parameter(new Guid("90be8246-25f7-487d-b352-554f810fcaa7")); //PCF_ELEM_SPEC parameter
                 SpecList.Add(par.AsString());
                 ListOfIds.Add(owner.Id.ToString());
-                SysList.Add(con.MEPSystemAbbreviationNew(doc));
+                Sys = con.MEPSystemAbbreviationNew(doc);
             }
-            SysList = SysList.Distinct().ToList();
         }
 
         public void Analyze()
