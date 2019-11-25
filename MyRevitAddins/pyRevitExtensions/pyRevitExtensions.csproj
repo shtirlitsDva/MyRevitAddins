@@ -36,9 +36,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="pyRevitLabs.NLog">
-      <HintPath>C:\Users\mgo\AppData\Roaming\pyRevit-Master\bin\pyRevitLabs.NLog.dll</HintPath>
-    </Reference>
     <Reference Include="RevitAPI">
       <HintPath>..\..\..\..\..\Revit2020 SDK\RevitAPI.dll</HintPath>
       <Private>False</Private>

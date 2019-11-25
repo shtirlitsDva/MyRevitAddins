@@ -296,15 +296,26 @@ namespace MEPUtils
                 //Local method to insulate Tees
                 void InsulateTee()
                 {
-                    if (specifiedInsulationThickness.Equalz(0, Extensions._epx)) return;
+                    Parameter par1 = e.LookupParameter("Insulation Projected");
+                    Parameter par2 = e.LookupParameter("Dummy Insulation Visible");
+
+                    if (specifiedInsulationThickness.Equalz(0, Extensions._epx))
+                    {
+                        //Set insulation
+                        if (par1 == null) return;
+                        par1.Set(specifiedInsulationThickness);
+
+                        //Make invisible if not
+                        if (par2 == null) return;
+                        if (par2.AsInteger() == 1) par2.Set(0);
+                    }
 
                     //Set insulation
-                    Parameter par1 = e.LookupParameter("Insulation Projected");
                     if (par1 == null) return;
                     par1.Set(specifiedInsulationThickness);
 
                     //Make visible if not
-                    Parameter par2 = e.LookupParameter("Dummy Insulation Visible");
+                    if (par2 == null) return;
                     if (par2.AsInteger() == 0) par2.Set(1);
                 }
             }
