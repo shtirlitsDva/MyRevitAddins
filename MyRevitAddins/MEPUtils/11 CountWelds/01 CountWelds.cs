@@ -62,11 +62,13 @@ namespace MEPUtils.CountWelds
                 //1.2) Connectors from INSTR system disallowed (Kapillarrør til instrumenter)
                 //1.3) Connectors from UDLUFT system disallowed (Afløbsrør fra udluftninger)
                 //1.4) Connectors from Gevindrør Pipe Type
+                //1.5) Connectors from Pressrør Pipe Type
                 AllCons = AllCons
                     .ExceptWhere(x => x.MEPSystemAbbreviation(doc) == "ARGD")
                     .ExceptWhere(x => x.MEPSystemAbbreviation(doc) == "INSTR")
                     .ExceptWhere(x => x.MEPSystemAbbreviation(doc) == "UDLUFT")
                     .ExceptWhere(x => x.Owner.Name == "Gevindrør")
+                    .ExceptWhere(x => x.Owner.Name == "Pressrør")
                     .ToHashSet();
 
                 //2) Remove all "Curve" Connectors -- Olet welds are counted in comp. schedule
