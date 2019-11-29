@@ -107,12 +107,12 @@ More than two elements selected + CTRL
             data.LargeImage = NewBitmapImage(exe, "MyRibbonPanel.Resources.ImgPED32.png");
             PushButton PED = rvtRibbonPanel.AddItem(data) as PushButton;
 
-            ////MEPUtils
-            //data = new PushButtonData("MEPUtils", "MEP", ExecutingAssemblyPath, "MyRibbonPanel.MEPUtilsCaller");
-            //data.ToolTip = myRibbonPanelToolTip;
-            //data.Image = NewBitmapImage(exe, "MyRibbonPanel.Resources.ImgMEPUtils16.png");
-            //data.LargeImage = NewBitmapImage(exe, "MyRibbonPanel.Resources.ImgMEPUtils32.png");
-            //PushButton MEPUtils = rvtRibbonPanel.AddItem(data) as PushButton;
+            //MEPUtils
+            data = new PushButtonData("MEPUtils", "MEP", ExecutingAssemblyPath, "MyRibbonPanel.MEPUtilsCaller");
+            data.ToolTip = myRibbonPanelToolTip;
+            data.Image = NewBitmapImage(exe, "MyRibbonPanel.Resources.ImgMEPUtils16.png");
+            data.LargeImage = NewBitmapImage(exe, "MyRibbonPanel.Resources.ImgMEPUtils32.png");
+            PushButton MEPUtils = rvtRibbonPanel.AddItem(data) as PushButton;
 
             //PDFExporter
             data = new PushButtonData("PDFExport", "PDF", ExecutingAssemblyPath, "MyRibbonPanel.PDFExport");
