@@ -63,7 +63,7 @@ namespace MEPUtils
                     HashSet<Connector> firstCons = mp.GetALLConnectorsFromElements(firstEl);
                     HashSet<Connector> secondCons = mp.GetALLConnectorsFromElements(secondEl);
 
-                    var listToCompare = new List<(Connector toMoveCon, Connector MoveToCon, double Distance)>();
+                    var listToCompare = new List<(Connector firstCon, Connector secondCon, double Distance)>();
 
                     foreach (Connector c1 in firstCons) foreach (Connector c2 in secondCons)
                             listToCompare.Add((c1, c2, c1.Origin.DistanceTo(c2.Origin)));
