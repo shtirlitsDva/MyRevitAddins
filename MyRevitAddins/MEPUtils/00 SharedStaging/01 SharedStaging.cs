@@ -29,60 +29,6 @@ namespace MEPUtils.SharedStaging
 {
     public static class Extensions
     {
-        /// <summary>
-        /// Returns, for fittings only, the PartType of the element in question.
-        /// </summary>
-        /// <param name="e">Element to get the PartType property.</param>
-        /// <returns>The PartType of the passed element.</returns>
-        public static PartType MechFittingPartType(this Element e)
-        {
-            if (e.Category.Id.IntegerValue == (int)BuiltInCategory.OST_PipeFitting)
-            {
-                var mf = ((FamilyInstance)e).MEPModel as MechanicalFitting;
-                return mf.PartType;
-            }
-            else return PartType.Undefined;
-        }
-
-        /// <summary>
-        /// Method is taken from here:
-        /// https://spiderinnet.typepad.com/blog/2011/08/revit-parameter-api-asvaluestring-tostring-tovaluestring-and-tovaluedisplaystring.html
-        /// </summary>
-        /// <param name="p">Revit parameter</param>
-        /// <returns>Stringified contents of the parameter</returns>
-        internal static string ToValueString(this Autodesk.Revit.DB.Parameter p)
-        {
-            string ret = string.Empty;
-
-            switch (p.StorageType)
-            {
-                case StorageType.ElementId:
-                    ret = p.AsElementId().ToString();
-                    break;
-                case StorageType.Integer:
-                    ret = p.AsInteger().ToString();
-                    break;
-                case StorageType.String:
-                    ret = p.AsString();
-                    break;
-                case StorageType.Double:
-                    ret = p.AsValueString();
-                    break;
-                default:
-                    break;
-            }
-            return ret;
-        }
         
-        public static string MEPSystemAbbreviationNew(this Connector con, Document doc)
-        {
-            if (con.MEPSystem != null)
-            {
-                MEPSystem ps = con.MEPSystem;
-                PipingSystemType pst = (PipingSystemType)doc.GetElement(ps.GetTypeId());
-                return pst.Abbreviation;
-            }
-            else return "";
-        }
     }
 }
