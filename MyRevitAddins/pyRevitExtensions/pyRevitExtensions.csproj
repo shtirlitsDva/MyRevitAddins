@@ -54,6 +54,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="03 ForceDivideSystem\script.cs" />
     <Compile Include="01 ShowEdges OFF\script.cs" />
     <Compile Include="02 NewTags\script.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
