@@ -268,7 +268,7 @@ namespace MEPUtils.CountWelds
                 Parameter par = owner.get_Parameter(new Guid("90be8246-25f7-487d-b352-554f810fcaa7")); //PCF_ELEM_SPEC parameter
                 SpecList.Add(par.AsString());
                 ListOfIds.Add(owner.Id.ToString());
-                Sys = con.MEPSystemAbbreviationNew(doc);
+                Sys = con.MEPSystemAbbreviation(doc);
             }
         }
 

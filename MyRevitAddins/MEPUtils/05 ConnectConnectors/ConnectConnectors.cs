@@ -62,7 +62,7 @@ namespace MEPUtils
                     {
                         allConnectors = mp.GetALLConnectorsInDocument(doc, true)
                             .Where(c => !c.IsConnected)
-                            .ExceptWhere(c => MEPUtils.SharedStaging.Extensions.MEPSystemAbbreviationNew(c, doc) == "ARGD")
+                            .ExceptWhere(c => c.MEPSystemAbbreviation(doc) == "ARGD")
                             .ToList();
                     }
                     //Selection is more than 2
