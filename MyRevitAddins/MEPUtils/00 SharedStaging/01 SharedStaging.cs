@@ -27,8 +27,18 @@ using tr = Shared.Transformation;
 
 namespace MEPUtils.SharedStaging
 {
-    public static class Extensions
+    public static class ExtensionsStaging
     {
-        
+        public static string MEPSystemAbbreviation(this Connector con, Document doc, bool ignoreMepSystemNull = false)
+        {
+            if (con.MEPSystem != null)
+            {
+                MEPSystem ps = con.MEPSystem;
+                PipingSystemType pst = (PipingSystemType)doc.GetElement(ps.GetTypeId());
+                return pst.Abbreviation;
+            }
+            else if (ignoreMepSystemNull) return "";
+            else throw new Exception($"A connector at element {con.Owner.Id.IntegerValue} has MEPSystem = null!");
+        }
     }
 }

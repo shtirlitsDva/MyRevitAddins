@@ -10,6 +10,7 @@ using fi = Shared.Filter;
 using op = Shared.Output;
 using mp = Shared.MepUtils;
 using Shared;
+using MEPUtils.SharedStaging;
 //using mySettings = GeneralStability.Properties.Settings;
 
 namespace MEPUtils
@@ -62,7 +63,7 @@ namespace MEPUtils
                     {
                         allConnectors = mp.GetALLConnectorsInDocument(doc, true)
                             .Where(c => !c.IsConnected)
-                            .ExceptWhere(c => c.MEPSystemAbbreviation(doc) == "ARGD")
+                            .ExceptWhere(c => c.MEPSystemAbbreviation(doc, true) == "ARGD")
                             .ToList();
                     }
                     //Selection is more than 2
