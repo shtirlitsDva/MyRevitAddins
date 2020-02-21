@@ -71,7 +71,7 @@ namespace MEPUtils.ModelessForms
                 {4, FlangeCreator.CreateFlangeForElements },
                 {5, TotalLineLength.TotalLineLengths },
                 {6, CreateInstrumentation.StartCreatingInstrumentation.StartCreating },
-                {7, PAHangers.CalculateHeight.Calculate },
+                {7, SupportTools.SupportToolsMain.CallForm },
                 {8, MoveToDistance.MoveToDistance.Move },
                 {9, new CountWelds.CountWelds().CountWeldsMethod },
                 {10, new NumberStuff.NumberStuff().NumberStuffMethod }
@@ -87,7 +87,7 @@ namespace MEPUtils.ModelessForms
                 {4, "Create flanges" },
                 {5, "Total length of lines" },
                 {6, "Create Instrument!" },
-                {7, "Hanger height calc" },
+                {7, "Support Tools" },
                 {8, "Move e to distance" },
                 {9, "(ctrl) Count welds" },
                 {10, "(ctrl) (Re-)Number" }

@@ -95,6 +95,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="00 SharedStaging\01 SharedStaging.cs" />
+    <Compile Include="08 SupportsTools\00 SupportsToolsMain.cs" />
+    <Compile Include="08 SupportsTools\02 CalcHeightBySteelSupport.cs" />
+    <Compile Include="08 SupportsTools\SupportTools.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="08 SupportsTools\SupportTools.Designer.cs">
+      <DependentUpon>SupportTools.cs</DependentUpon>
+    </Compile>
     <Compile Include="10 MoveToDistance\InputBoxBasic.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -126,7 +134,7 @@
     <Compile Include="05 ConnectConnectors\ConnectConnectors.cs" />
     <Compile Include="06 PipeInsulationVisibility\PipeInsulationVisibility.cs" />
     <Compile Include="07 PED\PED.cs" />
-    <Compile Include="08 SupportsTools\PAHangers-CalculateHeight.cs" />
+    <Compile Include="08 SupportsTools\01 CalcHeightByLevel.cs" />
     <Compile Include="08 SupportsTools\PlaceSupport.cs" />
     <Compile Include="08 SupportsTools\SupportChooser.cs">
       <SubType>Form</SubType>
@@ -184,6 +192,9 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="08 SupportsTools\SupportTools.resx">
+      <DependentUpon>SupportTools.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="10 MoveToDistance\InputBoxBasic.resx">
       <DependentUpon>InputBoxBasic.cs</DependentUpon>
     </EmbeddedResource>

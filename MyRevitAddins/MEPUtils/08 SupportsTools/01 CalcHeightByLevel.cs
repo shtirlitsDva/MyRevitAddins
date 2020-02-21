@@ -12,11 +12,11 @@ using op = Shared.Output;
 using tr = Shared.Transformation;
 using mp = Shared.MepUtils;
 
-namespace MEPUtils.PAHangers
+namespace MEPUtils.SupportTools
 {
-    public class CalculateHeight
+    public class CalculateHeightByLevel
     {
-        public static Result Calculate(UIApplication uiApp)
+        public static void Calculate(UIApplication uiApp)
         {
             Document doc = uiApp.ActiveUIDocument.Document;
             UIDocument uidoc = uiApp.ActiveUIDocument;
@@ -69,10 +69,7 @@ namespace MEPUtils.PAHangers
                     }
                     txGp.Assimilate();
                 }
-                return Result.Succeeded;
             }
-
-            catch (Autodesk.Revit.Exceptions.OperationCanceledException) { return Result.Cancelled; }
 
             catch (Exception ex)
             {

@@ -56,6 +56,7 @@
             this.Controls.Add(this.tableLayoutPanel1);
             this.Name = "MEPUtilsChooser";
             this.Text = "Choose utility!";
+            this.Load += new System.EventHandler(this.MEPUtilsChooser_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
 
