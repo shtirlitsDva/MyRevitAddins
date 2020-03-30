@@ -72,6 +72,9 @@ namespace MEPUtils.NumberStuff
                             nrOfDigits = int.Parse(item.Field<string>("Digits"));
                         }
 
+                        //Quick hack: filter out EXISTING elements
+                        elements = elements.Where(x => x.LookupParameter("PCF_ELEM_SPEC").ToValueString() != "EXISTING").ToHashSet();
+
                         List<Element> sortedElements = elements
                             .OrderBy(x => ((LocationPoint)x.Location).Point.X.Round(1))
                             .ThenBy(x => ((LocationPoint)x.Location).Point.Y.Round(1))

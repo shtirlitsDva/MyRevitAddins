@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
 <RevitAddIns>
   <AddIn Type="Application">
-    <Assembly>E:\GitHub\shtirlitsDva\MyRevitAddins\MyRevitAddins\RibbonPanel\bin\Release\MyRibbonPanel.dll</Assembly>
+    <Assembly>D:\GitHub\shtirlitsDva\MyRevitAddins\MyRevitAddins\RibbonPanel\bin\Release\MyRibbonPanel.dll</Assembly>
     <ClientId>973C4F18-300B-41A4-A998-C289820D1969</ClientId>
     <FullClassName>MyRibbonPanel.App</FullClassName>
     <Name>MyAddIns</Name>
@@ -9,7 +9,7 @@
     <VendorDescription>app@mgtek.dk</VendorDescription>
   </AddIn>
   <AddIn Type="Application">
-    <Assembly>E:\GitHub\shtirlitsDva\MyRevitAddins\MyRevitAddins\SetTagsModeless\bin\Release\MEPUtils.SetTagsModeless.dll</Assembly>
+    <Assembly>D:\GitHub\shtirlitsDva\MyRevitAddins\MyRevitAddins\SetTagsModeless\bin\Release\MEPUtils.SetTagsModeless.dll</Assembly>
     <ClientId>1A1D1ECF-9569-4F1C-81EF-52D560369FBE</ClientId>
     <FullClassName>MEPUtils.SetTagsModeless.Application</FullClassName>
     <Name>SetTags</Name>
