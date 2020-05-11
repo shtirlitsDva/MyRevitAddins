@@ -62,16 +62,68 @@ namespace MEPUtils.Tilkoblet
                         else refSecondCon = DetectUnconnectedConnector(doc, secondSideCon);
 
                         Element firstSideOwner = null; Element secondSideOwner = null;
+                        string commentsContent = string.Empty;
+                        string firstSideComments = string.Empty;
+                        string secondSideComments = string.Empty;
 
                         if (refFirstCon != null)
                         {
                             firstSideOwner = refFirstCon.Owner;
+                            string tag1 = firstSideOwner.LookupParameter("TAG 1").AsString();
+                            string tag2 = firstSideOwner.LookupParameter("TAG 2").AsString();
+                            string tag3 = firstSideOwner.LookupParameter("TAG 3").AsString();
+                            string tag4 = firstSideOwner.LookupParameter("TAG 4").AsString();
+
+                            firstSideComments = string.Empty;
+
+                            if (!string.IsNullOrEmpty(tag1)) firstSideComments += tag1;
+                            if (!string.IsNullOrEmpty(tag2)) firstSideComments += "_" + tag2;
+                            if (!string.IsNullOrEmpty(tag3)) firstSideComments += "_" + tag3;
+                            if (!string.IsNullOrEmpty(tag4)) firstSideComments += "_" + tag4;
                         }
 
+                        if (refSecondCon != null)
+                        {
+                            secondSideOwner = refSecondCon.Owner;
+                            string tag1 = secondSideOwner.LookupParameter("TAG 1").AsString();
+                            string tag2 = secondSideOwner.LookupParameter("TAG 2").AsString();
+                            string tag3 = secondSideOwner.LookupParameter("TAG 3").AsString();
+                            string tag4 = secondSideOwner.LookupParameter("TAG 4").AsString();
+
+                            secondSideComments = string.Empty;
+
+                            if (!string.IsNullOrEmpty(tag1)) secondSideComments += tag1;
+                            if (!string.IsNullOrEmpty(tag2)) secondSideComments += "_" + tag2;
+                            if (!string.IsNullOrEmpty(tag3)) secondSideComments += "_" + tag3;
+                            if (!string.IsNullOrEmpty(tag4)) secondSideComments += "_" + tag4;
+                        }
+
+                        if (string.IsNullOrEmpty(firstSideComments) && string.IsNullOrEmpty(secondSideComments))
+                        {
+                            continue;
+                        }
+                        else if (string.IsNullOrEmpty(firstSideComments) || string.IsNullOrEmpty(secondSideComments))
+                        {
+                            if (!string.IsNullOrEmpty(firstSideComments))
+                            {
+                                commentsContent = firstSideComments;
+                            }
+                            else if (!string.IsNullOrEmpty(secondSideComments))
+                            {
+                                commentsContent = secondSideComments;
+                            }
+                        }
+                        else
+                        {
+                            commentsContent = $"{firstSideComments}; {secondSideComments}";
+                        }
+
+                        Parameter comments = el.get_Parameter(BuiltInParameter.ALL_MODEL_INSTANCE_COMMENTS);
+                        comments.Set(commentsContent);
                     }
 
                     tx.Commit();
-                    return Result.Succeeded; 
+                    return Result.Succeeded;
                 }
             }
 
