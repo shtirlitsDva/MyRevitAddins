@@ -154,6 +154,13 @@ namespace MEPUtils.ModelessForms
             m_ExEvent.Raise();
         }
 
+        private void button6_Click(object sender, EventArgs e)
+        {
+            AsyncFindOldElement asFOE = new AsyncFindOldElement(dataGridView1);
+            ThisApp.asyncCommand = asFOE;
+            m_ExEvent.Raise();
+        }
+
         public static DataSet ImportExcelToDataSet(string fileName, string dataHasHeaders)
         {
             //On connection strings http://www.connectionstrings.com/excel/#p84
@@ -239,7 +246,6 @@ namespace MEPUtils.ModelessForms
               WinForms.MessageBoxIcon.Error);
         }
 
-        
         ////private void textBox1_TextChanged(object sender, EventArgs e) => DistanceToKeep = textBox1.Text;
 
         //private void InputBoxBasic_FormClosing(object sender, FormClosingEventArgs e)

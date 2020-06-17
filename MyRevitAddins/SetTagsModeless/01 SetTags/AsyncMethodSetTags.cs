@@ -16,6 +16,91 @@ namespace MEPUtils.ModelessForms
         void Execute(UIApplication uiApp);
     }
 
+    class AsyncFindOldElement : IAsyncCommand
+    {
+        private DataGridView Dgw { get; set; }
+        private AsyncFindOldElement() { }
+        public AsyncFindOldElement(DataGridView dgw)
+        {
+            Dgw = dgw;
+        }
+
+        private static readonly NLog.Logger log = NLog.LogManager.GetCurrentClassLogger();
+
+        public void Execute(UIApplication uiApp)
+        {
+            #region LoggerSetup
+            //Nlog configuration
+            var nlogConfig = new NLog.Config.LoggingConfiguration();
+            //Targets
+            var logfile = new NLog.Targets.FileTarget("logfile") { FileName = "g:\\GitHub\\log.txt", DeleteOldFileOnStartup = false };
+            //Rules
+            nlogConfig.AddRule(LogLevel.Info, LogLevel.Fatal, logfile);
+            //Apply config
+            NLog.LogManager.Configuration = nlogConfig;
+            //DISABLE LOGGING
+            //NLog.LogManager.DisableLogging();
+            #endregion
+
+            Document doc = uiApp.ActiveUIDocument.Document;
+            UIDocument uidoc = uiApp.ActiveUIDocument;
+
+            Selection selection = uidoc.Selection;
+
+            //I cannot find a way to get to a shared parameter element
+            //whithout GUID so I must assume I am working with
+            //Pipe Accessories and I use a first element as donor
+            FilteredElementCollector donorFec = new FilteredElementCollector(doc);
+            Element paDonor = donorFec.OfCategory(BuiltInCategory.OST_PipeAccessory).OfClass(typeof(FamilyInstance)).FirstElement();
+            if (paDonor == null) { log.Info("Failed to get donor element! -> NULL"); }
+            log.Info($"Donor element collected {paDonor.Id.ToString()}, {paDonor.Name}");
+            FilteredElementCollector col = new FilteredElementCollector(doc);
+            col = col.OfCategory(BuiltInCategory.OST_PipeAccessory).OfClass(typeof(FamilyInstance));
+            log.Info($"Collected all Pipe Accessories: Count = {col.Count()}.");
+
+            //Hardcoded! Select columns with tagnames preceeded with "Old#" and find elements only with those values
+
+            int i = 0;
+            foreach (DataGridViewColumn column in Dgw.Columns)
+            {
+                log.Info($"Iteration {i}:");
+                //Test to see if there's a name of parameter specified
+                var parNameValue = Dgw.Rows[1].Cells[i].Value;
+                if (parNameValue == null) { i++; log.Info($"parNameValue -> NULL -> skipping"); continue; }
+                string parName = parNameValue.ToString();
+                if (string.IsNullOrEmpty(parName)) { i++; log.Info($"parName -> NULL or Empty -> skipping"); continue; }
+                log.Info($"parName -> {parName}");
+                if (!parName.Contains("Old#")) { i++; log.Info($"Not old parameter name! -> Skip"); continue; }
+
+                //Remove the "Old#" prefix
+                parName = parName.Replace("Old#", "");
+
+                Parameter parToTest = paDonor.LookupParameter(parName);
+                if (parToTest == null) { i++; log.Info($"Failed to get parToTest -> NULL. CRITICAL!"); continue; }
+                log.Info($"parToTest acquired with GUID: {parToTest.GUID}.");
+
+                //Retrieve value to filter against
+                var parValue = Dgw.Rows[0].Cells[i].Value;
+                if (parValue == null) { i++; log.Info($"parValue -> NULL -> skipping"); continue; }
+                string parValueString = parValue.ToString();
+                if (string.IsNullOrEmpty(parValueString)) { i++; log.Info($"parValueString -> NULL or Empty -> skipping"); continue; }
+                log.Info($"Parameter value acquired: {parValueString}");
+
+                ElementParameterFilter epf = ParameterValueGenericFilter(doc, parValueString, parToTest.GUID);
+                col = col.WherePasses(epf);
+                log.Info($"Collector filtered to number of elements: {col.Count()}");
+                i++;
+            }
+
+            log.Info($"After last iteration collector contains elements: {col.Count()}");
+            foreach (var id in col.ToElementIds())
+            {
+                log.Info($"{id.IntegerValue}");
+            }
+            uidoc.Selection.SetElementIds(col.ToElementIds());
+        }
+    }
+
     class AsyncFindSelectElement : IAsyncCommand
     {
         private DataGridView Dgw { get; set; }
@@ -70,6 +155,10 @@ namespace MEPUtils.ModelessForms
                 string parName = parNameValue.ToString();
                 if (string.IsNullOrEmpty(parName)) { i++; log.Info($"parName -> NULL or Empty -> skipping"); continue; }
                 log.Info($"parName -> {parName}");
+
+                //Skip OLD tags
+                if (parName.Contains("Old#")) { i++; log.Info($"Old parameterName found -> Skip"); continue; }
+
                 Parameter parToTest = paDonor.LookupParameter(parName);
                 if (parToTest == null) { i++; log.Info($"Failed to get parToTest -> NULL. CRITICAL!"); continue; }
                 log.Info($"parToTest acquired with GUID: {parToTest.GUID}.");
@@ -143,6 +232,9 @@ namespace MEPUtils.ModelessForms
                     string parName = parNameValue.ToString();
 
                     if (string.IsNullOrEmpty(parName)) { i++; continue; }
+
+                    //Skip OLD tags
+                    if (parName.Contains("Old#")) { i++; continue; }
 
                     Element el = doc.GetElement(elId);
 
