@@ -91,6 +91,24 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\..\..\Revit-PCF-Exporter\revit-shared-utilities\01 Shared code\BaseFormTableLayoutPanel_BasicList.cs">
+      <Link>BaseFormTableLayoutPanel_BasicList.cs</Link>
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="..\..\..\Revit-PCF-Exporter\revit-shared-utilities\01 Shared code\BaseFormTableLayoutPanel_BasicList.designer.cs">
+      <Link>BaseFormTableLayoutPanel_BasicList.designer.cs</Link>
+      <DependentUpon>BaseFormTableLayoutPanel_BasicList.cs</DependentUpon>
+    </Compile>
+    <Compile Include="..\..\..\Revit-PCF-Exporter\revit-shared-utilities\01 Shared code\RadioBox.cs">
+      <Link>RadioBox.cs</Link>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="..\..\..\Revit-PCF-Exporter\revit-shared-utilities\01 Shared code\Shared.cs">
+      <Link>Shared.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Revit-PCF-Exporter\revit-shared-utilities\01 Shared code\Utils.cs">
+      <Link>Utils.cs</Link>
+    </Compile>
     <Compile Include="00 SharedStaging\01 SharedStaging.cs" />
     <Compile Include="08 SupportsTools\00 SupportsToolsMain.cs" />
     <Compile Include="08 SupportsTools\02 CalcHeightBySteelSupport.cs" />
@@ -190,6 +208,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="..\..\..\Revit-PCF-Exporter\revit-shared-utilities\01 Shared code\BaseFormTableLayoutPanel_BasicList.resx">
+      <Link>BaseFormTableLayoutPanel_BasicList.resx</Link>
+      <DependentUpon>BaseFormTableLayoutPanel_BasicList.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="08 SupportsTools\SupportTools.resx">
       <DependentUpon>SupportTools.cs</DependentUpon>
     </EmbeddedResource>

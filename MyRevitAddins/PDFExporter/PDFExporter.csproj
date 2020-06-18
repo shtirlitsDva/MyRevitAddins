@@ -36,9 +36,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="mg.revit-shared-utilities, Version=2021.1.2.20800, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\mg.revit-shared-utilities.2021.1.2.20800\lib\net48\mg.revit-shared-utilities.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.WindowsAPICodePack, Version=1.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\WindowsAPICodePack.1.1.1\lib\Microsoft.WindowsAPICodePack.dll</HintPath>
     </Reference>
@@ -80,6 +77,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\..\..\Revit-PCF-Exporter\revit-shared-utilities\01 Shared code\RadioBox.cs">
+      <Link>RadioBox.cs</Link>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="..\..\..\Revit-PCF-Exporter\revit-shared-utilities\01 Shared code\Shared.cs">
+      <Link>Shared.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Revit-PCF-Exporter\revit-shared-utilities\01 Shared code\Utils.cs">
+      <Link>Utils.cs</Link>
+    </Compile>
     <Compile Include="PDFExporter.cs" />
     <Compile Include="PDFExporterForm.cs">
       <SubType>Form</SubType>
