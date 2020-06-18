@@ -83,7 +83,7 @@ namespace MEPUtils.ModelessForms
                 var parValue = Dgw.Rows[0].Cells[i].Value;
                 if (parValue == null) { i++; log.Info($"parValue -> NULL -> skipping"); continue; }
                 string parValueString = parValue.ToString();
-                if (string.IsNullOrEmpty(parValueString)) { i++; log.Info($"parValueString -> NULL or Empty -> skipping"); continue; }
+                if (parValueString == null) { i++; log.Info($"parValueString -> NULL or Empty -> skipping"); continue; }
                 log.Info($"Parameter value acquired: {parValueString}");
 
                 ElementParameterFilter epf = ParameterValueGenericFilter(doc, parValueString, parToTest.GUID);
