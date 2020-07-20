@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Windows.Input;
+using System.Windows.Forms;
 using fi = Shared.Filter;
 using lad = MEPUtils.CreateInstrumentation.ListsAndDicts;
 using mp = Shared.MepUtils;
@@ -131,7 +132,8 @@ namespace MEPUtils
                         double pipeSize = selectedPipe.Diameter;
 
                         //Select the direction to create in
-                        BaseFormTableLayoutPanel_Basic ds = new BaseFormTableLayoutPanel_Basic(lad.Directions());
+                        BaseFormTableLayoutPanel_Basic ds = new BaseFormTableLayoutPanel_Basic(
+                            System.Windows.Forms.Cursor.Position.X, System.Windows.Forms.Cursor.Position.Y, lad.Directions());
                         ds.ShowDialog();
                         bendDir = ds.strTR;
 
