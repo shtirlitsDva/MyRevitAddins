@@ -7,6 +7,7 @@ using Shared;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Windows.Forms;
 using dbg = Shared.Dbg;
 using fi = Shared.Filter;
 using lad = MEPUtils.CreateInstrumentation.ListsAndDicts;
@@ -67,12 +68,12 @@ namespace MEPUtils.CreateInstrumentation
                         }
 
                         //Select operation to perform
-                        BaseFormTableLayoutPanel_Basic op = new BaseFormTableLayoutPanel_Basic(lad.Operations());
+                        BaseFormTableLayoutPanel_Basic op = new BaseFormTableLayoutPanel_Basic(Cursor.Position.X, Cursor.Position.Y, lad.Operations());
                         op.ShowDialog();
                         operation = op.strTR;
 
                         //Select the direction to create in
-                        BaseFormTableLayoutPanel_Basic ds = new BaseFormTableLayoutPanel_Basic(lad.Directions());
+                        BaseFormTableLayoutPanel_Basic ds = new BaseFormTableLayoutPanel_Basic(Cursor.Position.X, Cursor.Position.Y, lad.Directions());
                         ds.ShowDialog();
                         direction = ds.strTR;
                         //ut.InfoMsg(ds.strTR); 
@@ -220,7 +221,7 @@ namespace MEPUtils.CreateInstrumentation
                         case "Pipe":
                             #region "Case PIPE"
                             //Select type of Olet
-                            BaseFormTableLayoutPanel_Basic oletSelector = new BaseFormTableLayoutPanel_Basic(lad.PipeTypeByOlet());
+                            BaseFormTableLayoutPanel_Basic oletSelector = new BaseFormTableLayoutPanel_Basic(Cursor.Position.X, Cursor.Position.Y, lad.PipeTypeByOlet());
                             oletSelector.ShowDialog();
                             if (oletSelector.strTR.IsNullOrEmpty()) return Result.Cancelled;
                             PipeTypeName = oletSelector.strTR;
@@ -245,7 +246,7 @@ namespace MEPUtils.CreateInstrumentation
 
                             if (oletSelector.strTR != "Stålrør, sømløse")
                             {
-                                BaseFormTableLayoutPanel_Basic sizeSelector = new BaseFormTableLayoutPanel_Basic(sizeListing);
+                                BaseFormTableLayoutPanel_Basic sizeSelector = new BaseFormTableLayoutPanel_Basic(Cursor.Position.X, Cursor.Position.Y, sizeListing);
                                 sizeSelector.ShowDialog();
                                 size = double.Parse(sizeSelector.strTR);
                             }
@@ -312,8 +313,6 @@ namespace MEPUtils.CreateInstrumentation
                 throw new Exception(ex.Message);
             }
         }
-
-
 
         private static Element createNextElement(Document doc, Element prevElem, string elemFamType,
             bool rotateOnSingleConDirection = false)

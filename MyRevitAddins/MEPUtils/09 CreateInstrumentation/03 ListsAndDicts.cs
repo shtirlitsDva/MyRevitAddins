@@ -116,7 +116,8 @@ namespace MEPUtils.CreateInstrumentation
                 {"40" },
                 {"50" },
                 {"65" },
-                {"80" }
+                {"80" },
+                {"100" }
             };
         }
     }
