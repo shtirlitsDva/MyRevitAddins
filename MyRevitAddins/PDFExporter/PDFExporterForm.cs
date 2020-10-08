@@ -177,7 +177,15 @@ namespace PDFExporter
                     fileName.Date = sheetIssueDate;
 
                     Parameter curScalePar = sheet.LookupParameter("Scale");
-                    if (curScalePar != null) fileName.Scale = curScalePar.AsString();
+                    if (curScalePar != null)
+                    {
+                        if (curScalePar.AsString() == "As indicated")
+                        {
+                            Parameter curScaleManualPar = sheet.LookupParameter("Manual skala");
+                            if (curScaleManualPar != null) fileName.Scale = curScaleManualPar.AsString();
+                        }
+                        else if (curScalePar.AsString() != "As indicated") fileName.Scale = curScalePar.AsString();
+                    }
 
                     fileName.GenerateFileName();
 
@@ -214,8 +222,21 @@ namespace PDFExporter
 
                     pm.SubmitPrint(sheet);
 
+                    //Also export to DWF
+                    DWFExportOptions dwfOptions = new DWFExportOptions();
+                    string dwfExportPath = pathToExport + "\\DWF";
+                    System.IO.Directory.CreateDirectory(dwfExportPath);
+
+                    ViewSet vs = new ViewSet();
+                    vs.Insert(sheet);
+
+                    doc.Export(dwfExportPath, fileName.FileName.Remove(fileName.FileName.Length - 4), vs, dwfOptions);
+
                     System.Threading.Thread.Sleep(3000);
                 }
+
+
+
                 trans.Commit();
             }
             ////File handling
@@ -530,7 +551,7 @@ namespace PDFExporter
             {
                 string[] found = Directory.GetFiles(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), $"*{fileName.SheetNumber.Replace(".", "-")}*");
                 if (found.ToList().Count < 1) continue;
-                if (File.Exists(fileName.FileNameWithPath))	File.Delete(fileName.FileNameWithPath);
+                if (File.Exists(fileName.FileNameWithPath)) File.Delete(fileName.FileNameWithPath);
 
                 string inputF = found[0];
                 string outputF = fileName.FileNameWithPath;
