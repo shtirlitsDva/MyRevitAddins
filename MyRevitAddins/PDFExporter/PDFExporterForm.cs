@@ -21,6 +21,7 @@ using mySettings = PDFExporter.Properties.Settings;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using Shared;
 using fi = Shared.Filter;
+using PdfSharp.Pdf;
 
 namespace PDFExporter
 {
@@ -163,9 +164,20 @@ namespace PDFExporter
                     string sheetName = sheetNamePar.AsString();
                     fileName.SheetName = sheetName;
 
-                    Parameter curRevision = sheet.get_Parameter(BuiltInParameter.SHEET_CURRENT_REVISION);
-                    string revision = curRevision.AsString();
+                    Parameter curRevisionPar = sheet.get_Parameter(BuiltInParameter.SHEET_CURRENT_REVISION);
+                    string revision = curRevisionPar.AsString();
                     fileName.Revision = revision;
+
+                    Parameter curRevisionDatePar = sheet.get_Parameter(BuiltInParameter.SHEET_CURRENT_REVISION_DATE);
+                    string revisionDate = curRevisionDatePar.AsString();
+                    fileName.RevisionDate = revisionDate;
+
+                    Parameter sheetIssueDatePar = sheet.get_Parameter(BuiltInParameter.SHEET_ISSUE_DATE);
+                    string sheetIssueDate = sheetIssueDatePar.AsString();
+                    fileName.Date = sheetIssueDate;
+
+                    Parameter curScalePar = sheet.LookupParameter("Scale");
+                    if (curScalePar != null) fileName.Scale = curScalePar.AsString();
 
                     fileName.GenerateFileName();
 
@@ -519,7 +531,23 @@ namespace PDFExporter
                 string[] found = Directory.GetFiles(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), $"*{fileName.SheetNumber.Replace(".", "-")}*");
                 if (found.ToList().Count < 1) continue;
                 if (File.Exists(fileName.FileNameWithPath))	File.Delete(fileName.FileNameWithPath);
-                File.Move(found[0], fileName.FileNameWithPath);
+
+                string inputF = found[0];
+                string outputF = fileName.FileNameWithPath;
+
+                PdfDocument pdfDoc = PdfSharp.Pdf.IO.PdfReader.Open(inputF);
+                pdfDoc.Info.Elements.Add(new KeyValuePair<string, PdfItem>("/DWGNUMBER", new PdfString(fileName.SheetNumber)));
+                pdfDoc.Info.Elements.Add(new KeyValuePair<string, PdfItem>("/DWGTITLE", new PdfString(fileName.SheetName)));
+                pdfDoc.Info.Elements.Add(new KeyValuePair<string, PdfItem>("/DWGSCALE", new PdfString(fileName.Scale)));
+                pdfDoc.Info.Elements.Add(new KeyValuePair<string, PdfItem>("/DWGDATE", new PdfString(fileName.Date)));
+                pdfDoc.Info.Elements.Add(new KeyValuePair<string, PdfItem>("/DWGREVINDEX", new PdfString(fileName.Revision)));
+                pdfDoc.Info.Elements.Add(new KeyValuePair<string, PdfItem>("/DWGREVDATE", new PdfString(fileName.RevisionDate)));
+
+                pdfDoc.Save(outputF);
+                pdfDoc.Close();
+
+                File.Delete(inputF);
+                //File.Move(found[0], fileName.FileNameWithPath);
             }
         }
     }
@@ -528,8 +556,11 @@ namespace PDFExporter
     {
         public string SheetNumber { get; internal set; }
         public string SheetName { get; internal set; }
+        public string Revision { get; internal set; } = string.Empty;
+        public string Scale { get; internal set; } = "---";
+        public string Date { get; internal set; }
+        public string RevisionDate { get; internal set; } = string.Empty;
         public string FileName { get; internal set; }
-        public string Revision { get; internal set; }
         public string FileNameWithPath { get; internal set; }
 
         internal void GenerateFileName()
