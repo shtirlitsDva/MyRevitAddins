@@ -1,6 +1,6 @@
-﻿namespace DrawingListManager
+﻿namespace MEPUtils.DrawingListManager
 {
-    partial class Form1
+    partial class DrawingListManagerForm
     {
         /// <summary>
         /// Required designer variable.
@@ -28,10 +28,17 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
+            this.SuspendLayout();
+            // 
+            // DrawingListManagerForm
+            // 
+            this.AutoScaleDimensions = new System.Drawing.SizeF(11F, 24F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
+            this.ClientSize = new System.Drawing.Size(1340, 741);
+            this.Name = "DrawingListManagerForm";
             this.Text = "Form1";
+            this.ResumeLayout(false);
+
         }
 
         #endregion

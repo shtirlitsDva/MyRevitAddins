@@ -52,6 +52,21 @@ namespace PDFExporter
             comboBox1.DataSource = sheetSetNames;
             if (index > -1) comboBox1.SelectedIndex = index;
 
+            //Init pages n of nr box
+            if (selectedSheetSet == "Current sheet only")
+            {
+                textBox4.Text = "1";
+            }
+            else
+            {
+                FilteredElementCollector col = new FilteredElementCollector(doc);
+                var sheetSet = col.OfClass(typeof(ViewSheetSet))
+                                  .Where(x => x.Name == selectedSheetSet)
+                                  .Cast<ViewSheetSet>().FirstOrDefault();
+                textBox4.Text = sheetSet.Views.Size.ToString();
+            }
+
+
             //Init export folder path
             pathToExport = mySettings.Default.selectedFolderToExportTo;
             textBox2.Text = pathToExport;
@@ -82,6 +97,20 @@ namespace PDFExporter
         {
             selectedSheetSet = (string)comboBox1.SelectedItem;
             mySettings.Default.selectedSheetSet = selectedSheetSet;
+
+            //Update nr of nr pages
+            if (selectedSheetSet == "Current sheet only")
+            {
+                textBox4.Text = "1";
+            }
+            else
+            {
+                FilteredElementCollector col = new FilteredElementCollector(doc);
+                var sheetSet = col.OfClass(typeof(ViewSheetSet))
+                                  .Where(x => x.Name == selectedSheetSet)
+                                  .Cast<ViewSheetSet>().FirstOrDefault();
+                textBox4.Text = sheetSet.Views.Size.ToString();
+            }
         }
 
         private void PDFExporterForm_FormClosing(object sender, FormClosingEventArgs e)
@@ -118,6 +147,9 @@ namespace PDFExporter
 
             using (Transaction trans = new Transaction(doc))
             {
+                //Update status window
+                textBox8.Text = "Preparing print";
+
                 trans.Start("Print!");
 
                 List<ViewSheet> viewSheetList = new List<ViewSheet>();
@@ -147,6 +179,8 @@ namespace PDFExporter
                 var paperSizes = pm.PaperSizes;
 
                 string title = doc.Title; //<- THIS CAN CAUSE PROBLEMS RECOGNISING THE ORIGINAL FILE NAME
+
+                int sheetCount = 0;
 
                 foreach (ViewSheet sheet in viewSheetList)
                 {
@@ -219,6 +253,10 @@ namespace PDFExporter
                     ps.CurrentPrintSetting = printSetting ?? throw new Exception($"{sheet.Name} does not have a print setting!");
 
                     pm.Apply();
+
+                    //Feedback
+                    sheetCount++;
+                    textBox8.Text = "Sending " + sheetCount;
 
                     pm.SubmitPrint(sheet);
 

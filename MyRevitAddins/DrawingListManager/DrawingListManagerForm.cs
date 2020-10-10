@@ -8,11 +8,11 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace DrawingListManager
+namespace MEPUtils.DrawingListManager
 {
-    public partial class Form1 : Form
+    public partial class DrawingListManagerForm : Form
     {
-        public Form1()
+        public DrawingListManagerForm()
         {
             InitializeComponent();
         }
