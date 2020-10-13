@@ -71,7 +71,12 @@ namespace MEPUtils.DrawingListManager
         private void button3_Click(object sender, EventArgs e)
         {
             dlm.EnumeratePdfFiles(pathToDwgFolder);
-            textBox3.Text = dlm.drwgFileList.Count.ToString();
+            textBox3.Text = dlm.drwgFileNameList.Count.ToString();
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            dlm.ScanRescanFilesAndList(pathToDwgFolder);
         }
     }
 }
