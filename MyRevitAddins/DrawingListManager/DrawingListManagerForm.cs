@@ -77,6 +77,7 @@ namespace MEPUtils.DrawingListManager
         private void button4_Click(object sender, EventArgs e)
         {
             dlm.ScanRescanFilesAndList(pathToDwgFolder);
+            dataGridView1.DataSource = dlm.Data;
         }
     }
 }
