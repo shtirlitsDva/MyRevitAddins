@@ -6,6 +6,9 @@ using System.Text.RegularExpressions;
 using System.Data;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using MsgBox = System.Windows.Forms.MessageBox;
+using Microsoft.Office.Interop.Excel;
+using DataTable = System.Data.DataTable;
 
 namespace MEPUtils.DrawingListManager
 {
@@ -17,9 +20,9 @@ namespace MEPUtils.DrawingListManager
         [STAThread]
         static void Main()
         {
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new DrawingListManagerForm());
+            System.Windows.Forms.Application.EnableVisualStyles();
+            System.Windows.Forms.Application.SetCompatibleTextRenderingDefault(false);
+            System.Windows.Forms.Application.Run(new DrawingListManagerForm());
         }
     }
 
@@ -29,6 +32,12 @@ namespace MEPUtils.DrawingListManager
         public List<Drwg> drwgList;
         public DataTable Data;
         public Field.Fields fs = new Field.Fields();
+
+        private static Microsoft.Office.Interop.Excel.Workbook wb;
+        private static Microsoft.Office.Interop.Excel.Sheets wss;
+        private static Microsoft.Office.Interop.Excel.Worksheet ws;
+        private static Microsoft.Office.Interop.Excel.Application oXL;
+        object misVal = System.Reflection.Missing.Value;
 
         public void EnumeratePdfFiles(string path)
         {
@@ -104,6 +113,34 @@ namespace MEPUtils.DrawingListManager
             #endregion
         }
 
+        internal bool isExcelRunning() => oXL != null;
+
+        internal void ScanExcelFile(string pathToDwgList)
+        {
+            oXL = new Microsoft.Office.Interop.Excel.Application();
+            oXL.Visible = true;
+            oXL.DisplayAlerts = false;
+            wb = oXL.Workbooks.Open(pathToDwgList, 0, false, 5, "", "", false,
+                Microsoft.Office.Interop.Excel.XlPlatform.xlWindows, "", true, false, 0, false, false,
+                Microsoft.Office.Interop.Excel.XlCorruptLoad.xlNormalLoad);
+
+            wss = wb.Worksheets;
+            ws = (Microsoft.Office.Interop.Excel.Worksheet)wss.Item[1];
+
+            Range usedRange = ws.UsedRange;
+            Range myRange = oXL.Range[ws.Cells[1, 1], ws.Cells[4, 5]];
+
+            myRange.Select();
+            MsgBox.Show(myRange.Address);
+
+            wb.Close(true, misVal, misVal);
+            oXL.Quit();
+
+            releaseObject(ws);
+            releaseObject(wb);
+            releaseObject(oXL);
+        }
+
         private void PopulateDataTable()
         {
             foreach (string fileNameWithPath in drwgFileNameList)
@@ -120,6 +157,24 @@ namespace MEPUtils.DrawingListManager
             }
 
             Data.AcceptChanges();
+        }
+
+        private void releaseObject(object obj)
+        {
+            try
+            {
+                System.Runtime.InteropServices.Marshal.ReleaseComObject(obj);
+                obj = null;
+            }
+            catch (Exception ex)
+            {
+                obj = null;
+                MessageBox.Show("Unable to release the Object " + ex.ToString());
+            }
+            finally
+            {
+                GC.Collect();
+            }
         }
     }
 

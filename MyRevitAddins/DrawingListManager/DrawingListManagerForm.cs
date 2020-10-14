@@ -78,13 +78,17 @@ namespace MEPUtils.DrawingListManager
 
         private void button4_Click(object sender, EventArgs e)
         {
+            //Load file name data
             dlm.ScanRescanFilesAndList(pathToDwgFolder);
             dGV1.DataSource = dlm.Data;
 
             foreach (DataGridViewColumn dc in dGV1.Columns)
-            {
                 dc.AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
-            }
+
+            //Load excel data
+            if (dlm.isExcelRunning()) { }
+            else { dlm.ScanExcelFile(pathToDwgList); }
+            
         }
 
         private bool subscribedToCellValueChanged = false;
