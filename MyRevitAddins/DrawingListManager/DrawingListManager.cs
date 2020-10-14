@@ -135,10 +135,6 @@ namespace MEPUtils.DrawingListManager
 
             wb.Close(true, misVal, misVal);
             oXL.Quit();
-
-            releaseObject(ws);
-            releaseObject(wb);
-            releaseObject(oXL);
         }
 
         private void PopulateDataTable()
@@ -174,6 +170,7 @@ namespace MEPUtils.DrawingListManager
             finally
             {
                 GC.Collect();
+                GC.WaitForPendingFinalizers();
             }
         }
     }
