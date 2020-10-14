@@ -28,7 +28,7 @@ namespace MEPUtils.DrawingListManager
         public List<string> drwgFileNameList;
         public List<Drwg> drwgList;
         public DataTable Data;
-        private Field.Fields fs = new Field.Fields();
+        public Field.Fields fs = new Field.Fields();
 
         public void EnumeratePdfFiles(string path)
         {
@@ -61,7 +61,12 @@ namespace MEPUtils.DrawingListManager
 
             #region DataTable Definition
             DataColumn column;
-            
+
+            column = new DataColumn();
+            column.DataType = typeof(bool);
+            column.ColumnName = fs._Select.ColumnName;
+            Data.Columns.Add(column);
+
             column = new DataColumn();
             column.DataType = typeof(string);
             column.ColumnName = fs._Number.ColumnName;
@@ -407,14 +412,10 @@ namespace MEPUtils.DrawingListManager
 
     public enum FieldCat
     {
-        Number,
-        Title,
-        Revision,
-        Scale,
-        Date,
-        RevisionDate,
-        Extension,
-        FileNameFormat
+        None,
+        DrawingProperty,
+        DataGridViewColumnName,
+        FileProperty
     }
 
     public class Field
@@ -427,7 +428,7 @@ namespace MEPUtils.DrawingListManager
         {
             public Number()
             {
-                FieldCat = FieldCat.Number; RegexName = "number"; MetadataName = "DWGNUMBER";
+                FieldCat = FieldCat.DrawingProperty; RegexName = "number"; MetadataName = "DWGNUMBER";
                 ColumnName = "Drwg Nr.";
             }
         }
@@ -435,36 +436,43 @@ namespace MEPUtils.DrawingListManager
         {
             public Title()
             {
-                FieldCat = FieldCat.Title; RegexName = "title"; MetadataName = "DWGTITLE";
+                FieldCat = FieldCat.DrawingProperty; RegexName = "title"; MetadataName = "DWGTITLE";
                 ColumnName = "Drwg Title";
             }
         }
         public class Revision : Field
-        { public Revision() { FieldCat = FieldCat.Revision; RegexName = "revision"; MetadataName = "DWGREVINDEX";
+        { public Revision() { FieldCat = FieldCat.DrawingProperty; RegexName = "revision"; MetadataName = "DWGREVINDEX";
                 ColumnName = "Rev. idx"; }
         }
         public class Extension : Field
         {
-            public Extension() { FieldCat = FieldCat.Extension; RegexName = "extension"; MetadataName = ""; }
+            public Extension() { FieldCat = FieldCat.FileProperty; RegexName = "extension"; MetadataName = ""; }
         }
         public class Scale : Field
         {
-            public Scale() { FieldCat = FieldCat.Scale; RegexName = ""; MetadataName = "DWGSCALE";
+            public Scale() { FieldCat = FieldCat.DrawingProperty; RegexName = ""; MetadataName = "DWGSCALE";
                 ColumnName = "Scale"; }
         }
         public class Date : Field
-        { public Date() { FieldCat = FieldCat.Date; RegexName = ""; MetadataName = "DWGDATE";
+        { public Date() { FieldCat = FieldCat.DrawingProperty; RegexName = ""; MetadataName = "DWGDATE";
                 ColumnName = "Date"; }
         }
         public class RevisionDate : Field
-        { public RevisionDate() { FieldCat = FieldCat.RevisionDate; RegexName = ""; MetadataName = "DWGREVDATE";
+        { public RevisionDate() { FieldCat = FieldCat.DrawingProperty; RegexName = ""; MetadataName = "DWGREVDATE";
                 ColumnName = "Rev. date"; }
+        }
+        public class Selected : Field
+        { public Selected()
+            {
+                FieldCat = FieldCat.DataGridViewColumnName; RegexName = ""; MetadataName = "";
+                ColumnName = "Select";
+            }
         }
         public class FileNameFormat : Field
         {
             public FileNameFormat()
             {
-                FieldCat = FieldCat.FileNameFormat; RegexName = ""; MetadataName = "";
+                FieldCat = FieldCat.DataGridViewColumnName; RegexName = ""; MetadataName = "";
                 ColumnName = "File name format";
             }
         }
@@ -478,6 +486,7 @@ namespace MEPUtils.DrawingListManager
             public Field _Date = new Date();
             public Field _RevisionDate = new RevisionDate();
             public Field _FileNameFormat = new FileNameFormat();
+            public Field _Select = new Selected();
         }
     }
 

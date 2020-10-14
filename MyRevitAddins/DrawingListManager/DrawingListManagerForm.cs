@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using mySettings = MEPUtils.DrawingListManager.Properties.Settings;
+using Color = System.Drawing.Color;
 
 namespace MEPUtils.DrawingListManager
 {
@@ -24,6 +25,7 @@ namespace MEPUtils.DrawingListManager
             InitializeComponent();
             pathToDwgFolder = mySettings.Default.PathToDwgFolder;
             pathToDwgList = mySettings.Default.PathToDwgList;
+            dGV1.DefaultCellStyle.BackColor = DefaultBackColor;
         }
 
         /// <summary>
@@ -77,7 +79,43 @@ namespace MEPUtils.DrawingListManager
         private void button4_Click(object sender, EventArgs e)
         {
             dlm.ScanRescanFilesAndList(pathToDwgFolder);
-            dataGridView1.DataSource = dlm.Data;
+            dGV1.DataSource = dlm.Data;
+
+            foreach (DataGridViewColumn dc in dGV1.Columns)
+            {
+                dc.AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
+            }
+        }
+
+        private bool subscribedToCellValueChanged = false;
+        private void dGV1_DataBindingComplete(object sender, DataGridViewBindingCompleteEventArgs e)
+        {
+            if (!subscribedToCellValueChanged)
+            {
+                dGV1.CellValueChanged += DGV1_CellValueChanged;
+                subscribedToCellValueChanged = true;
+            }
+        }
+
+        Color defBackColor;
+        private void DGV1_CellValueChanged(object sender, DataGridViewCellEventArgs e)
+        {
+            int col = e.ColumnIndex; int row = e.RowIndex;
+
+            //The section where we handle changes to "Select" column
+            if (dGV1.Columns[col].HeaderText == dlm.fs._Select.ColumnName)
+            {
+                bool value = bool.Parse(dGV1.Rows[row].Cells[col].Value.ToString());
+                if (value)
+                {
+                    defBackColor = dGV1.Rows[row].DefaultCellStyle.BackColor;
+                    dGV1.Rows[row].DefaultCellStyle.BackColor = Color.DarkGray;
+                }
+                else
+                {
+                    dGV1.Rows[row].DefaultCellStyle.BackColor = defBackColor;
+                }
+            }
         }
     }
 }
