@@ -4,6 +4,7 @@ using System.Linq;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Data;
+using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using MsgBox = System.Windows.Forms.MessageBox;
@@ -28,16 +29,21 @@ namespace MEPUtils.DrawingListManager
 
     public class DrwgLstMan
     {
+        //Fields for filename analysis
         public List<string> drwgFileNameList;
         public List<Drwg> drwgList;
         public DataTable Data;
         public Field.Fields fs = new Field.Fields();
 
+        //Fields for Excel Interop
         private static Microsoft.Office.Interop.Excel.Workbook wb;
         private static Microsoft.Office.Interop.Excel.Sheets wss;
         private static Microsoft.Office.Interop.Excel.Worksheet ws;
         private static Microsoft.Office.Interop.Excel.Application oXL;
         object misVal = System.Reflection.Missing.Value;
+
+        //Fields for Excel data analysis
+        DataSet ExcelDataSet;
 
         public void EnumeratePdfFiles(string path)
         {
@@ -128,10 +134,78 @@ namespace MEPUtils.DrawingListManager
             ws = (Microsoft.Office.Interop.Excel.Worksheet)wss.Item[1];
 
             Range usedRange = ws.UsedRange;
-            Range myRange = oXL.Range[ws.Cells[1, 1], ws.Cells[4, 5]];
+            int usedRows = usedRange.Rows.Count;
+            int usedCols = usedRange.Columns.Count;
+            int rowStartIdx = 0;
+            //Detect first row of the drawingslist
+            //Assumes that Drawing data starts with a field containing string "Tegningsnr." -- subject to change
+            string firstColumnValue = "Tegningsnr."; //<-- Here be the string that triggers the start of data.
+            for (int row = 1; row < usedRows + 1; row++)
+            {
+                var cellValue = (string)(ws.Cells[row, 1] as Range).Value;
+                if (cellValue == firstColumnValue)
+                { rowStartIdx = row; break; }
+            }
 
-            myRange.Select();
-            MsgBox.Show(myRange.Address);
+            if (rowStartIdx == 0)
+            {
+                MsgBox.Show($"Excel file did not find a cell in the first column\n" +
+                            $"containing the first column keyword: {firstColumnValue}");
+                return;
+            }
+
+            ExcelDataSet = new DataSet("ExcelDrwgData");
+            DataTable table = null;
+
+            //Main loop creating DataTables for DataSet
+            for (int i = rowStartIdx; i < usedRows + 1; i++)
+            {
+                //Detect start of the table
+                var cellValue = (string)(ws.Cells[i, 1] as Range).Value;
+                if (cellValue == firstColumnValue) //Header row detected
+                {
+                    //Add previously made dataTable to dataSet except at the first iteration
+                    if (i != rowStartIdx) ExcelDataSet.Tables.Add(table);
+
+                    //Get the name of DataTable
+                    string nameOfDt = (string)(ws.Cells[i, 2] as Range).Value;
+                    table = new DataTable(nameOfDt);
+
+                    //Add the header values to the column names
+                    DataColumn column;
+                    for (int j = 1; j < usedCols + 1; j++)
+                    {
+                        cellValue = (string)(ws.Cells[i, j] as Range).Value;
+                        column = new DataColumn();
+                        column.DataType = typeof(string);
+                        column.ColumnName = cellValue;
+                        table.Columns.Add(column);
+                        //MsgBox.Show(cellValue);
+                    }
+                }
+                else
+                {
+                    DataRow row = table.NewRow();
+
+                    for (int j = 1; j < usedCols + 1; j++)
+                    {
+                        string value;
+                        var cellValueRaw = (ws.Cells[i, j] as Range).Value;
+                        if (cellValueRaw == null) value = "";
+                        else if (cellValueRaw is string) value = (string)cellValueRaw;
+                        else { value = cellValueRaw.ToString(); }
+                        row[j - 1] = value;
+                    }
+                    table.Rows.Add(row);
+                }
+            }
+            //Add last made data table to data set.
+            ExcelDataSet.Tables.Add(table);
+
+            //Range myRange = oXL.Range[ws.Cells[1, 1], ws.Cells[4, 5]];
+
+            //myRange.Select();
+            //MsgBox.Show(myRange.Address);
 
             wb.Close(true, misVal, misVal);
             oXL.Quit();
@@ -153,25 +227,6 @@ namespace MEPUtils.DrawingListManager
             }
 
             Data.AcceptChanges();
-        }
-
-        private void releaseObject(object obj)
-        {
-            try
-            {
-                System.Runtime.InteropServices.Marshal.ReleaseComObject(obj);
-                obj = null;
-            }
-            catch (Exception ex)
-            {
-                obj = null;
-                MessageBox.Show("Unable to release the Object " + ex.ToString());
-            }
-            finally
-            {
-                GC.Collect();
-                GC.WaitForPendingFinalizers();
-            }
         }
     }
 
@@ -201,14 +256,16 @@ namespace MEPUtils.DrawingListManager
         public string DrwgFileNameFormat;
         #endregion
 
-        private List<DrwgNamingFormat> NamingFormats = new List<DrwgNamingFormat> //Except Other format -- it must not be included
-                                    {  new DrwgNamingFormat.VeksNoRevision(), new DrwgNamingFormat.VeksWithRevision(),
-                                       new DrwgNamingFormat.DRI_BygNoRevision(), new DrwgNamingFormat.DRI_BygWithRevision(),
-                                       new DrwgNamingFormat.STD_NoRevision(), new DrwgNamingFormat.STD_WithRevision() };
+        public List<DrwgNamingFormat> NamingFormats;
+        //   new List<DrwgNamingFormat> //Except Other format -- it must not be included
+        //{  new DrwgNamingFormat.VeksNoRevision(), new DrwgNamingFormat.VeksWithRevision(),
+        //   new DrwgNamingFormat.DRI_BygNoRevision(), new DrwgNamingFormat.DRI_BygWithRevision(),
+        //   new DrwgNamingFormat.STD_NoRevision(), new DrwgNamingFormat.STD_WithRevision() };
 
         public Drwg(string fileNameWithPath)
         {
             Fields = new Field.Fields();
+            NamingFormats = new DrwgNamingFormat().GetDrwgNamingFormatListExceptOther();
 
             FileNameWithPath = fileNameWithPath;
             FileName = Path.GetFileName(FileNameWithPath);
@@ -238,8 +295,8 @@ namespace MEPUtils.DrawingListManager
             return count;
         }
 
-        private FileNameFormat DetermineFormat(string fileName) =>
-            NamingFormats.Where(x => x.TestFormat(fileName)).Select(x => x.Format).FirstOrDefault();
+        private FileNameFormat DetermineFormat(string fileName)
+            => NamingFormats.Where(x => x.TestFormat(fileName)).Select(x => x.Format).FirstOrDefault();
 
         private void PopulateDrwgData(DrwgNamingFormat Dnf, string FileName)
         {
@@ -450,6 +507,25 @@ namespace MEPUtils.DrawingListManager
                 DrwgRevDateFromMeta = false;
             }
         }
+
+        public List<DrwgNamingFormat> GetDrwgNamingFormatListExceptOther()
+        {
+            List<DrwgNamingFormat> list = new List<DrwgNamingFormat>();
+
+            //Field is the base class from which are subclasses are derived
+            var dnfType = typeof(DrwgNamingFormat);
+            //We also need the "Fields" type because it is also a subclas of Field, but should not be in the list
+            var otherType = typeof(DrwgNamingFormat.Other);
+
+            var subFieldTypes = dnfType.Assembly.DefinedTypes
+                .Where(x => dnfType.IsAssignableFrom(x) && x != dnfType && x != otherType)
+                .ToList();
+
+            foreach (var field in subFieldTypes)
+                list.Add((DrwgNamingFormat)Activator.CreateInstance(field));
+
+            return list;
+        }
     }
     public enum FileNameFormat
     {
@@ -473,15 +549,17 @@ namespace MEPUtils.DrawingListManager
     public class Field
     {
         public FieldCat FieldCat { get; private set; }
-        public string RegexName { get; private set; }
-        public string MetadataName { get; private set; }
+        public string RegexName { get; private set; } = "";
+        public string MetadataName { get; private set; } = "";
         public string ColumnName { get; private set; }
+        public string ExcelColumnName { get; set; }
+        public int ExcelColumnIdx { get; private set; } = 0;
         public class Number : Field
         {
             public Number()
             {
                 FieldCat = FieldCat.DrawingProperty; RegexName = "number"; MetadataName = "DWGNUMBER";
-                ColumnName = "Drwg Nr.";
+                ColumnName = "Drwg Nr."; ExcelColumnIdx = 1;
             }
         }
         public class Title : Field
@@ -489,34 +567,50 @@ namespace MEPUtils.DrawingListManager
             public Title()
             {
                 FieldCat = FieldCat.DrawingProperty; RegexName = "title"; MetadataName = "DWGTITLE";
-                ColumnName = "Drwg Title";
+                ColumnName = "Drwg Title"; ExcelColumnIdx = 2;
             }
         }
         public class Revision : Field
-        { public Revision() { FieldCat = FieldCat.DrawingProperty; RegexName = "revision"; MetadataName = "DWGREVINDEX";
-                ColumnName = "Rev. idx"; }
+        {
+            public Revision()
+            {
+                FieldCat = FieldCat.DrawingProperty; RegexName = "revision"; MetadataName = "DWGREVINDEX";
+                ColumnName = "Rev. idx"; ExcelColumnIdx = 5;
+            }
         }
         public class Extension : Field
         {
-            public Extension() { FieldCat = FieldCat.FileProperty; RegexName = "extension"; MetadataName = ""; }
+            public Extension() { FieldCat = FieldCat.FileProperty; RegexName = "extension"; }
         }
         public class Scale : Field
         {
-            public Scale() { FieldCat = FieldCat.DrawingProperty; RegexName = ""; MetadataName = "DWGSCALE";
-                ColumnName = "Scale"; }
+            public Scale()
+            {
+                FieldCat = FieldCat.DrawingProperty; MetadataName = "DWGSCALE";
+                ColumnName = "Scale"; ExcelColumnIdx = 3;
+            }
         }
         public class Date : Field
-        { public Date() { FieldCat = FieldCat.DrawingProperty; RegexName = ""; MetadataName = "DWGDATE";
-                ColumnName = "Date"; }
+        {
+            public Date()
+            {
+                FieldCat = FieldCat.DrawingProperty; MetadataName = "DWGDATE";
+                ColumnName = "Date"; ExcelColumnIdx = 4;
+            }
         }
         public class RevisionDate : Field
-        { public RevisionDate() { FieldCat = FieldCat.DrawingProperty; RegexName = ""; MetadataName = "DWGREVDATE";
-                ColumnName = "Rev. date"; }
+        {
+            public RevisionDate()
+            {
+                FieldCat = FieldCat.DrawingProperty; MetadataName = "DWGREVDATE";
+                ColumnName = "Rev. date"; ExcelColumnIdx = 6;
+            }
         }
         public class Selected : Field
-        { public Selected()
+        {
+            public Selected()
             {
-                FieldCat = FieldCat.DataGridViewColumnName; RegexName = ""; MetadataName = "";
+                FieldCat = FieldCat.DataGridViewColumnName;
                 ColumnName = "Select";
             }
         }
@@ -524,12 +618,13 @@ namespace MEPUtils.DrawingListManager
         {
             public FileNameFormat()
             {
-                FieldCat = FieldCat.DataGridViewColumnName; RegexName = ""; MetadataName = "";
+                FieldCat = FieldCat.DataGridViewColumnName;
                 ColumnName = "File name format";
             }
         }
         public class Fields
         {
+            //Remember to add new "Field"s here!
             public Field _Number = new Number();
             public Field _Title = new Title();
             public Field _Revision = new Revision();
@@ -539,8 +634,31 @@ namespace MEPUtils.DrawingListManager
             public Field _RevisionDate = new RevisionDate();
             public Field _FileNameFormat = new FileNameFormat();
             public Field _Select = new Selected();
+            /// <summary>
+            /// Returns the correct Field for the specified columnindex in the excel.
+            /// </summary>
+            /// <param name="colIdx"></param>
+            /// <returns></returns>
+            public Field GetExcelColumnField(int colIdx)
+            {
+                List<Field> FieldsCollection = new List<Field>();
+
+                //Field is the base class from which are subclasses are derived
+                var fieldType = typeof(Field);
+                //We also need the "Fields" type because it is also a subclas of Field, but should not be in the list
+                var fieldsType = typeof(Fields);
+
+                var subFieldTypes = fieldType.Assembly.DefinedTypes
+                    .Where(x => fieldType.IsAssignableFrom(x) && x != fieldType && x != fieldsType)
+                    .ToList();
+
+                foreach (var field in subFieldTypes)
+                    FieldsCollection.Add((Field)Activator.CreateInstance(field));
+
+                return FieldsCollection.Where(x => x.ExcelColumnIdx == colIdx).FirstOrDefault();
+            }
         }
     }
 
-    
+
 }

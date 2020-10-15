@@ -92,7 +92,6 @@ namespace MEPUtils.DrawingListManager
             //https://stackoverflow.com/questions/25134024/clean-up-excel-interop-objects-with-idisposable/25135685#25135685
             GC.Collect();
             GC.WaitForPendingFinalizers();
-
         }
 
         private bool subscribedToCellValueChanged = false;
