@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using MoreLinq;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Data;
@@ -65,15 +66,11 @@ namespace MEPUtils.DrawingListManager
                     MessageBox.Show("No valid files found at specified location!", "Error!", buttons);
                 }
             }
-
-            BuildDataTable();
-
-            PopulateDataTable();
         }
         /// <summary>
         /// Builds the DataTable to store the data about the pdf files
         /// </summary>
-        private void BuildDataTable()
+        internal void BuildFileNameDataTable()
         {
             FileNameData = new DataTable("DrwgFileData");
 
@@ -121,8 +118,11 @@ namespace MEPUtils.DrawingListManager
             FileNameData.Columns.Add(column);
             #endregion
         }
+
+        
+
         internal bool isExcelRunning() => oXL != null;
-        private void PopulateDataTable()
+        internal void PopulateFileNameDataTable()
         {
             foreach (string fileNameWithPath in drwgFileNameList)
             {
@@ -172,6 +172,13 @@ namespace MEPUtils.DrawingListManager
                 return;
             }
 
+            //int lastColIdx = fs.GetAllFields().MaxBy(x => x.ExcelColumnIdx).Select(x => x.ExcelColumnIdx).FirstOrDefault();
+            //Range drwgUsedRange = oXL.Range[ws.Cells[rowStartIdx, 1], ws.Cells[usedRows, lastColIdx]];
+
+            //myRange.Select();
+            //MsgBox.Show(myRange.Address);
+
+            #region BuildDataTableFromExcel
             ExcelDataSet = new DataSet("ExcelDrwgData");
             DataTable table = null;
 
@@ -219,14 +226,29 @@ namespace MEPUtils.DrawingListManager
             }
             //Add last made data table to data set.
             ExcelDataSet.Tables.Add(table);
-
-            //Range myRange = oXL.Range[ws.Cells[1, 1], ws.Cells[4, 5]];
-
-            //myRange.Select();
-            //MsgBox.Show(myRange.Address);
+            ExcelDataSet.AcceptChanges();
+            #endregion
 
             wb.Close(true, misVal, misVal);
             oXL.Quit();
+        }
+        internal void PopulateDrwgDataFromExcel()
+        {
+            foreach (Drwg drwg in drwgList)
+            {
+                string expr = $"{fs._Number.ExcelColumnName} = {drwg.DrwgNumberFromFileName}";
+                var foundRows = GetRowsBySelectQuery(expr);
+            }
+        }
+        private List<DataRow> GetRowsBySelectQuery(string expr)
+        {
+            List<DataRow> foundRows = new List<DataRow>();
+            foreach (DataTable table in ExcelDataSet.Tables)
+            {
+                var result = table.Select(expr).ToList();
+                foundRows.AddRange(result);
+            }
+            return foundRows;
         }
         internal void ReadMetadataData(string path)
         {
@@ -284,7 +306,7 @@ namespace MEPUtils.DrawingListManager
                 PdfDocument document = null;
                 try { document = PdfReader.Open(filePath); }
                 catch (Exception) { continue; }
-                
+
                 var props = document.Info.Elements;
 
                 if (fields.Any(x => props.ContainsKey("/" + x.MetadataName)))
@@ -333,10 +355,6 @@ namespace MEPUtils.DrawingListManager
         #endregion
 
         public List<DrwgNamingFormat> NamingFormats;
-        //   new List<DrwgNamingFormat> //Except Other format -- it must not be included
-        //{  new DrwgNamingFormat.VeksNoRevision(), new DrwgNamingFormat.VeksWithRevision(),
-        //   new DrwgNamingFormat.DRI_BygNoRevision(), new DrwgNamingFormat.DRI_BygWithRevision(),
-        //   new DrwgNamingFormat.STD_NoRevision(), new DrwgNamingFormat.STD_WithRevision() };
 
         public Drwg(string fileNameWithPath)
         {
@@ -715,9 +733,10 @@ namespace MEPUtils.DrawingListManager
             /// </summary>
             /// <param name="colIdx"></param>
             /// <returns></returns>
-            public Field GetExcelColumnField(int colIdx)
+
+            public HashSet<Field> GetAllFields()
             {
-                List<Field> FieldsCollection = new List<Field>();
+                HashSet<Field> FieldsCollection = new HashSet<Field>();
 
                 //Field is the base class from which are subclasses are derived
                 var fieldType = typeof(Field);
@@ -731,8 +750,12 @@ namespace MEPUtils.DrawingListManager
                 foreach (var field in subFieldTypes)
                     FieldsCollection.Add((Field)Activator.CreateInstance(field));
 
-                return FieldsCollection.Where(x => x.ExcelColumnIdx == colIdx).FirstOrDefault();
+                return FieldsCollection;
             }
+
+            public Field GetExcelColumnField(int colIdx) =>
+                new Fields().GetAllFields().Where(x => x.ExcelColumnIdx == colIdx).FirstOrDefault();
+
         }
     }
 

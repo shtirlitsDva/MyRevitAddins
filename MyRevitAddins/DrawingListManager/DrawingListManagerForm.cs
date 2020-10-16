@@ -80,11 +80,14 @@ namespace MEPUtils.DrawingListManager
         {
             //Load file name data
             dlm.ScanRescanFilesAndList(pathToDwgFolder);
+            dlm.BuildFileNameDataTable();
+            dlm.PopulateFileNameDataTable();
             dGV1.DataSource = dlm.FileNameData;
 
             foreach (DataGridViewColumn dc in dGV1.Columns)
                 dc.AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
 
+            #region LoadExcelDataAndGC
             //Load excel data
             if (dlm.isExcelRunning()) { }
             else { dlm.ScanExcelFile(pathToDwgList); }
@@ -93,14 +96,21 @@ namespace MEPUtils.DrawingListManager
             //https://stackoverflow.com/questions/25134024/clean-up-excel-interop-objects-with-idisposable/25135685#25135685
             GC.Collect();
             GC.WaitForPendingFinalizers();
+            #endregion
+
+            //Populate drwg data by data from Excel
+            dlm.PopulateDrwgDataFromExcel();
 
             //Load data from metadata
             dlm.ReadMetadataData(pathToDwgFolder);
 
-            //Dispose of Excel objects
+            //Run GC just to be sure that the pdf pointers are gone
             //https://stackoverflow.com/questions/25134024/clean-up-excel-interop-objects-with-idisposable/25135685#25135685
             GC.Collect();
             GC.WaitForPendingFinalizers();
+
+            //Analyze data
+
         }
 
         private bool subscribedToCellValueChanged = false;
