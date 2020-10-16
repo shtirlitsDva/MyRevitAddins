@@ -80,7 +80,7 @@ namespace MEPUtils.DrawingListManager
         {
             //Load file name data
             dlm.ScanRescanFilesAndList(pathToDwgFolder);
-            dGV1.DataSource = dlm.Data;
+            dGV1.DataSource = dlm.FileNameData;
 
             foreach (DataGridViewColumn dc in dGV1.Columns)
                 dc.AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
@@ -89,6 +89,15 @@ namespace MEPUtils.DrawingListManager
             if (dlm.isExcelRunning()) { }
             else { dlm.ScanExcelFile(pathToDwgList); }
 
+            //Dispose of Excel objects
+            //https://stackoverflow.com/questions/25134024/clean-up-excel-interop-objects-with-idisposable/25135685#25135685
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+
+            //Load data from metadata
+            dlm.ReadMetadataData(pathToDwgFolder);
+
+            //Dispose of Excel objects
             //https://stackoverflow.com/questions/25134024/clean-up-excel-interop-objects-with-idisposable/25135685#25135685
             GC.Collect();
             GC.WaitForPendingFinalizers();

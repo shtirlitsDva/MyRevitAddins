@@ -10,6 +10,8 @@ using System.Windows.Forms;
 using MsgBox = System.Windows.Forms.MessageBox;
 using Microsoft.Office.Interop.Excel;
 using DataTable = System.Data.DataTable;
+using PdfSharp.Pdf;
+using PdfSharp.Pdf.IO;
 
 namespace MEPUtils.DrawingListManager
 {
@@ -32,7 +34,7 @@ namespace MEPUtils.DrawingListManager
         //Fields for filename analysis
         public List<string> drwgFileNameList;
         public List<Drwg> drwgList;
-        public DataTable Data;
+        public DataTable FileNameData;
         public Field.Fields fs = new Field.Fields();
 
         //Fields for Excel Interop
@@ -45,11 +47,13 @@ namespace MEPUtils.DrawingListManager
         //Fields for Excel data analysis
         DataSet ExcelDataSet;
 
+        //Fields for Metadata data
+        public DataTable MetadataData;
+
         public void EnumeratePdfFiles(string path)
         {
             drwgFileNameList = Directory.EnumerateFiles(path, "*.pdf", SearchOption.TopDirectoryOnly).ToList();
         }
-
         public void ScanRescanFilesAndList(string path)
         {
             if (drwgFileNameList.Count < 1 || drwgFileNameList == null)
@@ -66,13 +70,12 @@ namespace MEPUtils.DrawingListManager
 
             PopulateDataTable();
         }
-
         /// <summary>
         /// Builds the DataTable to store the data about the pdf files
         /// </summary>
         private void BuildDataTable()
         {
-            Data = new DataTable("DrwgFileData");
+            FileNameData = new DataTable("DrwgFileData");
 
             #region DataTable Definition
             DataColumn column;
@@ -80,47 +83,62 @@ namespace MEPUtils.DrawingListManager
             column = new DataColumn();
             column.DataType = typeof(bool);
             column.ColumnName = fs._Select.ColumnName;
-            Data.Columns.Add(column);
+            FileNameData.Columns.Add(column);
 
             column = new DataColumn();
             column.DataType = typeof(string);
             column.ColumnName = fs._Number.ColumnName;
-            Data.Columns.Add(column);
+            FileNameData.Columns.Add(column);
 
             column = new DataColumn();
             column.DataType = typeof(string);
             column.ColumnName = fs._Title.ColumnName;
-            Data.Columns.Add(column);
+            FileNameData.Columns.Add(column);
 
             column = new DataColumn();
             column.DataType = typeof(string);
             column.ColumnName = fs._FileNameFormat.ColumnName;
-            Data.Columns.Add(column);
+            FileNameData.Columns.Add(column);
 
             column = new DataColumn();
             column.DataType = typeof(string);
             column.ColumnName = fs._Scale.ColumnName;
-            Data.Columns.Add(column);
+            FileNameData.Columns.Add(column);
 
             column = new DataColumn();
             column.DataType = typeof(string);
             column.ColumnName = fs._Date.ColumnName;
-            Data.Columns.Add(column);
+            FileNameData.Columns.Add(column);
 
             column = new DataColumn();
             column.DataType = typeof(string);
             column.ColumnName = fs._Revision.ColumnName;
-            Data.Columns.Add(column);
+            FileNameData.Columns.Add(column);
 
             column = new DataColumn();
             column.DataType = typeof(string);
             column.ColumnName = fs._RevisionDate.ColumnName;
-            Data.Columns.Add(column);
+            FileNameData.Columns.Add(column);
             #endregion
         }
-
         internal bool isExcelRunning() => oXL != null;
+        private void PopulateDataTable()
+        {
+            foreach (string fileNameWithPath in drwgFileNameList)
+            {
+                Drwg drwg = new Drwg(fileNameWithPath);
+                DataRow row = FileNameData.NewRow();
 
+                row[fs._Number.ColumnName] = drwg.DrwgNumberFromFileName;
+                row[fs._Title.ColumnName] = drwg.DrwgTitleFromFileName;
+                row[fs._FileNameFormat.ColumnName] = drwg.DrwgFileNameFormat;
+                row[fs._Revision.ColumnName] = drwg.DrwgRevFromFileName;
+
+                FileNameData.Rows.Add(row);
+            }
+
+            FileNameData.AcceptChanges();
+        }
         internal void ScanExcelFile(string pathToDwgList)
         {
             oXL = new Microsoft.Office.Interop.Excel.Application();
@@ -210,23 +228,81 @@ namespace MEPUtils.DrawingListManager
             wb.Close(true, misVal, misVal);
             oXL.Quit();
         }
-
-        private void PopulateDataTable()
+        internal void ReadMetadataData(string path)
         {
-            foreach (string fileNameWithPath in drwgFileNameList)
+            if (drwgFileNameList.Count < 1 || drwgFileNameList == null)
             {
-                Drwg drwg = new Drwg(fileNameWithPath);
-                DataRow row = Data.NewRow();
-
-                row[fs._Number.ColumnName] = drwg.DrwgNumberFromFileName;
-                row[fs._Title.ColumnName] = drwg.DrwgTitleFromFileName;
-                row[fs._FileNameFormat.ColumnName] = drwg.DrwgFileNameFormat;
-                row[fs._Revision.ColumnName] = drwg.DrwgRevFromFileName;
-
-                Data.Rows.Add(row);
+                drwgFileNameList = Directory.EnumerateFiles(path, "*.pdf", SearchOption.TopDirectoryOnly).ToList();
+                if (drwgFileNameList.Count < 1 || drwgFileNameList == null)
+                {
+                    MessageBoxButtons buttons = MessageBoxButtons.OK;
+                    MessageBox.Show("No valid files found at specified location!", "Error!", buttons);
+                }
             }
 
-            Data.AcceptChanges();
+            MetadataData = new DataTable("MetadataData");
+
+            #region DataTable Definition
+            DataColumn column;
+
+            column = new DataColumn();
+            column.DataType = typeof(string);
+            column.ColumnName = fs._Number.MetadataName;
+            MetadataData.Columns.Add(column);
+
+            column = new DataColumn();
+            column.DataType = typeof(string);
+            column.ColumnName = fs._Title.MetadataName;
+            MetadataData.Columns.Add(column);
+
+            column = new DataColumn();
+            column.DataType = typeof(string);
+            column.ColumnName = fs._Scale.MetadataName;
+            MetadataData.Columns.Add(column);
+
+            column = new DataColumn();
+            column.DataType = typeof(string);
+            column.ColumnName = fs._Date.MetadataName;
+            MetadataData.Columns.Add(column);
+
+            column = new DataColumn();
+            column.DataType = typeof(string);
+            column.ColumnName = fs._Revision.MetadataName;
+            MetadataData.Columns.Add(column);
+
+            column = new DataColumn();
+            column.DataType = typeof(string);
+            column.ColumnName = fs._RevisionDate.MetadataName;
+            MetadataData.Columns.Add(column);
+            #endregion
+
+            List<Field> fields = new List<Field>()
+                    { fs._Number, fs._Title, fs._Scale, fs._Date, fs._Revision, fs._RevisionDate };
+
+            foreach (string filePath in drwgFileNameList)
+            {
+                PdfDocument document = null;
+                try { document = PdfReader.Open(filePath); }
+                catch (Exception) { continue; }
+                
+                var props = document.Info.Elements;
+
+                if (fields.Any(x => props.ContainsKey("/" + x.MetadataName)))
+                {
+                    DataRow row = MetadataData.NewRow();
+                    foreach (Field field in fields)
+                    {
+                        if (props.ContainsKey("/" + field.MetadataName))
+                        {
+                            string s = props["/" + field.MetadataName].ToString();
+                            row[field.MetadataName] = s.Substring(1, s.Length - 2);
+                        }
+                    }
+                    MetadataData.Rows.Add(row);
+                }
+                document.Close();
+            }
+            MetadataData.AcceptChanges();
         }
     }
 
