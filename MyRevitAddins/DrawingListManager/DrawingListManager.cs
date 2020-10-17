@@ -118,9 +118,6 @@ namespace MEPUtils.DrawingListManager
             FileNameData.Columns.Add(column);
             #endregion
         }
-
-        
-
         internal bool isExcelRunning() => oXL != null;
         internal void PopulateFileNameDataTable()
         {
@@ -203,7 +200,7 @@ namespace MEPUtils.DrawingListManager
                         cellValue = (string)(ws.Cells[i, j] as Range).Value;
                         column = new DataColumn();
                         column.DataType = typeof(string);
-                        column.ColumnName = cellValue;
+                        column.ColumnName = fs.GetExcelColumnField(j).ColumnName;
                         table.Columns.Add(column);
                         //MsgBox.Show(cellValue);
                     }
@@ -236,17 +233,25 @@ namespace MEPUtils.DrawingListManager
         {
             foreach (Drwg drwg in drwgList)
             {
-                string expr = $"{fs._Number.ExcelColumnName} = {drwg.DrwgNumberFromFileName}";
-                var foundRows = GetRowsBySelectQuery(expr);
+                var foundRows = GetRowsBySelectQuery(drwg);
+
+                string reconstructedFileName;
+                if (drwg.DrwgRevFromFileName)
+                if (foundRows.Count > 1) throw new Exception($"Drwg {drwg.DrwgNumberFromFileName}")
             }
         }
-        private List<DataRow> GetRowsBySelectQuery(string expr)
+        private List<DataRow> GetRowsBySelectQuery(Drwg drwg)
         {
             List<DataRow> foundRows = new List<DataRow>();
             foreach (DataTable table in ExcelDataSet.Tables)
             {
-                var result = table.Select(expr).ToList();
-                foundRows.AddRange(result);
+                var query = table.AsEnumerable()
+                    .Where(x => x.Field<string>(fs._Number.ColumnName) == drwg.DrwgNumberFromFileName)
+                    .Where(x => x.Field<string>(fs._Title.ColumnName) == drwg.DrwgTitleFromFileName)
+                    .Where(x => x.Field<string>(fs._Revision.ColumnName) == drwg.DrwgRevFromFileName)
+                    .ToList();
+
+                foundRows.AddRange(query);
             }
             return foundRows;
         }
@@ -339,16 +344,24 @@ namespace MEPUtils.DrawingListManager
         Field.Fields Fields;
 
         public string DrwgNumberFromFileName;
+        public string DrwgNumberFromExcel;
         public string DrwgNumberFromMeta;
 
         public string DrwgTitleFromFileName;
+        public string DrwgTitleFromExcel;
         public string DrwgTitleFromMeta;
 
         public string DrwgRevFromFileName;
+        public string DrwgRevFromExcel;
         public string DrwgRevFromMeta;
 
+        public string DrwgScaleFromExcel;
         public string DrwgScaleFromMeta;
+
+        public string DrwgDateFromExcel;
         public string DrwgDateFromMeta;
+
+        public string DrwgRevDateFromExcel;
         public string DrwgRevDateFromMeta;
 
         public string DrwgFileNameFormat;
@@ -646,7 +659,6 @@ namespace MEPUtils.DrawingListManager
         public string RegexName { get; private set; } = "";
         public string MetadataName { get; private set; } = "";
         public string ColumnName { get; private set; }
-        public string ExcelColumnName { get; set; }
         public int ExcelColumnIdx { get; private set; } = 0;
         public class Number : Field
         {
@@ -758,6 +770,4 @@ namespace MEPUtils.DrawingListManager
 
         }
     }
-
-
 }
