@@ -108,7 +108,22 @@ namespace MEPUtils.DrawingListManager
             dlm.PopulateDrwgDataFromMetadata();
             #endregion
 
+            StringBuilder sb = new StringBuilder();
             //Analyze data
+            foreach (Drwg drwg in dlm.drwgList)
+            {
+                drwg.CalculateState();
+            }
+
+            //Group all states and list them
+            //var query = dlm.drwgList.GroupBy(x => x.State);
+            //foreach (var gr in query) sb.AppendLine($"{(int)gr.Key} - {gr.Key}");
+
+            //Just for fun list all states
+            //for (int val = 0; val <= 16385; val++)
+            //    sb.AppendLine($"{val} - {(Drwg.StateFlags)val}");
+
+            Output.OutputWriter(sb);
 
         }
 

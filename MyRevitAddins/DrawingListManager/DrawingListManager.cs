@@ -137,7 +137,7 @@ namespace MEPUtils.DrawingListManager
             }
             FileNameData.AcceptChanges();
         }
-        
+
         internal void ScanExcelFile(string pathToDwgList)
         {
             //Fields for Excel Interop
@@ -265,7 +265,7 @@ namespace MEPUtils.DrawingListManager
 
             //Build expression to use Table.Select
             string number = drwg.DrwgNumberFromFileName;
-            string title = drwg.DrwgTitleFromFileName.Replace("'","''");
+            string title = drwg.DrwgTitleFromFileName.Replace("'", "''");
             string rev = drwg.DrwgRevFromFileName;
             List<string> exprlist = new List<string>();
             exprlist.Add($"[{fs._Number.ColumnName}] = '{number}'");
@@ -387,6 +387,8 @@ namespace MEPUtils.DrawingListManager
                 }
             }
         }
+
+        
     }
 
     public class Drwg
@@ -420,6 +422,8 @@ namespace MEPUtils.DrawingListManager
         public string DrwgRevDateFromExcel = string.Empty;
         public string DrwgRevDateFromMeta = string.Empty;
 
+        internal StateFlags State;
+
         public string DrwgFileNameFormat = string.Empty;
         #endregion
 
@@ -444,7 +448,6 @@ namespace MEPUtils.DrawingListManager
             if (Format == FileNameFormat.Other) Dnf = new DrwgNamingFormat.Other();
             else Dnf = NamingFormats.Where(x => x.Format == Format).FirstOrDefault();
         }
-
         private int TestFormatsForMultipleMatches(string fileName)
         {
             int count = 0;
@@ -454,10 +457,8 @@ namespace MEPUtils.DrawingListManager
             }
             return count;
         }
-
         private FileNameFormat DetermineFormat(string fileName)
             => NamingFormats.Where(x => x.TestFormat(fileName)).Select(x => x.Format).FirstOrDefault();
-
         internal void PopulateDrwgDataFromFileName()
         {
             DrwgFileNameFormat = Dnf.DrwgFileNameFormatDescription;
@@ -473,6 +474,52 @@ namespace MEPUtils.DrawingListManager
                 DrwgTitleFromFileName = match.Groups[Fields._Title.RegexName].Value ?? "";
                 DrwgRevFromFileName = match.Groups[Fields._Revision.RegexName].Value ?? "";
             }
+        }
+        internal void CalculateState()
+        {
+            StateFlags Calc(string testValue, StateFlags flag)
+            {
+                if (!testValue.IsNullOrEmpty()) return flag;
+                else return StateFlags.None;
+            }
+            StateFlags temp = 0;
+            temp |= Calc(DrwgNumberFromFileName, StateFlags.NumberFromFileName);
+            temp |= Calc(DrwgNumberFromExcel, StateFlags.NumberFromExcel);
+            temp |= Calc(DrwgNumberFromMeta, StateFlags.NumberFromMeta);
+            temp |= Calc(DrwgTitleFromFileName, StateFlags.TitleFromFileName);
+            temp |= Calc(DrwgTitleFromExcel, StateFlags.TitleFromExcel);
+            temp |= Calc(DrwgTitleFromMeta, StateFlags.TitleFromMeta);
+            temp |= Calc(DrwgRevFromFileName, StateFlags.RevFromFileName);
+            temp |= Calc(DrwgRevFromExcel, StateFlags.RevFromExcel);
+            temp |= Calc(DrwgRevFromMeta, StateFlags.RevFromMeta);
+            temp |= Calc(DrwgScaleFromExcel, StateFlags.ScaleFromExcel);
+            temp |= Calc(DrwgScaleFromMeta, StateFlags.ScaleFromMeta);
+            temp |= Calc(DrwgDateFromExcel, StateFlags.DateFromExcel);
+            temp |= Calc(DrwgDateFromMeta, StateFlags.DateFromMeta);
+            temp |= Calc(DrwgRevDateFromExcel, StateFlags.RevDateFromExcel);
+            temp |= Calc(DrwgRevDateFromMeta, StateFlags.RevDateFromMeta);
+            State = temp;
+        }
+
+        [Flags]
+        internal enum StateFlags
+        {
+            None = 0,
+            NumberFromFileName = 1,
+            NumberFromExcel = 2,
+            NumberFromMeta = 4,
+            TitleFromFileName = 8,
+            TitleFromExcel = 16,
+            TitleFromMeta = 32,
+            RevFromFileName = 64,
+            RevFromExcel = 128,
+            RevFromMeta = 256,
+            ScaleFromExcel = 512,
+            ScaleFromMeta = 1024,
+            DateFromExcel = 2048,
+            DateFromMeta = 4096,
+            RevDateFromExcel = 8192,
+            RevDateFromMeta = 16384
         }
     }
 
