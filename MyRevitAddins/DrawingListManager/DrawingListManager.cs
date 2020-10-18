@@ -137,7 +137,7 @@ namespace MEPUtils.DrawingListManager
             }
             FileNameData.AcceptChanges();
         }
-
+        
         internal void ScanExcelFile(string pathToDwgList)
         {
             //Fields for Excel Interop
@@ -237,6 +237,7 @@ namespace MEPUtils.DrawingListManager
             wb.Close(true, misVal, misVal);
             oXL.Quit();
         }
+
         internal void PopulateDrwgDataFromExcel()
         {
             foreach (Drwg drwg in drwgList)
@@ -262,17 +263,31 @@ namespace MEPUtils.DrawingListManager
         {
             HashSet<DataRow> foundRows = new HashSet<DataRow>();
 
-            //Local function to collate code
-            EnumerableRowCollection<DataRow> query(DataTable table)
-            {
-                return table.AsEnumerable()
-                        .Where(x => x.Field<string>(fs._Number.ColumnName) == drwg.DrwgNumberFromFileName)
-                        .Where(x => x.Field<string>(fs._Title.ColumnName) == drwg.DrwgTitleFromFileName)
-                        .Where(x => x.Field<string>(fs._Revision.ColumnName) == drwg.DrwgRevFromFileName);
-            }
+            //Build expression to use Table.Select
+            string number = drwg.DrwgNumberFromFileName;
+            string title = drwg.DrwgTitleFromFileName.Replace("'","''");
+            string rev = drwg.DrwgRevFromFileName;
+            List<string> exprlist = new List<string>();
+            exprlist.Add($"[{fs._Number.ColumnName}] = '{number}'");
+            //exprlist.Add($"[{fs._Title.ColumnName}] = '{title}'"); <-- Too many problems with non-matching titles
+            if (!rev.IsNullOrEmpty()) exprlist.Add($"[{fs._Revision.ColumnName}] = '{rev}'");
+            string expr = string.Join(" AND ", exprlist);
 
-            if (Data is DataSet dataSet) foreach (DataTable table in dataSet.Tables) foundRows.UnionWith(query(table));
-            else if (Data is DataTable table) foundRows.UnionWith(query(table));
+            if (Data is DataSet dataSet)
+            {
+                foreach (DataTable table in dataSet.Tables)
+                {
+                    DataRow[] result = table.Select(expr);
+                    HashSet<DataRow> newSet = new HashSet<DataRow>(result);
+                    foundRows.UnionWith(newSet);
+                }
+            }
+            else if (Data is DataTable table)
+            {
+                DataRow[] result = table.Select(expr);
+                HashSet<DataRow> newSet = new HashSet<DataRow>(result);
+                foundRows.UnionWith(newSet);
+            }
             return foundRows;
         }
         internal void ReadMetadataData(string path)
