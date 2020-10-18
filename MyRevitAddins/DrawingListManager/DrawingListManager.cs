@@ -119,6 +119,11 @@ namespace MEPUtils.DrawingListManager
             column.DataType = typeof(string);
             column.ColumnName = fs._RevisionDate.ColumnName;
             FileNameData.Columns.Add(column);
+
+            //Debug column showing the state of drwg
+            column = new DataColumn("State");
+            column.DataType = typeof(int);
+            FileNameData.Columns.Add(column);
             #endregion
         }
         internal void PopulateFileNameDataTable()
@@ -387,7 +392,25 @@ namespace MEPUtils.DrawingListManager
                 }
             }
         }
+        internal void AddStateToGridView(Drwg drwg, DataTable data)
+        {
+            HashSet<DataRow> foundRows = new HashSet<DataRow>();
 
+            //Build expression to use Table.Select
+            string number = drwg.DrwgNumberFromFileName;
+            string title = drwg.DrwgTitleFromFileName.Replace("'", "''");
+            string rev = drwg.DrwgRevFromFileName;
+            List<string> exprlist = new List<string>();
+            exprlist.Add($"[{fs._Number.ColumnName}] = '{number}'");
+            exprlist.Add($"[{fs._Title.ColumnName}] = '{title}'");
+            if (!rev.IsNullOrEmpty()) exprlist.Add($"[{fs._Revision.ColumnName}] = '{rev}'");
+            string expr = string.Join(" AND ", exprlist);
+            DataRow[] result = data.Select(expr);
+            HashSet<DataRow> newSet = new HashSet<DataRow>(result);
+            foundRows.UnionWith(newSet);
+
+            foreach (DataRow row in foundRows) row["State"] = (int)drwg.State;
+        }
         
     }
 

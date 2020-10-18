@@ -86,7 +86,10 @@ namespace MEPUtils.DrawingListManager
             dGV1.DataSource = dlm.FileNameData;
 
             foreach (DataGridViewColumn dc in dGV1.Columns)
+            {
+                dc.DefaultCellStyle.Font = new Font("Arial", 26F, GraphicsUnit.Pixel);
                 dc.AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
+            }
 
             #region LoadExcelData-GC-Populate
             //Load excel data
@@ -108,23 +111,35 @@ namespace MEPUtils.DrawingListManager
             dlm.PopulateDrwgDataFromMetadata();
             #endregion
 
-            StringBuilder sb = new StringBuilder();
             //Analyze data
-            foreach (Drwg drwg in dlm.drwgList)
-            {
-                drwg.CalculateState();
-            }
+            foreach (Drwg drwg in dlm.drwgList) drwg.CalculateState();
 
-            //Group all states and list them
+            #region Debug
+            //StringBuilder sb = new StringBuilder();
+            //List<string> list = new List<string>();
+            ////Group all states and list them
             //var query = dlm.drwgList.GroupBy(x => x.State);
-            //foreach (var gr in query) sb.AppendLine($"{(int)gr.Key} - {gr.Key}");
+            //foreach (var gr in query) list.Add($"{(int)gr.Key} - {gr.Key}");
+            //list.Sort();
+            //sb.Append(string.Join("\n", list));
 
             //Just for fun list all states
             //for (int val = 0; val <= 16385; val++)
             //    sb.AppendLine($"{val} - {(Drwg.StateFlags)val}");
+            //Output.OutputWriter(sb); 
+            #endregion
 
-            Output.OutputWriter(sb);
+            foreach (Drwg drwg in dlm.drwgList) dlm.AddStateToGridView(drwg, dlm.FileNameData);
+            dlm.FileNameData.AcceptChanges();
+            dGV1.Columns[8].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
 
+            foreach (Drwg drwg in dlm.drwgList)
+            {
+                dlm.
+            }
+
+            //this.Close();
+            //TODO: implement case where drwg only exists in excel
         }
 
         private bool subscribedToCellValueChanged = false;

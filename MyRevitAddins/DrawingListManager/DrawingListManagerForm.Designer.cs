@@ -56,7 +56,7 @@
             this.tabControl1.Margin = new System.Windows.Forms.Padding(4);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(2686, 740);
+            this.tabControl1.Size = new System.Drawing.Size(2686, 1315);
             this.tabControl1.TabIndex = 8;
             // 
             // tabPage1
@@ -73,7 +73,7 @@
             this.tabPage1.Margin = new System.Windows.Forms.Padding(4);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(4);
-            this.tabPage1.Size = new System.Drawing.Size(2678, 703);
+            this.tabPage1.Size = new System.Drawing.Size(2678, 1278);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "Folder and file";
             // 
@@ -171,7 +171,7 @@
             this.tabPage2.Margin = new System.Windows.Forms.Padding(4);
             this.tabPage2.Name = "tabPage2";
             this.tabPage2.Padding = new System.Windows.Forms.Padding(4);
-            this.tabPage2.Size = new System.Drawing.Size(2678, 703);
+            this.tabPage2.Size = new System.Drawing.Size(2678, 1278);
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "Manage";
             // 
@@ -179,11 +179,11 @@
             // 
             this.dGV1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dGV1.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.dGV1.Location = new System.Drawing.Point(4, 73);
+            this.dGV1.Location = new System.Drawing.Point(4, 124);
             this.dGV1.Margin = new System.Windows.Forms.Padding(6);
             this.dGV1.Name = "dGV1";
             this.dGV1.RowHeadersWidth = 72;
-            this.dGV1.Size = new System.Drawing.Size(2670, 626);
+            this.dGV1.Size = new System.Drawing.Size(2670, 1150);
             this.dGV1.TabIndex = 17;
             this.dGV1.DataBindingComplete += new System.Windows.Forms.DataGridViewBindingCompleteEventHandler(this.dGV1_DataBindingComplete);
             // 
@@ -202,7 +202,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(11F, 24F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(2686, 740);
+            this.ClientSize = new System.Drawing.Size(2686, 1315);
             this.Controls.Add(this.tabControl1);
             this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "DrawingListManagerForm";
