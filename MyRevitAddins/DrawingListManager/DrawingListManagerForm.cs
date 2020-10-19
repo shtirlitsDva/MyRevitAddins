@@ -135,7 +135,7 @@ namespace MEPUtils.DrawingListManager
 
             foreach (Drwg drwg in dlm.drwgList)
             {
-                dlm.
+                //drwg.ActOnState();
             }
 
             //this.Close();

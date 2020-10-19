@@ -33,13 +33,13 @@ namespace MEPUtils.DrawingListManager
     public class DrwgLstMan
     {
         //Fields for filename analysis
-        public List<string> drwgFileNameList;
-        public List<Drwg> drwgList = new List<Drwg>();
+        internal List<string> drwgFileNameList;
+        internal List<Drwg> drwgList = new List<Drwg>();
         public DataTable FileNameData;
-        public Field.Fields fs = new Field.Fields();
+        internal Field.Fields fs = new Field.Fields();
 
         //Fields for Excel data analysis
-        DataSet ExcelDataSet;
+        private DataSet ExcelDataSet;
 
         //Fields for Metadata data
         private DataTable MetadataData;
@@ -69,8 +69,7 @@ namespace MEPUtils.DrawingListManager
             {
                 Drwg drwg = new Drwg(fileNameWithPath);
                 drwgList.Add(drwg);
-                //Analyze the file name
-                drwg.PopulateDrwgDataFromFileName();
+                drwg.ReadDrwgDataFromFileName();
             }
         }
         internal void BuildFileNameDataTable()
@@ -133,10 +132,10 @@ namespace MEPUtils.DrawingListManager
             {
                 DataRow row = FileNameData.NewRow();
 
-                row[fs._Number.ColumnName] = drwg.DrwgNumberFromFileName;
-                row[fs._Title.ColumnName] = drwg.DrwgTitleFromFileName;
-                row[fs._FileNameFormat.ColumnName] = drwg.DrwgFileNameFormat;
-                row[fs._Revision.ColumnName] = drwg.DrwgRevFromFileName;
+                row[fs._Number.ColumnName] = drwg.DataFromFileName.Number.Value;
+                row[fs._Title.ColumnName] = drwg.DataFromFileName.Title.Value;
+                row[fs._FileNameFormat.ColumnName] = drwg.DataFromFileName.FileNameFormat.Value;
+                row[fs._Revision.ColumnName] = drwg.DataFromFileName.Revision.Value;
 
                 FileNameData.Rows.Add(row);
             }
@@ -411,7 +410,7 @@ namespace MEPUtils.DrawingListManager
 
             foreach (DataRow row in foundRows) row["State"] = (int)drwg.State;
         }
-        
+
     }
 
     public class Drwg
@@ -424,33 +423,35 @@ namespace MEPUtils.DrawingListManager
         DrwgNamingFormat Dnf;
         Field.Fields Fields;
 
-        public string DrwgNumberFromFileName = string.Empty;
-        public string DrwgNumberFromExcel = string.Empty;
-        public string DrwgNumberFromMeta = string.Empty;
+        internal DrwgProps.Source_FileName DataFromFileName;
 
-        public string DrwgTitleFromFileName = string.Empty;
-        public string DrwgTitleFromExcel = string.Empty;
-        public string DrwgTitleFromMeta = string.Empty;
+        //internal string DrwgNumberFromFileName = string.Empty;
+        internal string DrwgNumberFromExcel = string.Empty;
+        internal string DrwgNumberFromMeta = string.Empty;
 
-        public string DrwgRevFromFileName = string.Empty;
-        public string DrwgRevFromExcel = string.Empty;
-        public string DrwgRevFromMeta = string.Empty;
+        //internal string DrwgTitleFromFileName = string.Empty;
+        internal string DrwgTitleFromExcel = string.Empty;
+        internal string DrwgTitleFromMeta = string.Empty;
 
-        public string DrwgScaleFromExcel = string.Empty;
-        public string DrwgScaleFromMeta = string.Empty;
+        //internal string DrwgRevFromFileName = string.Empty;
+        internal string DrwgRevFromExcel = string.Empty;
+        internal string DrwgRevFromMeta = string.Empty;
 
-        public string DrwgDateFromExcel = string.Empty;
-        public string DrwgDateFromMeta = string.Empty;
+        internal string DrwgScaleFromExcel = string.Empty;
+        internal string DrwgScaleFromMeta = string.Empty;
 
-        public string DrwgRevDateFromExcel = string.Empty;
-        public string DrwgRevDateFromMeta = string.Empty;
+        internal string DrwgDateFromExcel = string.Empty;
+        internal string DrwgDateFromMeta = string.Empty;
+
+        internal string DrwgRevDateFromExcel = string.Empty;
+        internal string DrwgRevDateFromMeta = string.Empty;
 
         internal StateFlags State;
 
-        public string DrwgFileNameFormat = string.Empty;
+        //public string DrwgFileNameFormat = string.Empty;
         #endregion
 
-        public List<DrwgNamingFormat> NamingFormats;
+        internal List<DrwgNamingFormat> NamingFormats;
 
         public Drwg(string fileNameWithPath)
         {
@@ -482,10 +483,8 @@ namespace MEPUtils.DrawingListManager
         }
         private FileNameFormat DetermineFormat(string fileName)
             => NamingFormats.Where(x => x.TestFormat(fileName)).Select(x => x.Format).FirstOrDefault();
-        internal void PopulateDrwgDataFromFileName()
+        internal void ReadDrwgDataFromFileName()
         {
-            DrwgFileNameFormat = Dnf.DrwgFileNameFormatDescription;
-
             if (Dnf.Format == FileNameFormat.Other)
             {
                 DrwgTitleFromFileName = Path.GetFileNameWithoutExtension(FileNameWithPath); //this one is not passed as argument
@@ -493,9 +492,11 @@ namespace MEPUtils.DrawingListManager
             else
             {
                 Match match = Dnf.Regex.Match(FileName);
-                DrwgNumberFromFileName = match.Groups[Fields._Number.RegexName].Value ?? "";
-                DrwgTitleFromFileName = match.Groups[Fields._Title.RegexName].Value ?? "";
-                DrwgRevFromFileName = match.Groups[Fields._Revision.RegexName].Value ?? "";
+                string number = match.Groups[Fields._Number.RegexName].Value ?? "";
+                string title = match.Groups[Fields._Title.RegexName].Value ?? "";
+                string revision = match.Groups[Fields._Revision.RegexName].Value ?? "";
+                DataFromFileName = new DrwgProps.Source_FileName(
+                    number, title, Dnf.DrwgFileNameFormatDescription, revision);
             }
         }
         internal void CalculateState()
@@ -524,6 +525,11 @@ namespace MEPUtils.DrawingListManager
             State = temp;
         }
 
+        internal void ActOnState()
+        {
+            throw new NotImplementedException();
+        }
+
         [Flags]
         internal enum StateFlags
         {
@@ -544,7 +550,31 @@ namespace MEPUtils.DrawingListManager
             RevDateFromExcel = 8192,
             RevDateFromMeta = 16384
         }
+
+        internal interface IAction
+        {
+            void Act();
+        }
+
+        internal class StateActions
+        {
+            internal StateFlags AcceptedStates { get; private set; } = StateFlags.None;
+
+            internal class AllDataPresent : StateActions, IAction
+            {
+                AllDataPresent()
+                {
+                    AcceptedStates |= (StateFlags)32767;
+                }
+
+                public void Act()
+                {
+                    throw new NotImplementedException();
+                }
+            }
+        }
     }
+
 
     public class DrwgNamingFormat
     {
@@ -657,12 +687,13 @@ namespace MEPUtils.DrawingListManager
     }
     public class Field
     {
-        internal string RegexName { get; private set; } = "";
-        internal string MetadataName { get; private set; } = "";
-        internal string ColumnName { get; private set; } = "";
-        internal bool IsExcelField { get { return ExcelColumnIdx > 0; } }
-        internal int ExcelColumnIdx { get; private set; } = 0;
-        internal bool IsMetaDataField { get { return !MetadataName.IsNullOrEmpty(); } }
+        public string RegexName { get; private set; } = "";
+        public string MetadataName { get; private set; } = "";
+        public string ColumnName { get; private set; } = "";
+        public bool IsExcelField { get { return ExcelColumnIdx > 0; } }
+        public int ExcelColumnIdx { get; private set; } = 0;
+        public bool IsMetaDataField { get { return !MetadataName.IsNullOrEmpty(); } }
+        public string Value { get; private set; }
         public class Number : Field
         {
             public Number()
@@ -670,6 +701,7 @@ namespace MEPUtils.DrawingListManager
                 RegexName = "number"; MetadataName = "DWGNUMBER";
                 ColumnName = "Drwg Nr."; ExcelColumnIdx = 1;
             }
+            public Number(string value) : this() { Value = value; }
         }
         public class Title : Field
         {
@@ -678,6 +710,7 @@ namespace MEPUtils.DrawingListManager
                 RegexName = "title"; MetadataName = "DWGTITLE";
                 ColumnName = "Drwg Title"; ExcelColumnIdx = 2;
             }
+            public Title(string value) : this() { Value = value; }
         }
         public class Revision : Field
         {
@@ -686,6 +719,7 @@ namespace MEPUtils.DrawingListManager
                 RegexName = "revision"; MetadataName = "DWGREVINDEX";
                 ColumnName = "Rev. idx"; ExcelColumnIdx = 5;
             }
+            public Revision(string value) : this() { Value = value; }
         }
         public class Extension : Field
         {
@@ -728,6 +762,7 @@ namespace MEPUtils.DrawingListManager
             {
                 ColumnName = "File name format";
             }
+            public FileNameFormat(string value) : this() { Value = value; }
         }
         public class Fields
         {
@@ -766,6 +801,37 @@ namespace MEPUtils.DrawingListManager
             /// <param name="colIdx">Index of column.</param>
             public Field GetExcelColumnField(int colIdx) =>
                 new Fields().GetAllFields().Where(x => x.ExcelColumnIdx == colIdx).FirstOrDefault();
+
+        }
+    }
+
+    public class DrwgProps
+    {
+        public Field.Number Number { get; private set; }
+        public Field.Title Title { get; private set; }
+        public Field.Revision Revision { get; private set; }
+        public Field.Scale Scale { get; private set; }
+        public Field.Date Date { get; private set; }
+        public Field.RevisionDate RevisionDate { get; private set; }
+        public Field.FileNameFormat FileNameFormat { get; private set; }
+        public class Source_FileName : DrwgProps
+        {
+            public Source_FileName(string NumberValue, string TitleValue, string FileNameFormatValue, string RevisionValue)
+            {
+                Number = new Field.Number(NumberValue);
+                Title = new Field.Title(TitleValue);
+                Revision = new Field.Revision(RevisionValue);
+                FileNameFormat = new Field.FileNameFormat(FileNameFormatValue);
+            }
+        }
+
+        public class Source_Excel : DrwgProps
+        {
+
+        }
+
+        public class Source_Meta : DrwgProps
+        {
 
         }
     }
