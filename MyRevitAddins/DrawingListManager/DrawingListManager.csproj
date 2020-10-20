@@ -101,6 +101,10 @@
       <DependentUpon>DrawingListManagerForm.cs</DependentUpon>
     </Compile>
     <Compile Include="DrawingListManager.cs" />
+    <Compile Include="Drwg.cs" />
+    <Compile Include="DrwgNamingFormat.cs" />
+    <Compile Include="Field and Props.cs" />
+    <Compile Include="MainSequence.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utility.cs" />
     <EmbeddedResource Include="DrawingListManagerForm.resx">
