@@ -2,13 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Drawing;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace MEPUtils.DrawingListManager
 {
     public class MainSequence
     {
-        internal void ExecuteMainSequence(DrwgLstMan dlm, string pathToDwgFolder, string pathToDwgList)
+        internal void ExecuteMainSequence(DrwgLstMan dlm, DataGridView dGV, string pathToDwgFolder, string pathToDwgList)
         {
             //Load file name data
             dlm.ScanRescanFilesAndList(pathToDwgFolder);
@@ -36,8 +38,23 @@ namespace MEPUtils.DrawingListManager
             dlm.PopulateDrwgDataFromMetadata();
             #endregion
 
-            //Analyze data
-            foreach (Drwg drwg in dlm.drwgListFiles) drwg.CalculateState();
+            #region Aggregation
+            dlm.CreateAggregateDataTable();
+            dlm.AggregateData();
+            dlm.PopulateAggregateDataTable();
+            #endregion
+
+            //Bind data
+            dGV.DataSource = dlm.AggregateDataTable;
+            
+            //Formatting to see better
+            foreach (DataGridViewColumn dc in dGV.Columns)
+            {
+                dc.DefaultCellStyle.Font = new Font("Arial", 26F, GraphicsUnit.Pixel);
+                dc.AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
+            }
+
+            dGV.Columns[8].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
 
             #region Debug
             //StringBuilder sb = new StringBuilder();
@@ -54,34 +71,11 @@ namespace MEPUtils.DrawingListManager
             //Output.OutputWriter(sb); 
             #endregion
 
-            foreach (Drwg drwg in dlm.drwgListFiles)
-            {
-                //drwg.ActOnState();
-            }
+            //TODO: Add DrawingListCategory also as a last column to Excel data and add it to props.
+            //It could be compared to data from metadata and acted upon.
 
             #region Code Bin
-            //Essential formatting!
-            //foreach (DataGridViewColumn dc in dGV1.Columns)
-            //{
-            //    dc.DefaultCellStyle.Font = new Font("Arial", 26F, GraphicsUnit.Pixel);
-            //    dc.AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
-            //}
-            //dGV1.DataSource = dlm.FileNameDataTable;
 
-            //column = new DataColumn();
-            //column.DataType = typeof(bool);
-            //column.ColumnName = fs._Select.ColumnName;
-            //FileNameDataTable.Columns.Add(column);
-
-            ////Debug column showing the state of drwg
-            //column = new DataColumn("State");
-            //column.DataType = typeof(int);
-            //FileNameDataTable.Columns.Add(column);
-
-            //dGV1.Columns[8].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
-
-            //foreach (Drwg drwg in dlm.drwgList) dlm.AddStateToGridView(drwg, drwg.DataFromFileName, dlm.FileNameDataTable);
-            //dlm.FileNameDataTable.AcceptChanges();
             #endregion
         }
     }

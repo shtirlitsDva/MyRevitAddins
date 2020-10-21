@@ -79,7 +79,7 @@ namespace MEPUtils.DrawingListManager
         private void button4_Click(object sender, EventArgs e)
         {
             MainSequence ms = new MainSequence();
-            ms.ExecuteMainSequence(dlm, pathToDwgFolder, pathToDwgList);
+            ms.ExecuteMainSequence(dlm, dGV1, pathToDwgFolder, pathToDwgList);
 
             //this.Close();
             //TODO: implement case where drwg only exists in excel

@@ -8,6 +8,7 @@ namespace MEPUtils.DrawingListManager
 {
     public class Field
     {
+        public FieldName FieldName { get; private set; } = FieldName.None;
         public string RegexName { get; private set; } = "";
         public string MetadataName { get; private set; } = "";
         public string ColumnName { get; private set; } = "";
@@ -19,7 +20,7 @@ namespace MEPUtils.DrawingListManager
         {
             public Number()
             {
-                RegexName = "number"; MetadataName = "DWGNUMBER";
+                this.FieldName = FieldName.Number; RegexName = "number"; MetadataName = "DWGNUMBER";
                 ColumnName = "Drwg Nr."; ExcelColumnIdx = 1;
             }
             public Number(string value) : this() { Value = value; }
@@ -28,6 +29,7 @@ namespace MEPUtils.DrawingListManager
         {
             public Title()
             {
+                this.FieldName = FieldName.Title;
                 RegexName = "title"; MetadataName = "DWGTITLE";
                 ColumnName = "Drwg Title"; ExcelColumnIdx = 2;
             }
@@ -37,6 +39,7 @@ namespace MEPUtils.DrawingListManager
         {
             public Revision()
             {
+                this.FieldName = FieldName.Revision;
                 RegexName = "revision"; MetadataName = "DWGREVINDEX";
                 ColumnName = "Rev. idx"; ExcelColumnIdx = 5;
             }
@@ -44,12 +47,13 @@ namespace MEPUtils.DrawingListManager
         }
         public class Extension : Field
         {
-            public Extension() { RegexName = "extension"; }
+            public Extension() { this.FieldName = FieldName.Extension; RegexName = "extension"; ColumnName = "Ext."; }
         }
         public class Scale : Field
         {
             public Scale()
             {
+                this.FieldName = FieldName.Scale;
                 MetadataName = "DWGSCALE"; ColumnName = "Scale"; ExcelColumnIdx = 3;
             }
             public Scale(string value) : this() { Value = value; }
@@ -58,6 +62,7 @@ namespace MEPUtils.DrawingListManager
         {
             public Date()
             {
+                this.FieldName = FieldName.Date;
                 MetadataName = "DWGDATE"; ColumnName = "Date"; ExcelColumnIdx = 4;
             }
             public Date(string value) : this() { Value = value; }
@@ -66,6 +71,7 @@ namespace MEPUtils.DrawingListManager
         {
             public RevisionDate()
             {
+                this.FieldName = FieldName.RevisionDate;
                 MetadataName = "DWGREVDATE"; ColumnName = "Rev. date"; ExcelColumnIdx = 6;
             }
             public RevisionDate(string value) : this() { Value = value; }
@@ -74,6 +80,7 @@ namespace MEPUtils.DrawingListManager
         {
             public DrawingListCategory()
             {
+                this.FieldName = FieldName.DrawingListCategory;
                 MetadataName = "DWGLSTCAT"; ColumnName = "DrwgLstCategory";
             }
             public DrawingListCategory(string value) : this() { Value = value; }
@@ -82,13 +89,14 @@ namespace MEPUtils.DrawingListManager
         {
             public Selected()
             {
-                ColumnName = "Select";
+                this.FieldName = FieldName.Selected; ColumnName = "Select";
             }
         }
         public class FileNameFormat : Field
         {
             public FileNameFormat()
             {
+                this.FieldName = FieldName.FileNameFormat;
                 ColumnName = "File name format";
             }
             public FileNameFormat(string value) : this() { Value = value; }
@@ -133,6 +141,21 @@ namespace MEPUtils.DrawingListManager
                 new Fields().GetAllFields().Where(x => x.ExcelColumnIdx == colIdx).FirstOrDefault();
 
         }
+    }
+
+    public enum FieldName
+    {
+        None,
+        Number,
+        Title,
+        Revision,
+        Scale,
+        Date,
+        RevisionDate,
+        DrawingListCategory,
+        FileNameFormat,
+        Selected,
+        Extension
     }
 
     public class DrwgProps

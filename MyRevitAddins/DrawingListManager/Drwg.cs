@@ -14,24 +14,31 @@ namespace MEPUtils.DrawingListManager
         string FileNameWithPath;
         internal string FileName;
 
+        internal Guid Id;
+
         FileNameFormat Format;
         DrwgNamingFormat Dnf;
         Field.Fields Fields;
+
+        internal DataRow dataRowGV;
 
         internal DrwgProps.Source_FileName DataFromFileName;
         internal DrwgProps.Source_Excel DataFromExcel;
         internal DrwgProps.Source_Meta DataFromMetadata;
 
         internal StateFlags State;
+        internal string Extension;
 
         //public string DrwgFileNameFormat = string.Empty;
         #endregion
 
         internal List<DrwgNamingFormat> NamingFormats;
-        public Drwg() { }
-        public Drwg(string fileNameWithPath)
+        public Drwg()
         {
-            Fields = new Field.Fields();
+            Id = Guid.NewGuid(); Fields = new Field.Fields();
+        }
+        public Drwg(string fileNameWithPath) : this()
+        {
             NamingFormats = new DrwgNamingFormat().GetDrwgNamingFormatListExceptOther();
 
             FileNameWithPath = fileNameWithPath;
@@ -74,6 +81,7 @@ namespace MEPUtils.DrawingListManager
                 string revision = match.Groups[Fields._Revision.RegexName].Value ?? "";
                 DataFromFileName = new DrwgProps.Source_FileName(
                     number, title, Dnf.DrwgFileNameFormatDescription, revision);
+                Extension = match.Groups[Fields._Extension.RegexName].Value ?? "";
             }
         }
         internal void CalculateState()
@@ -100,6 +108,41 @@ namespace MEPUtils.DrawingListManager
             state |= Calc(DataFromExcel?.RevisionDate?.Value, StateFlags.RevDateFromExcel);
             state |= Calc(DataFromMetadata?.RevisionDate?.Value, StateFlags.RevDateFromMeta);
             State = state;
+        }
+        internal string TryGetValueOfSpecificPropsField(Field field)
+        {
+            switch (field.FieldName)
+            {
+                case FieldName.None:
+                    return "";
+                case FieldName.Number:
+                    return DataFromFileName?.Number?.Value ??
+                           DataFromExcel?.Number?.Value ??
+                           DataFromMetadata?.Number?.Value ?? "";
+                case FieldName.Title:
+                    return DataFromFileName?.Title?.Value ??
+                           DataFromExcel?.Title?.Value ??
+                           DataFromMetadata?.Title?.Value ?? "";
+                case FieldName.Revision:
+                    return DataFromFileName?.Revision?.Value ??
+                           DataFromExcel?.Revision?.Value ??
+                           DataFromMetadata?.Revision?.Value ?? "";
+                case FieldName.Scale:
+                    return DataFromExcel?.Scale?.Value ??
+                           DataFromMetadata?.Scale?.Value ?? "";
+                case FieldName.Date:
+                    return DataFromExcel?.Date?.Value ??
+                           DataFromMetadata?.Date?.Value ?? "";
+                case FieldName.RevisionDate:
+                    return DataFromExcel?.RevisionDate?.Value ??
+                           DataFromMetadata?.RevisionDate?.Value ?? "";
+                case FieldName.DrawingListCategory:
+                    return DataFromMetadata?.DrawingListCategory?.Value ?? "";
+                case FieldName.FileNameFormat:
+                    return DataFromFileName?.FileNameFormat?.Value ?? "";
+                default:
+                    return "";
+            }
         }
 
         internal void ActOnState()

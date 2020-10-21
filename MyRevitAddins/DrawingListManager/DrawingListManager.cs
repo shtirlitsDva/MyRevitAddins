@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using System.Linq;
 using System.IO;
 using System.Data;
@@ -11,6 +12,7 @@ using Microsoft.Office.Interop.Excel;
 using DataTable = System.Data.DataTable;
 using PdfSharp.Pdf;
 using PdfSharp.Pdf.IO;
+using NLog;
 
 namespace MEPUtils.DrawingListManager
 {
@@ -35,15 +37,16 @@ namespace MEPUtils.DrawingListManager
         internal List<Drwg> drwgListFiles = new List<Drwg>();
         internal List<Drwg> drwgListExcel = new List<Drwg>();
         internal List<Drwg> drwgListMeta = new List<Drwg>();
+        internal List<Drwg> drwgListAggregated = new List<Drwg>();
         public DataTable FileNameDataTable;
+        internal DataTable AggregateDataTable;
         internal Field.Fields fs = new Field.Fields();
-
         //Fields for Excel data analysis
         private DataSet ExcelDataSet;
-
         //Fields for Metadata data
         private DataTable MetadataDataTable;
-
+        //Logger
+        private static readonly NLog.Logger Log = NLog.LogManager.GetCurrentClassLogger();
         internal void EnumeratePdfFiles(string path)
         {
             drwgFileNameList = Directory.EnumerateFiles(path, "*.pdf", SearchOption.TopDirectoryOnly).ToList();
@@ -336,6 +339,11 @@ namespace MEPUtils.DrawingListManager
             column.DataType = typeof(string);
             column.ColumnName = fs._RevisionDate.ColumnName;
             MetadataDataTable.Columns.Add(column);
+
+            column = new DataColumn();
+            column.DataType = typeof(string);
+            column.ColumnName = fs._DrawingListCategory.ColumnName;
+            MetadataDataTable.Columns.Add(column);
             #endregion
 
             HashSet<Field> fields = new HashSet<Field>(fs.GetAllFields().Where(x => x.IsMetaDataField));
@@ -388,7 +396,172 @@ namespace MEPUtils.DrawingListManager
             HashSet<DataRow> foundRows = GetRowsBySelectQuery(props, data, true);
             foreach (DataRow row in foundRows) row["State"] = (int)drwg.State;
         }
+        internal void CreateAggregateDataTable()
+        {
+            AggregateDataTable = new DataTable("AggregateData");
+
+            #region DataTable Definition
+            DataColumn column;
+
+            column = new DataColumn();
+            column.DataType = typeof(bool);
+            column.ColumnName = fs._Select.ColumnName;
+            AggregateDataTable.Columns.Add(column);
+
+            column = new DataColumn();
+            column.DataType = typeof(string);
+            column.ColumnName = fs._Number.ColumnName;
+            AggregateDataTable.Columns.Add(column);
+
+            column = new DataColumn();
+            column.DataType = typeof(string);
+            column.ColumnName = fs._Title.ColumnName;
+            AggregateDataTable.Columns.Add(column);
+
+            column = new DataColumn();
+            column.DataType = typeof(string);
+            column.ColumnName = fs._FileNameFormat.ColumnName;
+            AggregateDataTable.Columns.Add(column);
+
+            column = new DataColumn();
+            column.DataType = typeof(string);
+            column.ColumnName = fs._Scale.ColumnName;
+            AggregateDataTable.Columns.Add(column);
+
+            column = new DataColumn();
+            column.DataType = typeof(string);
+            column.ColumnName = fs._Date.ColumnName;
+            AggregateDataTable.Columns.Add(column);
+
+            column = new DataColumn();
+            column.DataType = typeof(string);
+            column.ColumnName = fs._Revision.ColumnName;
+            AggregateDataTable.Columns.Add(column);
+
+            column = new DataColumn();
+            column.DataType = typeof(string);
+            column.ColumnName = fs._RevisionDate.ColumnName;
+            AggregateDataTable.Columns.Add(column);
+
+            //Debug column showing the state of drwg
+            column = new DataColumn("State");
+            column.DataType = typeof(int);
+            AggregateDataTable.Columns.Add(column);
+
+            //Debug column showing the extension of file
+            column = new DataColumn();
+            column.DataType = typeof(string);
+            column.ColumnName = fs._Extension.ColumnName;
+            AggregateDataTable.Columns.Add(column);
+            #endregion
+        }
+        internal void AggregateData()
+        {
+            List<Drwg> tempDrwgListFiles = new List<Drwg>(drwgListFiles);
+            List<Drwg> tempDrwgListExcel = new List<Drwg>(drwgListExcel);
+            List<Drwg> tempDrwgListMeta = new List<Drwg>(drwgListMeta);
+
+            //Compare meta and file data with one in excel
+            //And match data to excel data
+            foreach (Drwg drwgExcel in tempDrwgListExcel)
+            {
+                var query1 = tempDrwgListMeta.Where(x =>
+                                   x?.DataFromMetadata?.Number == drwgExcel.DataFromExcel.Number &&
+                                   x?.DataFromMetadata?.Revision == drwgExcel.DataFromExcel.Revision);
+
+                if (query1.Count() > 1) Log.Warn("var query1 encountered count > 1.");
+
+                Drwg drwgMeta = query1.FirstOrDefault();
+
+                var query2 = tempDrwgListFiles.Where(x =>
+                                    x?.DataFromFileName?.Number == drwgExcel.DataFromExcel.Number &&
+                                    x?.DataFromFileName?.Revision == drwgExcel.DataFromExcel.Revision);
+
+                if (query2.Count() > 1) Log.Warn("var query2 encountered count > 1.");
+
+                Drwg drwgFile = query2.FirstOrDefault();
+
+                Drwg drwgAggregated = new Drwg();
+                drwgListAggregated.Add(drwgAggregated);
+
+                drwgAggregated.DataFromFileName = drwgFile?.DataFromFileName;
+                drwgAggregated.DataFromExcel = drwgExcel?.DataFromExcel;
+                drwgAggregated.DataFromMetadata = drwgMeta?.DataFromMetadata;
+                drwgAggregated.Extension = drwgFile?.Extension;
+
+                if (!(drwgMeta is null)) tempDrwgListMeta.RemoveAll(x => x.Id == drwgMeta.Id);
+                if (!(drwgFile is null)) tempDrwgListFiles.RemoveAll(x => x.Id == drwgFile.Id);
+            }
+
+            //Now to check if the temp collections have anything left
+            //If they have that means that there's a descrepancy between data which needs located
+            //Excel list should have been run to it's completion, so no need to check there.
+
+            if (tempDrwgListFiles.Count > 0)
+            {
+                Log.Info("tempDrwgListFiles count {0} -> drwg(s) not in excel", tempDrwgListFiles.Count);
+                foreach (Drwg drwgFile in tempDrwgListFiles)
+                {
+                    var query3 = tempDrwgListMeta.Where(x =>
+                                   x?.DataFromMetadata?.Number == drwgFile.DataFromFileName.Number &&
+                                   x?.DataFromMetadata?.Revision == drwgFile.DataFromFileName.Revision);
+
+                    if (query3.Count() > 1) Log.Warn("var query3 encountered count > 1.");
+
+                    Drwg drwgMeta = query3.FirstOrDefault();
+
+                    Drwg drwgAggregated = new Drwg();
+                    drwgListAggregated.Add(drwgAggregated);
+
+                    drwgAggregated.DataFromFileName = drwgFile?.DataFromFileName;
+                    drwgAggregated.DataFromMetadata = drwgMeta?.DataFromMetadata;
+                    drwgAggregated.Extension = drwgFile?.Extension;
+
+                    if (!(drwgMeta is null)) tempDrwgListMeta.RemoveAll(x => x.Id == drwgMeta.Id);
+                }
+            }
+
+            //Now to check if Meta temp collection has anything left
+            if (tempDrwgListMeta.Count > 0)
+            {
+                Log.Warn("tempDrwgListMeta count {0} -> drwg(s) not in excel nor filedata", tempDrwgListMeta.Count);
+                foreach (Drwg drwgMeta in tempDrwgListMeta)
+                {
+                    Drwg drwgAggregated = new Drwg();
+                    drwgListAggregated.Add(drwgAggregated);
+
+                    drwgAggregated.DataFromMetadata = drwgMeta?.DataFromMetadata;
+                }
+                tempDrwgListMeta.Clear();
+            }
+        }
+        internal void PopulateAggregateDataTable()
+        {
+            foreach (Drwg drwg in drwgListAggregated)
+            {
+                //First: calculate state
+                //Maybe it should be a separate method and thus step in sequence
+                drwg.CalculateState();
+
+                //Populate the aggregate datatable
+                DataRow row = AggregateDataTable.NewRow();
+
+                row[fs._Number.ColumnName] = drwg.TryGetValueOfSpecificPropsField(new Field.Number());
+                row[fs._Title.ColumnName] = drwg.TryGetValueOfSpecificPropsField(new Field.Title());
+                row[fs._FileNameFormat.ColumnName] = drwg.TryGetValueOfSpecificPropsField(new Field.FileNameFormat());
+                row[fs._Scale.ColumnName] = drwg.TryGetValueOfSpecificPropsField(new Field.Scale());
+                row[fs._Date.ColumnName] = drwg.TryGetValueOfSpecificPropsField(new Field.Date());
+                row[fs._Revision.ColumnName] = drwg.TryGetValueOfSpecificPropsField(new Field.Revision());
+                row[fs._RevisionDate.ColumnName] = drwg.TryGetValueOfSpecificPropsField(new Field.RevisionDate());
+                row["State"] = drwg.State;
+                row[fs._Extension.ColumnName] = drwg?.Extension ?? "";
+
+                //Store reference to the data row which holds the data
+                drwg.dataRowGV = row;
+                //Add the data row to the table
+                AggregateDataTable.Rows.Add(row);
+            }
+            AggregateDataTable.AcceptChanges();
+        }
     }
-
-
 }
