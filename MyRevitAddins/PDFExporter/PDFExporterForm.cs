@@ -225,10 +225,9 @@ namespace PDFExporter
                     string sorting1 = sorting1Par.AsString();
                     Parameter sorting2Par = sheet.LookupParameter("RDK-COM-SHT-SORTING_2");
                     string sorting2 = sorting2Par.AsString();
-                    fileName.DrawingListCategory =
-
-
                     fileName.DrawingListCategory = sorting1 + " - " + sorting2;
+
+                    fileName.GenerateFileName();
 
                     fileName.FileNameWithPath = pathToExport + fileName.FileName; //Used to copy files later
 
