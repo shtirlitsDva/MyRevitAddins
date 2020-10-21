@@ -221,7 +221,14 @@ namespace PDFExporter
                         else if (curScalePar.AsString() != "As indicated") fileName.Scale = curScalePar.AsString();
                     }
 
-                    fileName.GenerateFileName();
+                    Parameter sorting1Par = sheet.LookupParameter("RDK-COM-SHT-SORTING_1");
+                    string sorting1 = sorting1Par.AsString();
+                    Parameter sorting2Par = sheet.LookupParameter("RDK-COM-SHT-SORTING_2");
+                    string sorting2 = sorting2Par.AsString();
+                    fileName.DrawingListCategory =
+
+
+                    fileName.DrawingListCategory = sorting1 + " - " + sorting2;
 
                     fileName.FileNameWithPath = pathToExport + fileName.FileName; //Used to copy files later
 
@@ -601,6 +608,7 @@ namespace PDFExporter
                 pdfDoc.Info.Elements.Add(new KeyValuePair<string, PdfItem>("/DWGDATE", new PdfString(fileName.Date)));
                 pdfDoc.Info.Elements.Add(new KeyValuePair<string, PdfItem>("/DWGREVINDEX", new PdfString(fileName.Revision)));
                 pdfDoc.Info.Elements.Add(new KeyValuePair<string, PdfItem>("/DWGREVDATE", new PdfString(fileName.RevisionDate)));
+                pdfDoc.Info.Elements.Add(new KeyValuePair<string, PdfItem>("/DWGLSTCAT", new PdfString(fileName.DrawingListCategory)));
 
                 pdfDoc.Save(outputF);
                 pdfDoc.Close();
@@ -621,7 +629,7 @@ namespace PDFExporter
         public string RevisionDate { get; internal set; } = string.Empty;
         public string FileName { get; internal set; }
         public string FileNameWithPath { get; internal set; }
-
+        public string DrawingListCategory { get; internal set; }
         internal void GenerateFileName()
         {
             if (!Revision.IsNullOrEmpty())
