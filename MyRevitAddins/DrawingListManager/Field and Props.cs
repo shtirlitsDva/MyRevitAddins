@@ -70,6 +70,14 @@ namespace MEPUtils.DrawingListManager
             }
             public RevisionDate(string value) : this() { Value = value; }
         }
+        public class DrawingListCategory : Field
+        {
+            public DrawingListCategory()
+            {
+                MetadataName = "DWGLSTCAT"; ColumnName = "DrwgLstCategory";
+            }
+            public DrawingListCategory(string value) : this() { Value = value; }
+        }
         public class Selected : Field
         {
             public Selected()
@@ -97,6 +105,7 @@ namespace MEPUtils.DrawingListManager
             public Field _RevisionDate = new RevisionDate();
             public Field _FileNameFormat = new FileNameFormat();
             public Field _Select = new Selected();
+            public Field _DrawingListCategory = new DrawingListCategory();
 
             public HashSet<Field> GetAllFields()
             {
@@ -134,6 +143,7 @@ namespace MEPUtils.DrawingListManager
         public Field.Scale Scale { get; private set; }
         public Field.Date Date { get; private set; }
         public Field.RevisionDate RevisionDate { get; private set; }
+        public Field.DrawingListCategory DrawingListCategory { get; private set; }
         public Field.FileNameFormat FileNameFormat { get; private set; }
         public class Source_FileName : DrwgProps
         {
@@ -164,7 +174,7 @@ namespace MEPUtils.DrawingListManager
         {
             public Source_Meta() { }
             public Source_Meta(
-                string number, string title, string revision, string scale, string date, string revDate)
+                string number, string title, string revision, string scale, string date, string revDate, string drwgLstCat)
             {
                 Number = new Field.Number(number);
                 Title = new Field.Title(title);
@@ -172,6 +182,7 @@ namespace MEPUtils.DrawingListManager
                 Date = new Field.Date(date);
                 Revision = new Field.Revision(revision);
                 RevisionDate = new Field.RevisionDate(revDate);
+                DrawingListCategory = new Field.DrawingListCategory(drwgLstCat);
             }
         }
     }
