@@ -377,7 +377,8 @@ namespace MEPUtils.DrawingListManager
                 row.Field<string>(fs._Revision.ColumnName),
                 row.Field<string>(fs._Scale.ColumnName),
                 row.Field<string>(fs._Date.ColumnName),
-                row.Field<string>(fs._RevisionDate.ColumnName)
+                row.Field<string>(fs._RevisionDate.ColumnName),
+                row.Field<string>(fs._DrawingListCategory.ColumnName)
                 );
                 drwgListMeta.Add(drwg);
             }
