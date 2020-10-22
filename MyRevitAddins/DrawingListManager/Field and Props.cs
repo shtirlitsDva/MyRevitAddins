@@ -15,7 +15,9 @@ namespace MEPUtils.DrawingListManager
         public bool IsExcelField { get { return ExcelColumnIdx > 0; } }
         public int ExcelColumnIdx { get; private set; } = 0;
         public bool IsMetaDataField { get { return !MetadataName.IsNullOrEmpty(); } }
-        public string Value { get; private set; }
+        public string Value { get; private set; } = "";
+        public static bool operator ==(Field f1, Field f2) => f1.Value == f2.Value;
+        public static bool operator !=(Field f1, Field f2) => f1.Value != f2.Value;
         public class Number : Field
         {
             public Number()
@@ -168,6 +170,36 @@ namespace MEPUtils.DrawingListManager
         public Field.RevisionDate RevisionDate { get; private set; }
         public Field.DrawingListCategory DrawingListCategory { get; private set; }
         public Field.FileNameFormat FileNameFormat { get; private set; }
+        public string GetValue(FieldName fieldName)
+        {
+            switch (fieldName)
+            {
+                case FieldName.None:
+                    return "";
+                case FieldName.Number:
+                    return Number.Value;
+                case FieldName.Title:
+                    return Title.Value;
+                case FieldName.Revision:
+                    return Revision.Value;
+                case FieldName.Scale:
+                    return Scale.Value;
+                case FieldName.Date:
+                    return Date.Value;
+                case FieldName.RevisionDate:
+                    return RevisionDate.Value;
+                case FieldName.DrawingListCategory:
+                    return DrawingListCategory.Value;
+                case FieldName.FileNameFormat:
+                    return FileNameFormat.Value;
+                case FieldName.Selected:
+                    throw new NotImplementedException();
+                case FieldName.Extension:
+                    throw new NotImplementedException();
+                default:
+                    return "";
+            }
+        }
         public class Source_FileName : DrwgProps
         {
             public Source_FileName(string number, string title, string fileNameFormat, string revision)

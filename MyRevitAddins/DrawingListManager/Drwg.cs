@@ -109,9 +109,9 @@ namespace MEPUtils.DrawingListManager
             state |= Calc(DataFromMetadata?.RevisionDate?.Value, StateFlags.RevDateFromMeta);
             State = state;
         }
-        internal string TryGetValueOfSpecificPropsField(Field field)
+        internal string TryGetValueOfSpecificPropsField(FieldName fieldName)
         {
-            switch (field.FieldName)
+            switch (fieldName)
             {
                 case FieldName.None:
                     return "";

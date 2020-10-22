@@ -50,7 +50,7 @@ namespace MEPUtils.DrawingListManager
             //Formatting to see better
             foreach (DataGridViewColumn dc in dGV.Columns)
             {
-                dc.DefaultCellStyle.Font = new Font("Arial", 26F, GraphicsUnit.Pixel);
+                dc.DefaultCellStyle.Font = new Font("Arial", 20F, GraphicsUnit.Pixel);
                 dc.AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
             }
 

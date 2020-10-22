@@ -38,13 +38,13 @@ namespace MEPUtils.DrawingListManager
         internal List<Drwg> drwgListExcel = new List<Drwg>();
         internal List<Drwg> drwgListMeta = new List<Drwg>();
         internal List<Drwg> drwgListAggregated = new List<Drwg>();
-        public DataTable FileNameDataTable;
-        internal DataTable AggregateDataTable;
         internal Field.Fields fs = new Field.Fields();
         //Fields for Excel data analysis
         private DataSet ExcelDataSet;
         //Fields for Metadata data
         private DataTable MetadataDataTable;
+        public DataTable FileNameDataTable;
+        internal DataTable AggregateDataTable;
         //Logger
         private static readonly NLog.Logger Log = NLog.LogManager.GetCurrentClassLogger();
         internal void EnumeratePdfFiles(string path)
@@ -124,10 +124,10 @@ namespace MEPUtils.DrawingListManager
             {
                 DataRow row = FileNameDataTable.NewRow();
 
-                row[fs._Number.ColumnName] = drwg.DataFromFileName.Number.Value;
-                row[fs._Title.ColumnName] = drwg.DataFromFileName.Title.Value;
-                row[fs._FileNameFormat.ColumnName] = drwg.DataFromFileName.FileNameFormat.Value;
-                row[fs._Revision.ColumnName] = drwg.DataFromFileName.Revision.Value;
+                row[fs._Number.ColumnName] = drwg.DataFromFileName.GetValue(FieldName.Number);
+                row[fs._Title.ColumnName] = drwg.DataFromFileName.GetValue(FieldName.Title);
+                row[fs._FileNameFormat.ColumnName] = drwg.DataFromFileName.GetValue(FieldName.FileNameFormat);
+                row[fs._Revision.ColumnName] = drwg.DataFromFileName.GetValue(FieldName.Revision);
 
                 FileNameDataTable.Rows.Add(row);
             }
@@ -142,7 +142,7 @@ namespace MEPUtils.DrawingListManager
             Microsoft.Office.Interop.Excel.Application oXL;
             object misVal = System.Reflection.Missing.Value;
             oXL = new Microsoft.Office.Interop.Excel.Application();
-            oXL.Visible = true;
+            oXL.Visible = false;
             oXL.DisplayAlerts = false;
             wb = oXL.Workbooks.Open(pathToDwgList, 0, false, 5, "", "", false,
                 Microsoft.Office.Interop.Excel.XlPlatform.xlWindows, "", true, false, 0, false, false,
@@ -351,7 +351,11 @@ namespace MEPUtils.DrawingListManager
             foreach (string filePath in drwgFileNameList)
             {
                 PdfDocument document = null;
-                try { document = PdfReader.Open(filePath); }
+                try
+                {
+                    if (0 != PdfReader.TestPdfFile(filePath)) document = PdfReader.Open(filePath);
+                    else continue;
+                }
                 catch (Exception) { continue; }
 
                 var props = document.Info.Elements;
@@ -460,7 +464,7 @@ namespace MEPUtils.DrawingListManager
             List<Drwg> tempDrwgListFiles = new List<Drwg>(drwgListFiles);
             List<Drwg> tempDrwgListExcel = new List<Drwg>(drwgListExcel);
             List<Drwg> tempDrwgListMeta = new List<Drwg>(drwgListMeta);
-
+            Log.Info("Test message");
             //Compare meta and file data with one in excel
             //And match data to excel data
             foreach (Drwg drwgExcel in tempDrwgListExcel)
@@ -546,13 +550,13 @@ namespace MEPUtils.DrawingListManager
                 //Populate the aggregate datatable
                 DataRow row = AggregateDataTable.NewRow();
 
-                row[fs._Number.ColumnName] = drwg.TryGetValueOfSpecificPropsField(new Field.Number());
-                row[fs._Title.ColumnName] = drwg.TryGetValueOfSpecificPropsField(new Field.Title());
-                row[fs._FileNameFormat.ColumnName] = drwg.TryGetValueOfSpecificPropsField(new Field.FileNameFormat());
-                row[fs._Scale.ColumnName] = drwg.TryGetValueOfSpecificPropsField(new Field.Scale());
-                row[fs._Date.ColumnName] = drwg.TryGetValueOfSpecificPropsField(new Field.Date());
-                row[fs._Revision.ColumnName] = drwg.TryGetValueOfSpecificPropsField(new Field.Revision());
-                row[fs._RevisionDate.ColumnName] = drwg.TryGetValueOfSpecificPropsField(new Field.RevisionDate());
+                row[fs._Number.ColumnName] = drwg.TryGetValueOfSpecificPropsField(FieldName.Number);
+                row[fs._Title.ColumnName] = drwg.TryGetValueOfSpecificPropsField(FieldName.Title);
+                row[fs._FileNameFormat.ColumnName] = drwg.TryGetValueOfSpecificPropsField(FieldName.FileNameFormat);
+                row[fs._Scale.ColumnName] = drwg.TryGetValueOfSpecificPropsField(FieldName.Scale);
+                row[fs._Date.ColumnName] = drwg.TryGetValueOfSpecificPropsField(FieldName.Date);
+                row[fs._Revision.ColumnName] = drwg.TryGetValueOfSpecificPropsField(FieldName.Revision);
+                row[fs._RevisionDate.ColumnName] = drwg.TryGetValueOfSpecificPropsField(FieldName.RevisionDate);
                 row["State"] = drwg.State;
                 row[fs._Extension.ColumnName] = drwg?.Extension ?? "";
 
