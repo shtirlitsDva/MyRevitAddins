@@ -570,6 +570,15 @@ namespace MEPUtils.DrawingListManager
             }
             AggregateDataTable.AcceptChanges();
         }
+        internal DataGridViewRow GetDgvRow(DataGridView dgv, DataRow drow)
+        {
+            foreach (DataGridViewRow row in dgv.Rows)
+            {
+                if ((DataRowView)row.DataBoundItem == null) continue;
+                if (((DataRowView)row.DataBoundItem).Row == drow) return row;
+            }
+            return null;
+        }
         internal void AnalyzeDataAndUpdateGridView(DataGridView dGV)
         {
             foreach (Drwg drwg in drwgListAggregated)
@@ -578,16 +587,11 @@ namespace MEPUtils.DrawingListManager
                 switch (drwg.State)
                 {
                     case (Drwg.StateFlags)32767:
-                        //Number field
+                        DataGridViewRow dGVRow = GetDgvRow(dGV, drwg.dataRowGV);
 
-                        DataGridViewRow dGVRow = null;
-                        foreach (DataGridViewRow row in dGV.Rows)
-                        {
-                            if ((DataRowView)row.DataBoundItem == null) continue;
-                            if (((DataRowView)row.DataBoundItem).Row == drwg.dataRowGV) dGVRow = row;
-                        }
                         if (dGVRow != null)
                         {
+                            //Number field
                             var cell = dGVRow.Cells[fs._Number.ColumnName];
                             cell.Style = dgvStyles.AllOkay;
                             cell.ToolTipText = drwg.BuildToolTip(FieldName.Number);
