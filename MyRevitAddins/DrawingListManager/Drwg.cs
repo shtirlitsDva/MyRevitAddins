@@ -144,6 +144,93 @@ namespace MEPUtils.DrawingListManager
                     return "";
             }
         }
+        internal string GetValue(Source source, FieldName fname)
+        {
+            switch (source)
+            {
+                case Source.None:
+                    return "";
+                case Source.Excel:
+                    return GetValue(DataFromExcel, fname);
+                case Source.FileName:
+                    return GetValue(DataFromFileName, fname);
+                case Source.MetaData:
+                    return GetValue(DataFromMetadata, fname);
+                default:
+                    return "";
+            }
+        }
+        internal string GetValue(DrwgProps props, FieldName fieldName)
+        {
+            switch (fieldName)
+            {
+                case FieldName.None:
+                    return "";
+                case FieldName.Number:
+                    return props.Number.Value;
+                case FieldName.Title:
+                    return props.Title.Value;
+                case FieldName.Revision:
+                    return props.Revision.Value;
+                case FieldName.Scale:
+                    return props.Scale.Value;
+                case FieldName.Date:
+                    return props.Date.Value;
+                case FieldName.RevisionDate:
+                    return props.RevisionDate.Value;
+                case FieldName.DrawingListCategory:
+                    return props.DrawingListCategory.Value;
+                case FieldName.FileNameFormat:
+                    return props.FileNameFormat.Value;
+                case FieldName.Selected:
+                    throw new NotImplementedException();
+                case FieldName.Extension:
+                    throw new NotImplementedException();
+                default:
+                    return "";
+            }
+        }
+        internal string BuildToolTip(FieldName fname)
+        {
+            List<string> strLst = new List<string>() { };
+            switch (fname)
+            {
+                case FieldName.None:
+                    return "";
+                case FieldName.Number:
+                    if ((State & StateFlags.NumberFromExcel) != 0)
+                        strLst.Add(string.Format("   Excel: {0:G}", GetValue(DataFromExcel, fname)));
+                    if ((State & StateFlags.NumberFromFileName) != 0)
+                        strLst.Add(string.Format("Filename: {0:G}", GetValue(DataFromFileName, fname)));
+                    if ((State & StateFlags.NumberFromMeta) != 0)
+                        strLst.Add(string.Format("Metadata: {0:G}", GetValue(DataFromMetadata, fname)));
+                    break;
+                case FieldName.Title:
+                    break;
+                case FieldName.Revision:
+                    break;
+                case FieldName.Scale:
+                    break;
+                case FieldName.Date:
+                    break;
+                case FieldName.RevisionDate:
+                    break;
+                case FieldName.DrawingListCategory:
+                    break;
+                case FieldName.FileNameFormat:
+                    break;
+                case FieldName.Selected:
+                    break;
+                case FieldName.Extension:
+                    break;
+                default:
+                    break;
+            }
+
+            if (strLst.Count > 1) return string.Join("\n", strLst);
+            if (strLst.Count == 1) return strLst.First();
+            else return "";
+        }
 
         internal void ActOnState()
         {

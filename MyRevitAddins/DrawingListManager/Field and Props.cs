@@ -159,9 +159,17 @@ namespace MEPUtils.DrawingListManager
         Selected,
         Extension
     }
+    public enum Source
+    {
+        None,
+        Excel,
+        FileName,
+        MetaData
+    }
 
     public class DrwgProps
     {
+        internal Source Source;
         public Field.Number Number { get; private set; }
         public Field.Title Title { get; private set; }
         public Field.Revision Revision { get; private set; }
@@ -170,40 +178,11 @@ namespace MEPUtils.DrawingListManager
         public Field.RevisionDate RevisionDate { get; private set; }
         public Field.DrawingListCategory DrawingListCategory { get; private set; }
         public Field.FileNameFormat FileNameFormat { get; private set; }
-        public string GetValue(FieldName fieldName)
-        {
-            switch (fieldName)
-            {
-                case FieldName.None:
-                    return "";
-                case FieldName.Number:
-                    return Number.Value;
-                case FieldName.Title:
-                    return Title.Value;
-                case FieldName.Revision:
-                    return Revision.Value;
-                case FieldName.Scale:
-                    return Scale.Value;
-                case FieldName.Date:
-                    return Date.Value;
-                case FieldName.RevisionDate:
-                    return RevisionDate.Value;
-                case FieldName.DrawingListCategory:
-                    return DrawingListCategory.Value;
-                case FieldName.FileNameFormat:
-                    return FileNameFormat.Value;
-                case FieldName.Selected:
-                    throw new NotImplementedException();
-                case FieldName.Extension:
-                    throw new NotImplementedException();
-                default:
-                    return "";
-            }
-        }
         public class Source_FileName : DrwgProps
         {
             public Source_FileName(string number, string title, string fileNameFormat, string revision)
             {
+                Source = Source.FileName;
                 Number = new Field.Number(number);
                 Title = new Field.Title(title);
                 Revision = new Field.Revision(revision);
@@ -216,6 +195,7 @@ namespace MEPUtils.DrawingListManager
             public Source_Excel(
                 string number, string title, string revision, string scale, string date, string revisionDate)
             {
+                Source = Source.Excel;
                 Number = new Field.Number(number);
                 Title = new Field.Title(title);
                 Scale = new Field.Scale(scale);
@@ -231,6 +211,7 @@ namespace MEPUtils.DrawingListManager
             public Source_Meta(
                 string number, string title, string revision, string scale, string date, string revDate, string drwgLstCat)
             {
+                Source = Source.MetaData;
                 Number = new Field.Number(number);
                 Title = new Field.Title(title);
                 Scale = new Field.Scale(scale);

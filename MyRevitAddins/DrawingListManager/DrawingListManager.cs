@@ -13,6 +13,7 @@ using DataTable = System.Data.DataTable;
 using PdfSharp.Pdf;
 using PdfSharp.Pdf.IO;
 using NLog;
+using System.Drawing;
 
 namespace MEPUtils.DrawingListManager
 {
@@ -43,8 +44,10 @@ namespace MEPUtils.DrawingListManager
         private DataSet ExcelDataSet;
         //Fields for Metadata data
         private DataTable MetadataDataTable;
-        public DataTable FileNameDataTable;
+        internal DataTable FileNameDataTable;
         internal DataTable AggregateDataTable;
+        //DataGridViewStyles
+        internal DgvStyles dgvStyles = new DgvStyles();
         //Logger
         private static readonly NLog.Logger Log = NLog.LogManager.GetCurrentClassLogger();
         internal void EnumeratePdfFiles(string path)
@@ -124,10 +127,10 @@ namespace MEPUtils.DrawingListManager
             {
                 DataRow row = FileNameDataTable.NewRow();
 
-                row[fs._Number.ColumnName] = drwg.DataFromFileName.GetValue(FieldName.Number);
-                row[fs._Title.ColumnName] = drwg.DataFromFileName.GetValue(FieldName.Title);
-                row[fs._FileNameFormat.ColumnName] = drwg.DataFromFileName.GetValue(FieldName.FileNameFormat);
-                row[fs._Revision.ColumnName] = drwg.DataFromFileName.GetValue(FieldName.Revision);
+                row[fs._Number.ColumnName] = drwg.GetValue(Source.FileName, FieldName.Number);
+                row[fs._Title.ColumnName] = drwg.GetValue(Source.FileName, FieldName.Title);
+                row[fs._FileNameFormat.ColumnName] = drwg.GetValue(Source.FileName, FieldName.FileNameFormat);
+                row[fs._Revision.ColumnName] = drwg.GetValue(Source.FileName, FieldName.Revision);
 
                 FileNameDataTable.Rows.Add(row);
             }
@@ -566,6 +569,40 @@ namespace MEPUtils.DrawingListManager
                 AggregateDataTable.Rows.Add(row);
             }
             AggregateDataTable.AcceptChanges();
+        }
+        internal void AnalyzeDataAndUpdateGridView(DataGridView dGV)
+        {
+            foreach (Drwg drwg in drwgListAggregated)
+            {
+                //Analyze number field
+                switch (drwg.State)
+                {
+                    case (Drwg.StateFlags)32767:
+                        //Number field
+
+                        DataGridViewRow dGVRow = null;
+                        foreach (DataGridViewRow row in dGV.Rows)
+                        {
+                            if ((DataRowView)row.DataBoundItem == null) continue;
+                            if (((DataRowView)row.DataBoundItem).Row == drwg.dataRowGV) dGVRow = row;
+                        }
+                        if (dGVRow != null)
+                        {
+                            var cell = dGVRow.Cells[fs._Number.ColumnName];
+                            cell.Style = dgvStyles.AllOkay;
+                            cell.ToolTipText = drwg.BuildToolTip(FieldName.Number);
+                        }
+
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+
+        internal class DgvStyles
+        {
+            internal DataGridViewCellStyle AllOkay = new DataGridViewCellStyle() { ForeColor = Color.Green };
         }
     }
 }
