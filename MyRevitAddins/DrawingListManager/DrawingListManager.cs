@@ -44,7 +44,7 @@ namespace MEPUtils.DrawingListManager
         private DataSet ExcelDataSet;
         //Fields for Metadata data
         private DataTable MetadataDataTable;
-        internal DataTable FileNameDataTable;
+        //internal DataTable FileNameDataTable;
         internal DataTable AggregateDataTable;
         //DataGridViewStyles
         internal DgvStyles dgvStyles = new DgvStyles();
@@ -78,64 +78,70 @@ namespace MEPUtils.DrawingListManager
                 drwg.ReadDrwgDataFromFileName();
             }
         }
-        internal void BuildFileNameDataTable()
-        {
-            FileNameDataTable = new DataTable("DrwgFileNameData");
+        //internal void BuildFileNameDataTable()
+        //{
+        //    FileNameDataTable = new DataTable("DrwgFileNameData");
 
-            #region DataTable Definition
-            DataColumn column;
+        //    #region DataTable Definition
+        //    DataColumn column;
 
-            column = new DataColumn();
-            column.DataType = typeof(string);
-            column.ColumnName = fs._Number.ColumnName;
-            FileNameDataTable.Columns.Add(column);
+        //    column = new DataColumn();
+        //    column.DataType = typeof(string);
+        //    column.ColumnName = fs._Number.ColumnName;
+        //    FileNameDataTable.Columns.Add(column);
 
-            column = new DataColumn();
-            column.DataType = typeof(string);
-            column.ColumnName = fs._Title.ColumnName;
-            FileNameDataTable.Columns.Add(column);
+        //    column = new DataColumn();
+        //    column.DataType = typeof(string);
+        //    column.ColumnName = fs._Title.ColumnName;
+        //    FileNameDataTable.Columns.Add(column);
 
-            column = new DataColumn();
-            column.DataType = typeof(string);
-            column.ColumnName = fs._FileNameFormat.ColumnName;
-            FileNameDataTable.Columns.Add(column);
+        //    column = new DataColumn();
+        //    column.DataType = typeof(string);
+        //    column.ColumnName = fs._FileNameFormat.ColumnName;
+        //    FileNameDataTable.Columns.Add(column);
 
-            column = new DataColumn();
-            column.DataType = typeof(string);
-            column.ColumnName = fs._Scale.ColumnName;
-            FileNameDataTable.Columns.Add(column);
+        //    column = new DataColumn();
+        //    column.DataType = typeof(string);
+        //    column.ColumnName = fs._Scale.ColumnName;
+        //    FileNameDataTable.Columns.Add(column);
 
-            column = new DataColumn();
-            column.DataType = typeof(string);
-            column.ColumnName = fs._Date.ColumnName;
-            FileNameDataTable.Columns.Add(column);
+        //    column = new DataColumn();
+        //    column.DataType = typeof(string);
+        //    column.ColumnName = fs._Date.ColumnName;
+        //    FileNameDataTable.Columns.Add(column);
 
-            column = new DataColumn();
-            column.DataType = typeof(string);
-            column.ColumnName = fs._Revision.ColumnName;
-            FileNameDataTable.Columns.Add(column);
+        //    column = new DataColumn();
+        //    column.DataType = typeof(string);
+        //    column.ColumnName = fs._Revision.ColumnName;
+        //    FileNameDataTable.Columns.Add(column);
 
-            column = new DataColumn();
-            column.DataType = typeof(string);
-            column.ColumnName = fs._RevisionDate.ColumnName;
-            FileNameDataTable.Columns.Add(column);
-            #endregion
-        }
-        internal void PopulateFileNameDataTable()
-        {
-            foreach (Drwg drwg in drwgListFiles)
-            {
-                DataRow row = FileNameDataTable.NewRow();
+        //    column = new DataColumn();
+        //    column.DataType = typeof(string);
+        //    column.ColumnName = fs._RevisionDate.ColumnName;
+        //    FileNameDataTable.Columns.Add(column);
 
-                row[fs._Number.ColumnName] = drwg.GetValue(Source.FileName, FieldName.Number);
-                row[fs._Title.ColumnName] = drwg.GetValue(Source.FileName, FieldName.Title);
-                row[fs._FileNameFormat.ColumnName] = drwg.GetValue(Source.FileName, FieldName.FileNameFormat);
-                row[fs._Revision.ColumnName] = drwg.GetValue(Source.FileName, FieldName.Revision);
+        //    column = new DataColumn();
+        //    column.DataType = typeof(string);
+        //    column.ColumnName = fs._Extension.ColumnName;
+        //    FileNameDataTable.Columns.Add(column);
+        //    #endregion
+        //}
+        //internal void PopulateFileNameDataTable()
+        //{
+        //    foreach (Drwg drwg in drwgListFiles)
+        //    {
+        //        DataRow row = FileNameDataTable.NewRow();
 
-                FileNameDataTable.Rows.Add(row);
-            }
-            FileNameDataTable.AcceptChanges();
-        }
+        //        row[fs._Number.ColumnName] = drwg.GetValue(Source.FileName, FieldName.Number);
+        //        row[fs._Title.ColumnName] = drwg.GetValue(Source.FileName, FieldName.Title);
+        //        row[fs._FileNameFormat.ColumnName] = drwg.GetValue(Source.FileName, FieldName.FileNameFormat);
+        //        row[fs._Revision.ColumnName] = drwg.GetValue(Source.FileName, FieldName.Revision);
+        //        row[fs._Extension.ColumnName] = drwg.GetValue(Source.FileName, FieldName.Extension);
+
+        //        FileNameDataTable.Rows.Add(row);
+        //    }
+        //    FileNameDataTable.AcceptChanges();
+        //}
         internal void ScanExcelFile(string pathToDwgList)
         {
             //Fields for Excel Interop
@@ -494,7 +500,6 @@ namespace MEPUtils.DrawingListManager
                 drwgAggregated.DataFromFileName = drwgFile?.DataFromFileName;
                 drwgAggregated.DataFromExcel = drwgExcel?.DataFromExcel;
                 drwgAggregated.DataFromMetadata = drwgMeta?.DataFromMetadata;
-                drwgAggregated.Extension = drwgFile?.Extension;
 
                 if (!(drwgMeta is null)) tempDrwgListMeta.RemoveAll(x => x.Id == drwgMeta.Id);
                 if (!(drwgFile is null)) tempDrwgListFiles.RemoveAll(x => x.Id == drwgFile.Id);
@@ -522,7 +527,6 @@ namespace MEPUtils.DrawingListManager
 
                     drwgAggregated.DataFromFileName = drwgFile?.DataFromFileName;
                     drwgAggregated.DataFromMetadata = drwgMeta?.DataFromMetadata;
-                    drwgAggregated.Extension = drwgFile?.Extension;
 
                     if (!(drwgMeta is null)) tempDrwgListMeta.RemoveAll(x => x.Id == drwgMeta.Id);
                 }
@@ -561,7 +565,7 @@ namespace MEPUtils.DrawingListManager
                 row[fs._Revision.ColumnName] = drwg.TryGetValueOfSpecificPropsField(FieldName.Revision);
                 row[fs._RevisionDate.ColumnName] = drwg.TryGetValueOfSpecificPropsField(FieldName.RevisionDate);
                 row["State"] = drwg.State;
-                row[fs._Extension.ColumnName] = drwg?.Extension ?? "";
+                row[fs._Extension.ColumnName] = drwg.TryGetValueOfSpecificPropsField(FieldName.Extension);
 
                 //Store reference to the data row which holds the data
                 drwg.dataRowGV = row;
@@ -575,6 +579,7 @@ namespace MEPUtils.DrawingListManager
             foreach (DataGridViewRow row in dgv.Rows)
             {
                 if ((DataRowView)row.DataBoundItem == null) continue;
+                //Using reference equality
                 if (((DataRowView)row.DataBoundItem).Row == drow) return row;
             }
             return null;
@@ -595,6 +600,14 @@ namespace MEPUtils.DrawingListManager
                             var cell = dGVRow.Cells[fs._Number.ColumnName];
                             cell.Style = dgvStyles.AllOkay;
                             cell.ToolTipText = drwg.BuildToolTip(FieldName.Number);
+                            
+                            //Title field
+                            cell = dGVRow.Cells[fs._Title.ColumnName];
+                            //Compare values
+                            bool AreEqual = drwg.CompareFieldValues(FieldName.Title);
+                            if (AreEqual) cell.Style = dgvStyles.AllOkay;
+                            else cell.Style = dgvStyles.Warning;
+                            cell.ToolTipText = drwg.BuildToolTip(FieldName.Title);
                         }
 
                         break;
@@ -607,6 +620,7 @@ namespace MEPUtils.DrawingListManager
         internal class DgvStyles
         {
             internal DataGridViewCellStyle AllOkay = new DataGridViewCellStyle() { ForeColor = Color.Green };
+            internal DataGridViewCellStyle Warning = new DataGridViewCellStyle() { ForeColor = Color.Yellow };
         }
     }
 }

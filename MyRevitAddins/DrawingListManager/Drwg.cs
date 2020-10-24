@@ -18,7 +18,7 @@ namespace MEPUtils.DrawingListManager
 
         FileNameFormat Format;
         DrwgNamingFormat Dnf;
-        Field.Fields Fields;
+        //Field.Fields Fields;
 
         internal DataRow dataRowGV;
 
@@ -27,15 +27,13 @@ namespace MEPUtils.DrawingListManager
         internal DrwgProps.Source_Meta DataFromMetadata;
 
         internal StateFlags State;
-        internal string Extension;
-
-        //public string DrwgFileNameFormat = string.Empty;
+        //internal string Extension;
         #endregion
 
         internal List<DrwgNamingFormat> NamingFormats;
         public Drwg()
         {
-            Id = Guid.NewGuid(); Fields = new Field.Fields();
+            Id = Guid.NewGuid(); //Fields = new Field.Fields();
         }
         public Drwg(string fileNameWithPath) : this()
         {
@@ -71,17 +69,17 @@ namespace MEPUtils.DrawingListManager
             if (Dnf.Format == FileNameFormat.Other)
             {
                 DataFromFileName = new DrwgProps.Source_FileName("", Path.GetFileNameWithoutExtension(FileNameWithPath),
-                    Dnf.DrwgFileNameFormatDescription, "");
+                    Dnf.DrwgFileNameFormatDescription, "", "");
             }
             else
             {
                 Match match = Dnf.Regex.Match(FileName);
-                string number = match.Groups[Fields._Number.RegexName].Value ?? "";
-                string title = match.Groups[Fields._Title.RegexName].Value ?? "";
-                string revision = match.Groups[Fields._Revision.RegexName].Value ?? "";
+                string number = match.Groups[new Field.Number().RegexName].Value ?? "";
+                string title = match.Groups[new Field.Title().RegexName].Value ?? "";
+                string revision = match.Groups[new Field.Revision().RegexName].Value ?? "";
+                string extension = match.Groups[new Field.Extension().RegexName].Value ?? "";
                 DataFromFileName = new DrwgProps.Source_FileName(
-                    number, title, Dnf.DrwgFileNameFormatDescription, revision);
-                Extension = match.Groups[Fields._Extension.RegexName].Value ?? "";
+                    number, title, Dnf.DrwgFileNameFormatDescription, revision, extension);
             }
         }
         internal void CalculateState()
@@ -140,25 +138,33 @@ namespace MEPUtils.DrawingListManager
                     return DataFromMetadata?.DrawingListCategory?.Value ?? "";
                 case FieldName.FileNameFormat:
                     return DataFromFileName?.FileNameFormat?.Value ?? "";
+                case FieldName.Selected:
+                    return "";
+                case FieldName.Extension:
+                    return DataFromFileName?.Extension?.Value ?? "";
                 default:
                     return "";
             }
         }
-        internal string GetValue(Source source, FieldName fname)
+        internal string GetValue(Source source, FieldName fieldName)
         {
             switch (source)
             {
                 case Source.None:
                     return "";
                 case Source.Excel:
-                    return GetValue(DataFromExcel, fname);
+                    if (DataFromExcel != null) return GetValue(DataFromExcel, fieldName);
+                    break;
                 case Source.FileName:
-                    return GetValue(DataFromFileName, fname);
+                    if (DataFromFileName != null) return GetValue(DataFromFileName, fieldName);
+                    break;
                 case Source.MetaData:
-                    return GetValue(DataFromMetadata, fname);
+                    if (DataFromMetadata != null) return GetValue(DataFromMetadata, fieldName);
+                    break;
                 default:
                     return "";
             }
+            return "";
         }
         internal string GetValue(DrwgProps props, FieldName fieldName)
         {
@@ -185,51 +191,126 @@ namespace MEPUtils.DrawingListManager
                 case FieldName.Selected:
                     throw new NotImplementedException();
                 case FieldName.Extension:
-                    throw new NotImplementedException();
+                    return props.FileNameFormat.Value;
                 default:
                     return "";
             }
         }
-        internal string BuildToolTip(FieldName fname)
+        internal Field GetFieldRef(DrwgProps props, FieldName fieldName)
         {
-            List<string> strLst = new List<string>() { };
-            switch (fname)
+            switch (fieldName)
             {
                 case FieldName.None:
-                    return "";
+                    return new Field.Empty();
                 case FieldName.Number:
-                    if ((State & StateFlags.NumberFromExcel) != 0)
-                        strLst.Add(string.Format("   Excel: {0:G}", GetValue(DataFromExcel, fname)));
-                    if ((State & StateFlags.NumberFromFileName) != 0)
-                        strLst.Add(string.Format("Filename: {0:G}", GetValue(DataFromFileName, fname)));
-                    if ((State & StateFlags.NumberFromMeta) != 0)
-                        strLst.Add(string.Format("Metadata: {0:G}", GetValue(DataFromMetadata, fname)));
-                    break;
+                    return props.Number;
                 case FieldName.Title:
-                    break;
+                    return props.Title;
                 case FieldName.Revision:
-                    break;
+                    return props.Revision;
                 case FieldName.Scale:
-                    break;
+                    return props.Scale;
                 case FieldName.Date:
-                    break;
+                    return props.Date;
                 case FieldName.RevisionDate:
-                    break;
+                    return props.RevisionDate;
                 case FieldName.DrawingListCategory:
-                    break;
+                    return props.DrawingListCategory;
                 case FieldName.FileNameFormat:
-                    break;
+                    return props.FileNameFormat;
                 case FieldName.Selected:
-                    break;
+                    throw new NotImplementedException();
                 case FieldName.Extension:
+                    return props.FileNameFormat;
+                default:
+                    return new Field.Empty();
+            }
+        }
+        internal Field GetFieldRef(Source source, FieldName fieldName)
+        {
+            switch (source)
+            {
+                case Source.None:
+                    return new Field.Empty();
+                case Source.Excel:
+                    if (DataFromExcel != null) return GetFieldRef(DataFromExcel, fieldName);
+                    break;
+                case Source.FileName:
+                    if (DataFromFileName != null) return GetFieldRef(DataFromFileName, fieldName);
+                    break;
+                case Source.MetaData:
+                    if (DataFromMetadata != null) return GetFieldRef(DataFromMetadata, fieldName);
                     break;
                 default:
-                    break;
+                    return new Field.Empty();
             }
+            return new Field.Empty();
+        }
+        internal List<Field> GetAllFieldRefs(FieldName fieldName)
+        {
+            List<Field> refLst = new List<Field>() { };
 
-            if (strLst.Count > 1) return string.Join("\n", strLst);
-            if (strLst.Count == 1) return strLst.First();
+            switch (fieldName)
+            {
+                case FieldName.None:
+                    return refLst;
+                case FieldName.Number:
+                case FieldName.Title:
+                case FieldName.Revision:
+                    refLst.Add(GetFieldRef(DataFromExcel, fieldName));
+                    refLst.Add(GetFieldRef(DataFromFileName, fieldName));
+                    refLst.Add(GetFieldRef(DataFromMetadata, fieldName));
+                    break;
+                case FieldName.Scale:
+                case FieldName.Date:
+                case FieldName.RevisionDate:
+                    refLst.Add(GetFieldRef(DataFromExcel, fieldName));
+                    refLst.Add(GetFieldRef(DataFromMetadata, fieldName));
+                    break;
+                case FieldName.DrawingListCategory:
+                    refLst.Add(GetFieldRef(DataFromMetadata, fieldName));
+                    break;
+                case FieldName.FileNameFormat:
+                case FieldName.Extension:
+                    refLst.Add(GetFieldRef(DataFromFileName, fieldName));
+                    break;
+                case FieldName.Selected:
+                    return refLst;
+                default:
+                    return refLst;
+            }
+            return refLst;
+        }
+        internal string BuildToolTip(FieldName fieldName)
+        {
+            List<Field> fLst = GetAllFieldRefs(fieldName);
+            List<string> strLst = new List<string>();
+            if (fLst.Count > 1)
+            {
+                foreach (Field field in fLst)
+                {
+                    strLst.Add(field.TooltipPrefix + field.Value);
+                }
+                return string.Join("\n", strLst);
+            }
+            if (fLst.Count == 1)
+            {
+                foreach (Field field in fLst)
+                {
+                    strLst.Add(field.TooltipPrefix + field.Value);
+                }
+                return strLst.First();
+            }
             else return "";
+        }
+        internal bool CompareFieldValues(FieldName fieldName)
+        {
+            List<Field> fLst = GetAllFieldRefs(fieldName);
+            if (fLst.Count == 3) return (fLst[0].Value == fLst[1].Value) &&
+                                        (fLst[0].Value == fLst[2].Value) &&
+                                        (fLst[1].Value == fLst[2].Value);
+            if (fLst.Count == 2) return (fLst[0].Value == fLst[1].Value);
+            else return false;
         }
 
         internal void ActOnState()
@@ -280,5 +361,7 @@ namespace MEPUtils.DrawingListManager
                 }
             }
         }
+
+
     }
 }

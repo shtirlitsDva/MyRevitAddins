@@ -15,8 +15,8 @@ namespace MEPUtils.DrawingListManager
             //Load file name data
             dlm.ScanRescanFilesAndList(pathToDwgFolder);
             dlm.PopulateDrwgDataFromFileName();
-            dlm.BuildFileNameDataTable();
-            dlm.PopulateFileNameDataTable();
+            //dlm.BuildFileNameDataTable();
+            //dlm.PopulateFileNameDataTable();
 
             #region LoadExcelData-GC-Populate
             //Load excel data

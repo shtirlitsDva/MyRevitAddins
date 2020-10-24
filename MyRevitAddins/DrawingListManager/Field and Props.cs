@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using MoreLinq;
 using System.Data;
+using System.Security;
 
 namespace MEPUtils.DrawingListManager
 {
@@ -18,6 +19,11 @@ namespace MEPUtils.DrawingListManager
         public string Value { get; private set; } = "";
         public static bool operator ==(Field f1, Field f2) => f1.Value == f2.Value;
         public static bool operator !=(Field f1, Field f2) => f1.Value != f2.Value;
+        public DrwgProps PropsRef { get; private set; }
+        public string TooltipPrefix { get { return PropsRef.ToolTipPrefix; } }
+        public class Empty : Field
+        {
+        }
         public class Number : Field
         {
             public Number()
@@ -25,7 +31,7 @@ namespace MEPUtils.DrawingListManager
                 this.FieldName = FieldName.Number; RegexName = "number"; MetadataName = "DWGNUMBER";
                 ColumnName = "Drwg Nr."; ExcelColumnIdx = 1;
             }
-            public Number(string value) : this() { Value = value; }
+            public Number(string value, DrwgProps props) : this() { Value = value; PropsRef = props; }
         }
         public class Title : Field
         {
@@ -35,7 +41,7 @@ namespace MEPUtils.DrawingListManager
                 RegexName = "title"; MetadataName = "DWGTITLE";
                 ColumnName = "Drwg Title"; ExcelColumnIdx = 2;
             }
-            public Title(string value) : this() { Value = value; }
+            public Title(string value, DrwgProps props) : this() { Value = value; PropsRef = props; }
         }
         public class Revision : Field
         {
@@ -45,11 +51,12 @@ namespace MEPUtils.DrawingListManager
                 RegexName = "revision"; MetadataName = "DWGREVINDEX";
                 ColumnName = "Rev. idx"; ExcelColumnIdx = 5;
             }
-            public Revision(string value) : this() { Value = value; }
+            public Revision(string value, DrwgProps props) : this() { Value = value; PropsRef = props; }
         }
         public class Extension : Field
         {
             public Extension() { this.FieldName = FieldName.Extension; RegexName = "extension"; ColumnName = "Ext."; }
+            public Extension(string value, DrwgProps props) : this() { Value = value; PropsRef = props; }
         }
         public class Scale : Field
         {
@@ -58,7 +65,7 @@ namespace MEPUtils.DrawingListManager
                 this.FieldName = FieldName.Scale;
                 MetadataName = "DWGSCALE"; ColumnName = "Scale"; ExcelColumnIdx = 3;
             }
-            public Scale(string value) : this() { Value = value; }
+            public Scale(string value, DrwgProps props) : this() { Value = value; PropsRef = props; }
         }
         public class Date : Field
         {
@@ -67,7 +74,7 @@ namespace MEPUtils.DrawingListManager
                 this.FieldName = FieldName.Date;
                 MetadataName = "DWGDATE"; ColumnName = "Date"; ExcelColumnIdx = 4;
             }
-            public Date(string value) : this() { Value = value; }
+            public Date(string value, DrwgProps props) : this() { Value = value; PropsRef = props; }
         }
         public class RevisionDate : Field
         {
@@ -76,7 +83,7 @@ namespace MEPUtils.DrawingListManager
                 this.FieldName = FieldName.RevisionDate;
                 MetadataName = "DWGREVDATE"; ColumnName = "Rev. date"; ExcelColumnIdx = 6;
             }
-            public RevisionDate(string value) : this() { Value = value; }
+            public RevisionDate(string value, DrwgProps props) : this() { Value = value; PropsRef = props; }
         }
         public class DrawingListCategory : Field
         {
@@ -85,7 +92,7 @@ namespace MEPUtils.DrawingListManager
                 this.FieldName = FieldName.DrawingListCategory;
                 MetadataName = "DWGLSTCAT"; ColumnName = "DrwgLstCategory";
             }
-            public DrawingListCategory(string value) : this() { Value = value; }
+            public DrawingListCategory(string value, DrwgProps props) : this() { Value = value; PropsRef = props; }
         }
         public class Selected : Field
         {
@@ -101,7 +108,7 @@ namespace MEPUtils.DrawingListManager
                 this.FieldName = FieldName.FileNameFormat;
                 ColumnName = "File name format";
             }
-            public FileNameFormat(string value) : this() { Value = value; }
+            public FileNameFormat(string value, DrwgProps props) : this() { Value = value; PropsRef = props; }
         }
         public class Fields
         {
@@ -141,7 +148,6 @@ namespace MEPUtils.DrawingListManager
             /// <param name="colIdx">Index of column.</param>
             public Field GetExcelColumnField(int colIdx) =>
                 new Fields().GetAllFields().Where(x => x.ExcelColumnIdx == colIdx).FirstOrDefault();
-
         }
     }
 
@@ -178,15 +184,19 @@ namespace MEPUtils.DrawingListManager
         public Field.RevisionDate RevisionDate { get; private set; }
         public Field.DrawingListCategory DrawingListCategory { get; private set; }
         public Field.FileNameFormat FileNameFormat { get; private set; }
+        public Field.Extension Extension { get; private set; }
+        public string ToolTipPrefix { get; private set; } = string.Empty;
         public class Source_FileName : DrwgProps
         {
-            public Source_FileName(string number, string title, string fileNameFormat, string revision)
+            public Source_FileName(string number, string title, string fileNameFormat, string revision, string extension)
             {
                 Source = Source.FileName;
-                Number = new Field.Number(number);
-                Title = new Field.Title(title);
-                Revision = new Field.Revision(revision);
-                FileNameFormat = new Field.FileNameFormat(fileNameFormat);
+                Number = new Field.Number(number, this);
+                Title = new Field.Title(title, this);
+                Revision = new Field.Revision(revision, this);
+                FileNameFormat = new Field.FileNameFormat(fileNameFormat, this);
+                Extension = new Field.Extension(extension, this);
+                ToolTipPrefix = "Filename: ";
             }
         }
 
@@ -196,12 +206,13 @@ namespace MEPUtils.DrawingListManager
                 string number, string title, string revision, string scale, string date, string revisionDate)
             {
                 Source = Source.Excel;
-                Number = new Field.Number(number);
-                Title = new Field.Title(title);
-                Scale = new Field.Scale(scale);
-                Date = new Field.Date(date);
-                Revision = new Field.Revision(revision);
-                RevisionDate = new Field.RevisionDate(revisionDate);
+                Number = new Field.Number(number,this);
+                Title = new Field.Title(title, this);
+                Scale = new Field.Scale(scale, this);
+                Date = new Field.Date(date, this);
+                Revision = new Field.Revision(revision, this);
+                RevisionDate = new Field.RevisionDate(revisionDate, this);
+                ToolTipPrefix = "Excel: ";
             }
         }
 
@@ -212,13 +223,14 @@ namespace MEPUtils.DrawingListManager
                 string number, string title, string revision, string scale, string date, string revDate, string drwgLstCat)
             {
                 Source = Source.MetaData;
-                Number = new Field.Number(number);
-                Title = new Field.Title(title);
-                Scale = new Field.Scale(scale);
-                Date = new Field.Date(date);
-                Revision = new Field.Revision(revision);
-                RevisionDate = new Field.RevisionDate(revDate);
-                DrawingListCategory = new Field.DrawingListCategory(drwgLstCat);
+                Number = new Field.Number(number, this);
+                Title = new Field.Title(title, this);
+                Scale = new Field.Scale(scale, this);
+                Date = new Field.Date(date, this);
+                Revision = new Field.Revision(revision, this);
+                RevisionDate = new Field.RevisionDate(revDate, this);
+                DrawingListCategory = new Field.DrawingListCategory(drwgLstCat, this);
+                ToolTipPrefix = "Metadata: ";
             }
         }
     }
