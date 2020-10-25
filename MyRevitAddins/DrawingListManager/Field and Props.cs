@@ -142,6 +142,9 @@ namespace MEPUtils.DrawingListManager
 
                 return FieldsCollection;
             }
+            public Field GetField(FieldName fieldName) =>
+                            GetAllFields().Where(x => x.FieldName == fieldName).FirstOrDefault();
+
             /// <summary>
             /// Returns the correct Field for the specified columnindex in the excel.
             /// </summary>

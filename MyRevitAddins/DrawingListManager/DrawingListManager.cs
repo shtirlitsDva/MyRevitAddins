@@ -591,11 +591,16 @@ namespace MEPUtils.DrawingListManager
                 //Analyze number field
                 switch (drwg.State)
                 {
-                    case (Drwg.StateFlags)32767:
+                    case (Drwg.StateFlags)32767: //All fields present
                         DataGridViewRow dGVRow = GetDgvRow(dGV, drwg.dataRowGV);
 
                         if (dGVRow != null)
                         {
+                            void AnalysisFunction(DataGridViewRow dGVRow2, FieldName fieldName)
+                            {
+                                var cell2 = dGVRow2.Cells[fs.GetField(fieldName).ColumnName];
+                            }
+
                             //Number field
                             var cell = dGVRow.Cells[fs._Number.ColumnName];
                             cell.Style = dgvStyles.AllOkay;
@@ -608,6 +613,38 @@ namespace MEPUtils.DrawingListManager
                             if (AreEqual) cell.Style = dgvStyles.AllOkay;
                             else cell.Style = dgvStyles.Warning;
                             cell.ToolTipText = drwg.BuildToolTip(FieldName.Title);
+
+                            //Scale field
+                            cell = dGVRow.Cells[fs._Scale.ColumnName];
+                            //Compare values
+                            AreEqual = drwg.CompareFieldValues(FieldName.Scale);
+                            if (AreEqual) cell.Style = dgvStyles.AllOkay;
+                            else cell.Style = dgvStyles.Warning;
+                            cell.ToolTipText = drwg.BuildToolTip(FieldName.Scale);
+
+                            //Date field
+                            cell = dGVRow.Cells[fs._Date.ColumnName];
+                            //Compare values
+                            AreEqual = drwg.CompareFieldValues(FieldName.Date);
+                            if (AreEqual) cell.Style = dgvStyles.AllOkay;
+                            else cell.Style = dgvStyles.Warning;
+                            cell.ToolTipText = drwg.BuildToolTip(FieldName.Date);
+
+                            //Revision field
+                            cell = dGVRow.Cells[fs._Revision.ColumnName];
+                            //Compare values
+                            AreEqual = drwg.CompareFieldValues(FieldName.Revision);
+                            if (AreEqual) cell.Style = dgvStyles.AllOkay;
+                            else cell.Style = dgvStyles.Warning;
+                            cell.ToolTipText = drwg.BuildToolTip(FieldName.Revision);
+
+                            //RevDate field
+                            cell = dGVRow.Cells[fs._RevisionDate.ColumnName];
+                            //Compare values
+                            AreEqual = drwg.CompareFieldValues(FieldName.RevisionDate);
+                            if (AreEqual) cell.Style = dgvStyles.AllOkay;
+                            else cell.Style = dgvStyles.Warning;
+                            cell.ToolTipText = drwg.BuildToolTip(FieldName.RevisionDate);
                         }
 
                         break;
