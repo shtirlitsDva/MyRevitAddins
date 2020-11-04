@@ -185,6 +185,13 @@
     <Compile Include="16 Tilkoblet\01 Tilkoblet.cs" />
     <Compile Include="15 FlowCopy\01 FlowCopy.cs" />
     <Compile Include="17 TestIExternalCommand\01 TestNlog.cs" />
+    <Compile Include="18 SearchAndSelect\01 SearchAndSelect.cs" />
+    <Compile Include="18 SearchAndSelect\SnS.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="18 SearchAndSelect\SnS.Designer.cs">
+      <DependentUpon>SnS.cs</DependentUpon>
+    </Compile>
     <Compile Include="MEPUtilsClass.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="MEPUtils.cs">
@@ -239,6 +246,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="13 NumberStuff\NumberStuffForm.resx">
       <DependentUpon>NumberStuffForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="18 SearchAndSelect\SnS.resx">
+      <DependentUpon>SnS.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MEPUtils.resx">
       <DependentUpon>MEPUtils.cs</DependentUpon>
