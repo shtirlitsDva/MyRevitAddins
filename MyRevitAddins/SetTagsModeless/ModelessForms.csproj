@@ -80,6 +80,14 @@
     <Compile Include="02 MepUtils\MEPUtilsModeless.Designer.cs">
       <DependentUpon>MEPUtilsModeless.cs</DependentUpon>
     </Compile>
+    <Compile Include="03 SearchAndSelect\01 SearchAndSelect.cs" />
+    <Compile Include="03 SearchAndSelect\AsyncMethodSnS.cs" />
+    <Compile Include="03 SearchAndSelect\SnS.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="03 SearchAndSelect\SnS.Designer.cs">
+      <DependentUpon>SnS.cs</DependentUpon>
+    </Compile>
     <Compile Include="Application.cs" />
     <Compile Include="01 SetTags\AsyncMethodSetTags.cs" />
     <Compile Include="01 SetTags\BasicChooserForm.cs">
@@ -111,8 +119,13 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Resources\ImgSnS16.png" />
+    <Content Include="Resources\ImgSnS32.png" />
     <EmbeddedResource Include="02 MepUtils\MEPUtilsModeless.resx">
       <DependentUpon>MEPUtilsModeless.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="03 SearchAndSelect\SnS.resx">
+      <DependentUpon>SnS.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Resources\ImgMEPUtils32.png" />
     <EmbeddedResource Include="Resources\ImgMEPUtils16.png" />

@@ -5,7 +5,6 @@ using Autodesk.Revit.DB.Mechanical;
 using Autodesk.Revit.UI;
 using Autodesk.Revit.UI.Selection;
 using MEPUtils.SharedStaging;
-using Microsoft.WindowsAPICodePack.Dialogs;
 using MoreLinq;
 using Shared;
 using System;
@@ -18,13 +17,12 @@ using System.Text;
 using System.Windows.Input;
 using dbg = Shared.Dbg;
 using fi = Shared.Filter;
-using lad = MEPUtils.CreateInstrumentation.ListsAndDicts;
 using mp = Shared.MepUtils;
 using tr = Shared.Transformation;
 using Autodesk.Revit.Attributes;
 using NLog;
 
-namespace MEPUtils.SearchAndSelect
+namespace MEPUtils.ModelessForms.SearchAndSelect
 {
     [Transaction(TransactionMode.Manual)]
     public class SearchAndSelect : IExternalCommand
@@ -36,12 +34,6 @@ namespace MEPUtils.SearchAndSelect
             UIApplication uiApp = commandData.Application;
             Document doc = commandData.Application.ActiveUIDocument.Document;
             UIDocument uidoc = uiApp.ActiveUIDocument;
-
-
-
-            
-
-            
 
             return Result.Succeeded;
         }

@@ -48,8 +48,10 @@ namespace MEPUtils.ModelessForms
         internal static Application thisApp = null;
         // ModelessTagsForm instance
         private SetTagsInterface m_TagsForm;
-        // ModelessTagsForm instance
+        // ModelessMepUtils instance
         private MEPUtilsChooser m_MepUtilsForm;
+        // ModelessSearchAndSelect instance
+        private SearchAndSelect.SnS m_SearchAndSelect;
         //Modeless payload
         public IAsyncCommand asyncCommand;
 
@@ -95,6 +97,13 @@ namespace MEPUtils.ModelessForms
             data.Image = NewBitmapImage(exe, "MEPUtils.ModelessForms.Resources.ImgMEPUtils16.png");
             data.LargeImage = NewBitmapImage(exe, "MEPUtils.ModelessForms.Resources.ImgMEPUtils32.png");
             PushButton MepUtils = rvtRibbonPanel.AddItem(data) as PushButton;
+
+            //MEPUtils.ModelessForms.SearchAndSelect
+            data = new PushButtonData("Search and Select", "SnS", ExecutingAssemblyPath, "MEPUtils.ModelessForms.SnSLauncher");
+            data.ToolTip = "Modeless Search and Select";
+            data.Image = NewBitmapImage(exe, "MEPUtils.ModelessForms.Resources.ImgSnS16.png");
+            data.LargeImage = NewBitmapImage(exe, "MEPUtils.ModelessForms.Resources.ImgSnS32.png");
+            PushButton SnSButoon = rvtRibbonPanel.AddItem(data) as PushButton;
         }
 
         /// <summary>
@@ -146,6 +155,24 @@ namespace MEPUtils.ModelessForms
                 m_MepUtilsForm.Show();
             }
         }
+
+        internal void ShowSnSForm(UIApplication application)
+        {
+            // If we do not have a dialog yet, create and show it
+            if (m_SearchAndSelect == null || m_SearchAndSelect.IsDisposed)
+            {
+                // A new handler to handle request posting by the dialog
+                ExternalEventHandler handler = new ExternalEventHandler(thisApp);
+
+                // External Event for the dialog to use (to post requests)
+                ExternalEvent exEvent = ExternalEvent.Create(handler);
+
+                // We give the objects to the new dialog;
+                // The dialog becomes the owner responsible fore disposing them, eventually.
+                m_SearchAndSelect = new SearchAndSelect.SnS(exEvent, handler, thisApp);
+                m_SearchAndSelect.Show();
+            }
+        }
     }
 
     [Autodesk.Revit.Attributes.Transaction(Autodesk.Revit.Attributes.TransactionMode.Manual)]
@@ -180,6 +207,27 @@ namespace MEPUtils.ModelessForms
             try
             {
                 MEPUtils.ModelessForms.Application.thisApp.ShowMepUtilsForm(commandData.Application);
+                return Result.Succeeded;
+            }
+            catch (Exception ex)
+            {
+                message = ex.Message;
+                return Result.Failed;
+            }
+        }
+    }
+
+    [Autodesk.Revit.Attributes.Transaction(Autodesk.Revit.Attributes.TransactionMode.Manual)]
+    [Autodesk.Revit.Attributes.Regeneration(Autodesk.Revit.Attributes.RegenerationOption.Manual)]
+    public class SnSLauncher : IExternalCommand
+    {
+
+        public virtual Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
+        {
+
+            try
+            {
+                MEPUtils.ModelessForms.Application.thisApp.ShowSnSForm(commandData.Application);
                 return Result.Succeeded;
             }
             catch (Exception ex)
