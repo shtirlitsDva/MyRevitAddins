@@ -82,6 +82,7 @@
     </Compile>
     <Compile Include="03 SearchAndSelect\01 SearchAndSelect.cs" />
     <Compile Include="03 SearchAndSelect\AsyncMethodSnS.cs" />
+    <Compile Include="03 SearchAndSelect\Data.cs" />
     <Compile Include="03 SearchAndSelect\SnS.cs">
       <SubType>Form</SubType>
     </Compile>
