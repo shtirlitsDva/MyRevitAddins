@@ -30,10 +30,11 @@
         {
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.Select = new System.Windows.Forms.TabPage();
-            this.tabPage2 = new System.Windows.Forms.TabPage();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.checkedListBox1 = new System.Windows.Forms.CheckedListBox();
             this.checkBox1 = new System.Windows.Forms.CheckBox();
+            this.checkedListBox1 = new System.Windows.Forms.CheckedListBox();
+            this.tabPage2 = new System.Windows.Forms.TabPage();
+            this.button1 = new System.Windows.Forms.Button();
             this.tabControl1.SuspendLayout();
             this.Select.SuspendLayout();
             this.groupBox1.SuspendLayout();
@@ -47,29 +48,20 @@
             this.tabControl1.Location = new System.Drawing.Point(0, 0);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(2196, 740);
+            this.tabControl1.Size = new System.Drawing.Size(699, 740);
             this.tabControl1.TabIndex = 0;
             // 
             // Select
             // 
             this.Select.BackColor = System.Drawing.Color.Silver;
+            this.Select.Controls.Add(this.button1);
             this.Select.Controls.Add(this.groupBox1);
             this.Select.Location = new System.Drawing.Point(4, 33);
             this.Select.Name = "Select";
             this.Select.Padding = new System.Windows.Forms.Padding(3);
-            this.Select.Size = new System.Drawing.Size(2188, 703);
+            this.Select.Size = new System.Drawing.Size(691, 703);
             this.Select.TabIndex = 0;
             this.Select.Text = "Select";
-            // 
-            // tabPage2
-            // 
-            this.tabPage2.Location = new System.Drawing.Point(4, 33);
-            this.tabPage2.Name = "tabPage2";
-            this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage2.Size = new System.Drawing.Size(2188, 1382);
-            this.tabPage2.TabIndex = 1;
-            this.tabPage2.Text = "tabPage2";
-            this.tabPage2.UseVisualStyleBackColor = true;
             // 
             // groupBox1
             // 
@@ -78,20 +70,10 @@
             this.groupBox1.Controls.Add(this.checkedListBox1);
             this.groupBox1.Location = new System.Drawing.Point(6, 6);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(524, 692);
+            this.groupBox1.Size = new System.Drawing.Size(300, 692);
             this.groupBox1.TabIndex = 1;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Categories";
-            // 
-            // checkedListBox1
-            // 
-            this.checkedListBox1.BackColor = System.Drawing.Color.Silver;
-            this.checkedListBox1.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.checkedListBox1.FormattingEnabled = true;
-            this.checkedListBox1.Location = new System.Drawing.Point(3, 61);
-            this.checkedListBox1.Name = "checkedListBox1";
-            this.checkedListBox1.Size = new System.Drawing.Size(518, 628);
-            this.checkedListBox1.TabIndex = 1;
             // 
             // checkBox1
             // 
@@ -103,11 +85,41 @@
             this.checkBox1.UseVisualStyleBackColor = true;
             this.checkBox1.CheckedChanged += new System.EventHandler(this.checkBox1_CheckedChanged);
             // 
+            // checkedListBox1
+            // 
+            this.checkedListBox1.BackColor = System.Drawing.Color.Silver;
+            this.checkedListBox1.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.checkedListBox1.FormattingEnabled = true;
+            this.checkedListBox1.Location = new System.Drawing.Point(3, 61);
+            this.checkedListBox1.Name = "checkedListBox1";
+            this.checkedListBox1.Size = new System.Drawing.Size(294, 628);
+            this.checkedListBox1.TabIndex = 1;
+            // 
+            // tabPage2
+            // 
+            this.tabPage2.Location = new System.Drawing.Point(4, 33);
+            this.tabPage2.Name = "tabPage2";
+            this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage2.Size = new System.Drawing.Size(2188, 703);
+            this.tabPage2.TabIndex = 1;
+            this.tabPage2.Text = "tabPage2";
+            this.tabPage2.UseVisualStyleBackColor = true;
+            // 
+            // button1
+            // 
+            this.button1.Location = new System.Drawing.Point(502, 616);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(181, 78);
+            this.button1.TabIndex = 2;
+            this.button1.Text = "Select";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
+            // 
             // SnS
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(11F, 24F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(2196, 740);
+            this.ClientSize = new System.Drawing.Size(699, 740);
             this.Controls.Add(this.tabControl1);
             this.Name = "SnS";
             this.Text = "SnS";
@@ -127,5 +139,6 @@
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.CheckBox checkBox1;
         private System.Windows.Forms.CheckedListBox checkedListBox1;
+        private System.Windows.Forms.Button button1;
     }
 }

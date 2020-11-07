@@ -1,4 +1,5 @@
 ﻿using Autodesk.Revit.DB;
+using Autodesk.Revit.DB.Plumbing;
 using Autodesk.Revit.UI;
 using Autodesk.Revit.UI.Selection;
 using NLog;
@@ -12,13 +13,13 @@ using WinForms = System.Windows.Forms;
 
 namespace MEPUtils.ModelessForms.SearchAndSelect
 {
-    class AsyncExecuteCommand : IAsyncCommand
+    class AsyncSelectByFilters : IAsyncCommand
     {
-        Func<UIApplication, Result> Method;
-        private AsyncExecuteCommand() { }
-        public AsyncExecuteCommand(Func<UIApplication, Result> method)
+        SelectionPredicateContainer Payload;
+        private AsyncSelectByFilters() { }
+        public AsyncSelectByFilters(SelectionPredicateContainer payload)
         {
-            Method = method;
+            Payload = payload;
         }
 
         private static readonly NLog.Logger log = NLog.LogManager.GetCurrentClassLogger();
@@ -38,7 +39,33 @@ namespace MEPUtils.ModelessForms.SearchAndSelect
             NLog.LogManager.DisableLogging();
             #endregion
 
-            Method.Invoke(uiApp);
+            Document doc = uiApp.ActiveUIDocument.Document;
+            UIDocument uidoc = uiApp.ActiveUIDocument;
+
+            Selection selection = uidoc.Selection;
+
+            FilteredElementCollector col = new FilteredElementCollector(doc);
+
+            //Test to see if catfilter is populated
+            if (Payload.CategoriesToSearch.Count < 1) return;
+
+            List<ElementFilter> catFilter = new List<ElementFilter>();
+            if (Payload.CategoriesToSearch.Contains("Pipe Fittings"))
+                catFilter.Add(new ElementCategoryFilter(BuiltInCategory.OST_PipeFitting));
+            if (Payload.CategoriesToSearch.Contains("Pipe Accessories"))
+                catFilter.Add(new ElementCategoryFilter(BuiltInCategory.OST_PipeAccessory));
+            if (Payload.CategoriesToSearch.Contains("Pipes"))
+                catFilter.Add(new ElementClassFilter(typeof(Pipe)));
+
+            col.WherePasses(new LogicalAndFilter(new List<ElementFilter>
+                                                    {new LogicalOrFilter(catFilter),
+                                                        new LogicalOrFilter(new List<ElementFilter>
+                                                        {
+                                                            new ElementClassFilter(typeof(Pipe)),
+                                                            new ElementClassFilter(typeof(FamilyInstance))
+                                                        })}));
+
+            selection.SetElementIds(col.ToElementIds());
         }
     }
 }
