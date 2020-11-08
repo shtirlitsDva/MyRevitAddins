@@ -30,14 +30,21 @@
         {
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.Select = new System.Windows.Forms.TabPage();
-            this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.checkBox1 = new System.Windows.Forms.CheckBox();
-            this.checkedListBox1 = new System.Windows.Forms.CheckedListBox();
-            this.tabPage2 = new System.Windows.Forms.TabPage();
             this.button1 = new System.Windows.Forms.Button();
+            this.tabPage2 = new System.Windows.Forms.TabPage();
+            this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
+            this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
+            this.checkedListBox2 = new System.Windows.Forms.CheckedListBox();
+            this.checkBox1 = new System.Windows.Forms.CheckBox();
+            this.textBox1 = new System.Windows.Forms.TextBox();
+            this.tableLayoutPanel3 = new System.Windows.Forms.TableLayoutPanel();
+            this.button2 = new System.Windows.Forms.Button();
+            this.treeView1 = new System.Windows.Forms.TreeView();
             this.tabControl1.SuspendLayout();
             this.Select.SuspendLayout();
-            this.groupBox1.SuspendLayout();
+            this.tableLayoutPanel1.SuspendLayout();
+            this.tableLayoutPanel2.SuspendLayout();
+            this.tableLayoutPanel3.SuspendLayout();
             this.SuspendLayout();
             // 
             // tabControl1
@@ -48,85 +55,157 @@
             this.tabControl1.Location = new System.Drawing.Point(0, 0);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(699, 740);
+            this.tabControl1.Size = new System.Drawing.Size(1531, 921);
             this.tabControl1.TabIndex = 0;
             // 
             // Select
             // 
             this.Select.BackColor = System.Drawing.Color.Silver;
-            this.Select.Controls.Add(this.button1);
-            this.Select.Controls.Add(this.groupBox1);
+            this.Select.Controls.Add(this.tableLayoutPanel3);
+            this.Select.Controls.Add(this.tableLayoutPanel2);
+            this.Select.Controls.Add(this.tableLayoutPanel1);
             this.Select.Location = new System.Drawing.Point(4, 33);
             this.Select.Name = "Select";
             this.Select.Padding = new System.Windows.Forms.Padding(3);
-            this.Select.Size = new System.Drawing.Size(691, 703);
+            this.Select.Size = new System.Drawing.Size(1523, 884);
             this.Select.TabIndex = 0;
             this.Select.Text = "Select";
             // 
-            // groupBox1
+            // button1
             // 
-            this.groupBox1.BackColor = System.Drawing.Color.Silver;
-            this.groupBox1.Controls.Add(this.checkBox1);
-            this.groupBox1.Controls.Add(this.checkedListBox1);
-            this.groupBox1.Location = new System.Drawing.Point(6, 6);
-            this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(300, 692);
-            this.groupBox1.TabIndex = 1;
-            this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "Categories";
-            // 
-            // checkBox1
-            // 
-            this.checkBox1.AutoSize = true;
-            this.checkBox1.Location = new System.Drawing.Point(6, 28);
-            this.checkBox1.Name = "checkBox1";
-            this.checkBox1.Size = new System.Drawing.Size(22, 21);
-            this.checkBox1.TabIndex = 2;
-            this.checkBox1.UseVisualStyleBackColor = true;
-            this.checkBox1.CheckedChanged += new System.EventHandler(this.checkBox1_CheckedChanged);
-            // 
-            // checkedListBox1
-            // 
-            this.checkedListBox1.BackColor = System.Drawing.Color.Silver;
-            this.checkedListBox1.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.checkedListBox1.FormattingEnabled = true;
-            this.checkedListBox1.Location = new System.Drawing.Point(3, 61);
-            this.checkedListBox1.Name = "checkedListBox1";
-            this.checkedListBox1.Size = new System.Drawing.Size(294, 628);
-            this.checkedListBox1.TabIndex = 1;
+            this.button1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.button1.Location = new System.Drawing.Point(3, 821);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(352, 54);
+            this.button1.TabIndex = 2;
+            this.button1.Text = "Select";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
             // tabPage2
             // 
             this.tabPage2.Location = new System.Drawing.Point(4, 33);
             this.tabPage2.Name = "tabPage2";
             this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage2.Size = new System.Drawing.Size(2188, 703);
+            this.tabPage2.Size = new System.Drawing.Size(691, 703);
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "tabPage2";
             this.tabPage2.UseVisualStyleBackColor = true;
             // 
-            // button1
+            // tableLayoutPanel1
             // 
-            this.button1.Location = new System.Drawing.Point(502, 616);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(181, 78);
-            this.button1.TabIndex = 2;
-            this.button1.Text = "Select";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
+            this.tableLayoutPanel1.ColumnCount = 1;
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+            this.tableLayoutPanel1.Controls.Add(this.button1, 0, 1);
+            this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Right;
+            this.tableLayoutPanel1.Location = new System.Drawing.Point(1162, 3);
+            this.tableLayoutPanel1.Name = "tableLayoutPanel1";
+            this.tableLayoutPanel1.RowCount = 2;
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 60F));
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(358, 878);
+            this.tableLayoutPanel1.TabIndex = 3;
+            // 
+            // tableLayoutPanel2
+            // 
+            this.tableLayoutPanel2.ColumnCount = 1;
+            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+            this.tableLayoutPanel2.Controls.Add(this.checkedListBox2, 0, 2);
+            this.tableLayoutPanel2.Controls.Add(this.checkBox1, 0, 1);
+            this.tableLayoutPanel2.Controls.Add(this.textBox1, 0, 0);
+            this.tableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Left;
+            this.tableLayoutPanel2.Location = new System.Drawing.Point(3, 3);
+            this.tableLayoutPanel2.Name = "tableLayoutPanel2";
+            this.tableLayoutPanel2.RowCount = 3;
+            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40F));
+            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40F));
+            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanel2.Size = new System.Drawing.Size(358, 878);
+            this.tableLayoutPanel2.TabIndex = 4;
+            // 
+            // checkedListBox2
+            // 
+            this.checkedListBox2.BackColor = System.Drawing.Color.Silver;
+            this.checkedListBox2.CheckOnClick = true;
+            this.checkedListBox2.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.checkedListBox2.FormattingEnabled = true;
+            this.checkedListBox2.Location = new System.Drawing.Point(3, 83);
+            this.checkedListBox2.Name = "checkedListBox2";
+            this.checkedListBox2.SelectionMode = System.Windows.Forms.SelectionMode.None;
+            this.checkedListBox2.Size = new System.Drawing.Size(352, 810);
+            this.checkedListBox2.TabIndex = 2;
+            // 
+            // checkBox1
+            // 
+            this.checkBox1.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.checkBox1.AutoSize = true;
+            this.checkBox1.Location = new System.Drawing.Point(3, 49);
+            this.checkBox1.Name = "checkBox1";
+            this.checkBox1.Size = new System.Drawing.Size(22, 21);
+            this.checkBox1.TabIndex = 3;
+            this.checkBox1.UseVisualStyleBackColor = true;
+            // 
+            // textBox1
+            // 
+            this.textBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.textBox1.BackColor = System.Drawing.Color.Silver;
+            this.textBox1.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.textBox1.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.textBox1.Location = new System.Drawing.Point(3, 8);
+            this.textBox1.Name = "textBox1";
+            this.textBox1.Size = new System.Drawing.Size(352, 24);
+            this.textBox1.TabIndex = 4;
+            this.textBox1.Text = "Categories";
+            // 
+            // tableLayoutPanel3
+            // 
+            this.tableLayoutPanel3.ColumnCount = 1;
+            this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+            this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.tableLayoutPanel3.Controls.Add(this.button2, 0, 0);
+            this.tableLayoutPanel3.Controls.Add(this.treeView1, 0, 1);
+            this.tableLayoutPanel3.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tableLayoutPanel3.Location = new System.Drawing.Point(361, 3);
+            this.tableLayoutPanel3.Name = "tableLayoutPanel3";
+            this.tableLayoutPanel3.RowCount = 2;
+            this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 8.428246F));
+            this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 91.57175F));
+            this.tableLayoutPanel3.Size = new System.Drawing.Size(801, 878);
+            this.tableLayoutPanel3.TabIndex = 5;
+            // 
+            // button2
+            // 
+            this.button2.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.button2.Location = new System.Drawing.Point(3, 3);
+            this.button2.Name = "button2";
+            this.button2.Size = new System.Drawing.Size(795, 67);
+            this.button2.TabIndex = 2;
+            this.button2.Text = "Edit grouping";
+            this.button2.UseVisualStyleBackColor = true;
+            // 
+            // treeView1
+            // 
+            this.treeView1.BackColor = System.Drawing.Color.Silver;
+            this.treeView1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.treeView1.Location = new System.Drawing.Point(3, 76);
+            this.treeView1.Name = "treeView1";
+            this.treeView1.Size = new System.Drawing.Size(795, 799);
+            this.treeView1.TabIndex = 3;
             // 
             // SnS
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(11F, 24F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(699, 740);
+            this.ClientSize = new System.Drawing.Size(1531, 921);
             this.Controls.Add(this.tabControl1);
             this.Name = "SnS";
             this.Text = "SnS";
             this.tabControl1.ResumeLayout(false);
             this.Select.ResumeLayout(false);
-            this.groupBox1.ResumeLayout(false);
-            this.groupBox1.PerformLayout();
+            this.tableLayoutPanel1.ResumeLayout(false);
+            this.tableLayoutPanel2.ResumeLayout(false);
+            this.tableLayoutPanel2.PerformLayout();
+            this.tableLayoutPanel3.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -136,9 +215,14 @@
         private System.Windows.Forms.TabControl tabControl1;
         private System.Windows.Forms.TabPage Select;
         private System.Windows.Forms.TabPage tabPage2;
-        private System.Windows.Forms.GroupBox groupBox1;
-        private System.Windows.Forms.CheckBox checkBox1;
-        private System.Windows.Forms.CheckedListBox checkedListBox1;
         private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel2;
+        private System.Windows.Forms.CheckedListBox checkedListBox2;
+        private System.Windows.Forms.CheckBox checkBox1;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
+        private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel3;
+        private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.TreeView treeView1;
     }
 }

@@ -12,11 +12,18 @@ using Autodesk.Revit.UI.Selection;
 
 namespace MEPUtils.ModelessForms.SearchAndSelect
 {
-    public static class Data
+    public class ElementImpression
     {
-        public static Dictionary<string, BuiltInCategory> NamesOfCats = new Dictionary<string, BuiltInCategory>
+        public int ElementId { get; private set; }
+        public string FamilyAndTypeName { get; private set; }
+        public string CategoryName { get; private set; }
+        public int CategoryNumber { get; private set; }
+        public ElementImpression(Element e)
         {
-            
-        };
+            ElementId = e.Id.IntegerValue;
+            FamilyAndTypeName = e.get_Parameter(BuiltInParameter.ELEM_FAMILY_AND_TYPE_PARAM).AsValueString();
+            CategoryName = e.Category.Name;
+            CategoryNumber = e.Category.Id.IntegerValue;
+        }
     }
 }

@@ -15,9 +15,9 @@ namespace MEPUtils.ModelessForms.SearchAndSelect
 {
     class AsyncSelectByFilters : IAsyncCommand
     {
-        SelectionPredicateContainer Payload;
+        SelectionInformationContainer Payload;
         private AsyncSelectByFilters() { }
-        public AsyncSelectByFilters(SelectionPredicateContainer payload)
+        public AsyncSelectByFilters(SelectionInformationContainer payload)
         {
             Payload = payload;
         }
@@ -55,7 +55,7 @@ namespace MEPUtils.ModelessForms.SearchAndSelect
             if (Payload.CategoriesToSearch.Contains("Pipe Accessories"))
                 catFilter.Add(new ElementCategoryFilter(BuiltInCategory.OST_PipeAccessory));
             if (Payload.CategoriesToSearch.Contains("Pipes"))
-                catFilter.Add(new ElementClassFilter(typeof(Pipe)));
+                catFilter.Add(new ElementCategoryFilter(BuiltInCategory.OST_PipeCurves));
 
             col.WherePasses(new LogicalAndFilter(new List<ElementFilter>
                                                     {new LogicalOrFilter(catFilter),
@@ -66,6 +66,9 @@ namespace MEPUtils.ModelessForms.SearchAndSelect
                                                         })}));
 
             selection.SetElementIds(col.ToElementIds());
+
+            Payload.ElementsInSelection = col.Select(x => new ElementImpression(x)).ToHashSet();
+            Payload.RaiseSnSOperationComplete();
         }
     }
 }

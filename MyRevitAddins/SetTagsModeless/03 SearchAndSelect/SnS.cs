@@ -17,6 +17,9 @@ namespace MEPUtils.ModelessForms.SearchAndSelect
         private ExternalEventHandler m_Handler;
         Application ThisApp;
 
+        //data stuff
+        SelectionInformationContainer Payload;
+
         public SnS(Autodesk.Revit.UI.ExternalEvent exEvent,
                    ExternalEventHandler handler,
                    MEPUtils.ModelessForms.Application thisApp)
@@ -29,23 +32,23 @@ namespace MEPUtils.ModelessForms.SearchAndSelect
 
             //Setup a rudimentary list with categories
             string[] cats = { "Pipes", "Pipe Fittings", "Pipe Accessories" };
-            checkedListBox1.Items.Clear();
-            checkedListBox1.Items.AddRange(cats);
+            checkedListBox2.Items.Clear();
+            checkedListBox2.Items.AddRange(cats);
         }
         private void checkBox1_CheckedChanged(object sender, EventArgs e)
         {
             if (checkBox1.Checked)
             {
-                for (int i = 0; i < checkedListBox1.Items.Count; i++)
+                for (int i = 0; i < checkedListBox2.Items.Count; i++)
                 {
-                    checkedListBox1.SetItemChecked(i, true);
+                    checkedListBox2.SetItemChecked(i, true);
                 }
             }
             else
             {
-                for (int i = 0; i < checkedListBox1.Items.Count; i++)
+                for (int i = 0; i < checkedListBox2.Items.Count; i++)
                 {
-                    checkedListBox1.SetItemChecked(i, false);
+                    checkedListBox2.SetItemChecked(i, false);
                 }
             }
         }
@@ -54,12 +57,18 @@ namespace MEPUtils.ModelessForms.SearchAndSelect
         /// </summary>
         private void button1_Click(object sender, EventArgs e)
         {
-            SelectionPredicateContainer payload = new SelectionPredicateContainer();
-            payload.CategoriesToSearch = checkedListBox1.CheckedItems.OfType<string>().ToList();
+            Payload = new SelectionInformationContainer();
+            Payload.CategoriesToSearch = checkedListBox2.CheckedItems.OfType<string>().ToList();
+            Payload.SnSOperationComplete += UpdateTreeView;
 
-            AsyncSelectByFilters asSBF = new AsyncSelectByFilters(payload);
+            AsyncSelectByFilters asSBF = new AsyncSelectByFilters(Payload);
             ThisApp.asyncCommand = asSBF;
             m_ExEvent.Raise();
+        }
+
+        private void UpdateTreeView(object sender, MyEventArgs e)
+        {
+
         }
     }
 }
