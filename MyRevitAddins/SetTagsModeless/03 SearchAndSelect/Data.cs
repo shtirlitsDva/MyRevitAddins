@@ -18,12 +18,14 @@ namespace MEPUtils.ModelessForms.SearchAndSelect
         public string FamilyAndTypeName { get; private set; }
         public string CategoryName { get; private set; }
         public int CategoryNumber { get; private set; }
+        public string SystemAbbreviation { get; private set; }
         public ElementImpression(Element e)
         {
             ElementId = e.Id.IntegerValue;
             FamilyAndTypeName = e.get_Parameter(BuiltInParameter.ELEM_FAMILY_AND_TYPE_PARAM).AsValueString();
             CategoryName = e.Category.Name;
             CategoryNumber = e.Category.Id.IntegerValue;
+            SystemAbbreviation = e.get_Parameter(BuiltInParameter.RBS_DUCT_PIPE_SYSTEM_ABBREVIATION_PARAM).AsString();
         }
     }
 }
