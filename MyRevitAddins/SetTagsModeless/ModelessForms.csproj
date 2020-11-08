@@ -121,8 +121,8 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Resources\ImgSnS16.png" />
-    <Content Include="Resources\ImgSnS32.png" />
+    <EmbeddedResource Include="Resources\ImgSnS16.png" />
+    <EmbeddedResource Include="Resources\ImgSnS32.png" />
     <EmbeddedResource Include="02 MepUtils\MEPUtilsModeless.resx">
       <DependentUpon>MEPUtilsModeless.cs</DependentUpon>
     </EmbeddedResource>
