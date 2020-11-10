@@ -74,6 +74,7 @@ namespace MEPUtils.ModelessForms.SearchAndSelect
         private void UpdateTreeView(object sender, MyEventArgs e)
         {
             int nrOfLevels = 3;
+            string[] levelNames = new string[] { "System Abbreviation", "Category Name", "Family and Type Name" };
             //Level 1: System Abbreviation
             //Level 2: Category Name
             //Level 3: Family and Type Name
@@ -81,6 +82,9 @@ namespace MEPUtils.ModelessForms.SearchAndSelect
             treeView1.BeginUpdate();
             treeView1.Nodes.Clear();
 
+
+
+            #region StaticMockUp
             var lv1Group = Payload.ElementsInSelection.GroupBy(x => x.SystemAbbreviation);
             treeView1.Nodes.Add("All");
 
@@ -93,7 +97,7 @@ namespace MEPUtils.ModelessForms.SearchAndSelect
 
                 i++;
                 int j = -1;
-                foreach (IGrouping<string,ElementImpression> group2 in lv2Group)
+                foreach (IGrouping<string, ElementImpression> group2 in lv2Group)
                 {
                     treeView1.Nodes[0].Nodes[i].Nodes.Add(group2.Key);
 
@@ -110,7 +114,8 @@ namespace MEPUtils.ModelessForms.SearchAndSelect
                         treeView1.Nodes[0].Nodes[i].Nodes[j].Nodes[k].Nodes.Add(ei.CategoryNumber.ToString());
                     }
                 }
-            }
+            } 
+            #endregion
             treeView1.EndUpdate();
         }
     }
