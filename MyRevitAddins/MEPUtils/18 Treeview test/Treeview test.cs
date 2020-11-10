@@ -48,6 +48,7 @@ namespace MEPUtils.Treeview_test
 
         public void PopulateTreeview()
         {
+            //Manually add root node
             treeView1.Nodes.Add("All");
 
             foreach (Element e in Elements)

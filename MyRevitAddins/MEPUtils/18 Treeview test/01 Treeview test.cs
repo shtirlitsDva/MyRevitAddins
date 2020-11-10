@@ -59,9 +59,10 @@ namespace MEPUtils.Treeview_test
             HashSet<Element> els = new HashSet<Element>(col.ToElements());
 
             PropertiesInformation[] PropsList = new PropertiesInformation[]
-                            { new PropertiesInformation(true, "System Abbreviation", BuiltInParameter.RBS_DUCT_PIPE_SYSTEM_ABBREVIATION_PARAM, els),
-                              new PropertiesInformation(true, "Category Name", BuiltInParameter.ELEM_CATEGORY_PARAM, els),
-                              new PropertiesInformation(true, "Family and Type Name", BuiltInParameter.ELEM_FAMILY_AND_TYPE_PARAM, els) };
+                            { new PropertiesInformation(true, "System Abbreviation", BuiltInParameter.RBS_DUCT_PIPE_SYSTEM_ABBREVIATION_PARAM),
+                              new PropertiesInformation(true, "System Name", BuiltInParameter.RBS_SYSTEM_NAME_PARAM),
+                              new PropertiesInformation(true, "Category Name", BuiltInParameter.ELEM_CATEGORY_PARAM),
+                              new PropertiesInformation(true, "Family and Type Name", BuiltInParameter.ELEM_FAMILY_AND_TYPE_PARAM) };
 
             Treeview_testForm tvtest = new Treeview_testForm(els, PropsList, commandData);
 
@@ -77,11 +78,9 @@ namespace MEPUtils.Treeview_test
         public string Name { get; private set; }
         public BuiltInParameter Bip { get; private set; }
         public string getBipValue(Element e) => e.get_Parameter(Bip).ToValueString2();
-        public HashSet<string> distinctValues = new HashSet<string>();
-        public PropertiesInformation(bool isBuiltIn, string name, BuiltInParameter bip, HashSet<Element> els)
+        public PropertiesInformation(bool isBuiltIn, string name, BuiltInParameter bip)
         {
             IsBuiltIn = isBuiltIn; Name = name; Bip = bip;
-            distinctValues = new HashSet<string>(els.GroupBy(x => getBipValue(x)).Select(x => x.Key));
         }
     }
 }
