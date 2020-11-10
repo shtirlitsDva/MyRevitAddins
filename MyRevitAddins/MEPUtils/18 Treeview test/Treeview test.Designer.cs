@@ -1,6 +1,6 @@
 ﻿namespace MEPUtils.Treeview_test
 {
-    partial class Treeview_test
+    partial class Treeview_testForm
     {
         /// <summary>
         /// Required designer variable.
@@ -35,17 +35,20 @@
             // 
             this.treeView1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.treeView1.Location = new System.Drawing.Point(0, 0);
+            this.treeView1.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
             this.treeView1.Name = "treeView1";
-            this.treeView1.Size = new System.Drawing.Size(800, 450);
+            this.treeView1.Size = new System.Drawing.Size(1467, 831);
             this.treeView1.TabIndex = 0;
+            this.treeView1.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.treeView1_AfterSelect);
             // 
-            // Treeview_test
+            // Treeview_testForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(11F, 24F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
+            this.ClientSize = new System.Drawing.Size(1467, 831);
             this.Controls.Add(this.treeView1);
-            this.Name = "Treeview_test";
+            this.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.Name = "Treeview_testForm";
             this.Text = "Treeview_test";
             this.ResumeLayout(false);
 

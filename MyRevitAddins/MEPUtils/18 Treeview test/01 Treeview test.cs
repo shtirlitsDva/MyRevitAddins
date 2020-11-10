@@ -37,8 +37,9 @@ namespace MEPUtils.Treeview_test
             UIApplication uiApp = commandData.Application;
             Document doc = commandData.Application.ActiveUIDocument.Document;
             UIDocument uidoc = uiApp.ActiveUIDocument;
+            Selection selection = uidoc.Selection;
 
-            LogManager.Configuration = new NLog.Config.XmlLoggingConfiguration("G:\\Github\\shtirlitsDva\\MyRevitAddins\\MyRevitAddins\\SetTagsModeless\\NLog.config");
+            //LogManager.Configuration = new NLog.Config.XmlLoggingConfiguration("G:\\Github\\shtirlitsDva\\MyRevitAddins\\MyRevitAddins\\SetTagsModeless\\NLog.config");
 
             FilteredElementCollector col = new FilteredElementCollector(doc);
 
@@ -62,53 +63,9 @@ namespace MEPUtils.Treeview_test
                               new PropertiesInformation(true, "Category Name", BuiltInParameter.ELEM_CATEGORY_PARAM, els),
                               new PropertiesInformation(true, "Family and Type Name", BuiltInParameter.ELEM_FAMILY_AND_TYPE_PARAM, els) };
 
-            var dt = new DataTable();
+            Treeview_testForm tvtest = new Treeview_testForm(els, PropsList, commandData);
 
-            dt.Columns.Add("Name", typeof(string));
-            //for (int i = 0; i < PropsList.Length; i++)
-            //{
-            //    dt.Columns.Add(PropsList[i].Name, typeof(string));
-            //}
-            DataColumn dc = new DataColumn("ParentNode", typeof(string));
-            dc.AllowDBNull = true;
-            dt.Columns.Add(dc);
-
-            //Root node
-            DataRow row = dt.NewRow();
-            row["Name"] = "All";
-            dt.Rows.Add(row);
-
-            //Hierarchy nodes
-            for (int i = 0; i < PropsList.Length; i++)
-            {
-                if (i == 0) //Special case for first iteration
-                {
-                    foreach (string nodeName in PropsList[i].distinctValues)
-                    {
-                        row = dt.NewRow(); row["Name"] = nodeName; row["ParentNode"] = "All";
-                    }
-                }
-                else
-                {
-                    foreach (string nodeName in PropsList[i].distinctValues)
-                    {
-                        PropertiesInformation piNode = PropsList[i];
-
-                        foreach (string parentName in PropsList[i - 1].distinctValues)
-                        {
-                            PropertiesInformation piParent = PropsList[i - 1];
-                            //Test to see if the combination exists
-                            if (els.Any(x => piNode.getBipValue(x) == nodeName && piParent.getBipValue(x) == parentName))
-                            {
-                                row = dt.NewRow(); row["Name"] = nodeName; row["ParentNode"] = parentName;
-
-                                //If on last iteration, then write the single element information
-                                HashSet<Element> 
-                            }
-                        }
-                    }
-                }
-            }
+            tvtest.ShowDialog();
 
             return Result.Succeeded;
         }
@@ -119,7 +76,7 @@ namespace MEPUtils.Treeview_test
         public bool IsBuiltIn { get; private set; } = true;
         public string Name { get; private set; }
         public BuiltInParameter Bip { get; private set; }
-        public string getBipValue(Element e) => e.get_Parameter(Bip).ToValueString();
+        public string getBipValue(Element e) => e.get_Parameter(Bip).ToValueString2();
         public HashSet<string> distinctValues = new HashSet<string>();
         public PropertiesInformation(bool isBuiltIn, string name, BuiltInParameter bip, HashSet<Element> els)
         {
