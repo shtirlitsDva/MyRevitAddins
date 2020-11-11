@@ -83,40 +83,13 @@ namespace MEPUtils.ModelessForms.SearchAndSelect
             treeView1.Nodes.Clear();
 
 
-
-            #region StaticMockUp
-            var lv1Group = Payload.ElementsInSelection.GroupBy(x => x.SystemAbbreviation);
-            treeView1.Nodes.Add("All");
-
-            int i = -1;
-            foreach (IGrouping<string, ElementImpression> group1 in lv1Group)
-            {
-                treeView1.Nodes[0].Nodes.Add(group1.Key);
-
-                var lv2Group = group1.ToList().GroupBy(x => x.CategoryName);
-
-                i++;
-                int j = -1;
-                foreach (IGrouping<string, ElementImpression> group2 in lv2Group)
-                {
-                    treeView1.Nodes[0].Nodes[i].Nodes.Add(group2.Key);
-
-                    var lv3Group = group2.ToList();
-
-                    j++;
-                    int k = -1;
-                    foreach (ElementImpression ei in lv3Group)
-                    {
-                        k++;
-                        treeView1.Nodes[0].Nodes[i].Nodes[j].Nodes.Add(ei.FamilyAndTypeName);
-
-                        treeView1.Nodes[0].Nodes[i].Nodes[j].Nodes[k].Nodes.Add(ei.ElementId.ToString());
-                        treeView1.Nodes[0].Nodes[i].Nodes[j].Nodes[k].Nodes.Add(ei.CategoryNumber.ToString());
-                    }
-                }
-            } 
-            #endregion
+            
             treeView1.EndUpdate();
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            //Request parameter data from Revit
         }
     }
 }

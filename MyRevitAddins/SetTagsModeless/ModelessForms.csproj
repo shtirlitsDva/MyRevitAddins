@@ -90,6 +90,12 @@
     <Compile Include="03 SearchAndSelect\SnS.Designer.cs">
       <DependentUpon>SnS.cs</DependentUpon>
     </Compile>
+    <Compile Include="03 SearchAndSelect\SnSEditGroupingForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="03 SearchAndSelect\SnSEditGroupingForm.Designer.cs">
+      <DependentUpon>SnSEditGroupingForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Application.cs" />
     <Compile Include="01 SetTags\AsyncMethodSetTags.cs" />
     <Compile Include="01 SetTags\BasicChooserForm.cs">
@@ -121,6 +127,9 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="03 SearchAndSelect\SnSEditGroupingForm.resx">
+      <DependentUpon>SnSEditGroupingForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Resources\ImgSnS16.png" />
     <EmbeddedResource Include="Resources\ImgSnS32.png" />
     <EmbeddedResource Include="02 MepUtils\MEPUtilsModeless.resx">
