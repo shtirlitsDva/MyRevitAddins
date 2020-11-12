@@ -41,30 +41,54 @@ namespace MEPUtils.Treeview_test
 
             //LogManager.Configuration = new NLog.Config.XmlLoggingConfiguration("G:\\Github\\shtirlitsDva\\MyRevitAddins\\MyRevitAddins\\SetTagsModeless\\NLog.config");
 
-            FilteredElementCollector col = new FilteredElementCollector(doc);
+            //FilteredElementCollector col = new FilteredElementCollector(doc);
 
-            List<ElementFilter> catFilter = new List<ElementFilter>();
-            catFilter.Add(new ElementCategoryFilter(BuiltInCategory.OST_PipeFitting));
-            catFilter.Add(new ElementCategoryFilter(BuiltInCategory.OST_PipeAccessory));
-            catFilter.Add(new ElementCategoryFilter(BuiltInCategory.OST_PipeCurves));
+            //List<ElementFilter> catFilter = new List<ElementFilter>();
+            //catFilter.Add(new ElementCategoryFilter(BuiltInCategory.OST_PipeFitting));
+            //catFilter.Add(new ElementCategoryFilter(BuiltInCategory.OST_PipeAccessory));
+            //catFilter.Add(new ElementCategoryFilter(BuiltInCategory.OST_PipeCurves));
 
-            col.WherePasses(new LogicalAndFilter(new List<ElementFilter>
-                                                    {new LogicalOrFilter(catFilter),
-                                                        new LogicalOrFilter(new List<ElementFilter>
-                                                        {
-                                                            new ElementClassFilter(typeof(Pipe)),
-                                                            new ElementClassFilter(typeof(FamilyInstance))
-                                                        })}));
+            //List<BuiltInCategory> cats = new List<BuiltInCategory>()
+            //{
+            //    BuiltInCategory.OST_PipeFitting,
+            //    BuiltInCategory.OST_PipeAccessory,
+            //    BuiltInCategory.OST_PipeCurves
+            //};
 
-            HashSet<Element> els = new HashSet<Element>(col.ToElements());
+            //List<ElementFilter> a = new List<ElementFilter>(cats.Count);
 
-            PropertiesInformation[] PropsList = new PropertiesInformation[]
-                            { new PropertiesInformation(true, "System Abbreviation", BuiltInParameter.RBS_DUCT_PIPE_SYSTEM_ABBREVIATION_PARAM),
-                              new PropertiesInformation(true, "System Name", BuiltInParameter.RBS_SYSTEM_NAME_PARAM),
-                              new PropertiesInformation(true, "Category Name", BuiltInParameter.ELEM_CATEGORY_PARAM),
-                              new PropertiesInformation(true, "Family and Type Name", BuiltInParameter.ELEM_FAMILY_AND_TYPE_PARAM) };
+            //foreach (BuiltInCategory bic in cats) a.Add(new ElementCategoryFilter(bic));
 
-            Treeview_testForm tvtest = new Treeview_testForm(els, PropsList, commandData);
+            //LogicalOrFilter catFilter = new LogicalOrFilter(a);
+
+            //col.WhereElementIsNotElementType().WhereElementIsViewIndependent().WherePasses(catFilter);
+
+            //col.WherePasses(new LogicalAndFilter(new List<ElementFilter>
+            //                                        {new LogicalOrFilter(catFilter),
+            //                                            new LogicalOrFilter(new List<ElementFilter>
+            //                                            {
+            //                                                new ElementClassFilter(typeof(Pipe)),
+            //                                                new ElementClassFilter(typeof(FamilyInstance))
+            //                                            })}));
+
+
+
+            //HashSet<Element> els = new HashSet<Element>(col.ToElements());
+
+            //PropertiesInformation[] PropsList = new PropertiesInformation[]
+            //                { new PropertiesInformation(true, "System Abbreviation", BuiltInParameter.RBS_DUCT_PIPE_SYSTEM_ABBREVIATION_PARAM),
+            //                  new PropertiesInformation(true, "System Name", BuiltInParameter.RBS_SYSTEM_NAME_PARAM),
+            //                  new PropertiesInformation(true, "Category Name", BuiltInParameter.ELEM_CATEGORY_PARAM),
+            //                  new PropertiesInformation(true, "Family and Type Name", BuiltInParameter.ELEM_FAMILY_AND_TYPE_PARAM) };
+
+            HashSet<Element> els = new HashSet<Element>(
+                Shared.Filter.GetElements<Element, BuiltInCategory>(doc, BuiltInCategory.OST_PipeAccessory));
+
+            Element el = els.First();
+
+            var parList = el.GetOrderedParameters();
+
+            Treeview_testForm tvtest = new Treeview_testForm(els, commandData);
 
             tvtest.ShowDialog();
 

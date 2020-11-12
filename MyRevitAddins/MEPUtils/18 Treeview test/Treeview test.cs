@@ -33,17 +33,18 @@ namespace MEPUtils.Treeview_test
         }
 
         public Treeview_testForm(HashSet<Autodesk.Revit.DB.Element>
-            elements, PropertiesInformation[] propertiesList, ExternalCommandData commandData) : this()
+            elements, ExternalCommandData commandData) : this()
         {
             this.Elements = elements;
-            this.PropertiesList = propertiesList;
+            //this.PropertiesList = propertiesList;
 
             uiApp = commandData.Application;
             doc = commandData.Application.ActiveUIDocument.Document;
             uidoc = uiApp.ActiveUIDocument;
             selection = uidoc.Selection;
 
-            PopulateTreeview();
+
+            //PopulateTreeview();
         }
 
         public void PopulateTreeview()
