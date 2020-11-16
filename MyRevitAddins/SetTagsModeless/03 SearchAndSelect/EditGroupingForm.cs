@@ -7,11 +7,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using NLog;
 
 namespace MEPUtils.ModelessForms.SearchAndSelect
 {
     public partial class EditGroupingForm : Form
     {
+        //Log
+        private static readonly NLog.Logger log = NLog.LogManager.GetCurrentClassLogger();
+
         BindingList<ParameterTypeGroup> ListToBindParametersType = new BindingList<ParameterTypeGroup>();
         public Grouping Grouping;
 
@@ -19,18 +23,28 @@ namespace MEPUtils.ModelessForms.SearchAndSelect
         {
             InitializeComponent();
 
+            //Log
+            LogManager.Configuration = new NLog.Config.XmlLoggingConfiguration(
+                "G:\\Github\\shtirlitsDva\\MyRevitAddins\\MyRevitAddins\\SetTagsModeless\\NLog.config");
+
+            log.Debug("1");
             BindingList<ParameterImpression> BuiltInParameters = new BindingList<ParameterImpression>(allParametersList.Where(x => x.IsShared == false).ToList());
             BindingList<ParameterImpression> SharedParameters = new BindingList<ParameterImpression>(allParametersList.Where(x => x.IsShared).ToList());
             ListToBindParametersType.Add(new ParameterTypeGroup("Built In Parameter", BuiltInParameters));
             ListToBindParametersType.Add(new ParameterTypeGroup("Shared Parameter", SharedParameters));
+            log.Debug("2");
 
-            comboBox1.DataSource = new BindingSource { DataSource = ListToBindParametersType };
             comboBox1.DisplayMember = "Name";
             comboBox1.ValueMember = "ParameterList";
+            comboBox1.DataSource = new BindingSource { DataSource = ListToBindParametersType };
+            log.Debug("3");
 
-            comboBox2.DataSource = new BindingSource { DataSource = (BindingList<ParameterImpression>)comboBox1.SelectedValue };
             comboBox2.DisplayMember = "Name";
             comboBox2.ValueMember = null;
+            comboBox2.DataSource = new BindingSource { DataSource = (BindingList<ParameterImpression>)comboBox1.SelectedValue };
+            log.Debug("4");
+            comboBox1.SelectedIndexChanged += comboBox1_SelectedIndexChanged;
+            comboBox2.SelectedIndexChanged += comboBox2_SelectedIndexChanged;
         }
 
         private void addRowMethod(object sender, EventArgs e)
@@ -67,22 +81,23 @@ namespace MEPUtils.ModelessForms.SearchAndSelect
             ComboBox cb1 = new ComboBox();
             cb1.Dock = DockStyle.Fill;
             cb1.DropDownStyle = ComboBoxStyle.DropDownList;
-            cb1.DataSource = new BindingSource { DataSource = ListToBindParametersType };
-            cb1.SelectedIndexChanged += comboBox1_SelectedIndexChanged;
             cb1.DisplayMember = "Name";
             cb1.ValueMember = "ParameterList";
+            cb1.DataSource = new BindingSource { DataSource = ListToBindParametersType };
+            cb1.SelectedValue = ListToBindParametersType[0];
+            cb1.SelectedIndexChanged += comboBox1_SelectedIndexChanged;
             tableLayoutPanel1.Controls.Add(cb1, 0, rowIndex + 1);
 
             ComboBox cb2 = new ComboBox();
             cb2.Dock = DockStyle.Fill;
             cb2.DropDownStyle = ComboBoxStyle.DropDownList;
-            cb2.SelectedIndexChanged += comboBox2_SelectedIndexChanged;
             tableLayoutPanel1.Controls.Add(cb2, 1, rowIndex + 1);
 
-            //Initialize data for second combo box by firing the assiciated method of the event
-            comboBox1_SelectedIndexChanged(cb1, new EventArgs());
+            //Initialize data for second combo box by firing the associated method of the event
             cb2.DisplayMember = "Name";
             cb2.ValueMember = null;
+            comboBox1_SelectedIndexChanged(cb1, new EventArgs());
+            cb2.SelectedIndexChanged += comboBox2_SelectedIndexChanged;
 
             //Add buttons
             Button button = new Button() { Dock = DockStyle.Fill, Text = "+" };
@@ -136,13 +151,15 @@ namespace MEPUtils.ModelessForms.SearchAndSelect
 
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
-            BindingList<ParameterImpression> item = (sender as ComboBox).SelectedItem as BindingList<ParameterImpression>;
+            BindingList<ParameterImpression> item =
+                (BindingList<ParameterImpression>)(sender as ComboBox).SelectedValue;
             int rowIndex = tableLayoutPanel1.GetRow((ComboBox)sender);
             ComboBox cb2 = (ComboBox)tableLayoutPanel1.GetControlFromPosition(1, rowIndex);
 
             if (item != null)
             {
-                comboBox2.Items.Clear();
+                cb2.DataSource = null;
+                cb2.DisplayMember = "Name";
                 cb2.DataSource = new BindingSource { DataSource = item };
             }
         }
@@ -150,11 +167,11 @@ namespace MEPUtils.ModelessForms.SearchAndSelect
         private void comboBox2_SelectedIndexChanged(object sender, EventArgs e)
         {
             List<ParameterImpression> list = new List<ParameterImpression>(tableLayoutPanel1.RowCount);
-            for (int i = 0; i < tableLayoutPanel1.RowCount; i++)
+            for (int i = 0; i < tableLayoutPanel1.RowCount - 1; i++)
             {
                 int col = 1;
                 ComboBox cb = (ComboBox)tableLayoutPanel1.GetControlFromPosition(col, i);
-                list.Add(cb.SelectedItem as ParameterImpression);
+                list.Add(cb.SelectedValue as ParameterImpression);
             }
             Grouping = new Grouping(list);
         }

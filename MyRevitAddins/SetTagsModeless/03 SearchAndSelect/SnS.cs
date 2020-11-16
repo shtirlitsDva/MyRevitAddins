@@ -44,11 +44,6 @@ namespace MEPUtils.ModelessForms.SearchAndSelect
             checkedListBox2.Items.Clear();
             checkedListBox2.Items.AddRange(cats);
 
-            foreach (string s in mySettings.Default.SelectedCategories)
-            {
-                log.Debug(s);
-            }
-
             //Initialize settings for categories
             if (mySettings.Default.SelectedCategories != null)
             {
@@ -108,10 +103,10 @@ namespace MEPUtils.ModelessForms.SearchAndSelect
         private void GetParameterDataOperationComplete(object sender, MyEventArgs e)
         {
             button2.Text = "Edit grouping (Ready)";
-            foreach (ParameterImpression pi in Payload.AllParameterImpressions)
-            {
-                log.Debug(pi.Name);
-            }
+            //foreach (ParameterImpression pi in Payload.AllParameterImpressions)
+            //{
+            //    log.Debug(pi.Name);
+            //}
         }
 
         private void UpdateTreeView(object sender, MyEventArgs e)
@@ -141,9 +136,13 @@ namespace MEPUtils.ModelessForms.SearchAndSelect
 
             //Test the successsssss
             TreeNode parent = treeView1.Nodes.Add("All");
-            foreach (ParameterImpression pi in Payload.Grouping.ParameterList)
+
+            if (Payload.Grouping.ParameterList != null)
             {
-                parent.Nodes.Add(pi.Name);
+                foreach (ParameterImpression pi in Payload.Grouping.ParameterList)
+                {
+                    parent.Nodes.Add(pi.Name);
+                } 
             }
         }
 
