@@ -10,11 +10,15 @@ namespace MEPUtils.ModelessForms.SearchAndSelect
     class SelectionInformationContainer
     {
         internal List<string> CategoriesToSearch { get; set; }
+        internal HashSet<ParameterImpression> AllParameterImpressions { get; set; }
+        internal Grouping Grouping { get; set; }
         public HashSet<ElementImpression> ElementsInSelection { get; set; }
         public event EventHandler SnSOperationComplete;
         public void RaiseSnSOperationComplete()
             => SnSOperationComplete.Raise(this, new MyEventArgs("Operation complete!"));
-
+        public event EventHandler GetParameterDataOperationComplete;
+        public void RaiseGetParameterDataOperationComplete()
+            => GetParameterDataOperationComplete.Raise(this, new MyEventArgs("Parameter data ready!"));
     }
 
     public delegate void EventHandler(object source, MyEventArgs e);

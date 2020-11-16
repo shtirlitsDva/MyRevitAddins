@@ -7,9 +7,12 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using MoreLinq;
 using System.Windows.Forms;
 using static Shared.Filter;
 using WinForms = System.Windows.Forms;
+using thst = MoreLinq.Extensions.ToHashSetExtension;
+using Shared;
 
 namespace MEPUtils.ModelessForms.SearchAndSelect
 {
@@ -67,8 +70,75 @@ namespace MEPUtils.ModelessForms.SearchAndSelect
 
             selection.SetElementIds(col.ToElementIds());
 
-            Payload.ElementsInSelection = col.Select(x => new ElementImpression(x)).ToHashSet();
+            Payload.ElementsInSelection = new HashSet<ElementImpression>(col.Select(x => new ElementImpression(x)));
             Payload.RaiseSnSOperationComplete();
+        }
+    }
+
+    class AsyncGatherParameterData : IAsyncCommand
+    {
+        SelectionInformationContainer Payload;
+        private AsyncGatherParameterData() { }
+        public AsyncGatherParameterData(SelectionInformationContainer payload) => Payload = payload;
+        public void Execute(UIApplication uiApp)
+        {
+            Document doc = uiApp.ActiveUIDocument.Document;
+            UIDocument uidoc = uiApp.ActiveUIDocument;
+
+            Selection selection = uidoc.Selection;
+
+            FilteredElementCollector col = new FilteredElementCollector(doc);
+
+            //Test to see if catfilter is populated
+            if (Payload.CategoriesToSearch.Count < 1) return;
+
+            HashSet<ParameterImpression> allParameters = new HashSet<ParameterImpression>(new ParameterImpressionComparer());
+
+            foreach (string catName in Payload.CategoriesToSearch)
+            {
+                FilteredElementCollector col1 = new FilteredElementCollector(doc);
+                col1.OfCategory(GetCategoryByName(catName)).WhereElementIsNotElementType().WhereElementIsViewIndependent();
+                HashSet<Element> elements = new HashSet<Element>(col1.ToElements().DistinctBy(x => x.FamilyName()));
+                HashSet<Element> types = new HashSet<Element>(elements.Select(x => doc.GetElement(x.GetTypeId())));
+
+                CreateParameterImpressions(elements, allParameters);
+                CreateParameterImpressions(types, allParameters);
+
+                //Local function to create parameter impressions
+                void CreateParameterImpressions(HashSet<Element> setToProcess, HashSet<ParameterImpression> setToAdd)
+                {
+                    if (setToProcess.Count > 0 && setToProcess != null && setToAdd != null)
+                    {
+                        foreach (Element e in setToProcess)
+                        {
+                            var pfep = e.GetOrderedParameters();
+                            foreach (Parameter p in pfep)
+                            {
+                                setToAdd.Add(new ParameterImpression(p));
+                            }
+                        }
+                    } 
+                }
+
+                //Local function to return correct category
+                BuiltInCategory GetCategoryByName(string Name)
+                {
+                    switch (Name)
+                    {
+                        case "Pipe Fittings":
+                            return BuiltInCategory.OST_PipeFitting;
+                        case "Pipe Accessories":
+                            return BuiltInCategory.OST_PipeAccessory;
+                        case "Pipes":
+                            return BuiltInCategory.OST_PipeCurves;
+                        default:
+                            return BuiltInCategory.INVALID;
+                    }
+                }
+            }
+
+            Payload.AllParameterImpressions = allParameters;
+            Payload.RaiseGetParameterDataOperationComplete();
         }
     }
 }

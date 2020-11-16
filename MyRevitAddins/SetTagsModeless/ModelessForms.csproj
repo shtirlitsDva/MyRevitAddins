@@ -83,18 +83,18 @@
     <Compile Include="03 SearchAndSelect\01 SearchAndSelect.cs" />
     <Compile Include="03 SearchAndSelect\AsyncMethodSnS.cs" />
     <Compile Include="03 SearchAndSelect\Data.cs" />
+    <Compile Include="03 SearchAndSelect\EditGroupingForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="03 SearchAndSelect\EditGroupingForm.Designer.cs">
+      <DependentUpon>EditGroupingForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="03 SearchAndSelect\SelectionInformationContainer.cs" />
     <Compile Include="03 SearchAndSelect\SnS.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="03 SearchAndSelect\SnS.Designer.cs">
       <DependentUpon>SnS.cs</DependentUpon>
-    </Compile>
-    <Compile Include="03 SearchAndSelect\SnSEditGroupingForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="03 SearchAndSelect\SnSEditGroupingForm.Designer.cs">
-      <DependentUpon>SnSEditGroupingForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Application.cs" />
     <Compile Include="01 SetTags\AsyncMethodSetTags.cs" />
@@ -127,8 +127,8 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="03 SearchAndSelect\SnSEditGroupingForm.resx">
-      <DependentUpon>SnSEditGroupingForm.cs</DependentUpon>
+    <EmbeddedResource Include="03 SearchAndSelect\EditGroupingForm.resx">
+      <DependentUpon>EditGroupingForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Resources\ImgSnS16.png" />
     <EmbeddedResource Include="Resources\ImgSnS32.png" />

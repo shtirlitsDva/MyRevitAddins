@@ -7,18 +7,24 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using mySettings = MEPUtils.ModelessForms.Properties.Settings;
+using NLog;
 
 namespace MEPUtils.ModelessForms.SearchAndSelect
 {
     public partial class SnS : Form
     {
+        //Log
+        private static readonly NLog.Logger log = NLog.LogManager.GetCurrentClassLogger();
+
         //Modeless stuff
         private Autodesk.Revit.UI.ExternalEvent m_ExEvent;
         private ExternalEventHandler m_Handler;
         Application ThisApp;
 
         //data stuff
-        SelectionInformationContainer Payload;
+        SelectionInformationContainer Payload = new SelectionInformationContainer();
+        List<string> SelectedCategories = new List<string>();
 
         public SnS(Autodesk.Revit.UI.ExternalEvent exEvent,
                    ExternalEventHandler handler,
@@ -30,10 +36,39 @@ namespace MEPUtils.ModelessForms.SearchAndSelect
             m_Handler = handler;
             ThisApp = thisApp;
 
+            //Log
+            LogManager.Configuration = new NLog.Config.XmlLoggingConfiguration("G:\\Github\\shtirlitsDva\\MyRevitAddins\\MyRevitAddins\\SetTagsModeless\\NLog.config");
+
             //Setup a rudimentary list with categories
             string[] cats = { "Pipes", "Pipe Fittings", "Pipe Accessories" };
             checkedListBox2.Items.Clear();
             checkedListBox2.Items.AddRange(cats);
+
+            foreach (string s in mySettings.Default.SelectedCategories)
+            {
+                log.Debug(s);
+            }
+
+            //Initialize settings for categories
+            if (mySettings.Default.SelectedCategories != null)
+            {
+                SelectedCategories = mySettings.Default.SelectedCategories;
+                if (SelectedCategories.Count != 0)
+                {
+                    foreach (string cat in SelectedCategories)
+                    {
+                        SetItemChecked(cat, checkedListBox2);
+                    }
+                }
+                Payload.CategoriesToSearch = SelectedCategories;
+
+                //Request Revit for parameter information
+                AsyncGatherParameterData asGPD = new AsyncGatherParameterData(Payload);
+                ThisApp.asyncCommand = asGPD;
+                m_ExEvent.Raise();
+                Payload.GetParameterDataOperationComplete += GetParameterDataOperationComplete;
+                button2.Text = "Loading parameter data...";
+            }
         }
         private void checkBox1_CheckedChanged(object sender, EventArgs e)
         {
@@ -58,7 +93,6 @@ namespace MEPUtils.ModelessForms.SearchAndSelect
         /// </summary>
         private void button1_Click(object sender, EventArgs e)
         {
-            Payload = new SelectionInformationContainer();
             Payload.CategoriesToSearch = checkedListBox2.CheckedItems.OfType<string>().ToList();
             if (!subscribedToSnSOperationComplete)
             {
@@ -69,6 +103,15 @@ namespace MEPUtils.ModelessForms.SearchAndSelect
             AsyncSelectByFilters asSBF = new AsyncSelectByFilters(Payload);
             ThisApp.asyncCommand = asSBF;
             m_ExEvent.Raise();
+        }
+
+        private void GetParameterDataOperationComplete(object sender, MyEventArgs e)
+        {
+            button2.Text = "Edit grouping (Ready)";
+            foreach (ParameterImpression pi in Payload.AllParameterImpressions)
+            {
+                log.Debug(pi.Name);
+            }
         }
 
         private void UpdateTreeView(object sender, MyEventArgs e)
@@ -83,13 +126,57 @@ namespace MEPUtils.ModelessForms.SearchAndSelect
             treeView1.Nodes.Clear();
 
 
-            
+
             treeView1.EndUpdate();
         }
 
+        /// <summary>
+        /// "Edit Grouping" button pushed.
+        /// </summary>
         private void button2_Click(object sender, EventArgs e)
         {
-            //Request parameter data from Revit
+            EditGroupingForm egf = new EditGroupingForm(Payload.AllParameterImpressions);
+            egf.ShowDialog();
+            Payload.Grouping = egf.Grouping;
+
+            //Test the successsssss
+            TreeNode parent = treeView1.Nodes.Add("All");
+            foreach (ParameterImpression pi in Payload.Grouping.ParameterList)
+            {
+                parent.Nodes.Add(pi.Name);
+            }
+        }
+
+        private void SnS_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            mySettings.Default.SelectedCategories = checkedListBox2.CheckedItems.OfType<string>().ToList();
+            mySettings.Default.Save();
+        }
+
+        private void SetItemChecked(string item, CheckedListBox myCheckedListBox)
+        {
+            int index = GetItemIndex(item, myCheckedListBox);
+
+            if (index < 0) return;
+
+            myCheckedListBox.SetItemChecked(index, true);
+        }
+
+        private int GetItemIndex(string item, CheckedListBox myCheckedListBox)
+        {
+            int index = 0;
+
+            foreach (object o in myCheckedListBox.Items)
+            {
+                if (item == o.ToString())
+                {
+                    return index;
+                }
+
+                index++;
+            }
+
+            return -1;
         }
     }
 }

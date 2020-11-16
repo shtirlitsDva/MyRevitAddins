@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -32,6 +33,7 @@ namespace MEPUtils.ModelessForms.SearchAndSelect
     public class ParameterImpression
     {
         public int ElementId { get; private set; }
+        public int HashCode { get; private set; }
         public bool IsShared { get; private set; }
         private Guid guid;
         public Guid Guid
@@ -50,8 +52,23 @@ namespace MEPUtils.ModelessForms.SearchAndSelect
             IsShared = p.IsShared;
             if (p.IsShared) Guid = p.GUID;
             Name = p.Definition.Name;
+            HashCode = p.Id.GetHashCode();
         }
     }
+
+    public class ParameterImpressionComparer : IEqualityComparer<ParameterImpression>
+    {
+        public bool Equals(ParameterImpression x, ParameterImpression y)
+        {
+            return null != x && null != y && x.ElementId == y.ElementId;
+        }
+
+        public int GetHashCode(ParameterImpression x)
+        {
+            return x.HashCode;
+        }
+    }
+
     [Serializable]
     public class Grouping
     {
@@ -72,6 +89,16 @@ namespace MEPUtils.ModelessForms.SearchAndSelect
         {
             get { return (Grouping)this[nameof(Grouping)]; }
             set { this[nameof(Grouping)] = value; }
+        }
+    }
+
+    public class ParameterTypeGroup
+    {
+        public string Name { get; set; }
+        public BindingList<ParameterImpression> ParameterList { get; set; }
+        public ParameterTypeGroup(string name, BindingList<ParameterImpression> parameterList)
+        {
+            Name = name; ParameterList = parameterList;
         }
     }
 }
