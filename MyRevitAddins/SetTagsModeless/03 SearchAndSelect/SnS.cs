@@ -36,6 +36,9 @@ namespace MEPUtils.ModelessForms.SearchAndSelect
             m_Handler = handler;
             ThisApp = thisApp;
 
+            //Initialize treeview path separator
+            treeView1.PathSeparator = ".";
+
             //Log
             LogManager.Configuration = new NLog.Config.XmlLoggingConfiguration("G:\\Github\\shtirlitsDva\\MyRevitAddins\\MyRevitAddins\\SetTagsModeless\\NLog.config");
 
@@ -90,7 +93,8 @@ namespace MEPUtils.ModelessForms.SearchAndSelect
         {
             GroupingSettings gs = new GroupingSettings();
             gs.Reload();
-            if (gs.Grouping == null || Payload.Grouping == null)
+            
+            if (gs.GroupingSetting == null || Payload.Grouping == null)
             {
                 EditGroupingForm egf = new EditGroupingForm(Payload.AllParameterImpressions);
                 egf.ShowDialog();

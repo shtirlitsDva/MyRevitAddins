@@ -38,13 +38,14 @@ namespace MEPUtils.ModelessForms.SearchAndSelect
             foreach (ParameterImpression pi in Grouping.ParameterList)
             {
                 Parameter par = null;
-                if (pi.IsBuiltIn) e.get_Parameter(pi.BuiltInParameter);
-                else if (pi.IsShared) e.get_Parameter(pi.Guid);
+                if (pi.IsBuiltIn) par = e.get_Parameter(pi.BuiltInParameter);
+                else if (pi.IsShared) par = e.get_Parameter(pi.Guid);
                 if (par != null) Values.Add(par.ToValueString2());
                 else Values.Add("<+>");
             }
         }
     }
+    [Serializable]
     public class ParameterImpression
     {
         public int ElementId { get; private set; }
@@ -97,6 +98,7 @@ namespace MEPUtils.ModelessForms.SearchAndSelect
     public class Grouping
     {
         public List<ParameterImpression> ParameterList { get; set; }
+        public string Test { get; set; }
         public Grouping() { }
         public Grouping(List<ParameterImpression> parameterList)
         {
@@ -109,13 +111,13 @@ namespace MEPUtils.ModelessForms.SearchAndSelect
         [UserScopedSetting]
         [SettingsSerializeAs(SettingsSerializeAs.Xml)]
         [DefaultSettingValue("")]
-        public Grouping Grouping
+        public Grouping GroupingSetting
         {
-            get { return (Grouping)this[nameof(Grouping)]; }
-            set { this[nameof(Grouping)] = value; }
+            get { return (Grouping)this["GroupingSetting"]; }
+            set { this["GroupingSetting"] = value; }
         }
         public GroupingSettings() { }
-        public GroupingSettings(Grouping grouping) { Grouping = grouping; }
+        //public GroupingSettings(Grouping grouping) { GroupingSetting = grouping; }
     }
 
     public class ParameterTypeGroup

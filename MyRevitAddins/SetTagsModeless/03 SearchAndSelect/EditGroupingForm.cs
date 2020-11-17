@@ -182,7 +182,9 @@ namespace MEPUtils.ModelessForms.SearchAndSelect
         private void EditGroupingForm_FormClosing(object sender, FormClosingEventArgs e)
         {
             comboBox2_SelectedIndexChanged(new ComboBox(), new EventArgs());
-            GroupingSettings gs = new GroupingSettings(Grouping);
+            GroupingSettings gs = new GroupingSettings();
+            gs.GroupingSetting = Grouping;
+            gs.GroupingSetting.Test = "Test String, does it get saved?";
             gs.Save();
         }
     }
