@@ -11,6 +11,7 @@ using Autodesk.Revit.UI;
 using Autodesk.Revit.ApplicationServices;
 using Autodesk.Revit.UI.Selection;
 using System.Configuration;
+using Shared;
 
 namespace MEPUtils.ModelessForms.SearchAndSelect
 {
@@ -21,19 +22,35 @@ namespace MEPUtils.ModelessForms.SearchAndSelect
         public string TypeName { get; private set; }
         public string CategoryName { get; private set; }
         public int CategoryNumber { get; private set; }
-        public ElementImpression(Element e)
+        internal Grouping Grouping { get; private set; }
+        internal List<string> Values { get; private set; }
+        public ElementImpression(Element e, Grouping grouping)
         {
             ElementId = e.Id.IntegerValue;
-            FamilyAndTypeName = e.get_Parameter(BuiltInParameter.ELEM_FAMILY_AND_TYPE_PARAM).AsValueString();
+            TypeName = e.get_Parameter(BuiltInParameter.ELEM_TYPE_PARAM).AsValueString();
+            FamilyName = e.get_Parameter(BuiltInParameter.ELEM_FAMILY_PARAM).AsValueString();
             CategoryName = e.Category.Name;
             CategoryNumber = e.Category.Id.IntegerValue;
-            SystemAbbreviation = e.get_Parameter(BuiltInParameter.RBS_DUCT_PIPE_SYSTEM_ABBREVIATION_PARAM).AsString();
+            Grouping = grouping;
+
+            Values = new List<string>(Grouping.ParameterList.Count);
+
+            foreach (ParameterImpression pi in Grouping.ParameterList)
+            {
+                Parameter par = null;
+                if (pi.IsBuiltIn) e.get_Parameter(pi.BuiltInParameter);
+                else if (pi.IsShared) e.get_Parameter(pi.Guid);
+                if (par != null) Values.Add(par.ToValueString2());
+                else Values.Add("<+>");
+            }
         }
     }
     public class ParameterImpression
     {
         public int ElementId { get; private set; }
         public int HashCode { get; private set; }
+        public BuiltInParameter BuiltInParameter { get; private set; }
+        public bool IsBuiltIn { get; private set; }
         public bool IsShared { get; private set; }
         private Guid guid;
         public Guid Guid
@@ -51,8 +68,15 @@ namespace MEPUtils.ModelessForms.SearchAndSelect
             ElementId = p.Id.IntegerValue;
             IsShared = p.IsShared;
             if (p.IsShared) Guid = p.GUID;
-            Name = p.Definition.Name;
+            InternalDefinition definition = (InternalDefinition)p.Definition;
+            Name = definition.Name;
             HashCode = p.Id.GetHashCode();
+            if (definition.BuiltInParameter == BuiltInParameter.INVALID) IsBuiltIn = false;
+            else
+            {
+                IsBuiltIn = true;
+                BuiltInParameter = definition.BuiltInParameter;
+            }
         }
     }
 

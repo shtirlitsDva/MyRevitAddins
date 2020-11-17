@@ -96,6 +96,7 @@
     <Compile Include="03 SearchAndSelect\SnS.Designer.cs">
       <DependentUpon>SnS.cs</DependentUpon>
     </Compile>
+    <Compile Include="03 SearchAndSelect\TreeViewUtils.cs" />
     <Compile Include="Application.cs" />
     <Compile Include="01 SetTags\AsyncMethodSetTags.cs" />
     <Compile Include="01 SetTags\BasicChooserForm.cs">

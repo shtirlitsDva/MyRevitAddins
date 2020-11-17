@@ -70,7 +70,8 @@ namespace MEPUtils.ModelessForms.SearchAndSelect
 
             //selection.SetElementIds(col.ToElementIds());
 
-            Payload.ElementsInSelection = new HashSet<ElementImpression>(col.Select(x => new ElementImpression(x)));
+            Payload.ElementsInSelection = new HashSet<ElementImpression>
+                (col.Select(x => new ElementImpression(x, Payload.Grouping)));
             Payload.RaiseSnSOperationComplete();
         }
     }
@@ -84,8 +85,6 @@ namespace MEPUtils.ModelessForms.SearchAndSelect
         {
             Document doc = uiApp.ActiveUIDocument.Document;
             UIDocument uidoc = uiApp.ActiveUIDocument;
-
-            Selection selection = uidoc.Selection;
 
             FilteredElementCollector col = new FilteredElementCollector(doc);
 
@@ -139,6 +138,25 @@ namespace MEPUtils.ModelessForms.SearchAndSelect
 
             Payload.AllParameterImpressions = allParameters;
             Payload.RaiseGetParameterDataOperationComplete();
+        }
+    }
+
+    class AsyncSelectElements : IAsyncCommand
+    {
+        public List<int> ElementIdList { get; private set; }
+        private AsyncSelectElements() { }
+        public AsyncSelectElements(List<int> elementIdList)
+        {
+            ElementIdList = elementIdList;
+        }
+
+        public void Execute(UIApplication uiApp)
+        {
+            Document doc = uiApp.ActiveUIDocument.Document;
+            UIDocument uidoc = uiApp.ActiveUIDocument;
+            Selection selection = uidoc.Selection;
+
+            selection.SetElementIds(ElementIdList.Select(x => new ElementId(x)).ToList());
         }
     }
 }

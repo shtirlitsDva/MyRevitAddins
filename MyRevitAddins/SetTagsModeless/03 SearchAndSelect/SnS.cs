@@ -120,18 +120,97 @@ namespace MEPUtils.ModelessForms.SearchAndSelect
 
         private void UpdateTreeView(object sender, MyEventArgs e)
         {
-            int nrOfLevels = 3;
-            string[] levelNames = new string[] { "System Abbreviation", "Category Name", "Family and Type Name" };
-            //Level 1: System Abbreviation
-            //Level 2: Category Name
-            //Level 3: Family and Type Name
-
             treeView1.BeginUpdate();
             treeView1.Nodes.Clear();
 
+            //Manually add root node
+            treeView1.Nodes.Add("All");
 
+            foreach (ElementImpression ei in Payload.ElementsInSelection)
+            {
+                //Declare array to hold the names of all nodes in path to the element
+                string[] pathParts = new string[Payload.Grouping.ParameterList.Count + 2];
 
+                //The name of root node
+                pathParts[0] = "All";
+                //Populate the path parts with values from elements
+                for (int i = 0; i < Payload.Grouping.ParameterList.Count; i++)
+                {
+                    pathParts[i + 1] = ei.Values[i];
+                }
+                //Finish the list with the name of the element (id currently)
+                pathParts[pathParts.Length - 1] = ei.ElementId.ToString();
+
+                //Create an array of all full paths from root node to the element
+                string[] fullPaths = new string[pathParts.Length];
+                for (int i = 0; i < fullPaths.Length; i++)
+                {
+                    if (i == 0) fullPaths[i] = pathParts[i];
+                    else fullPaths[i] = fullPaths[i - 1] + "." + pathParts[i];
+                }
+
+                //Iterate through the fullPaths to determine, if node exists, if not -> create it
+                TreeNode previousNode = null;
+                for (int i = 0; i < fullPaths.Length; i++)
+                {
+                    TreeNode foundNode = treeView1.Nodes.FindTreeNodeByFullPath(fullPaths[i]);
+                    if (foundNode == null)
+                    {
+                        if (previousNode != null) previousNode = previousNode.Nodes.Add(pathParts[i]);
+                    }
+                    else
+                    {
+                        previousNode = foundNode;
+                        continue;
+                    }
+                }
+            }
             treeView1.EndUpdate();
+        }
+
+        private void treeView1_AfterSelect(object sender, TreeViewEventArgs e)
+        {
+            List<int> res = null;
+
+            if (e.Node.IsSelected)
+            {
+                if (e.Node.Nodes.Count != 0)
+                {
+                    //From here:
+                    //https://stackoverflow.com/a/14141963/6073998
+                    Func<TreeNode, IEnumerable<TreeNode>> getChildren = null;
+                    getChildren = n =>
+                    {
+                        if (n.Nodes.Count != 0)
+                        {
+                            var list = new List<TreeNode>(n.Nodes.Cast<TreeNode>().Where(c => c.Nodes.Count == 0));
+                            foreach (TreeNode c in n.Nodes)
+                            {
+                                // Note the recursive call below:
+                                list.AddRange(getChildren(c));
+                            }
+                            return list;
+                        }
+                        else
+                        {
+                            return new TreeNode[0];
+                        }
+                    };
+
+                    res = getChildren(e.Node).Select(x => int.Parse(x.Text)).ToList();
+                }
+                else
+                {
+                    res = new List<int>(1) { int.Parse(e.Node.Text) };
+                }
+            }
+
+            if (res != null)
+            {
+                AsyncSelectElements asSE = new AsyncSelectElements(res);
+                ThisApp.asyncCommand = asSE;
+                m_ExEvent.Raise();
+            }
         }
 
         /// <summary>
@@ -142,17 +221,6 @@ namespace MEPUtils.ModelessForms.SearchAndSelect
             EditGroupingForm egf = new EditGroupingForm(Payload.AllParameterImpressions);
             egf.ShowDialog();
             Payload.Grouping = egf.Grouping;
-
-            //Test the successsssss
-            TreeNode parent = treeView1.Nodes.Add("All");
-
-            if (Payload.Grouping.ParameterList != null)
-            {
-                foreach (ParameterImpression pi in Payload.Grouping.ParameterList)
-                {
-                    parent.Nodes.Add(pi.Name);
-                } 
-            }
         }
 
         private void SnS_FormClosing(object sender, FormClosingEventArgs e)

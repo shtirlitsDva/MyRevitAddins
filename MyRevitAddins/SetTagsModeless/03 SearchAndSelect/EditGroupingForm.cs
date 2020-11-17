@@ -28,7 +28,7 @@ namespace MEPUtils.ModelessForms.SearchAndSelect
                 "G:\\Github\\shtirlitsDva\\MyRevitAddins\\MyRevitAddins\\SetTagsModeless\\NLog.config");
 
             BindingList<ParameterImpression> BuiltInParameters = new BindingList<ParameterImpression>
-                (allParametersList.Where(x => x.IsShared == false).OrderBy(x => x.Name).ToList());
+                (allParametersList.Where(x => x.IsBuiltIn == true).OrderBy(x => x.Name).ToList());
             BindingList<ParameterImpression> SharedParameters = new BindingList<ParameterImpression>
                 (allParametersList.Where(x => x.IsShared).OrderBy(x => x.Name).ToList());
             ListToBindParametersType.Add(new ParameterTypeGroup("Built In Parameter", BuiltInParameters));
