@@ -88,6 +88,15 @@ namespace MEPUtils.ModelessForms.SearchAndSelect
         /// </summary>
         private void button1_Click(object sender, EventArgs e)
         {
+            GroupingSettings gs = new GroupingSettings();
+            gs.Reload();
+            if (gs.Grouping == null || Payload.Grouping == null)
+            {
+                EditGroupingForm egf = new EditGroupingForm(Payload.AllParameterImpressions);
+                egf.ShowDialog();
+                Payload.Grouping = egf.Grouping;
+            }
+
             Payload.CategoriesToSearch = checkedListBox2.CheckedItems.OfType<string>().ToList();
             if (!subscribedToSnSOperationComplete)
             {

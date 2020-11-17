@@ -27,22 +27,21 @@ namespace MEPUtils.ModelessForms.SearchAndSelect
             LogManager.Configuration = new NLog.Config.XmlLoggingConfiguration(
                 "G:\\Github\\shtirlitsDva\\MyRevitAddins\\MyRevitAddins\\SetTagsModeless\\NLog.config");
 
-            log.Debug("1");
-            BindingList<ParameterImpression> BuiltInParameters = new BindingList<ParameterImpression>(allParametersList.Where(x => x.IsShared == false).ToList());
-            BindingList<ParameterImpression> SharedParameters = new BindingList<ParameterImpression>(allParametersList.Where(x => x.IsShared).ToList());
+            BindingList<ParameterImpression> BuiltInParameters = new BindingList<ParameterImpression>
+                (allParametersList.Where(x => x.IsShared == false).OrderBy(x => x.Name).ToList());
+            BindingList<ParameterImpression> SharedParameters = new BindingList<ParameterImpression>
+                (allParametersList.Where(x => x.IsShared).OrderBy(x => x.Name).ToList());
             ListToBindParametersType.Add(new ParameterTypeGroup("Built In Parameter", BuiltInParameters));
             ListToBindParametersType.Add(new ParameterTypeGroup("Shared Parameter", SharedParameters));
-            log.Debug("2");
 
             comboBox1.DisplayMember = "Name";
             comboBox1.ValueMember = "ParameterList";
             comboBox1.DataSource = new BindingSource { DataSource = ListToBindParametersType };
-            log.Debug("3");
 
             comboBox2.DisplayMember = "Name";
             comboBox2.ValueMember = null;
             comboBox2.DataSource = new BindingSource { DataSource = (BindingList<ParameterImpression>)comboBox1.SelectedValue };
-            log.Debug("4");
+            
             comboBox1.SelectedIndexChanged += comboBox1_SelectedIndexChanged;
             comboBox2.SelectedIndexChanged += comboBox2_SelectedIndexChanged;
         }
@@ -80,6 +79,7 @@ namespace MEPUtils.ModelessForms.SearchAndSelect
             //Add controls
             ComboBox cb1 = new ComboBox();
             cb1.Dock = DockStyle.Fill;
+            cb1.Anchor = (AnchorStyles)15;
             cb1.DropDownStyle = ComboBoxStyle.DropDownList;
             cb1.DisplayMember = "Name";
             cb1.ValueMember = "ParameterList";
@@ -90,6 +90,7 @@ namespace MEPUtils.ModelessForms.SearchAndSelect
 
             ComboBox cb2 = new ComboBox();
             cb2.Dock = DockStyle.Fill;
+            cb2.Anchor = (AnchorStyles)15;
             cb2.DropDownStyle = ComboBoxStyle.DropDownList;
             tableLayoutPanel1.Controls.Add(cb2, 1, rowIndex + 1);
 
@@ -101,11 +102,13 @@ namespace MEPUtils.ModelessForms.SearchAndSelect
 
             //Add buttons
             Button button = new Button() { Dock = DockStyle.Fill, Text = "+" };
+            button.Anchor = (AnchorStyles)15;
             button.Click += addRowMethod;
 
             tableLayoutPanel1.Controls.Add(button, 2, rowIndex + 1);
 
             button = new Button() { Dock = DockStyle.Fill, Text = "-" };
+            button.Anchor = (AnchorStyles)15;
             button.Click += removeRowMethod;
 
             tableLayoutPanel1.Controls.Add(button, 3, rowIndex + 1);
@@ -174,6 +177,13 @@ namespace MEPUtils.ModelessForms.SearchAndSelect
                 list.Add(cb.SelectedValue as ParameterImpression);
             }
             Grouping = new Grouping(list);
+        }
+
+        private void EditGroupingForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            comboBox2_SelectedIndexChanged(new ComboBox(), new EventArgs());
+            GroupingSettings gs = new GroupingSettings(Grouping);
+            gs.Save();
         }
     }
 }

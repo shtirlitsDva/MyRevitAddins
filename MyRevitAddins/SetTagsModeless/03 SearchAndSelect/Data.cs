@@ -17,10 +17,10 @@ namespace MEPUtils.ModelessForms.SearchAndSelect
     public class ElementImpression
     {
         public int ElementId { get; private set; }
-        public string FamilyAndTypeName { get; private set; }
+        public string FamilyName { get; private set; }
+        public string TypeName { get; private set; }
         public string CategoryName { get; private set; }
         public int CategoryNumber { get; private set; }
-        public string SystemAbbreviation { get; private set; }
         public ElementImpression(Element e)
         {
             ElementId = e.Id.IntegerValue;
@@ -90,6 +90,8 @@ namespace MEPUtils.ModelessForms.SearchAndSelect
             get { return (Grouping)this[nameof(Grouping)]; }
             set { this[nameof(Grouping)] = value; }
         }
+        public GroupingSettings() { }
+        public GroupingSettings(Grouping grouping) { Grouping = grouping; }
     }
 
     public class ParameterTypeGroup

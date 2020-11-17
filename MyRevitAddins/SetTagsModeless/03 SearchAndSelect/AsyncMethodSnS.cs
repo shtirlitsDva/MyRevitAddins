@@ -33,7 +33,7 @@ namespace MEPUtils.ModelessForms.SearchAndSelect
             //Nlog configuration
             var nlogConfig = new NLog.Config.LoggingConfiguration();
             //Targets
-            var logfile = new NLog.Targets.FileTarget("logfile") { FileName = "g:\\GitHub\\log.txt", DeleteOldFileOnStartup = true };
+            var logfile = new NLog.Targets.FileTarget("logfile") { FileName = "g:\\log.txt", DeleteOldFileOnStartup = true };
             //Rules
             nlogConfig.AddRule(LogLevel.Info, LogLevel.Fatal, logfile);
             //Apply config
@@ -68,7 +68,7 @@ namespace MEPUtils.ModelessForms.SearchAndSelect
                                                             new ElementClassFilter(typeof(FamilyInstance))
                                                         })}));
 
-            selection.SetElementIds(col.ToElementIds());
+            //selection.SetElementIds(col.ToElementIds());
 
             Payload.ElementsInSelection = new HashSet<ElementImpression>(col.Select(x => new ElementImpression(x)));
             Payload.RaiseSnSOperationComplete();
