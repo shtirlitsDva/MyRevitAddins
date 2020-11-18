@@ -9,7 +9,7 @@ using System.Windows.Forms;
 using static Shared.Filter;
 using WinForms = System.Windows.Forms;
 
-namespace MEPUtils.ModelessForms
+namespace ModelessForms
 {
     public interface IAsyncCommand
     {

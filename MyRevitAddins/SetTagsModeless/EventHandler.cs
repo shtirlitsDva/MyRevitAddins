@@ -16,7 +16,7 @@ using Autodesk.Revit.UI;
 using Autodesk.Revit.ApplicationServices;
 using Autodesk.Revit.UI.Selection;
 
-namespace MEPUtils.ModelessForms
+namespace ModelessForms
 {
     public class ExternalEventHandler : IExternalEventHandler
     {

@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace MEPUtils.ModelessForms.SearchAndSelect
+namespace ModelessForms.SearchAndSelect
 {
     public static class TreeViewUtils
     {

@@ -14,8 +14,9 @@ using fi = Shared.Filter;
 using op = Shared.Output;
 using tr = Shared.Transformation;
 using mp = Shared.MepUtils;
+using MEPUtils;
 
-namespace MEPUtils.ModelessForms
+namespace ModelessForms
 {
     public partial class MEPUtilsChooser : System.Windows.Forms.Form
     {
@@ -33,7 +34,7 @@ namespace MEPUtils.ModelessForms
 
         public MEPUtilsChooser(Autodesk.Revit.UI.ExternalEvent exEvent,
                                ExternalEventHandler handler,
-                               MEPUtils.ModelessForms.Application thisApp)
+                               ModelessForms.Application thisApp)
         {
             InitializeComponent();
 
@@ -70,11 +71,11 @@ namespace MEPUtils.ModelessForms
                 {3, PipeCreator.CreatePipeFromConnector },
                 {4, FlangeCreator.CreateFlangeForElements },
                 {5, TotalLineLength.TotalLineLengths },
-                {6, CreateInstrumentation.StartCreatingInstrumentation.StartCreating },
-                {7, SupportTools.SupportToolsMain.CallForm },
-                {8, MoveToDistance.MoveToDistance.Move },
-                {9, new CountWelds.CountWelds().CountWeldsMethod },
-                {10, new NumberStuff.NumberStuff().NumberStuffMethod }
+                {6, MEPUtils.CreateInstrumentation.StartCreatingInstrumentation.StartCreating },
+                {7, MEPUtils.SupportTools.SupportToolsMain.CallForm },
+                {8, MEPUtils.MoveToDistance.MoveToDistance.Move },
+                {9, new MEPUtils.CountWelds.CountWelds().CountWeldsMethod },
+                {10, new MEPUtils.NumberStuff.NumberStuff().NumberStuffMethod }
             };
 
             //Place names for methods in this dict

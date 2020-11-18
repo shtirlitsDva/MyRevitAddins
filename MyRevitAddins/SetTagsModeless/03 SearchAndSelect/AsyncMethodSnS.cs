@@ -14,7 +14,7 @@ using WinForms = System.Windows.Forms;
 using thst = MoreLinq.Extensions.ToHashSetExtension;
 using Shared;
 
-namespace MEPUtils.ModelessForms.SearchAndSelect
+namespace ModelessForms.SearchAndSelect
 {
     class AsyncSelectByFilters : IAsyncCommand
     {

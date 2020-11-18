@@ -1,4 +1,4 @@
-﻿namespace MEPUtils.ModelessForms
+﻿namespace ModelessForms
 {
     partial class SetTagsInterface
     {
@@ -62,14 +62,14 @@
             // textBox2
             // 
             this.textBox2.BackColor = System.Drawing.SystemColors.Control;
-            this.textBox2.DataBindings.Add(new System.Windows.Forms.Binding("Text", global::MEPUtils.ModelessForms.Properties.Settings.Default, "pathToExcel", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
+            this.textBox2.DataBindings.Add(new System.Windows.Forms.Binding("Text", global::ModelessForms.Properties.Settings.Default, "pathToExcel", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
             this.textBox2.Location = new System.Drawing.Point(93, 14);
             this.textBox2.Name = "textBox2";
             this.textBox2.ReadOnly = true;
             this.textBox2.Size = new System.Drawing.Size(1209, 20);
             this.textBox2.TabIndex = 3;
             this.textBox2.TabStop = false;
-            this.textBox2.Text = global::MEPUtils.ModelessForms.Properties.Settings.Default.pathToExcel;
+            this.textBox2.Text = global::ModelessForms.Properties.Settings.Default.pathToExcel;
             // 
             // dataGridView1
             // 

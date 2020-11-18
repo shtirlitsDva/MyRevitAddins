@@ -1,4 +1,4 @@
-﻿namespace MEPUtils.ModelessForms.SearchAndSelect
+﻿namespace ModelessForms.SearchAndSelect
 {
     partial class SnS
     {

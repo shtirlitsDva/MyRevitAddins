@@ -10,7 +10,7 @@ using System.Windows.Forms;
 using System.Windows.Input;
 using WinForms = System.Windows.Forms;
 
-namespace MEPUtils.ModelessForms
+namespace ModelessForms
 {
     public partial class SetTagsInterface : System.Windows.Forms.Form
     {
@@ -27,7 +27,7 @@ namespace MEPUtils.ModelessForms
 
         public SetTagsInterface(Autodesk.Revit.UI.ExternalEvent exEvent,
                                 ExternalEventHandler handler,
-                                MEPUtils.ModelessForms.Application thisApp)
+                                ModelessForms.Application thisApp)
         {
             InitializeComponent();
 
@@ -35,7 +35,7 @@ namespace MEPUtils.ModelessForms
             m_Handler = handler;
             ThisApp = thisApp;
 
-            pathToDataFile = MEPUtils.ModelessForms.Properties.Settings.Default.pathToExcel;
+            pathToDataFile = ModelessForms.Properties.Settings.Default.pathToExcel;
             textBox2.Text = pathToDataFile;
         }
 
@@ -60,7 +60,7 @@ namespace MEPUtils.ModelessForms
                 dialog.ShowDialog();
                 //{
                 pathToDataFile = dialog.FileName;
-                MEPUtils.ModelessForms.Properties.Settings.Default.pathToExcel = pathToDataFile;
+                ModelessForms.Properties.Settings.Default.pathToExcel = pathToDataFile;
                 textBox2.Text = pathToDataFile;
                 //}
             }
@@ -105,7 +105,7 @@ namespace MEPUtils.ModelessForms
 
         private void SetTagsInterface_FormClosing(object sender, System.Windows.Forms.FormClosingEventArgs e)
         {
-            MEPUtils.ModelessForms.Properties.Settings.Default.Save();
+            ModelessForms.Properties.Settings.Default.Save();
         }
 
         /// <summary>

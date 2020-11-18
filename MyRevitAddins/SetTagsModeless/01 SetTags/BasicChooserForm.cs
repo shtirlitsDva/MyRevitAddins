@@ -10,7 +10,7 @@ using System.Windows.Forms;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
 
-namespace MEPUtils.ModelessForms
+namespace ModelessForms
 {
     public partial class BasicChooserForm : System.Windows.Forms.Form
     {

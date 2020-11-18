@@ -13,8 +13,8 @@
     <ProjectGuid>{25A5F61C-F9AE-463A-A1A1-9C1EDA4EDAB9}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MEPUtils.ModelessForms</RootNamespace>
-    <AssemblyName>MEPUtils.ModelessForms</AssemblyName>
+    <RootNamespace>ModelessForms</RootNamespace>
+    <AssemblyName>ModelessForms</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>false</Deterministic>
@@ -118,6 +118,7 @@
     <Compile Include="01 SetTags\SetTagsInterface.Designer.cs">
       <DependentUpon>SetTagsInterface.cs</DependentUpon>
     </Compile>
+    <Compile Include="Settings.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="01 SetTags\BasicChooserForm.resx">

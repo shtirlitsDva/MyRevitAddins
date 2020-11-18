@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using NLog;
 
-namespace MEPUtils.ModelessForms.SearchAndSelect
+namespace ModelessForms.SearchAndSelect
 {
     public partial class EditGroupingForm : Form
     {
@@ -176,16 +176,14 @@ namespace MEPUtils.ModelessForms.SearchAndSelect
                 ComboBox cb = (ComboBox)tableLayoutPanel1.GetControlFromPosition(col, i);
                 list.Add(cb.SelectedValue as ParameterImpression);
             }
-            Grouping = new Grouping(list);
+            Grouping = new Grouping();
+            Grouping.ParameterList = list;
         }
 
         private void EditGroupingForm_FormClosing(object sender, FormClosingEventArgs e)
         {
             comboBox2_SelectedIndexChanged(new ComboBox(), new EventArgs());
-            GroupingSettings gs = new GroupingSettings();
-            gs.GroupingSetting = Grouping;
-            gs.GroupingSetting.Test = "Test String, does it get saved?";
-            gs.Save();
+            ModelessForms.Properties.Settings.Default.Save();
         }
     }
 }

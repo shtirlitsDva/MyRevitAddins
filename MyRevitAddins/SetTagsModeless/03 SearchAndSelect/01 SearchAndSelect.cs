@@ -22,7 +22,7 @@ using tr = Shared.Transformation;
 using Autodesk.Revit.Attributes;
 using NLog;
 
-namespace MEPUtils.ModelessForms.SearchAndSelect
+namespace ModelessForms.SearchAndSelect
 {
     [Transaction(TransactionMode.Manual)]
     public class SearchAndSelect : IExternalCommand

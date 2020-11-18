@@ -16,7 +16,7 @@ using Autodesk.Revit.UI;
 using Autodesk.Revit.ApplicationServices;
 using Autodesk.Revit.UI.Selection;
 
-namespace MEPUtils.ModelessForms
+namespace ModelessForms
 {
     /// <summary>
     /// Implements the Revit add-in interface IExternalApplication
@@ -84,25 +84,25 @@ namespace MEPUtils.ModelessForms
         {
             RibbonPanel rvtRibbonPanel = application.CreateRibbonPanel("Modeless");
 
-            //MEPUtils.ModelessForms.SetTags
-            PushButtonData data = new PushButtonData("SetTGS", "TGS", ExecutingAssemblyPath, "MEPUtils.ModelessForms.SetTags");
+            //ModelessForms.SetTags
+            PushButtonData data = new PushButtonData("SetTGS", "TGS", ExecutingAssemblyPath, "ModelessForms.SetTags");
             data.ToolTip = "Modeless tag setter";
-            data.Image = NewBitmapImage(exe, "MEPUtils.ModelessForms.Resources.ImgSetTags16.png");
-            data.LargeImage = NewBitmapImage(exe, "MEPUtils.ModelessForms.Resources.ImgSetTags32.png");
+            data.Image = NewBitmapImage(exe, "ModelessForms.Resources.ImgSetTags16.png");
+            data.LargeImage = NewBitmapImage(exe, "ModelessForms.Resources.ImgSetTags32.png");
             PushButton SetTags = rvtRibbonPanel.AddItem(data) as PushButton;
 
-            //MEPUtils.ModelessForms.MepUtils
-            data = new PushButtonData("MepUtils", "MEPU", ExecutingAssemblyPath, "MEPUtils.ModelessForms.MepUtils");
+            //ModelessForms.MepUtils
+            data = new PushButtonData("MepUtils", "MEPU", ExecutingAssemblyPath, "ModelessForms.MepUtils");
             data.ToolTip = "Modeless MEP utilities";
-            data.Image = NewBitmapImage(exe, "MEPUtils.ModelessForms.Resources.ImgMEPUtils16.png");
-            data.LargeImage = NewBitmapImage(exe, "MEPUtils.ModelessForms.Resources.ImgMEPUtils32.png");
+            data.Image = NewBitmapImage(exe, "ModelessForms.Resources.ImgMEPUtils16.png");
+            data.LargeImage = NewBitmapImage(exe, "ModelessForms.Resources.ImgMEPUtils32.png");
             PushButton MepUtils = rvtRibbonPanel.AddItem(data) as PushButton;
 
-            //MEPUtils.ModelessForms.SearchAndSelect
-            data = new PushButtonData("Search and Select", "SnS", ExecutingAssemblyPath, "MEPUtils.ModelessForms.SnSLauncher");
+            //ModelessForms.SearchAndSelect
+            data = new PushButtonData("Search and Select", "SnS", ExecutingAssemblyPath, "ModelessForms.SnSLauncher");
             data.ToolTip = "Modeless Search and Select";
-            data.Image = NewBitmapImage(exe, "MEPUtils.ModelessForms.Resources.ImgSnS16.png");
-            data.LargeImage = NewBitmapImage(exe, "MEPUtils.ModelessForms.Resources.ImgSnS32.png");
+            data.Image = NewBitmapImage(exe, "ModelessForms.Resources.ImgSnS16.png");
+            data.LargeImage = NewBitmapImage(exe, "ModelessForms.Resources.ImgSnS32.png");
             PushButton SnSButoon = rvtRibbonPanel.AddItem(data) as PushButton;
         }
 
@@ -185,7 +185,7 @@ namespace MEPUtils.ModelessForms
 
             try
             {
-                MEPUtils.ModelessForms.Application.thisApp.ShowTagsForm(commandData.Application);
+                ModelessForms.Application.thisApp.ShowTagsForm(commandData.Application);
                 return Result.Succeeded;
             }
             catch (Exception ex)
@@ -206,7 +206,7 @@ namespace MEPUtils.ModelessForms
 
             try
             {
-                MEPUtils.ModelessForms.Application.thisApp.ShowMepUtilsForm(commandData.Application);
+                ModelessForms.Application.thisApp.ShowMepUtilsForm(commandData.Application);
                 return Result.Succeeded;
             }
             catch (Exception ex)
@@ -227,7 +227,7 @@ namespace MEPUtils.ModelessForms
 
             try
             {
-                MEPUtils.ModelessForms.Application.thisApp.ShowSnSForm(commandData.Application);
+                ModelessForms.Application.thisApp.ShowSnSForm(commandData.Application);
                 return Result.Succeeded;
             }
             catch (Exception ex)

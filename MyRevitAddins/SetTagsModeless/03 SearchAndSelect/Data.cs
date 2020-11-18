@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Configuration;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,10 +11,9 @@ using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
 using Autodesk.Revit.ApplicationServices;
 using Autodesk.Revit.UI.Selection;
-using System.Configuration;
 using Shared;
 
-namespace MEPUtils.ModelessForms.SearchAndSelect
+namespace ModelessForms.SearchAndSelect
 {
     public class ElementImpression
     {
@@ -45,6 +45,7 @@ namespace MEPUtils.ModelessForms.SearchAndSelect
             }
         }
     }
+    [SettingsSerializeAs(SettingsSerializeAs.Xml)]
     [Serializable]
     public class ParameterImpression
     {
@@ -64,6 +65,7 @@ namespace MEPUtils.ModelessForms.SearchAndSelect
             private set { guid = value; }
         }
         public string Name { get; private set; }
+        public ParameterImpression() { }
         public ParameterImpression(Parameter p)
         {
             ElementId = p.Id.IntegerValue;
@@ -94,31 +96,36 @@ namespace MEPUtils.ModelessForms.SearchAndSelect
         }
     }
 
-    [Serializable]
+    [SettingsSerializeAs(SettingsSerializeAs.Xml)]
     public class Grouping
     {
-        public List<ParameterImpression> ParameterList { get; set; }
-        public string Test { get; set; }
-        public Grouping() { }
-        public Grouping(List<ParameterImpression> parameterList)
+        private List<ParameterImpression> parameterList;
+        public List<ParameterImpression> ParameterList
         {
-            ParameterList = parameterList;
+            get { return parameterList != null ? parameterList : new List<ParameterImpression>(); }
+            set { parameterList = value; }
         }
+        public Grouping() {  }
+        //public Grouping(List<ParameterImpression> parameterList)
+        //{
+        //    ParameterList = parameterList;
+        //}
+        //ParameterList = new List<ParameterImpression>();
     }
 
-    public sealed class GroupingSettings : ApplicationSettingsBase
-    {
-        [UserScopedSetting]
-        [SettingsSerializeAs(SettingsSerializeAs.Xml)]
-        [DefaultSettingValue("")]
-        public Grouping GroupingSetting
-        {
-            get { return (Grouping)this["GroupingSetting"]; }
-            set { this["GroupingSetting"] = value; }
-        }
-        public GroupingSettings() { }
-        //public GroupingSettings(Grouping grouping) { GroupingSetting = grouping; }
-    }
+    //public sealed class GroupingSettings
+    //{
+    //    [UserScopedSetting]
+    //    [SettingsSerializeAs(SettingsSerializeAs.Xml)]
+    //    [DefaultSettingValue("")]
+    //    public Grouping GroupingSetting
+    //    {
+    //        get { return (Grouping)this["GroupingSetting"]; }
+    //        set { this["GroupingSetting"] = value; }
+    //    }
+    //    public GroupingSettings() { }
+    //    public GroupingSettings(Grouping grouping) { GroupingSetting = grouping; }
+    //}
 
     public class ParameterTypeGroup
     {

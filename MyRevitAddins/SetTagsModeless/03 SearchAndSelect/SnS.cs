@@ -7,10 +7,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using mySettings = MEPUtils.ModelessForms.Properties.Settings;
+using mySettings = ModelessForms.Properties.Settings;
 using NLog;
 
-namespace MEPUtils.ModelessForms.SearchAndSelect
+namespace ModelessForms.SearchAndSelect
 {
     public partial class SnS : Form
     {
@@ -28,7 +28,7 @@ namespace MEPUtils.ModelessForms.SearchAndSelect
 
         public SnS(Autodesk.Revit.UI.ExternalEvent exEvent,
                    ExternalEventHandler handler,
-                   MEPUtils.ModelessForms.Application thisApp)
+                   ModelessForms.Application thisApp)
         {
             InitializeComponent();
 
@@ -46,6 +46,9 @@ namespace MEPUtils.ModelessForms.SearchAndSelect
             string[] cats = { "Pipes", "Pipe Fittings", "Pipe Accessories" };
             checkedListBox2.Items.Clear();
             checkedListBox2.Items.AddRange(cats);
+
+            Grouping grouping = mySettings.Default.Grouping;
+            if (grouping != null) Payload.Grouping = grouping;
 
             //Initialize settings for categories
             if (mySettings.Default.SelectedCategories != null)
@@ -91,10 +94,9 @@ namespace MEPUtils.ModelessForms.SearchAndSelect
         /// </summary>
         private void button1_Click(object sender, EventArgs e)
         {
-            GroupingSettings gs = new GroupingSettings();
-            gs.Reload();
-            
-            if (gs.GroupingSetting == null || Payload.Grouping == null)
+            Grouping grouping = mySettings.Default.Grouping;
+
+            if (grouping == null)
             {
                 EditGroupingForm egf = new EditGroupingForm(Payload.AllParameterImpressions);
                 egf.ShowDialog();
@@ -222,9 +224,21 @@ namespace MEPUtils.ModelessForms.SearchAndSelect
         /// </summary>
         private void button2_Click(object sender, EventArgs e)
         {
-            EditGroupingForm egf = new EditGroupingForm(Payload.AllParameterImpressions);
-            egf.ShowDialog();
-            Payload.Grouping = egf.Grouping;
+            if (Payload.AllParameterImpressions != null)
+            {
+                EditGroupingForm egf = new EditGroupingForm(Payload.AllParameterImpressions);
+                egf.ShowDialog();
+                Payload.Grouping = egf.Grouping;
+            }
+            else
+            {
+                //Request Revit for parameter information
+                AsyncGatherParameterData asGPD = new AsyncGatherParameterData(Payload);
+                ThisApp.asyncCommand = asGPD;
+                m_ExEvent.Raise();
+                Payload.GetParameterDataOperationComplete += GetParameterDataOperationComplete;
+                button2.Text = "Loading parameter data...";
+            }
         }
 
         private void SnS_FormClosing(object sender, FormClosingEventArgs e)

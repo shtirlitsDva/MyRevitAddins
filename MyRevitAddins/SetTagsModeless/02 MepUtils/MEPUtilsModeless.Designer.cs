@@ -1,4 +1,4 @@
-﻿namespace MEPUtils.ModelessForms
+﻿namespace ModelessForms
 {
     partial class MEPUtilsChooser
     {
