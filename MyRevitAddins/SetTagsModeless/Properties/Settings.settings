@@ -8,5 +8,8 @@
     <Setting Name="SelectedCategories" Type="System.Collections.Generic.List&lt;System.String&gt;" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
+    <Setting Name="GroupingSettings" Type="Data.Grouping" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
   </Settings>
 </SettingsFile>

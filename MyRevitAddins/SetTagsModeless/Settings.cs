@@ -17,15 +17,6 @@
             //
         }
 
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public ModelessForms.SearchAndSelect.Grouping Grouping
-        {
-            get => (ModelessForms.SearchAndSelect.Grouping)this["Grouping"];
-            set => this["Grouping"] = value;
-        }
-
         private void SettingChangingEventHandler(object sender, System.Configuration.SettingChangingEventArgs e) {
             // Add code to handle the SettingChangingEvent event here.
         }

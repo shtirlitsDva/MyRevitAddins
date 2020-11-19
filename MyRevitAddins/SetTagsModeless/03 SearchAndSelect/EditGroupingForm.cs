@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using NLog;
+using Data;
 
 namespace ModelessForms.SearchAndSelect
 {
@@ -183,6 +184,7 @@ namespace ModelessForms.SearchAndSelect
         private void EditGroupingForm_FormClosing(object sender, FormClosingEventArgs e)
         {
             comboBox2_SelectedIndexChanged(new ComboBox(), new EventArgs());
+            Properties.Settings.Default.GroupingSettings = Grouping;
             ModelessForms.Properties.Settings.Default.Save();
         }
     }

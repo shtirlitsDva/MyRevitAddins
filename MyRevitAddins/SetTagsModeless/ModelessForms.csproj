@@ -82,7 +82,6 @@
     </Compile>
     <Compile Include="03 SearchAndSelect\01 SearchAndSelect.cs" />
     <Compile Include="03 SearchAndSelect\AsyncMethodSnS.cs" />
-    <Compile Include="03 SearchAndSelect\Data.cs" />
     <Compile Include="03 SearchAndSelect\EditGroupingForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -105,6 +104,7 @@
     <Compile Include="01 SetTags\BasicChooserForm.Designer.cs">
       <DependentUpon>BasicChooserForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="03 SearchAndSelect\Data.cs" />
     <Compile Include="EventHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Settings.Designer.cs">
@@ -160,6 +160,10 @@
     <EmbeddedResource Include="Resources\ImgSetTags32.png" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Data\Data.csproj">
+      <Project>{0e0a3bb8-97f4-4659-a681-e744da2457e6}</Project>
+      <Name>Data</Name>
+    </ProjectReference>
     <ProjectReference Include="..\MEPUtils\MEPUtils.csproj">
       <Project>{51413598-89e7-48b9-a192-8087207ac1a7}</Project>
       <Name>MEPUtils</Name>

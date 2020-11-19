@@ -45,5 +45,16 @@ namespace ModelessForms.Properties {
                 this["SelectedCategories"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        public global::Data.Grouping GroupingSettings {
+            get {
+                return ((global::Data.Grouping)(this["GroupingSettings"]));
+            }
+            set {
+                this["GroupingSettings"] = value;
+            }
+        }
     }
 }

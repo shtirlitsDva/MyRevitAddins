@@ -15,10 +15,6 @@ using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
 using System.Text;
 using System.Windows.Input;
-using dbg = Shared.Dbg;
-using fi = Shared.Filter;
-using mp = Shared.MepUtils;
-using tr = Shared.Transformation;
 using Autodesk.Revit.Attributes;
 using NLog;
 

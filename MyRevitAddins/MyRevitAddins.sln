@@ -17,6 +17,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DrawingListManager", "Drawi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FormsDesignProject", "FormsDesignProject\FormsDesignProject.csproj", "{3CC924AF-0B01-4047-B966-9A7D71C09339}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Data", "Data\Data.csproj", "{0E0A3BB8-97F4-4659-A681-E744DA2457E6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug via Revit Add-In Manager|Any CPU = Debug via Revit Add-In Manager|Any CPU
@@ -112,6 +114,18 @@ Global
 		{3CC924AF-0B01-4047-B966-9A7D71C09339}.Release|Any CPU.Build.0 = Release|Any CPU
 		{3CC924AF-0B01-4047-B966-9A7D71C09339}.Release|x64.ActiveCfg = Release|Any CPU
 		{3CC924AF-0B01-4047-B966-9A7D71C09339}.Release|x64.Build.0 = Release|Any CPU
+		{0E0A3BB8-97F4-4659-A681-E744DA2457E6}.Debug via Revit Add-In Manager|Any CPU.ActiveCfg = Debug|Any CPU
+		{0E0A3BB8-97F4-4659-A681-E744DA2457E6}.Debug via Revit Add-In Manager|Any CPU.Build.0 = Debug|Any CPU
+		{0E0A3BB8-97F4-4659-A681-E744DA2457E6}.Debug via Revit Add-In Manager|x64.ActiveCfg = Debug|Any CPU
+		{0E0A3BB8-97F4-4659-A681-E744DA2457E6}.Debug via Revit Add-In Manager|x64.Build.0 = Debug|Any CPU
+		{0E0A3BB8-97F4-4659-A681-E744DA2457E6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0E0A3BB8-97F4-4659-A681-E744DA2457E6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0E0A3BB8-97F4-4659-A681-E744DA2457E6}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{0E0A3BB8-97F4-4659-A681-E744DA2457E6}.Debug|x64.Build.0 = Debug|Any CPU
+		{0E0A3BB8-97F4-4659-A681-E744DA2457E6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0E0A3BB8-97F4-4659-A681-E744DA2457E6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0E0A3BB8-97F4-4659-A681-E744DA2457E6}.Release|x64.ActiveCfg = Release|Any CPU
+		{0E0A3BB8-97F4-4659-A681-E744DA2457E6}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

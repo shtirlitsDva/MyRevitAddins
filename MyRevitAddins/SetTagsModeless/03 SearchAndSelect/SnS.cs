@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using mySettings = ModelessForms.Properties.Settings;
 using NLog;
+using Data;
 
 namespace ModelessForms.SearchAndSelect
 {
@@ -47,7 +48,7 @@ namespace ModelessForms.SearchAndSelect
             checkedListBox2.Items.Clear();
             checkedListBox2.Items.AddRange(cats);
 
-            Grouping grouping = mySettings.Default.Grouping;
+            Grouping grouping = mySettings.Default.GroupingSettings;
             if (grouping != null) Payload.Grouping = grouping;
 
             //Initialize settings for categories
@@ -94,7 +95,7 @@ namespace ModelessForms.SearchAndSelect
         /// </summary>
         private void button1_Click(object sender, EventArgs e)
         {
-            Grouping grouping = mySettings.Default.Grouping;
+            Grouping grouping = mySettings.Default.GroupingSettings;
 
             if (grouping == null)
             {

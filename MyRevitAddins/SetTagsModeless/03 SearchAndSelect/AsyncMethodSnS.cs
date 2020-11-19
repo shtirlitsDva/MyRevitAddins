@@ -9,10 +9,10 @@ using System.Diagnostics;
 using System.Linq;
 using MoreLinq;
 using System.Windows.Forms;
-using static Shared.Filter;
 using WinForms = System.Windows.Forms;
 using thst = MoreLinq.Extensions.ToHashSetExtension;
 using Shared;
+using Data;
 
 namespace ModelessForms.SearchAndSelect
 {
@@ -88,6 +88,7 @@ namespace ModelessForms.SearchAndSelect
 
             FilteredElementCollector col = new FilteredElementCollector(doc);
 
+            if (Payload.CategoriesToSearch == null) return;
             //Test to see if catfilter is populated
             if (Payload.CategoriesToSearch.Count < 1) return;
 
