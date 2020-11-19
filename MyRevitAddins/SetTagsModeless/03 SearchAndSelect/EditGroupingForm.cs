@@ -19,10 +19,13 @@ namespace ModelessForms.SearchAndSelect
 
         BindingList<ParameterTypeGroup> ListToBindParametersType = new BindingList<ParameterTypeGroup>();
         public Grouping Grouping;
+        public Grouping temporaryGrouping;
 
-        public EditGroupingForm(HashSet<ParameterImpression> allParametersList)
+        public EditGroupingForm(HashSet<ParameterImpression> allParametersList, Grouping grouping)
         {
             InitializeComponent();
+
+            temporaryGrouping = grouping;
 
             //Log
             LogManager.Configuration = new NLog.Config.XmlLoggingConfiguration(
@@ -42,9 +45,11 @@ namespace ModelessForms.SearchAndSelect
             comboBox2.DisplayMember = "Name";
             comboBox2.ValueMember = null;
             comboBox2.DataSource = new BindingSource { DataSource = (BindingList<ParameterImpression>)comboBox1.SelectedValue };
-            
+
             comboBox1.SelectedIndexChanged += comboBox1_SelectedIndexChanged;
             comboBox2.SelectedIndexChanged += comboBox2_SelectedIndexChanged;
+
+            //Initialization of CBs moved to form_load event
         }
 
         private void addRowMethod(object sender, EventArgs e)
@@ -186,6 +191,52 @@ namespace ModelessForms.SearchAndSelect
             comboBox2_SelectedIndexChanged(new ComboBox(), new EventArgs());
             Properties.Settings.Default.GroupingSettings = Grouping;
             ModelessForms.Properties.Settings.Default.Save();
+        }
+
+        private void EditGroupingForm_Load(object sender, EventArgs e)
+        {
+            if (temporaryGrouping != null)
+            {
+                for (int i = 0; i < temporaryGrouping.ParameterList.Count; i++)
+                {
+                    ParameterImpression pi = temporaryGrouping.ParameterList[i];
+                    if (i == 0)
+                    {
+                        SetComboBoxes(comboBox1, comboBox2, pi);
+                    }
+                    else
+                    {
+                        //Get the previous button
+                        Button button = (Button)tableLayoutPanel1.GetControlFromPosition(2, i - 1);
+                        button.PerformClick();
+
+                        //Get the controls
+                        ComboBox cb1 = (ComboBox)tableLayoutPanel1.GetControlFromPosition(0, i);
+                        ComboBox cb2 = (ComboBox)tableLayoutPanel1.GetControlFromPosition(1, i);
+
+                        //Set controls
+                        SetComboBoxes(cb1, cb2, pi);
+                    }
+                }
+            }
+
+            void SetComboBoxes(ComboBox cb1, ComboBox cb2, ParameterImpression pi)
+            {
+                foreach (ParameterTypeGroup ptg in cb1.Items)
+                {
+                    if (ptg.Name == pi.ParameterType)
+                    {
+                        comboBox1.SelectedItem = ptg;
+                    }
+                }
+                foreach (ParameterImpression pi2 in cb2.Items)
+                {
+                    if (pi2.HashCode == pi.HashCode)
+                    {
+                        comboBox2.SelectedItem = pi2;
+                    }
+                }
+            }
         }
     }
 }

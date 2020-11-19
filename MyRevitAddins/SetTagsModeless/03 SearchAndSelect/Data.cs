@@ -40,7 +40,15 @@ namespace Data
                 Parameter par = null;
                 if (pi.IsBuiltIn) par = e.get_Parameter(pi.BuiltInParameter);
                 else if (pi.IsShared) par = e.get_Parameter(pi.Guid);
-                if (par != null) Values.Add(par.ToValueString2());
+                if (par != null)
+                {
+                    string value = par.ToValueString2();
+                    if (string.IsNullOrEmpty(value))
+                    {
+                        Values.Add("<+>");
+                    }
+                    else Values.Add(par.ToValueString2());
+                }
                 else Values.Add("<+>");
             }
         }

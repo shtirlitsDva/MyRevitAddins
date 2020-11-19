@@ -99,7 +99,7 @@ namespace ModelessForms.SearchAndSelect
 
             if (grouping == null)
             {
-                EditGroupingForm egf = new EditGroupingForm(Payload.AllParameterImpressions);
+                EditGroupingForm egf = new EditGroupingForm(Payload.AllParameterImpressions, null);
                 egf.ShowDialog();
                 Payload.Grouping = egf.Grouping;
             }
@@ -227,7 +227,8 @@ namespace ModelessForms.SearchAndSelect
         {
             if (Payload.AllParameterImpressions != null)
             {
-                EditGroupingForm egf = new EditGroupingForm(Payload.AllParameterImpressions);
+                EditGroupingForm egf = new EditGroupingForm(
+                    Payload.AllParameterImpressions, Payload.Grouping);
                 egf.ShowDialog();
                 Payload.Grouping = egf.Grouping;
             }

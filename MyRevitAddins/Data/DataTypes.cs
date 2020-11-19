@@ -20,6 +20,15 @@ namespace Data
     {
         public int ElementId { get; private set; }
         public int HashCode { get; private set; }
+        public string ParameterType
+        {
+            get
+            {
+                if (IsShared) return "Shared Parameter";
+                else if (IsBuiltIn) return "Built In Parameter";
+                else return "";
+            }
+        }
         public BuiltInParameter BuiltInParameter { get; private set; }
         public bool IsBuiltIn { get; private set; }
         public bool IsShared { get; private set; }
