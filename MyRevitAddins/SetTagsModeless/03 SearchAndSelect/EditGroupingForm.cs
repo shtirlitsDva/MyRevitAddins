@@ -20,6 +20,7 @@ namespace ModelessForms.SearchAndSelect
         BindingList<ParameterTypeGroup> ListToBindParametersType = new BindingList<ParameterTypeGroup>();
         public Grouping Grouping;
         public Grouping temporaryGrouping;
+        private bool SelectedIndexChangedDisabled = true;
 
         public EditGroupingForm(HashSet<ParameterImpression> allParametersList, Grouping grouping)
         {
@@ -160,6 +161,7 @@ namespace ModelessForms.SearchAndSelect
 
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
+            if (SelectedIndexChangedDisabled) return;
             BindingList<ParameterImpression> item =
                 (BindingList<ParameterImpression>)(sender as ComboBox).SelectedValue;
             int rowIndex = tableLayoutPanel1.GetRow((ComboBox)sender);
@@ -175,6 +177,7 @@ namespace ModelessForms.SearchAndSelect
 
         private void comboBox2_SelectedIndexChanged(object sender, EventArgs e)
         {
+            if (SelectedIndexChangedDisabled) return;
             List<ParameterImpression> list = new List<ParameterImpression>(tableLayoutPanel1.RowCount);
             for (int i = 0; i < tableLayoutPanel1.RowCount - 1; i++)
             {
@@ -195,6 +198,8 @@ namespace ModelessForms.SearchAndSelect
 
         private void EditGroupingForm_Load(object sender, EventArgs e)
         {
+            SelectedIndexChangedDisabled = false;
+
             if (temporaryGrouping != null)
             {
                 for (int i = 0; i < temporaryGrouping.ParameterList.Count; i++)
@@ -231,12 +236,14 @@ namespace ModelessForms.SearchAndSelect
                 }
                 foreach (ParameterImpression pi2 in cb2.Items)
                 {
-                    if (pi2.HashCode == pi.HashCode)
+                    if (pi2 == pi)
                     {
                         comboBox2.SelectedItem = pi2;
                     }
                 }
             }
+
+            SelectedIndexChangedDisabled = false;
         }
     }
 }
