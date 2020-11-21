@@ -198,9 +198,9 @@ namespace ModelessForms.SearchAndSelect
 
         private void EditGroupingForm_Load(object sender, EventArgs e)
         {
-            SelectedIndexChangedDisabled = false;
+            SelectedIndexChangedDisabled = true;
 
-            if (temporaryGrouping != null)
+            if (temporaryGrouping != null && ! temporaryGrouping.ParameterList.Contains(null))
             {
                 for (int i = 0; i < temporaryGrouping.ParameterList.Count; i++)
                 {
@@ -227,22 +227,31 @@ namespace ModelessForms.SearchAndSelect
 
             void SetComboBoxes(ComboBox cb1, ComboBox cb2, ParameterImpression pi)
             {
+                ParameterTypeGroup tempPtg = null;
                 foreach (ParameterTypeGroup ptg in cb1.Items)
                 {
                     if (ptg.Name == pi.ParameterType)
                     {
-                        comboBox1.SelectedItem = ptg;
+                        cb1.SelectedItem = ptg;
+                        tempPtg = ptg;
                     }
                 }
+
+                ParameterImpression pi3 = null;
+
+                SelectedIndexChangedDisabled = false;
+                comboBox1_SelectedIndexChanged(cb1, new EventArgs());
+                SelectedIndexChangedDisabled = true;
+
                 foreach (ParameterImpression pi2 in cb2.Items)
                 {
-                    if (pi2 == pi)
+                    if (pi2 == pi && tempPtg != null)
                     {
-                        comboBox2.SelectedItem = pi2;
+                        pi3 = pi2;
                     }
                 }
+                if (pi3 != null) cb2.SelectedItem = pi3;
             }
-
             SelectedIndexChangedDisabled = false;
         }
     }
