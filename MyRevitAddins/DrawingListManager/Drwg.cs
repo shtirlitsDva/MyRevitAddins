@@ -168,63 +168,70 @@ namespace MEPUtils.DrawingListManager
         }
         internal string GetValue(DrwgProps props, FieldName fieldName)
         {
-            switch (fieldName)
-            {
-                case FieldName.None:
-                    return "";
-                case FieldName.Number:
-                    return props.Number.Value;
-                case FieldName.Title:
-                    return props.Title.Value;
-                case FieldName.Revision:
-                    return props.Revision.Value;
-                case FieldName.Scale:
-                    return props.Scale.Value;
-                case FieldName.Date:
-                    return props.Date.Value;
-                case FieldName.RevisionDate:
-                    return props.RevisionDate.Value;
-                case FieldName.DrawingListCategory:
-                    return props.DrawingListCategory.Value;
-                case FieldName.FileNameFormat:
-                    return props.FileNameFormat.Value;
-                case FieldName.Selected:
-                    throw new NotImplementedException();
-                case FieldName.Extension:
-                    return props.FileNameFormat.Value;
-                default:
-                    return "";
-            }
+
+            string fn = nameof(fieldName);
+            return (string)props.GetPropertyValue(fn);
+
+            //switch (fieldName)
+            //{
+            //    case FieldName.None:
+            //        return "";
+            //case FieldName.Number:
+            //    return props.Number.Value;
+            //case FieldName.Title:
+            //    return props.Title.Value;
+            //case FieldName.Revision:
+            //    return props.Revision.Value;
+            //case FieldName.Scale:
+            //    return props.Scale.Value;
+            //case FieldName.Date:
+            //    return props.Date.Value;
+            //case FieldName.RevisionDate:
+            //    return props.RevisionDate.Value;
+            //case FieldName.DrawingListCategory:
+            //    return props.DrawingListCategory.Value;
+            //case FieldName.FileNameFormat:
+            //    return props.FileNameFormat.Value;
+            //case FieldName.Selected:
+            //    throw new NotImplementedException();
+            //case FieldName.Extension:
+            //    return props.FileNameFormat.Value;
+            //default:
+            //    return "";
+            //}
         }
         internal Field GetFieldRef(DrwgProps props, FieldName fieldName)
         {
-            switch (fieldName)
-            {
-                case FieldName.None:
-                    return new Field.Empty();
-                case FieldName.Number:
-                    return props.Number;
-                case FieldName.Title:
-                    return props.Title;
-                case FieldName.Revision:
-                    return props.Revision;
-                case FieldName.Scale:
-                    return props.Scale;
-                case FieldName.Date:
-                    return props.Date;
-                case FieldName.RevisionDate:
-                    return props.RevisionDate;
-                case FieldName.DrawingListCategory:
-                    return props.DrawingListCategory;
-                case FieldName.FileNameFormat:
-                    return props.FileNameFormat;
-                case FieldName.Selected:
-                    throw new NotImplementedException();
-                case FieldName.Extension:
-                    return props.FileNameFormat;
-                default:
-                    return new Field.Empty();
-            }
+            string fn = nameof(fieldName);
+            return (Field)props.GetProperty(fn);
+
+            //switch (fieldName)
+            //{
+            //    case FieldName.None:
+            //        return new Field.Empty();
+            //    case FieldName.Number:
+            //        return props.Number;
+            //    case FieldName.Title:
+            //        return props.Title;
+            //    case FieldName.Revision:
+            //        return props.Revision;
+            //    case FieldName.Scale:
+            //        return props.Scale;
+            //    case FieldName.Date:
+            //        return props.Date;
+            //    case FieldName.RevisionDate:
+            //        return props.RevisionDate;
+            //    case FieldName.DrawingListCategory:
+            //        return props.DrawingListCategory;
+            //    case FieldName.FileNameFormat:
+            //        return props.FileNameFormat;
+            //    case FieldName.Selected:
+            //        throw new NotImplementedException();
+            //    case FieldName.Extension:
+            //        return props.FileNameFormat;
+            //    default:
+            //        return new Field.Empty();
+            //}
         }
         internal Field GetFieldRef(Source source, FieldName fieldName)
         {

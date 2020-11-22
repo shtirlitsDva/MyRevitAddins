@@ -10,6 +10,15 @@ namespace MEPUtils.DrawingListManager
     public static class Extensions
     {
         public static bool IsNullOrEmpty(this string str) => string.IsNullOrEmpty(str);
+
+        public static object GetPropertyValue(this object T, string PropName)
+        {
+            return T.GetType().GetProperty(PropName) == null ? null : T.GetType().GetProperty(PropName).GetValue(T, null);
+        }
+        public static object GetProperty(this object T, string PropName)
+        {
+            return T.GetType().GetProperty(PropName) == null ? null : T.GetType().GetProperty(PropName);
+        }
     }
     public static class Output
     {

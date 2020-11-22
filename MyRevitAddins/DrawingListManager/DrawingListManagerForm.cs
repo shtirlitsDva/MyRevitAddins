@@ -101,7 +101,7 @@ namespace MEPUtils.DrawingListManager
             int col = e.ColumnIndex; int row = e.RowIndex;
 
             //The section where we handle changes to "Select" column
-            if (dGV1.Columns[col].HeaderText == dlm.fs._Select.ColumnName)
+            if (dGV1.Columns[col].HeaderText == dlm.fs.Select.ColumnName)
             {
                 bool value = bool.Parse(dGV1.Rows[row].Cells[col].Value.ToString());
                 if (value)

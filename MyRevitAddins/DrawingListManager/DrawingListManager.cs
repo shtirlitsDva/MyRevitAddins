@@ -249,12 +249,12 @@ namespace MEPUtils.DrawingListManager
                 {
                     Drwg drwg = new Drwg();
                     drwg.DataFromExcel = new DrwgProps.Source_Excel(
-                    row.Field<string>(fs._Number.ColumnName),
-                    row.Field<string>(fs._Title.ColumnName),
-                    row.Field<string>(fs._Revision.ColumnName),
-                    row.Field<string>(fs._Scale.ColumnName),
-                    row.Field<string>(fs._Date.ColumnName),
-                    row.Field<string>(fs._RevisionDate.ColumnName)
+                    row.Field<string>(fs.Number.ColumnName),
+                    row.Field<string>(fs.Title.ColumnName),
+                    row.Field<string>(fs.Revision.ColumnName),
+                    row.Field<string>(fs.Scale.ColumnName),
+                    row.Field<string>(fs.Date.ColumnName),
+                    row.Field<string>(fs.RevisionDate.ColumnName)
                     );
                     drwgListExcel.Add(drwg);
                 }
@@ -277,12 +277,12 @@ namespace MEPUtils.DrawingListManager
             string title = props.Title.Value.Replace("'", "''");
             string rev = props.Revision.Value;
             List<string> exprlist = new List<string>();
-            exprlist.Add($"[{fs._Number.ColumnName}] = '{number}'");
+            exprlist.Add($"[{fs.Number.ColumnName}] = '{number}'");
             if (includeTitleFieldInSelectExpression)
             {
-                exprlist.Add($"[{fs._Title.ColumnName}] = '{title}'");
+                exprlist.Add($"[{fs.Title.ColumnName}] = '{title}'");
             }
-            if (!rev.IsNullOrEmpty()) exprlist.Add($"[{fs._Revision.ColumnName}] = '{rev}'");
+            if (!rev.IsNullOrEmpty()) exprlist.Add($"[{fs.Revision.ColumnName}] = '{rev}'");
             string expr = string.Join(" AND ", exprlist);
 
             if (Data is DataSet dataSet)
@@ -321,37 +321,37 @@ namespace MEPUtils.DrawingListManager
 
             column = new DataColumn();
             column.DataType = typeof(string);
-            column.ColumnName = fs._Number.ColumnName;
+            column.ColumnName = fs.Number.ColumnName;
             MetadataDataTable.Columns.Add(column);
 
             column = new DataColumn();
             column.DataType = typeof(string);
-            column.ColumnName = fs._Title.ColumnName;
+            column.ColumnName = fs.Title.ColumnName;
             MetadataDataTable.Columns.Add(column);
 
             column = new DataColumn();
             column.DataType = typeof(string);
-            column.ColumnName = fs._Scale.ColumnName;
+            column.ColumnName = fs.Scale.ColumnName;
             MetadataDataTable.Columns.Add(column);
 
             column = new DataColumn();
             column.DataType = typeof(string);
-            column.ColumnName = fs._Date.ColumnName;
+            column.ColumnName = fs.Date.ColumnName;
             MetadataDataTable.Columns.Add(column);
 
             column = new DataColumn();
             column.DataType = typeof(string);
-            column.ColumnName = fs._Revision.ColumnName;
+            column.ColumnName = fs.Revision.ColumnName;
             MetadataDataTable.Columns.Add(column);
 
             column = new DataColumn();
             column.DataType = typeof(string);
-            column.ColumnName = fs._RevisionDate.ColumnName;
+            column.ColumnName = fs.RevisionDate.ColumnName;
             MetadataDataTable.Columns.Add(column);
 
             column = new DataColumn();
             column.DataType = typeof(string);
-            column.ColumnName = fs._DrawingListCategory.ColumnName;
+            column.ColumnName = fs.DrawingListCategory.ColumnName;
             MetadataDataTable.Columns.Add(column);
             #endregion
 
@@ -393,13 +393,13 @@ namespace MEPUtils.DrawingListManager
             {
                 Drwg drwg = new Drwg();
                 drwg.DataFromMetadata = new DrwgProps.Source_Meta(
-                row.Field<string>(fs._Number.ColumnName),
-                row.Field<string>(fs._Title.ColumnName),
-                row.Field<string>(fs._Revision.ColumnName),
-                row.Field<string>(fs._Scale.ColumnName),
-                row.Field<string>(fs._Date.ColumnName),
-                row.Field<string>(fs._RevisionDate.ColumnName),
-                row.Field<string>(fs._DrawingListCategory.ColumnName)
+                row.Field<string>(fs.Number.ColumnName),
+                row.Field<string>(fs.Title.ColumnName),
+                row.Field<string>(fs.Revision.ColumnName),
+                row.Field<string>(fs.Scale.ColumnName),
+                row.Field<string>(fs.Date.ColumnName),
+                row.Field<string>(fs.RevisionDate.ColumnName),
+                row.Field<string>(fs.DrawingListCategory.ColumnName)
                 );
                 drwgListMeta.Add(drwg);
             }
@@ -418,42 +418,42 @@ namespace MEPUtils.DrawingListManager
 
             column = new DataColumn();
             column.DataType = typeof(bool);
-            column.ColumnName = fs._Select.ColumnName;
+            column.ColumnName = fs.Select.ColumnName;
             AggregateDataTable.Columns.Add(column);
 
             column = new DataColumn();
             column.DataType = typeof(string);
-            column.ColumnName = fs._Number.ColumnName;
+            column.ColumnName = fs.Number.ColumnName;
             AggregateDataTable.Columns.Add(column);
 
             column = new DataColumn();
             column.DataType = typeof(string);
-            column.ColumnName = fs._Title.ColumnName;
+            column.ColumnName = fs.Title.ColumnName;
             AggregateDataTable.Columns.Add(column);
 
             column = new DataColumn();
             column.DataType = typeof(string);
-            column.ColumnName = fs._FileNameFormat.ColumnName;
+            column.ColumnName = fs.FileNameFormat.ColumnName;
             AggregateDataTable.Columns.Add(column);
 
             column = new DataColumn();
             column.DataType = typeof(string);
-            column.ColumnName = fs._Scale.ColumnName;
+            column.ColumnName = fs.Scale.ColumnName;
             AggregateDataTable.Columns.Add(column);
 
             column = new DataColumn();
             column.DataType = typeof(string);
-            column.ColumnName = fs._Date.ColumnName;
+            column.ColumnName = fs.Date.ColumnName;
             AggregateDataTable.Columns.Add(column);
 
             column = new DataColumn();
             column.DataType = typeof(string);
-            column.ColumnName = fs._Revision.ColumnName;
+            column.ColumnName = fs.Revision.ColumnName;
             AggregateDataTable.Columns.Add(column);
 
             column = new DataColumn();
             column.DataType = typeof(string);
-            column.ColumnName = fs._RevisionDate.ColumnName;
+            column.ColumnName = fs.RevisionDate.ColumnName;
             AggregateDataTable.Columns.Add(column);
 
             //Debug column showing the state of drwg
@@ -464,7 +464,7 @@ namespace MEPUtils.DrawingListManager
             //Debug column showing the extension of file
             column = new DataColumn();
             column.DataType = typeof(string);
-            column.ColumnName = fs._Extension.ColumnName;
+            column.ColumnName = fs.Extension.ColumnName;
             AggregateDataTable.Columns.Add(column);
             #endregion
         }
@@ -557,15 +557,15 @@ namespace MEPUtils.DrawingListManager
                 //Populate the aggregate datatable
                 DataRow row = AggregateDataTable.NewRow();
 
-                row[fs._Number.ColumnName] = drwg.TryGetValueOfSpecificPropsField(FieldName.Number);
-                row[fs._Title.ColumnName] = drwg.TryGetValueOfSpecificPropsField(FieldName.Title);
-                row[fs._FileNameFormat.ColumnName] = drwg.TryGetValueOfSpecificPropsField(FieldName.FileNameFormat);
-                row[fs._Scale.ColumnName] = drwg.TryGetValueOfSpecificPropsField(FieldName.Scale);
-                row[fs._Date.ColumnName] = drwg.TryGetValueOfSpecificPropsField(FieldName.Date);
-                row[fs._Revision.ColumnName] = drwg.TryGetValueOfSpecificPropsField(FieldName.Revision);
-                row[fs._RevisionDate.ColumnName] = drwg.TryGetValueOfSpecificPropsField(FieldName.RevisionDate);
+                row[fs.Number.ColumnName] = drwg.TryGetValueOfSpecificPropsField(FieldName.Number);
+                row[fs.Title.ColumnName] = drwg.TryGetValueOfSpecificPropsField(FieldName.Title);
+                row[fs.FileNameFormat.ColumnName] = drwg.TryGetValueOfSpecificPropsField(FieldName.FileNameFormat);
+                row[fs.Scale.ColumnName] = drwg.TryGetValueOfSpecificPropsField(FieldName.Scale);
+                row[fs.Date.ColumnName] = drwg.TryGetValueOfSpecificPropsField(FieldName.Date);
+                row[fs.Revision.ColumnName] = drwg.TryGetValueOfSpecificPropsField(FieldName.Revision);
+                row[fs.RevisionDate.ColumnName] = drwg.TryGetValueOfSpecificPropsField(FieldName.RevisionDate);
                 row["State"] = drwg.State;
-                row[fs._Extension.ColumnName] = drwg.TryGetValueOfSpecificPropsField(FieldName.Extension);
+                row[fs.Extension.ColumnName] = drwg.TryGetValueOfSpecificPropsField(FieldName.Extension);
 
                 //Store reference to the data row which holds the data
                 drwg.dataRowGV = row;
@@ -602,12 +602,12 @@ namespace MEPUtils.DrawingListManager
                             }
 
                             //Number field
-                            var cell = dGVRow.Cells[fs._Number.ColumnName];
+                            var cell = dGVRow.Cells[fs.Number.ColumnName];
                             cell.Style = dgvStyles.AllOkay;
                             cell.ToolTipText = drwg.BuildToolTip(FieldName.Number);
-                            
+
                             //Title field
-                            cell = dGVRow.Cells[fs._Title.ColumnName];
+                            cell = dGVRow.Cells[fs.Title.ColumnName];
                             //Compare values
                             bool AreEqual = drwg.CompareFieldValues(FieldName.Title);
                             if (AreEqual) cell.Style = dgvStyles.AllOkay;
@@ -615,15 +615,13 @@ namespace MEPUtils.DrawingListManager
                             cell.ToolTipText = drwg.BuildToolTip(FieldName.Title);
 
                             //Scale field
-                            cell = dGVRow.Cells[fs._Scale.ColumnName];
-                            //Compare values
-                            AreEqual = drwg.CompareFieldValues(FieldName.Scale);
-                            if (AreEqual) cell.Style = dgvStyles.AllOkay;
-                            else cell.Style = dgvStyles.Warning;
-                            cell.ToolTipText = drwg.BuildToolTip(FieldName.Scale);
+                            AnalyzeFields(drwg, dGVRow, FieldName.Scale);
+                            #region fold
+
+
 
                             //Date field
-                            cell = dGVRow.Cells[fs._Date.ColumnName];
+                            cell = dGVRow.Cells[fs.Date.ColumnName];
                             //Compare values
                             AreEqual = drwg.CompareFieldValues(FieldName.Date);
                             if (AreEqual) cell.Style = dgvStyles.AllOkay;
@@ -631,7 +629,7 @@ namespace MEPUtils.DrawingListManager
                             cell.ToolTipText = drwg.BuildToolTip(FieldName.Date);
 
                             //Revision field
-                            cell = dGVRow.Cells[fs._Revision.ColumnName];
+                            cell = dGVRow.Cells[fs.Revision.ColumnName];
                             //Compare values
                             AreEqual = drwg.CompareFieldValues(FieldName.Revision);
                             if (AreEqual) cell.Style = dgvStyles.AllOkay;
@@ -639,7 +637,7 @@ namespace MEPUtils.DrawingListManager
                             cell.ToolTipText = drwg.BuildToolTip(FieldName.Revision);
 
                             //RevDate field
-                            cell = dGVRow.Cells[fs._RevisionDate.ColumnName];
+                            cell = dGVRow.Cells[fs.RevisionDate.ColumnName];
                             //Compare values
                             AreEqual = drwg.CompareFieldValues(FieldName.RevisionDate);
                             if (AreEqual) cell.Style = dgvStyles.AllOkay;
@@ -651,6 +649,20 @@ namespace MEPUtils.DrawingListManager
                     default:
                         break;
                 }
+            } 
+            #endregion
+
+            void AnalyzeFields(Drwg drwg, DataGridViewRow dGVRow, FieldName fieldName)
+            {
+                string fn = nameof(fieldName);
+                DataGridViewCell cell = dGVRow.Cells[((Field)fs.GetProperty(fn)).ColumnName];
+                //Compare values
+                //Add here logic to take care of missing sources, so the State flag becomes deprecate
+                //Maybe keep it only as means of quality assurance for this logic
+                bool areEqual = drwg.CompareFieldValues(FieldName.Scale);
+                if (areEqual) cell.Style = dgvStyles.AllOkay;
+                else cell.Style = dgvStyles.Warning;
+                cell.ToolTipText = drwg.BuildToolTip(FieldName.Scale);
             }
         }
 
