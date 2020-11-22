@@ -82,6 +82,12 @@
     </Compile>
     <Compile Include="03 SearchAndSelect\01 SearchAndSelect.cs" />
     <Compile Include="03 SearchAndSelect\AsyncMethodSnS.cs" />
+    <Compile Include="03 SearchAndSelect\EditFilteringForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="03 SearchAndSelect\EditFilteringForm.Designer.cs">
+      <DependentUpon>EditFilteringForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="03 SearchAndSelect\EditGroupingForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -129,6 +135,9 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="03 SearchAndSelect\EditFilteringForm.resx">
+      <DependentUpon>EditFilteringForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="03 SearchAndSelect\EditGroupingForm.resx">
       <DependentUpon>EditGroupingForm.cs</DependentUpon>
     </EmbeddedResource>
