@@ -588,61 +588,21 @@ namespace MEPUtils.DrawingListManager
         {
             foreach (Drwg drwg in drwgListAggregated)
             {
-                //Analyze number field
+                DataGridViewRow dGVRow = GetDgvRow(dGV, drwg.dataRowGV);
+                //The State flag guarantees that values are present
+                //So equality only needs checking
                 switch (drwg.State)
                 {
                     case (Drwg.StateFlags)32767: //All fields present
-                        DataGridViewRow dGVRow = GetDgvRow(dGV, drwg.dataRowGV);
-
                         if (dGVRow != null)
                         {
-                            void AnalysisFunction(DataGridViewRow dGVRow2, FieldName fieldName)
-                            {
-                                var cell2 = dGVRow2.Cells[fs.GetField(fieldName).ColumnName];
-                            }
-
-                            //Number field
-                            var cell = dGVRow.Cells[fs.Number.ColumnName];
-                            cell.Style = dgvStyles.AllOkay;
-                            cell.ToolTipText = drwg.BuildToolTip(FieldName.Number);
-
-                            //Title field
-                            cell = dGVRow.Cells[fs.Title.ColumnName];
-                            //Compare values
-                            bool AreEqual = drwg.CompareFieldValues(FieldName.Title);
-                            if (AreEqual) cell.Style = dgvStyles.AllOkay;
-                            else cell.Style = dgvStyles.Warning;
-                            cell.ToolTipText = drwg.BuildToolTip(FieldName.Title);
-
-                            //Scale field
+                            //Fields
+                            AnalyzeFields(drwg, dGVRow, FieldName.Number);
+                            AnalyzeFields(drwg, dGVRow, FieldName.Title);
                             AnalyzeFields(drwg, dGVRow, FieldName.Scale);
-                            #region fold
-
-
-
-                            //Date field
-                            cell = dGVRow.Cells[fs.Date.ColumnName];
-                            //Compare values
-                            AreEqual = drwg.CompareFieldValues(FieldName.Date);
-                            if (AreEqual) cell.Style = dgvStyles.AllOkay;
-                            else cell.Style = dgvStyles.Warning;
-                            cell.ToolTipText = drwg.BuildToolTip(FieldName.Date);
-
-                            //Revision field
-                            cell = dGVRow.Cells[fs.Revision.ColumnName];
-                            //Compare values
-                            AreEqual = drwg.CompareFieldValues(FieldName.Revision);
-                            if (AreEqual) cell.Style = dgvStyles.AllOkay;
-                            else cell.Style = dgvStyles.Warning;
-                            cell.ToolTipText = drwg.BuildToolTip(FieldName.Revision);
-
-                            //RevDate field
-                            cell = dGVRow.Cells[fs.RevisionDate.ColumnName];
-                            //Compare values
-                            AreEqual = drwg.CompareFieldValues(FieldName.RevisionDate);
-                            if (AreEqual) cell.Style = dgvStyles.AllOkay;
-                            else cell.Style = dgvStyles.Warning;
-                            cell.ToolTipText = drwg.BuildToolTip(FieldName.RevisionDate);
+                            AnalyzeFields(drwg, dGVRow, FieldName.Date);
+                            AnalyzeFields(drwg, dGVRow, FieldName.Revision);
+                            AnalyzeFields(drwg, dGVRow, FieldName.RevisionDate);
                         }
 
                         break;
@@ -650,19 +610,17 @@ namespace MEPUtils.DrawingListManager
                         break;
                 }
             } 
-            #endregion
 
             void AnalyzeFields(Drwg drwg, DataGridViewRow dGVRow, FieldName fieldName)
             {
-                string fn = nameof(fieldName);
-                DataGridViewCell cell = dGVRow.Cells[((Field)fs.GetProperty(fn)).ColumnName];
+                string fn = fieldName.ToString();
+                Field field = fs.GetPropertyValue(fn) as Field;
+                DataGridViewCell cell = dGVRow.Cells[field.ColumnName];
                 //Compare values
-                //Add here logic to take care of missing sources, so the State flag becomes deprecate
-                //Maybe keep it only as means of quality assurance for this logic
-                bool areEqual = drwg.CompareFieldValues(FieldName.Scale);
+                bool areEqual = drwg.CompareFieldValues(fieldName);
                 if (areEqual) cell.Style = dgvStyles.AllOkay;
                 else cell.Style = dgvStyles.Warning;
-                cell.ToolTipText = drwg.BuildToolTip(FieldName.Scale);
+                cell.ToolTipText = drwg.BuildToolTip(fieldName);
             }
         }
 

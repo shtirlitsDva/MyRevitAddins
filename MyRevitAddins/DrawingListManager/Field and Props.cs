@@ -113,16 +113,16 @@ namespace MEPUtils.DrawingListManager
         public class Fields
         {
             //Remember to add new "Field"s here!
-            public Field Number = new Number();
-            public Field Title = new Title();
-            public Field Revision = new Revision();
-            public Field Extension = new Extension();
-            public Field Scale = new Scale();
-            public Field Date = new Date();
-            public Field RevisionDate = new RevisionDate();
-            public Field FileNameFormat = new FileNameFormat();
-            public Field Select = new Selected();
-            public Field DrawingListCategory = new DrawingListCategory();
+            public Field Number { get; private set; } = new Number();
+            public Field Title { get; private set; } = new Title();
+            public Field Revision { get; private set; } = new Revision();
+            public Field Extension { get; private set; } = new Extension();
+            public Field Scale { get; private set; } = new Scale();
+            public Field Date { get; private set; } = new Date();
+            public Field RevisionDate { get; private set; } = new RevisionDate();
+            public Field FileNameFormat { get; private set; } = new FileNameFormat();
+            public Field Select { get; private set; } = new Selected();
+            public Field DrawingListCategory { get; private set; } = new DrawingListCategory();
 
             public HashSet<Field> GetAllFields()
             {

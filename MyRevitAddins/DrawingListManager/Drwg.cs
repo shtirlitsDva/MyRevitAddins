@@ -169,7 +169,7 @@ namespace MEPUtils.DrawingListManager
         internal string GetValue(DrwgProps props, FieldName fieldName)
         {
 
-            string fn = nameof(fieldName);
+            string fn = fieldName.ToString();
             return (string)props.GetPropertyValue(fn);
 
             //switch (fieldName)
@@ -202,8 +202,8 @@ namespace MEPUtils.DrawingListManager
         }
         internal Field GetFieldRef(DrwgProps props, FieldName fieldName)
         {
-            string fn = nameof(fieldName);
-            return (Field)props.GetProperty(fn);
+            string fn = fieldName.ToString();
+            return (Field)props.GetPropertyValue(fn);
 
             //switch (fieldName)
             //{
@@ -310,6 +310,9 @@ namespace MEPUtils.DrawingListManager
             }
             else return "";
         }
+        /// <summary>
+        /// Used to check if values do really match
+        /// </summary>
         internal bool CompareFieldValues(FieldName fieldName)
         {
             List<Field> fLst = GetAllFieldRefs(fieldName);

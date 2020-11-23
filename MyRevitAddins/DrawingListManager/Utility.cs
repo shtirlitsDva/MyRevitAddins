@@ -15,10 +15,6 @@ namespace MEPUtils.DrawingListManager
         {
             return T.GetType().GetProperty(PropName) == null ? null : T.GetType().GetProperty(PropName).GetValue(T, null);
         }
-        public static object GetProperty(this object T, string PropName)
-        {
-            return T.GetType().GetProperty(PropName) == null ? null : T.GetType().GetProperty(PropName);
-        }
     }
     public static class Output
     {
