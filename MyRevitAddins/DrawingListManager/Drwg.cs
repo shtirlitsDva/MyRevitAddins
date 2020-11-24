@@ -264,22 +264,22 @@ namespace MEPUtils.DrawingListManager
                 case FieldName.Number:
                 case FieldName.Title:
                 case FieldName.Revision:
-                    refLst.Add(GetFieldRef(DataFromExcel, fieldName));
-                    refLst.Add(GetFieldRef(DataFromFileName, fieldName));
-                    refLst.Add(GetFieldRef(DataFromMetadata, fieldName));
+                    if (DataFromExcel != null) refLst.Add(GetFieldRef(DataFromExcel, fieldName));
+                    if (DataFromFileName != null) refLst.Add(GetFieldRef(DataFromFileName, fieldName));
+                    if (DataFromMetadata != null) refLst.Add(GetFieldRef(DataFromMetadata, fieldName));
                     break;
                 case FieldName.Scale:
                 case FieldName.Date:
                 case FieldName.RevisionDate:
-                    refLst.Add(GetFieldRef(DataFromExcel, fieldName));
-                    refLst.Add(GetFieldRef(DataFromMetadata, fieldName));
+                    if (DataFromExcel != null) refLst.Add(GetFieldRef(DataFromExcel, fieldName));
+                    if (DataFromMetadata != null) refLst.Add(GetFieldRef(DataFromMetadata, fieldName));
                     break;
                 case FieldName.DrawingListCategory:
-                    refLst.Add(GetFieldRef(DataFromMetadata, fieldName));
+                    if (DataFromMetadata != null) refLst.Add(GetFieldRef(DataFromMetadata, fieldName));
                     break;
                 case FieldName.FileNameFormat:
                 case FieldName.Extension:
-                    refLst.Add(GetFieldRef(DataFromFileName, fieldName));
+                    if (DataFromFileName != null) refLst.Add(GetFieldRef(DataFromFileName, fieldName));
                     break;
                 case FieldName.Selected:
                     return refLst;

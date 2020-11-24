@@ -589,36 +589,54 @@ namespace MEPUtils.DrawingListManager
             foreach (Drwg drwg in drwgListAggregated)
             {
                 DataGridViewRow dGVRow = GetDgvRow(dGV, drwg.dataRowGV);
-                //The State flag guarantees that values are present
-                //So equality only needs checking
-                switch (drwg.State)
+                if (dGVRow != null)
                 {
-                    case (Drwg.StateFlags)32767: //All fields present
-                        if (dGVRow != null)
-                        {
-                            //Fields
-                            AnalyzeFields(drwg, dGVRow, FieldName.Number);
-                            AnalyzeFields(drwg, dGVRow, FieldName.Title);
-                            AnalyzeFields(drwg, dGVRow, FieldName.Scale);
-                            AnalyzeFields(drwg, dGVRow, FieldName.Date);
-                            AnalyzeFields(drwg, dGVRow, FieldName.Revision);
-                            AnalyzeFields(drwg, dGVRow, FieldName.RevisionDate);
-                        }
-
-                        break;
-                    default:
-                        break;
+                    //The State flag guarantees that values are present
+                    //So equality only needs checking
+                    switch (drwg.State)
+                    {
+                        case (Drwg.StateFlags)32767: //All fields present
+                            {
+                                AnalyzeFields(drwg, dGVRow, FieldName.Number, dgvStyles.AllOkay);
+                                AnalyzeFields(drwg, dGVRow, FieldName.Title, dgvStyles.AllOkay);
+                                AnalyzeFields(drwg, dGVRow, FieldName.Scale, dgvStyles.AllOkay);
+                                AnalyzeFields(drwg, dGVRow, FieldName.Date, dgvStyles.AllOkay);
+                                AnalyzeFields(drwg, dGVRow, FieldName.Revision, dgvStyles.AllOkay);
+                                AnalyzeFields(drwg, dGVRow, FieldName.RevisionDate, dgvStyles.AllOkay);
+                            }
+                            break;
+                        case (Drwg.StateFlags)10971: //All fields from META are missing
+                            {
+                                AnalyzeFields(drwg, dGVRow, FieldName.Number, dgvStyles.MetaMissing);
+                                AnalyzeFields(drwg, dGVRow, FieldName.Title, dgvStyles.MetaMissing);
+                                AnalyzeFields(drwg, dGVRow, FieldName.Scale, dgvStyles.MetaMissing);
+                                AnalyzeFields(drwg, dGVRow, FieldName.Date, dgvStyles.MetaMissing);
+                                AnalyzeFields(drwg, dGVRow, FieldName.Revision, dgvStyles.MetaMissing);
+                                AnalyzeFields(drwg, dGVRow, FieldName.RevisionDate, dgvStyles.MetaMissing);
+                            }
+                            break;
+                        case (Drwg.StateFlags)7743: //All fields present, NO revision
+                            {
+                                AnalyzeFields(drwg, dGVRow, FieldName.Number, dgvStyles.AllOkay);
+                                AnalyzeFields(drwg, dGVRow, FieldName.Title, dgvStyles.AllOkay);
+                                AnalyzeFields(drwg, dGVRow, FieldName.Scale, dgvStyles.AllOkay);
+                                AnalyzeFields(drwg, dGVRow, FieldName.Date, dgvStyles.AllOkay);
+                            }
+                            break;
+                        default:
+                            break;
+                    }
                 }
             } 
 
-            void AnalyzeFields(Drwg drwg, DataGridViewRow dGVRow, FieldName fieldName)
+            void AnalyzeFields(Drwg drwg, DataGridViewRow dGVRow, FieldName fieldName, DataGridViewCellStyle style)
             {
                 string fn = fieldName.ToString();
                 Field field = fs.GetPropertyValue(fn) as Field;
                 DataGridViewCell cell = dGVRow.Cells[field.ColumnName];
                 //Compare values
                 bool areEqual = drwg.CompareFieldValues(fieldName);
-                if (areEqual) cell.Style = dgvStyles.AllOkay;
+                if (areEqual) cell.Style = style;
                 else cell.Style = dgvStyles.Warning;
                 cell.ToolTipText = drwg.BuildToolTip(fieldName);
             }
@@ -628,6 +646,7 @@ namespace MEPUtils.DrawingListManager
         {
             internal DataGridViewCellStyle AllOkay = new DataGridViewCellStyle() { ForeColor = Color.Green };
             internal DataGridViewCellStyle Warning = new DataGridViewCellStyle() { ForeColor = Color.Yellow };
+            internal DataGridViewCellStyle MetaMissing = new DataGridViewCellStyle() { ForeColor = Color.Violet };
         }
     }
 }
