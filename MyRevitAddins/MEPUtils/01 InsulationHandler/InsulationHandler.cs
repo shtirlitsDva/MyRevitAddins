@@ -121,8 +121,9 @@ namespace MEPUtils
                 throw new Exception(
                     @"No insulation configuration file exists at: %AppData%\MyRevitAddins\MEPUtils\Insulation.xlsx");
 
-            DataSet insulationDataSet = DataHandler.ImportExcelToDataSet(pathToInsulationExcel, "YES");
-            DataTable insulationData = DataHandler.ReadDataTable(insulationDataSet.Tables, "Insulation");
+            //DataSet insulationDataSet = DataHandler.ImportExcelToDataSet(pathToInsulationExcel, "YES");
+            //DataTable insulationData = DataHandler.ReadDataTable(insulationDataSet.Tables, "Insulation");
+            DataTable insulationData = DataHandler.READExcel(pathToInsulationExcel);
             return insulationData;
         }
 
