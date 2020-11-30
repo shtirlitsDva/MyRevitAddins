@@ -123,6 +123,7 @@ namespace MEPUtils
 
             //DataSet insulationDataSet = DataHandler.ImportExcelToDataSet(pathToInsulationExcel, "YES");
             //DataTable insulationData = DataHandler.ReadDataTable(insulationDataSet.Tables, "Insulation");
+            //TODO: Interop is very slow. Implement a .csv solution.
             DataTable insulationData = DataHandler.READExcel(pathToInsulationExcel);
             return insulationData;
         }
