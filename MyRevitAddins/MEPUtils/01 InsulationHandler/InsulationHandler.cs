@@ -114,17 +114,17 @@ namespace MEPUtils
         private static DataTable GetInsulationParameters()
         {
             //Manage Insulation parameters settings
-            string pathToInsulationExcel =
-                Environment.ExpandEnvironmentVariables("%AppData%\\MyRevitAddins\\MEPUtils\\Insulation.xlsx");
-            bool fileExists = File.Exists(pathToInsulationExcel);
+            string pathToInsulationCsv =
+                Environment.ExpandEnvironmentVariables("%AppData%\\MyRevitAddins\\MEPUtils\\Insulation.csv");
+            bool fileExists = File.Exists(pathToInsulationCsv);
             if (!fileExists)
                 throw new Exception(
-                    @"No insulation configuration file exists at: %AppData%\MyRevitAddins\MEPUtils\Insulation.xlsx");
+                    @"No insulation configuration file exists at: %AppData%\MyRevitAddins\MEPUtils\Insulation.csv");
 
             //DataSet insulationDataSet = DataHandler.ImportExcelToDataSet(pathToInsulationExcel, "YES");
             //DataTable insulationData = DataHandler.ReadDataTable(insulationDataSet.Tables, "Insulation");
             //TODO: Interop is very slow. Implement a .csv solution.
-            DataTable insulationData = CsvReader.ReadInsulationCsv(pathToInsulationExcel);
+            DataTable insulationData = CsvReader.ReadInsulationCsv(pathToInsulationCsv);
             return insulationData;
         }
 

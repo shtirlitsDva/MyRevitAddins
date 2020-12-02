@@ -30,23 +30,13 @@ namespace MEPUtils
                     {
                         colNames = csvParser.ReadFields();
                         counter++;
-                        //Console.WriteLine($"{colNames.Length} columns detected!");
+
                         for (int i = 0; i < colNames.Length; i++)
                         {
-                            if (i == 0 || i == 1)
-                            {
-                                //Two first columns are strings
-                                DataColumn dc = new DataColumn(colNames[i]);
-                                dc.DataType = typeof(string);
-                                dt.Columns.Add(dc);
-                            }
-                            else
-                            {
-                                //The rest of columns are INT
-                                DataColumn dc = new DataColumn(colNames[i]);
-                                dc.DataType = typeof(int);
-                                dt.Columns.Add(dc);
-                            }
+
+                            DataColumn dc = new DataColumn(colNames[i]);
+                            dc.DataType = typeof(string);
+                            dt.Columns.Add(dc);
                         }
                     }
                     else
@@ -56,17 +46,7 @@ namespace MEPUtils
 
                         for (int i = 0; i < colNames.Length; i++)
                         {
-                            if (i == 0 || i == 1)
-                            {
-                                dr[i] = fields[i];
-                            }
-                            else
-                            {
-                                int intResult;
-                                if (int.TryParse(fields[i], out intResult))
-                                    dr[i] = intResult;
-                                else dr[i] = 0;
-                            }
+                            dr[i] = fields[i];
                         }
                         dt.Rows.Add(dr);
                         counter++;
