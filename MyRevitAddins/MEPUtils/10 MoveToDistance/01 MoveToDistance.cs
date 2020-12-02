@@ -63,9 +63,16 @@ namespace MEPUtils.MoveToDistance
                     {
                         trans3.Start("Move Element!");
                         {
-                            foreach (Element elToMove in elsToMove)
+                            if (elsToMove.Count > 1) 
                             {
-                                ElementTransformUtils.MoveElement(doc, elToMove.Id, moveVector);
+                                ElementTransformUtils.MoveElements(doc, selIds, moveVector);
+                            }
+                            else
+                            {
+                                foreach (Element elToMove in elsToMove)
+                                {
+                                    ElementTransformUtils.MoveElement(doc, elToMove.Id, moveVector);
+                                }
                             }
                         }
                         trans3.Commit();
