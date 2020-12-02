@@ -98,8 +98,15 @@ namespace MEPUtils.MoveToDistance
         private static HashSet<Connector> SpecialGetAllConnectors(HashSet<Element> elements)
         {
             HashSet<Connector> col = new HashSet<Connector>();
+
+            elements = elements.Where(x => (x.IsType<Pipe>() ||
+            (x.IsType<FamilyInstance>() &&
+            (x.Category.Id.IntegerValue == (int)BuiltInCategory.OST_PipeFitting ||
+             x.Category.Id.IntegerValue == (int)BuiltInCategory.OST_PipeAccessory)))).ToHashSet();
+
             foreach (var e in elements)
             {
+
                 if (e.MechFittingPartType() == PartType.SpudAdjustable)
                 {
                     Cons cons = mp.GetConnectors(e);
