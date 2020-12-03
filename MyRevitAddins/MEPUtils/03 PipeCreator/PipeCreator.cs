@@ -85,7 +85,7 @@ namespace MEPUtils
                         if (firstEl.LevelId.IntegerValue == -1)
                         {
                             FilteredElementCollector lcol = new FilteredElementCollector(doc);
-                            var randomLvl = lcol.OfClass(typeof(Level)).ToElements().FirstOrDefault(); //Select random levelid
+                            var randomLvl = lcol.OfClass(typeof(Level)).ToElements().LastOrDefault(); //Select random levelid
                             levelId = randomLvl.Id;
                         }
                         else levelId = firstEl.LevelId;
@@ -115,7 +115,7 @@ namespace MEPUtils
                     if (element.LevelId.IntegerValue == -1)
                     {
                         FilteredElementCollector lcol = new FilteredElementCollector(doc);
-                        var randomLvl = lcol.OfClass(typeof(Level)).ToElements().FirstOrDefault(); //Select random levelid
+                        var randomLvl = lcol.OfClass(typeof(Level)).ToElements().LastOrDefault(); //Select random levelid
                         levelId = randomLvl.Id;
                     }
                     else levelId = element.LevelId;
