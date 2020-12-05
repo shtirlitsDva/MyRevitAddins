@@ -644,9 +644,12 @@ namespace MEPUtils.DrawingListManager
 
         internal class DgvStyles
         {
-            internal DataGridViewCellStyle AllOkay = new DataGridViewCellStyle() { ForeColor = Color.Green };
-            internal DataGridViewCellStyle Warning = new DataGridViewCellStyle() { ForeColor = Color.Yellow };
-            internal DataGridViewCellStyle MetaMissing = new DataGridViewCellStyle() { ForeColor = Color.Violet };
+            internal DataGridViewCellStyle AllOkay = new DataGridViewCellStyle() 
+            { ForeColor = Color.Green, BackColor = Color.LightGray };
+            internal DataGridViewCellStyle Warning = new DataGridViewCellStyle()
+            { ForeColor = Color.Yellow, BackColor = Color.DeepSkyBlue };
+            internal DataGridViewCellStyle MetaMissing = new DataGridViewCellStyle()
+            { ForeColor = Color.Violet, BackColor = Color.Olive };
         }
     }
 }
