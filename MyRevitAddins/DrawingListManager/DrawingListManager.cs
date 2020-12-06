@@ -615,6 +615,25 @@ namespace MEPUtils.DrawingListManager
                                 AnalyzeFields(drwg, dGVRow, FieldName.RevisionDate, dgvStyles.MetaMissing);
                             }
                             break;
+                        case (Drwg.StateFlags)10898: //File and meta (obviously) missing
+                            {
+                                AnalyzeFields(drwg, dGVRow, FieldName.Number, dgvStyles.OnlyExcel);
+                                AnalyzeFields(drwg, dGVRow, FieldName.Title, dgvStyles.OnlyExcel);
+                                AnalyzeFields(drwg, dGVRow, FieldName.Scale, dgvStyles.OnlyExcel);
+                                AnalyzeFields(drwg, dGVRow, FieldName.Date, dgvStyles.OnlyExcel);
+                                AnalyzeFields(drwg, dGVRow, FieldName.Revision, dgvStyles.OnlyExcel);
+                                AnalyzeFields(drwg, dGVRow, FieldName.RevisionDate, dgvStyles.OnlyExcel);
+                            }
+                            break;
+                        case (Drwg.StateFlags)10386: //File and meta (obviously) missing, no scale
+                            {
+                                AnalyzeFields(drwg, dGVRow, FieldName.Number, dgvStyles.OnlyExcel);
+                                AnalyzeFields(drwg, dGVRow, FieldName.Title, dgvStyles.OnlyExcel);
+                                AnalyzeFields(drwg, dGVRow, FieldName.Date, dgvStyles.OnlyExcel);
+                                AnalyzeFields(drwg, dGVRow, FieldName.Revision, dgvStyles.OnlyExcel);
+                                AnalyzeFields(drwg, dGVRow, FieldName.RevisionDate, dgvStyles.OnlyExcel);
+                            }
+                            break;
                         case (Drwg.StateFlags)7743: //All fields present, NO revision
                             {
                                 AnalyzeFields(drwg, dGVRow, FieldName.Number, dgvStyles.AllOkay);
@@ -650,6 +669,8 @@ namespace MEPUtils.DrawingListManager
             { ForeColor = Color.Yellow, BackColor = Color.DeepSkyBlue };
             internal DataGridViewCellStyle MetaMissing = new DataGridViewCellStyle()
             { ForeColor = Color.Violet, BackColor = Color.Olive };
+            internal DataGridViewCellStyle OnlyExcel = new DataGridViewCellStyle()
+            { ForeColor = Color.Red, BackColor = Color.Black };
         }
     }
 }
