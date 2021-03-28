@@ -116,6 +116,8 @@
     <Compile Include="00 SharedStaging\01 SharedStaging.cs" />
     <Compile Include="01 InsulationHandler\CsvReader.cs" />
     <Compile Include="08 SupportsTools\00 SupportsToolsMain.cs" />
+    <Compile Include="08 SupportsTools\04 CalcHeightBySteelOrLevel.cs" />
+    <Compile Include="08 SupportsTools\03 DetermineCorrectLevel.cs" />
     <Compile Include="08 SupportsTools\02 CalcHeightBySteelSupport.cs" />
     <Compile Include="08 SupportsTools\SupportTools.cs">
       <SubType>Form</SubType>
@@ -186,6 +188,7 @@
     <Compile Include="13 NumberStuff\NumberStuffFamilyChooser.Designer.cs">
       <DependentUpon>NumberStuffFamilyChooser.cs</DependentUpon>
     </Compile>
+    <Compile Include="19 AssignCorrectLevels\01 AssignCorrectLevels.cs" />
     <Compile Include="14 ManageParameterValues\01 ManageParameterValues.cs" />
     <Compile Include="16 Tilkoblet\01 Tilkoblet.cs" />
     <Compile Include="15 FlowCopy\01 FlowCopy.cs" />

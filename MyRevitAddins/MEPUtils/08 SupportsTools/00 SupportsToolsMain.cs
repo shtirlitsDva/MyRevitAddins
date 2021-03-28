@@ -26,7 +26,8 @@ namespace MEPUtils.SupportTools
             st.ShowDialog();
             //mepuc.Close();
 
-            if (st.ToolToInvoke == null) return Result.Cancelled;
+            if (st.ToolToInvoke == null ||
+                st.Cancelled) return Result.Cancelled;
 
             st.ToolToInvoke.Invoke(uiApp);
 

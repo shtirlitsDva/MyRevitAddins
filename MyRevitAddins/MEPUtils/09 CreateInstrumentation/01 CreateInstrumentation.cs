@@ -332,7 +332,23 @@ namespace MEPUtils.CreateInstrumentation
                 doc.Regenerate();
             }
 
-            Element elem = doc.Create.NewFamilyInstance(prevElemCons.Secondary.Origin, familySymbol,
+            //Determine levels
+            HashSet<Level> levels = fi.GetElements<Level, BuiltInCategory>(doc, BuiltInCategory.OST_Levels);
+            List<(Level lvl, double dist)> levelsWithDist = new List<(Level lvl, double dist)>(levels.Count);
+
+            foreach (Level level in levels)
+            {
+                (Level, double) result = (level, ((LocationPoint)prevElem.Location).Point.Z - level.Elevation);
+                if (result.Item2 > -1e-6) levelsWithDist.Add(result);
+            }
+
+            var minimumLevel = levelsWithDist.MinBy(x => x.dist).FirstOrDefault();
+            if (minimumLevel.Equals(default))
+            {
+                throw new Exception($"Element {prevElem.Id.ToString()} is below all levels!");
+            }
+
+            Element elem = doc.Create.NewFamilyInstance(prevElemCons.Secondary.Origin, familySymbol, minimumLevel.lvl,
                                                            StructuralType.NonStructural);
             doc.Regenerate();
             Cons elemCons = mp.GetConnectors(elem);
@@ -369,9 +385,25 @@ namespace MEPUtils.CreateInstrumentation
                 doc.Regenerate();
             }
 
-            //Create family instance
-            Element elem = doc.Create.NewFamilyInstance(prevElemCons.Secondary.Origin, familySymbol,
+            //Determine levels
+            HashSet<Level> levels = fi.GetElements<Level, BuiltInCategory>(doc, BuiltInCategory.OST_Levels);
+            List<(Level lvl, double dist)> levelsWithDist = new List<(Level lvl, double dist)>(levels.Count);
+
+            foreach (Level level in levels)
+            {
+                (Level, double) result = (level, ((LocationPoint)prevElem.Location).Point.Z - level.Elevation);
+                if (result.Item2 > -1e-6) levelsWithDist.Add(result);
+            }
+
+            var minimumLevel = levelsWithDist.MinBy(x => x.dist).FirstOrDefault();
+            if (minimumLevel.Equals(default))
+            {
+                throw new Exception($"Element {prevElem.Id.ToString()} is below all levels!");
+            }
+
+            Element elem = doc.Create.NewFamilyInstance(prevElemCons.Secondary.Origin, familySymbol, minimumLevel.lvl,
                                                            StructuralType.NonStructural);
+
             doc.Regenerate();
 
             //Set size

@@ -22,7 +22,8 @@ namespace MEPUtils.SupportTools
         private int desiredStartLocationX;
         private int desiredStartLocationY;
 
-        public Action<UIApplication> ToolToInvoke { get; private set; } = MEPUtils.SupportTools.CalculateHeightByLevel.Calculate;
+        public Action<UIApplication> ToolToInvoke { get; private set; } = CalculateHeightByLevel.Calculate;
+        public bool Cancelled = true;
 
         public SupportTools()
         {
@@ -41,8 +42,20 @@ namespace MEPUtils.SupportTools
             if (radioButton2.Checked) ToolToInvoke = CalculateHeightBySteelSupport.Calculate;
         }
 
+        private void radioButton3_CheckedChanged(object sender, EventArgs e)
+        {
+            if (radioButton3.Checked) ToolToInvoke = DetermineCorrectLevel.Execute;
+        }
+
+        private void radioButton4_CheckedChanged(object sender, EventArgs e)
+        {
+            if (radioButton4.Checked) ToolToInvoke = CalculateHeightBySteelOrLevel.Calculate;
+
+        }
+
         private void button1_Click(object sender, EventArgs e)
         {
+            Cancelled = false;
             this.Close();
         }
 
@@ -58,5 +71,7 @@ namespace MEPUtils.SupportTools
         {
             SetDesktopLocation(desiredStartLocationX, desiredStartLocationY);
         }
+
+        
     }
 }

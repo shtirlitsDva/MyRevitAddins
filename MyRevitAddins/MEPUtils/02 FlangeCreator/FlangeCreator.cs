@@ -78,8 +78,24 @@ namespace MEPUtils
             var allRefs = start.AllRefs;
             Connector modCon1 = (from Connector c in allRefs where !(c.Owner is PipeInsulation) select c).FirstOrDefault();
 
+            //Determine levels
+            HashSet<Level> levels = fi.GetElements<Level, BuiltInCategory>(doc, BuiltInCategory.OST_Levels);
+            List<(Level lvl, double dist)> levelsWithDist = new List<(Level lvl, double dist)>(levels.Count);
+
+            foreach (Level level in levels)
+            {
+                (Level, double) result = (level, start.Origin.Z - level.Elevation);
+                if (result.Item2 > -1e-6) levelsWithDist.Add(result);
+            }
+
+            var minimumLevel = levelsWithDist.MinBy(x => x.dist).FirstOrDefault();
+            if (minimumLevel.Equals(default))
+            {
+                throw new Exception($"Element {element.Id.ToString()} is below all levels!");
+            }
+
             //Create the flange (must be rotated AND moved in place)
-            Element flange = doc.Create.NewFamilyInstance(start.Origin, (FamilySymbol)familySymbol,
+            Element flange = doc.Create.NewFamilyInstance(start.Origin, (FamilySymbol)familySymbol, minimumLevel.lvl,
                 StructuralType.NonStructural);
 
             //Set the diameter of the flange
