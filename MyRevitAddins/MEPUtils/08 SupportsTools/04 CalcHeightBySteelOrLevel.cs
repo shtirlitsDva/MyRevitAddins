@@ -107,7 +107,8 @@ namespace MEPUtils.SupportTools
 
                                 //Set the values for the BeamClamps
                                 if (hanger.FamilyName() == "Spring Hanger - Witzenmann-Hydra - Type 11" ||
-                                    hanger.FamilyName() == "Rigid Hanger - Hydra - Type 11")
+                                    hanger.FamilyName() == "Rigid Hanger - Hydra - Type 11" ||
+                                    hanger.FamilyName() == "Spring Hanger - Witzenmann-Hydra - Type 12")
                                 {
                                     //Instantiate the Reference Intersector
                                     var refIntersectElement = new ReferenceIntersector(fiAndBicFilter, FindReferenceTarget.Element, view3D);
