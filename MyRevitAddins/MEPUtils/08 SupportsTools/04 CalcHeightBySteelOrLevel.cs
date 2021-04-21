@@ -90,6 +90,20 @@ namespace MEPUtils.SupportTools
                                 Reference reference = rwc.GetReference();
                                 XYZ intersection = reference.GlobalPoint;
 
+                                //Set the support to internal support
+                                //"dba1aec8-daa6-46c0-a4d0-db8d50155dcb" <-- NTR_ELEM_INTR_SUP
+                                Element intersectedElement = doc.GetElement(reference);
+                                if (intersectedElement.Category.Id.IntegerValue == (int)BuiltInCategory.OST_StructuralFraming ||
+                                    intersectedElement.Category.Id.IntegerValue == (int)BuiltInCategory.OST_StructuralColumns)
+                                {
+                                    Parameter isInternalSupportParameter = hanger.get_Parameter(
+                                        new Guid("dba1aec8-daa6-46c0-a4d0-db8d50155dcb"));
+                                                 
+                                    if (isInternalSupportParameter == null) throw new
+                                            Exception("NTR_ELEM_INTR_SUP is not imported into project!");
+                                    isInternalSupportParameter.Set(1);
+                                }
+
                                 //Get the hanger's height above it's reference level
                                 Parameter offsetPar = hanger.get_Parameter(BuiltInParameter.INSTANCE_FREE_HOST_OFFSET_PARAM);
                                 double offsetFromLvl = offsetPar.AsDouble();
