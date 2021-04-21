@@ -107,7 +107,7 @@ namespace ModelessForms.SearchAndSelect
                 //Local function to create parameter impressions
                 void CreateParameterImpressions(HashSet<Element> setToProcess, HashSet<ParameterImpression> setToAdd)
                 {
-                    if (setToProcess.Count > 0 && setToProcess != null && setToAdd != null)
+                    if (setToProcess != null && setToAdd != null && setToProcess.Count > 0)
                     {
                         foreach (Element e in setToProcess)
                         {
