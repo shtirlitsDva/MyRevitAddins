@@ -153,9 +153,16 @@ namespace MEPUtils.DrawingListManager
             oXL = new Microsoft.Office.Interop.Excel.Application();
             oXL.Visible = false;
             oXL.DisplayAlerts = false;
-            wb = oXL.Workbooks.Open(pathToDwgList, 0, false, 5, "", "", false,
-                Microsoft.Office.Interop.Excel.XlPlatform.xlWindows, "", true, false, 0, false, false,
-                Microsoft.Office.Interop.Excel.XlCorruptLoad.xlNormalLoad);
+            try
+            {
+                wb = oXL.Workbooks.Open(pathToDwgList, 0, false, 5, "", "", false,
+                        Microsoft.Office.Interop.Excel.XlPlatform.xlWindows, "", true, false, 0, false, false,
+                        Microsoft.Office.Interop.Excel.XlCorruptLoad.xlNormalLoad);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
 
             wss = wb.Worksheets;
             ws = (Microsoft.Office.Interop.Excel.Worksheet)wss.Item[1];
@@ -646,7 +653,20 @@ namespace MEPUtils.DrawingListManager
                             break;
                     }
                 }
+            }
+
+            #region Populate State tooltip
+            foreach (Drwg drwg in drwgListAggregated)
+            {
+                DataGridViewRow dGVRow = GetDgvRow(dGV, drwg.dataRowGV);
+                if (dGVRow != null)
+                {
+                    DataGridViewCell cell = dGVRow.Cells["State"];
+                    Drwg.StateFlags sf = (Drwg.StateFlags)(cell.Value);
+                    cell.ToolTipText = sf.ToString().Replace(", ","\n");
+                }
             } 
+            #endregion
 
             void AnalyzeFields(Drwg drwg, DataGridViewRow dGVRow, FieldName fieldName, DataGridViewCellStyle style)
             {

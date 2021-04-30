@@ -31,7 +31,7 @@ namespace MEPUtils.DrawingListManager
             public VeksNoRevision()
             {
                 Format = FileNameFormat.VeksNoRevision;
-                Regex = new Regex(@"(?<number>\d{3}-\d{2}-\p{L}{3}\d-\d{3})\s-\s(?<title>[\p{L}0-9 -]*)(?<extension>.[\p{L}0-9 -]*)");
+                Regex = new Regex(@"(?<number>\d{3}-\d{2}-\p{L}{3}\d-\d{3})\s-\s(?<title>[\p{L}0-9 -,]*)(?<extension>.[\p{L}0-9 -]*)");
                 DrwgFileNameFormatDescription = "VEKS U. REV";
             }
         }
@@ -41,7 +41,7 @@ namespace MEPUtils.DrawingListManager
             public VeksWithRevision()
             {
                 Format = FileNameFormat.VeksWithRevision;
-                Regex = new Regex(@"(?<number>\d{3}-\d{2}-\p{L}{3}\d-\d{3})(?:-)(?<revision>[\p{L}0-9]+)\s-\s(?<title>[\p{L}0-9 -]*)(?<extension>.[\p{L}0-9 -]*)");
+                Regex = new Regex(@"(?<number>\d{3}-\d{2}-\p{L}{3}\d-\d{3})(?:-)(?<revision>[\p{L}0-9]+)\s-\s(?<title>[\p{L}0-9 -,]*)(?<extension>.[\p{L}0-9 -]*)");
                 DrwgFileNameFormatDescription = "VEKS M. REV";
             }
         }
@@ -51,7 +51,7 @@ namespace MEPUtils.DrawingListManager
             public DRI_BygNoRevision()
             {
                 Format = FileNameFormat.DRI_BygNoRevision;
-                Regex = new Regex(@"(?<number>\d{3}-\d{4}-BYG\d{2})\s-\s(?<title>[\p{L}0-9 -]*)(?<extension>.[\p{L}0-9 -]*)");
+                Regex = new Regex(@"(?<number>\d{3}-\d{4}-BYG\d{2})\s-\s(?<title>[\p{L}0-9 -,]*)(?<extension>.[\p{L}0-9 -]*)");
                 DrwgFileNameFormatDescription = "DRI BYG U. REV";
             }
         }
@@ -61,7 +61,7 @@ namespace MEPUtils.DrawingListManager
             public DRI_BygWithRevision()
             {
                 Format = FileNameFormat.DRI_BygWithRevision;
-                Regex = new Regex(@"(?<number>\d{3}-\d{4}-BYG\d{2})(?:-)(?<revision>[\p{L}0-9]+)\s-\s(?<title>[\p{L}0-9 -]*)(?<extension>.[\p{L}0-9 -]*)");
+                Regex = new Regex(@"(?<number>\d{3}-\d{4}-BYG\d{2})(?:-)(?<revision>[\p{L}0-9]+)\s-\s(?<title>[\p{L}0-9 -,]*)(?<extension>.[\p{L}0-9 -]*)");
                 DrwgFileNameFormatDescription = "DRI BYG M. REV";
             }
         }

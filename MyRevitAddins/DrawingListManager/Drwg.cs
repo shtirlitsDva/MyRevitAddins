@@ -323,11 +323,6 @@ namespace MEPUtils.DrawingListManager
             else return false;
         }
 
-        internal void ActOnState()
-        {
-            throw new NotImplementedException();
-        }
-
         [Flags]
         internal enum StateFlags
         {
@@ -348,30 +343,5 @@ namespace MEPUtils.DrawingListManager
             RevDateFromExcel = 8192,
             RevDateFromMeta = 16384
         }
-
-        internal interface IAction
-        {
-            void Act();
-        }
-
-        internal class StateActions
-        {
-            internal StateFlags AcceptedStates { get; private set; } = StateFlags.None;
-
-            internal class AllDataPresent : StateActions, IAction
-            {
-                AllDataPresent()
-                {
-                    AcceptedStates |= (StateFlags)32767;
-                }
-
-                public void Act()
-                {
-                    throw new NotImplementedException();
-                }
-            }
-        }
-
-
     }
 }

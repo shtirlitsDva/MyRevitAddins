@@ -79,6 +79,8 @@ namespace MEPUtils.DrawingListManager
         private void button4_Click(object sender, EventArgs e)
         {
             MainSequence ms = new MainSequence();
+            dGV1.DataSource = null;
+            dGV1.Refresh();
             ms.ExecuteMainSequence(dlm, dGV1, pathToDwgFolder, pathToDwgList);
 
             //this.Close();

@@ -210,15 +210,24 @@ namespace PDFExporter
                     string sheetIssueDate = sheetIssueDatePar.AsString();
                     fileName.Date = sheetIssueDate;
 
+                    //Collect and read correct scale
+                    //We need to collect the title block instance to determine if manual scale is on
+                    //If it is on, read manual scale, if not read ordinary scale
+                    FilteredElementCollector col = new FilteredElementCollector(doc);
+                    ElementParameterFilter epf = fi.ParameterValueGenericFilter(doc, sheet.SheetNumber, BuiltInParameter.SHEET_NUMBER);
+                    var tb = col.OfCategory(BuiltInCategory.OST_TitleBlocks).OfClass(typeof(FamilyInstance)).WherePasses(epf).FirstOrDefault();
+
                     Parameter curScalePar = sheet.LookupParameter("Scale");
                     if (curScalePar != null)
                     {
-                        if (curScalePar.AsString() == "As indicated")
+                        //Check to see if manual scale is on
+                        if (tb != null && tb.LookupParameter("Manual Skala Tændt").AsInteger() == 1)
                         {
                             Parameter curScaleManualPar = sheet.LookupParameter("Manual skala");
-                            if (curScaleManualPar != null) fileName.Scale = curScaleManualPar.AsString();
+                            if (curScaleManualPar != null) fileName.Scale = curScaleManualPar.AsString().Replace(" ", "");
+                            else fileName.Scale = curScalePar.AsString().Replace(" ", "");
                         }
-                        else if (curScalePar.AsString() != "As indicated") fileName.Scale = curScalePar.AsString();
+                        else fileName.Scale = curScalePar.AsString().Replace(" ", "");
                     }
 
                     Parameter sorting1Par = sheet.LookupParameter("RDK-COM-SHT-SORTING_1");

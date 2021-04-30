@@ -50,6 +50,8 @@ namespace MEPUtils.FamilyTools.AddParameters
 
                     List<(string Group, string ParName)> parNamesToAdd = new List<(string Group, string ParName)>
                     {
+                        ("900 SCHEDULE", "DRI.Management.Schedule DN-Number"),
+                        ("900 SCHEDULE", "DRI.Management.Schedule DN-Number2"),
                         ("900 SCHEDULE", "DRI.Management.Schedule Funktion"),
                         ("900 SCHEDULE", "DRI.Management.Schedule Aktuator"),
                         ("900 SCHEDULE", "DRI.Management.Schedule Betjening"),
@@ -65,7 +67,14 @@ namespace MEPUtils.FamilyTools.AddParameters
                         DefinitionGroup group = groups.get_Item(pair.Group);
                         Definitions defs = group.Definitions;
                         ExternalDefinition def = defs.get_Item(pair.ParName) as ExternalDefinition;
-                        fm.AddParameter(def, BuiltInParameterGroup.PG_IDENTITY_DATA, false);
+                        try
+                        {
+                            fm.AddParameter(def, BuiltInParameterGroup.PG_IDENTITY_DATA, false);
+                        }
+                        catch (Exception)
+                        {
+                            continue;
+                        }
                     }
 
                     tx.Commit();
