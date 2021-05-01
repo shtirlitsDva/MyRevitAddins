@@ -224,13 +224,7 @@ More than two elements selected + CTRL
             {
                 txGp.Start("Initialize PED data");
 
-                using (Transaction trans2 = new Transaction(doc))
-                {
-                    trans2.Start("Populate parameters");
-                    ped ped = new ped();
-                    ped.PopulateParameters(commandData, log);
-                    trans2.Commit();
-                }
+                //Pipes wallthickness is calculated directly in the schedule
 
                 using (Transaction trans3 = new Transaction(doc))
                 {

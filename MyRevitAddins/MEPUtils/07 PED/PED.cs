@@ -25,49 +25,6 @@ namespace MEPUtils.PED
 {
     public class InitPED
     {
-        public Result PopulateParameters(ExternalCommandData commandData, Logger log)
-        {
-            Document doc = commandData.Application.ActiveUIDocument.Document;
-            HashSet<Element> elements = fi.GetElements<Pipe, BuiltInCategory>(doc, BuiltInCategory.INVALID).Cast<Element>().ToHashSet();
-            SetWallThicknessPipes(elements, log);
-            return Result.Succeeded;
-        }
-
-        public static void SetWallThicknessPipes(HashSet<Element> elements, Logger log)
-        {
-            //bool ctrl = false;
-            //bool shft = false;
-            //if ((int)Keyboard.Modifiers == 2) ctrl = true;
-            //if ((int)Keyboard.Modifiers == 4) shft = true;
-
-            foreach (Element element in elements)
-            {
-                //if ctrl is pressed, overwrite, else append
-                //See if the parameter already has value and skip element if it has
-                //if (!ctrl) if (element.get_Parameter(wallThkDef.Guid).HasValue) continue;
-
-                //Retrieve the correct wallthickness from dictionary and set it on the element
-                Parameter wallThkParameter = element.LookupParameter("PED_PIPE_WTHK");
-                if (wallThkParameter == null) throw new Exception("Parameter missing! Add PED_PIPE_WTHK parameter to project! Datatype TEXT.");
-
-                int id = element.Id.IntegerValue;
-
-                //Retrieve parameter for outside diameter
-                Parameter oDiaPar = element.get_Parameter(BuiltInParameter.RBS_PIPE_OUTER_DIAMETER);
-
-                //Retrieve parameter for inside diameter
-                Parameter iDiaPar = element.get_Parameter(BuiltInParameter.RBS_PIPE_INNER_DIAM_PARAM);
-
-                //Calculate the wall thickness
-                double oDia = oDiaPar.AsDouble();
-                double iDia = iDiaPar.AsDouble();
-                double wallThk = ((oDia - iDia) / 2).FtToMm().Round(1);
-                log.Info($"Pipe element {element.Id.IntegerValue}: oDia: {oDia.FtToMm()}, iDia: {iDia.FtToMm()}, Wthk: {string.Format("{0:N1}", wallThk)}");
-
-                wallThkParameter.Set(string.Format("{0:N1}", wallThk));
-            }
-        }
-
         public void processOlets(ExternalCommandData commandData)
         {
             Document doc = commandData.Application.ActiveUIDocument.Document;
