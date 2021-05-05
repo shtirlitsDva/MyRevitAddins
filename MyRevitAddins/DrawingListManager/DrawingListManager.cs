@@ -418,6 +418,8 @@ namespace MEPUtils.DrawingListManager
         }
         internal void CreateAggregateDataTable()
         {
+            //This method defines the DataGridView
+            //Add columns here
             AggregateDataTable = new DataTable("AggregateData");
 
             #region DataTable Definition
@@ -466,6 +468,11 @@ namespace MEPUtils.DrawingListManager
             //Debug column showing the state of drwg
             column = new DataColumn("State");
             column.DataType = typeof(int);
+            AggregateDataTable.Columns.Add(column);
+
+            //Debug column showing the state of drwg in binary form
+            column = new DataColumn("StateInBinary");
+            column.DataType = typeof(string);
             AggregateDataTable.Columns.Add(column);
 
             //Debug column showing the extension of file
@@ -572,6 +579,7 @@ namespace MEPUtils.DrawingListManager
                 row[fs.Revision.ColumnName] = drwg.TryGetValueOfSpecificPropsField(FieldName.Revision);
                 row[fs.RevisionDate.ColumnName] = drwg.TryGetValueOfSpecificPropsField(FieldName.RevisionDate);
                 row["State"] = drwg.State;
+                row["StateInBinary"] = Convert.ToString((int)drwg.State, 2).PadLeft(15, '0');
                 row[fs.Extension.ColumnName] = drwg.TryGetValueOfSpecificPropsField(FieldName.Extension);
 
                 //Store reference to the data row which holds the data
@@ -665,7 +673,19 @@ namespace MEPUtils.DrawingListManager
                     Drwg.StateFlags sf = (Drwg.StateFlags)(cell.Value);
                     cell.ToolTipText = sf.ToString().Replace(", ","\n");
                 }
-            } 
+            }
+            #endregion
+
+            #region Set bitmask font to monospaced
+            foreach (Drwg drwg in drwgListAggregated)
+            {
+                DataGridViewRow dGVRow = GetDgvRow(dGV, drwg.dataRowGV);
+                if (dGVRow != null)
+                {
+                    DataGridViewCell cell = dGVRow.Cells["StateInBinary"];
+                    cell.Style.Font = new System.Drawing.Font("Fixedsys", 26F, GraphicsUnit.Pixel);
+                }
+            }
             #endregion
 
             void AnalyzeFields(Drwg drwg, DataGridViewRow dGVRow, FieldName fieldName, DataGridViewCellStyle style)

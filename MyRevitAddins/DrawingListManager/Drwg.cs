@@ -326,6 +326,9 @@ namespace MEPUtils.DrawingListManager
         [Flags]
         internal enum StateFlags
         {
+            //None should not counted when converting to binary
+            //Thus the length of the bit mask is
+            //Number of enum flags - 1
             None = 0,
             NumberFromFileName = 1,
             NumberFromExcel = 2,
