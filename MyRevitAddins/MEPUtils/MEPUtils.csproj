@@ -189,7 +189,7 @@
     <Compile Include="13 NumberStuff\NumberStuffFamilyChooser.Designer.cs">
       <DependentUpon>NumberStuffFamilyChooser.cs</DependentUpon>
     </Compile>
-    <Compile Include="21 Fill out DN in schedule\01 Fill out DN.cs" />
+    <Compile Include="21 Write all par GUID\02 Write all par GUID.cs" />
     <Compile Include="20 Family - Add parameters\01 Family - Add parameters.cs" />
     <Compile Include="19 AssignCorrectLevels\01 AssignCorrectLevels.cs" />
     <Compile Include="14 ManageParameterValues\01 ManageParameterValues.cs" />
