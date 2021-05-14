@@ -81,6 +81,7 @@ namespace MEPUtils.DrawingListManager
             MainSequence ms = new MainSequence();
             dGV1.DataSource = null;
             dGV1.Refresh();
+            dlm.ResetDgv(); //Clear dataTables so they won't show double
             ms.ExecuteMainSequence(dlm, dGV1, pathToDwgFolder, pathToDwgList);
 
             //this.Close();

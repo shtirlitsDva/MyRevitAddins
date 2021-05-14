@@ -69,6 +69,13 @@ namespace MEPUtils.DrawingListManager
         /// <summary>
         /// Builds the DataTable to store the data about the pdf files
         /// </summary>
+        internal void ResetDgv()
+        {
+            drwgListFiles = new List<Drwg>();
+            drwgListExcel = new List<Drwg>();
+            drwgListMeta = new List<Drwg>();
+            drwgListAggregated = new List<Drwg>();
+    }
         internal void PopulateDrwgDataFromFileName()
         {
             foreach (string fileNameWithPath in drwgFileNameList)
