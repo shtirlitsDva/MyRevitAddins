@@ -26,7 +26,6 @@ namespace MEPUtils.DrawingListManager
         internal DrwgProps.Source_Excel DataFromExcel;
         internal DrwgProps.Source_Meta DataFromMetadata;
 
-        internal StateFlags State;
         //internal string Extension;
         #endregion
 
@@ -81,31 +80,6 @@ namespace MEPUtils.DrawingListManager
                 DataFromFileName = new DrwgProps.Source_FileName(
                     number, title, Dnf.DrwgFileNameFormatDescription, revision, extension);
             }
-        }
-        internal void CalculateState()
-        {
-            StateFlags Calc(string testValue, StateFlags flag)
-            {
-                if (testValue.IsNullOrEmpty()) return StateFlags.None;
-                else return flag;
-            }
-            StateFlags state = 0;
-            state |= Calc(DataFromFileName?.Number?.Value, StateFlags.NumberFromFileName);
-            state |= Calc(DataFromExcel?.Number?.Value, StateFlags.NumberFromExcel);
-            state |= Calc(DataFromMetadata?.Number?.Value, StateFlags.NumberFromMeta);
-            state |= Calc(DataFromFileName?.Title?.Value, StateFlags.TitleFromFileName);
-            state |= Calc(DataFromExcel?.Title?.Value, StateFlags.TitleFromExcel);
-            state |= Calc(DataFromMetadata?.Title?.Value, StateFlags.TitleFromMeta);
-            state |= Calc(DataFromFileName?.Revision?.Value, StateFlags.RevFromFileName);
-            state |= Calc(DataFromExcel?.Revision?.Value, StateFlags.RevFromExcel);
-            state |= Calc(DataFromMetadata?.Revision?.Value, StateFlags.RevFromMeta);
-            state |= Calc(DataFromExcel?.Scale?.Value, StateFlags.ScaleFromExcel);
-            state |= Calc(DataFromMetadata?.Scale?.Value, StateFlags.ScaleFromMeta);
-            state |= Calc(DataFromExcel?.Date?.Value, StateFlags.DateFromExcel);
-            state |= Calc(DataFromMetadata?.Date?.Value, StateFlags.DateFromMeta);
-            state |= Calc(DataFromExcel?.RevisionDate?.Value, StateFlags.RevDateFromExcel);
-            state |= Calc(DataFromMetadata?.RevisionDate?.Value, StateFlags.RevDateFromMeta);
-            State = state;
         }
         internal string TryGetValueOfSpecificPropsField(FieldName fieldName)
         {
@@ -294,30 +268,6 @@ namespace MEPUtils.DrawingListManager
                                         (fLst[1].Value == fLst[2].Value);
             if (fLst.Count == 2) return (fLst[0].Value == fLst[1].Value);
             else return true;
-        }
-
-        [Flags]
-        internal enum StateFlags
-        {
-            //None should not counted when converting to binary
-            //Thus the length of the bit mask is
-            //Number of enum flags - 1
-            None = 0,
-            NumberFromFileName = 1,
-            NumberFromExcel = 2,
-            NumberFromMeta = 4,
-            TitleFromFileName = 8,
-            TitleFromExcel = 16,
-            TitleFromMeta = 32,
-            RevFromFileName = 64,
-            RevFromExcel = 128,
-            RevFromMeta = 256,
-            ScaleFromExcel = 512,
-            ScaleFromMeta = 1024,
-            DateFromExcel = 2048,
-            DateFromMeta = 4096,
-            RevDateFromExcel = 8192,
-            RevDateFromMeta = 16384
         }
     }
 }

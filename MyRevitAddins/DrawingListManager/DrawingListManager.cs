@@ -418,11 +418,6 @@ namespace MEPUtils.DrawingListManager
                 drwgListMeta.Add(drwg);
             }
         }
-        internal void AddStateToGridView(Drwg drwg, DrwgProps props, DataTable data)
-        {
-            HashSet<DataRow> foundRows = GetRowsBySelectQuery(props, data, true);
-            foreach (DataRow row in foundRows) row["State"] = (int)drwg.State;
-        }
         internal void CreateAggregateDataTable()
         {
             //This method defines the DataGridView
@@ -470,16 +465,6 @@ namespace MEPUtils.DrawingListManager
             column = new DataColumn();
             column.DataType = typeof(string);
             column.ColumnName = fs.RevisionDate.ColumnName;
-            AggregateDataTable.Columns.Add(column);
-
-            //Debug column showing the state of drwg
-            column = new DataColumn("State");
-            column.DataType = typeof(int);
-            AggregateDataTable.Columns.Add(column);
-
-            //Debug column showing the state of drwg in binary form
-            column = new DataColumn("StateInBinary");
-            column.DataType = typeof(string);
             AggregateDataTable.Columns.Add(column);
 
             //Debug column showing the extension of file
@@ -571,10 +556,6 @@ namespace MEPUtils.DrawingListManager
         {
             foreach (Drwg drwg in drwgListAggregated)
             {
-                //First: calculate state
-                //Maybe it should be a separate method and thus step in sequence
-                drwg.CalculateState();
-
                 //Populate the aggregate datatable
                 DataRow row = AggregateDataTable.NewRow();
 
@@ -585,8 +566,6 @@ namespace MEPUtils.DrawingListManager
                 row[fs.Date.ColumnName] = drwg.TryGetValueOfSpecificPropsField(FieldName.Date);
                 row[fs.Revision.ColumnName] = drwg.TryGetValueOfSpecificPropsField(FieldName.Revision);
                 row[fs.RevisionDate.ColumnName] = drwg.TryGetValueOfSpecificPropsField(FieldName.RevisionDate);
-                row["State"] = drwg.State;
-                row["StateInBinary"] = Convert.ToString((int)drwg.State, 2).PadLeft(15, '0');
                 row[fs.Extension.ColumnName] = drwg.TryGetValueOfSpecificPropsField(FieldName.Extension);
 
                 //Store reference to the data row which holds the data
@@ -613,62 +592,6 @@ namespace MEPUtils.DrawingListManager
                 DataGridViewRow dGVRow = GetDgvRow(dGV, drwg.dataRowGV);
                 if (dGVRow != null)
                 {
-                    #region OldAnalyzeSectiong
-                    ////The State flag guarantees that values are present
-                    ////So equality only needs checking
-                    //switch (drwg.State)
-                    //{
-                    //    case (Drwg.StateFlags)32767: //All fields present
-                    //        {
-                    //            AnalyzeFields(drwg, dGVRow, FieldName.Number, dgvStyles.AllOkay);
-                    //            AnalyzeFields(drwg, dGVRow, FieldName.Title, dgvStyles.AllOkay);
-                    //            AnalyzeFields(drwg, dGVRow, FieldName.Scale, dgvStyles.AllOkay);
-                    //            AnalyzeFields(drwg, dGVRow, FieldName.Date, dgvStyles.AllOkay);
-                    //            AnalyzeFields(drwg, dGVRow, FieldName.Revision, dgvStyles.AllOkay);
-                    //            AnalyzeFields(drwg, dGVRow, FieldName.RevisionDate, dgvStyles.AllOkay);
-                    //        }
-                    //        break;
-                    //    case (Drwg.StateFlags)10971: //All fields from META are missing
-                    //        {
-                    //            AnalyzeFields(drwg, dGVRow, FieldName.Number, dgvStyles.OkayMetaMissing);
-                    //            AnalyzeFields(drwg, dGVRow, FieldName.Title, dgvStyles.OkayMetaMissing);
-                    //            AnalyzeFields(drwg, dGVRow, FieldName.Scale, dgvStyles.OkayMetaMissing);
-                    //            AnalyzeFields(drwg, dGVRow, FieldName.Date, dgvStyles.OkayMetaMissing);
-                    //            AnalyzeFields(drwg, dGVRow, FieldName.Revision, dgvStyles.OkayMetaMissing);
-                    //            AnalyzeFields(drwg, dGVRow, FieldName.RevisionDate, dgvStyles.OkayMetaMissing);
-                    //        }
-                    //        break;
-                    //    case (Drwg.StateFlags)10898: //File and meta (obviously) missing
-                    //        {
-                    //            AnalyzeFields(drwg, dGVRow, FieldName.Number, dgvStyles.Error);
-                    //            AnalyzeFields(drwg, dGVRow, FieldName.Title, dgvStyles.Error);
-                    //            AnalyzeFields(drwg, dGVRow, FieldName.Scale, dgvStyles.Error);
-                    //            AnalyzeFields(drwg, dGVRow, FieldName.Date, dgvStyles.Error);
-                    //            AnalyzeFields(drwg, dGVRow, FieldName.Revision, dgvStyles.Error);
-                    //            AnalyzeFields(drwg, dGVRow, FieldName.RevisionDate, dgvStyles.Error);
-                    //        }
-                    //        break;
-                    //    case (Drwg.StateFlags)10386: //File and meta (obviously) missing, no scale
-                    //        {
-                    //            AnalyzeFields(drwg, dGVRow, FieldName.Number, dgvStyles.Error);
-                    //            AnalyzeFields(drwg, dGVRow, FieldName.Title, dgvStyles.Error);
-                    //            AnalyzeFields(drwg, dGVRow, FieldName.Date, dgvStyles.Error);
-                    //            AnalyzeFields(drwg, dGVRow, FieldName.Revision, dgvStyles.Error);
-                    //            AnalyzeFields(drwg, dGVRow, FieldName.RevisionDate, dgvStyles.Error);
-                    //        }
-                    //        break;
-                    //    case (Drwg.StateFlags)7743: //All fields present, NO revision
-                    //        {
-                    //            AnalyzeFields(drwg, dGVRow, FieldName.Number, dgvStyles.AllOkay);
-                    //            AnalyzeFields(drwg, dGVRow, FieldName.Title, dgvStyles.AllOkay);
-                    //            AnalyzeFields(drwg, dGVRow, FieldName.Scale, dgvStyles.AllOkay);
-                    //            AnalyzeFields(drwg, dGVRow, FieldName.Date, dgvStyles.AllOkay);
-                    //        }
-                    //        break;
-                    //    default:
-                    //        break;
-                    //} 
-                    #endregion
                     var fields = fs.GetAllFields().Where(x => x.IsExcelField);
                     foreach (Field field in fields)
                     {
@@ -676,31 +599,6 @@ namespace MEPUtils.DrawingListManager
                     }
                 }
             }
-
-            #region Populate State tooltip
-            foreach (Drwg drwg in drwgListAggregated)
-            {
-                DataGridViewRow dGVRow = GetDgvRow(dGV, drwg.dataRowGV);
-                if (dGVRow != null)
-                {
-                    DataGridViewCell cell = dGVRow.Cells["State"];
-                    Drwg.StateFlags sf = (Drwg.StateFlags)(cell.Value);
-                    cell.ToolTipText = sf.ToString().Replace(", ", "\n");
-                }
-            }
-            #endregion
-
-            #region Set bitmask font to monospaced
-            foreach (Drwg drwg in drwgListAggregated)
-            {
-                DataGridViewRow dGVRow = GetDgvRow(dGV, drwg.dataRowGV);
-                if (dGVRow != null)
-                {
-                    DataGridViewCell cell = dGVRow.Cells["StateInBinary"];
-                    cell.Style.Font = new System.Drawing.Font("Fixedsys", 26F, GraphicsUnit.Pixel);
-                }
-            }
-            #endregion
 
             void AnalyzeFields(Drwg drwg, DataGridViewRow dGVRow, Field field)
             {
@@ -717,11 +615,8 @@ namespace MEPUtils.DrawingListManager
                 //1. Does Excel and File data exist?
                 if (field.IsFileAndExcelField)
                 {
-                    if (
-                        !((drwg.State.HasFlag(Drwg.StateFlags.NumberFromExcel) && drwg.State.HasFlag(Drwg.StateFlags.NumberFromFileName)) ||
-                        (drwg.State.HasFlag(Drwg.StateFlags.TitleFromExcel) && drwg.State.HasFlag(Drwg.StateFlags.TitleFromFileName)) ||
-                        (drwg.State.HasFlag(Drwg.StateFlags.RevFromExcel) && drwg.State.HasFlag(Drwg.StateFlags.RevFromFileName)))
-                        )
+                    if (drwg.GetValue(Source.Excel, field.FieldName).IsNullOrEmpty() ||
+                        drwg.GetValue(Source.FileName, field.FieldName).IsNullOrEmpty())
                     {
                         //1.1 Does Excel and File exist? -> No
                         cell.Style = dgvStyles.Error;

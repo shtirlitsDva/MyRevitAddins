@@ -57,22 +57,11 @@ namespace MEPUtils.DrawingListManager
 
             dGV.Columns[8].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
 
-            //Act on state
             dlm.AnalyzeDataAndUpdateGridView(dGV);
 
             #region Debug
-            StringBuilder sb = new StringBuilder();
-            List<string> list = new List<string>();
-            //Group all states and list them
-            //var query = dlm.drwgListAggregated.GroupBy(x => x.State);
-            //foreach (var gr in query) list.Add($"{(int)gr.Key} - {gr.Key}");
-            //list.Sort();
-            //sb.Append(string.Join("\n", list));
-
-            //Just for fun list all states
-            for (int val = 0; val <= 16384 * 2 - 1; val++)
-                sb.AppendLine($"{Convert.ToString(val, 2).PadLeft(15, '0')} - {(Drwg.StateFlags)val}");
-            Output.OutputWriter(sb);
+            //StringBuilder sb = new StringBuilder();
+            //Output.OutputWriter(sb);
             #endregion
 
             //TODO: Add DrawingListCategory also as a last column to Excel data and add it to props.
