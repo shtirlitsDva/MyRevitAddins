@@ -168,37 +168,10 @@ namespace MEPUtils.DrawingListManager
         }
         internal string GetValue(DrwgProps props, FieldName fieldName)
         {
-
             string fn = fieldName.ToString();
-            return (string)props.GetPropertyValue(fn);
-
-            //switch (fieldName)
-            //{
-            //    case FieldName.None:
-            //        return "";
-            //case FieldName.Number:
-            //    return props.Number.Value;
-            //case FieldName.Title:
-            //    return props.Title.Value;
-            //case FieldName.Revision:
-            //    return props.Revision.Value;
-            //case FieldName.Scale:
-            //    return props.Scale.Value;
-            //case FieldName.Date:
-            //    return props.Date.Value;
-            //case FieldName.RevisionDate:
-            //    return props.RevisionDate.Value;
-            //case FieldName.DrawingListCategory:
-            //    return props.DrawingListCategory.Value;
-            //case FieldName.FileNameFormat:
-            //    return props.FileNameFormat.Value;
-            //case FieldName.Selected:
-            //    throw new NotImplementedException();
-            //case FieldName.Extension:
-            //    return props.FileNameFormat.Value;
-            //default:
-            //    return "";
-            //}
+            if (props.GetPropertyValue(fn) is Field field) return field.Value;
+            if (props.GetPropertyValue(fn) is string s) return s;
+            return "";
         }
         internal Field GetFieldRef(DrwgProps props, FieldName fieldName)
         {
@@ -320,7 +293,7 @@ namespace MEPUtils.DrawingListManager
                                         (fLst[0].Value == fLst[2].Value) &&
                                         (fLst[1].Value == fLst[2].Value);
             if (fLst.Count == 2) return (fLst[0].Value == fLst[1].Value);
-            else return false;
+            else return true;
         }
 
         [Flags]

@@ -16,6 +16,7 @@ namespace MEPUtils.DrawingListManager
         public bool IsExcelField { get { return ExcelColumnIdx > 0; } }
         public int ExcelColumnIdx { get; private set; } = 0;
         public bool IsMetaDataField { get { return !MetadataName.IsNullOrEmpty(); } }
+        public bool IsFileAndExcelField { get; set; } = false;//Used to limit the analysis
         public string Value { get; private set; } = "";
         public static bool operator ==(Field f1, Field f2) => f1.Value == f2.Value;
         public static bool operator !=(Field f1, Field f2) => f1.Value != f2.Value;
@@ -29,9 +30,9 @@ namespace MEPUtils.DrawingListManager
             public Number()
             {
                 this.FieldName = FieldName.Number; RegexName = "number"; MetadataName = "DWGNUMBER";
-                ColumnName = "Drwg Nr."; ExcelColumnIdx = 1;
+                ColumnName = "Drwg Nr."; ExcelColumnIdx = 1; IsFileAndExcelField = true;
             }
-            public Number(string value, DrwgProps props) : this() { Value = value; PropsRef = props; }
+            public Number(string value, DrwgProps props) : this() { Value = value; PropsRef = props; IsFileAndExcelField = true; }
         }
         public class Title : Field
         {
@@ -39,9 +40,9 @@ namespace MEPUtils.DrawingListManager
             {
                 this.FieldName = FieldName.Title;
                 RegexName = "title"; MetadataName = "DWGTITLE";
-                ColumnName = "Drwg Title"; ExcelColumnIdx = 2;
+                ColumnName = "Drwg Title"; ExcelColumnIdx = 2; IsFileAndExcelField = true;
             }
-            public Title(string value, DrwgProps props) : this() { Value = value; PropsRef = props; }
+            public Title(string value, DrwgProps props) : this() { Value = value; PropsRef = props; IsFileAndExcelField = true; }
         }
         public class Revision : Field
         {
@@ -49,9 +50,9 @@ namespace MEPUtils.DrawingListManager
             {
                 this.FieldName = FieldName.Revision;
                 RegexName = "revision"; MetadataName = "DWGREVINDEX";
-                ColumnName = "Rev. idx"; ExcelColumnIdx = 5;
+                ColumnName = "Rev. idx"; ExcelColumnIdx = 5; IsFileAndExcelField = true;
             }
-            public Revision(string value, DrwgProps props) : this() { Value = value; PropsRef = props; }
+            public Revision(string value, DrwgProps props) : this() { Value = value; PropsRef = props; IsFileAndExcelField = true; }
         }
         public class Extension : Field
         {
@@ -132,9 +133,11 @@ namespace MEPUtils.DrawingListManager
                 var fieldType = typeof(Field);
                 //We also need the "Fields" type because it is also a subclas of Field, but should not be in the list
                 var fieldsType = typeof(Fields);
+                //Empty field is not needed?
+                var emptyType = typeof(Field.Empty);
 
                 var subFieldTypes = fieldType.Assembly.DefinedTypes
-                    .Where(x => fieldType.IsAssignableFrom(x) && x != fieldType && x != fieldsType)
+                    .Where(x => fieldType.IsAssignableFrom(x) && x != fieldType && x != fieldsType && x != emptyType)
                     .ToList();
 
                 foreach (var field in subFieldTypes)
@@ -209,7 +212,7 @@ namespace MEPUtils.DrawingListManager
                 string number, string title, string revision, string scale, string date, string revisionDate)
             {
                 Source = Source.Excel;
-                Number = new Field.Number(number,this);
+                Number = new Field.Number(number, this);
                 Title = new Field.Title(title, this);
                 Scale = new Field.Scale(scale, this);
                 Date = new Field.Date(date, this);

@@ -75,7 +75,7 @@ namespace MEPUtils.DrawingListManager
             drwgListExcel = new List<Drwg>();
             drwgListMeta = new List<Drwg>();
             drwgListAggregated = new List<Drwg>();
-    }
+        }
         internal void PopulateDrwgDataFromFileName()
         {
             foreach (string fileNameWithPath in drwgFileNameList)
@@ -613,59 +613,66 @@ namespace MEPUtils.DrawingListManager
                 DataGridViewRow dGVRow = GetDgvRow(dGV, drwg.dataRowGV);
                 if (dGVRow != null)
                 {
-                    //The State flag guarantees that values are present
-                    //So equality only needs checking
-                    switch (drwg.State)
+                    #region OldAnalyzeSectiong
+                    ////The State flag guarantees that values are present
+                    ////So equality only needs checking
+                    //switch (drwg.State)
+                    //{
+                    //    case (Drwg.StateFlags)32767: //All fields present
+                    //        {
+                    //            AnalyzeFields(drwg, dGVRow, FieldName.Number, dgvStyles.AllOkay);
+                    //            AnalyzeFields(drwg, dGVRow, FieldName.Title, dgvStyles.AllOkay);
+                    //            AnalyzeFields(drwg, dGVRow, FieldName.Scale, dgvStyles.AllOkay);
+                    //            AnalyzeFields(drwg, dGVRow, FieldName.Date, dgvStyles.AllOkay);
+                    //            AnalyzeFields(drwg, dGVRow, FieldName.Revision, dgvStyles.AllOkay);
+                    //            AnalyzeFields(drwg, dGVRow, FieldName.RevisionDate, dgvStyles.AllOkay);
+                    //        }
+                    //        break;
+                    //    case (Drwg.StateFlags)10971: //All fields from META are missing
+                    //        {
+                    //            AnalyzeFields(drwg, dGVRow, FieldName.Number, dgvStyles.OkayMetaMissing);
+                    //            AnalyzeFields(drwg, dGVRow, FieldName.Title, dgvStyles.OkayMetaMissing);
+                    //            AnalyzeFields(drwg, dGVRow, FieldName.Scale, dgvStyles.OkayMetaMissing);
+                    //            AnalyzeFields(drwg, dGVRow, FieldName.Date, dgvStyles.OkayMetaMissing);
+                    //            AnalyzeFields(drwg, dGVRow, FieldName.Revision, dgvStyles.OkayMetaMissing);
+                    //            AnalyzeFields(drwg, dGVRow, FieldName.RevisionDate, dgvStyles.OkayMetaMissing);
+                    //        }
+                    //        break;
+                    //    case (Drwg.StateFlags)10898: //File and meta (obviously) missing
+                    //        {
+                    //            AnalyzeFields(drwg, dGVRow, FieldName.Number, dgvStyles.Error);
+                    //            AnalyzeFields(drwg, dGVRow, FieldName.Title, dgvStyles.Error);
+                    //            AnalyzeFields(drwg, dGVRow, FieldName.Scale, dgvStyles.Error);
+                    //            AnalyzeFields(drwg, dGVRow, FieldName.Date, dgvStyles.Error);
+                    //            AnalyzeFields(drwg, dGVRow, FieldName.Revision, dgvStyles.Error);
+                    //            AnalyzeFields(drwg, dGVRow, FieldName.RevisionDate, dgvStyles.Error);
+                    //        }
+                    //        break;
+                    //    case (Drwg.StateFlags)10386: //File and meta (obviously) missing, no scale
+                    //        {
+                    //            AnalyzeFields(drwg, dGVRow, FieldName.Number, dgvStyles.Error);
+                    //            AnalyzeFields(drwg, dGVRow, FieldName.Title, dgvStyles.Error);
+                    //            AnalyzeFields(drwg, dGVRow, FieldName.Date, dgvStyles.Error);
+                    //            AnalyzeFields(drwg, dGVRow, FieldName.Revision, dgvStyles.Error);
+                    //            AnalyzeFields(drwg, dGVRow, FieldName.RevisionDate, dgvStyles.Error);
+                    //        }
+                    //        break;
+                    //    case (Drwg.StateFlags)7743: //All fields present, NO revision
+                    //        {
+                    //            AnalyzeFields(drwg, dGVRow, FieldName.Number, dgvStyles.AllOkay);
+                    //            AnalyzeFields(drwg, dGVRow, FieldName.Title, dgvStyles.AllOkay);
+                    //            AnalyzeFields(drwg, dGVRow, FieldName.Scale, dgvStyles.AllOkay);
+                    //            AnalyzeFields(drwg, dGVRow, FieldName.Date, dgvStyles.AllOkay);
+                    //        }
+                    //        break;
+                    //    default:
+                    //        break;
+                    //} 
+                    #endregion
+                    var fields = fs.GetAllFields().Where(x => x.IsExcelField);
+                    foreach (Field field in fields)
                     {
-                        case (Drwg.StateFlags)32767: //All fields present
-                            {
-                                AnalyzeFields(drwg, dGVRow, FieldName.Number, dgvStyles.AllOkay);
-                                AnalyzeFields(drwg, dGVRow, FieldName.Title, dgvStyles.AllOkay);
-                                AnalyzeFields(drwg, dGVRow, FieldName.Scale, dgvStyles.AllOkay);
-                                AnalyzeFields(drwg, dGVRow, FieldName.Date, dgvStyles.AllOkay);
-                                AnalyzeFields(drwg, dGVRow, FieldName.Revision, dgvStyles.AllOkay);
-                                AnalyzeFields(drwg, dGVRow, FieldName.RevisionDate, dgvStyles.AllOkay);
-                            }
-                            break;
-                        case (Drwg.StateFlags)10971: //All fields from META are missing
-                            {
-                                AnalyzeFields(drwg, dGVRow, FieldName.Number, dgvStyles.MetaMissing);
-                                AnalyzeFields(drwg, dGVRow, FieldName.Title, dgvStyles.MetaMissing);
-                                AnalyzeFields(drwg, dGVRow, FieldName.Scale, dgvStyles.MetaMissing);
-                                AnalyzeFields(drwg, dGVRow, FieldName.Date, dgvStyles.MetaMissing);
-                                AnalyzeFields(drwg, dGVRow, FieldName.Revision, dgvStyles.MetaMissing);
-                                AnalyzeFields(drwg, dGVRow, FieldName.RevisionDate, dgvStyles.MetaMissing);
-                            }
-                            break;
-                        case (Drwg.StateFlags)10898: //File and meta (obviously) missing
-                            {
-                                AnalyzeFields(drwg, dGVRow, FieldName.Number, dgvStyles.OnlyExcel);
-                                AnalyzeFields(drwg, dGVRow, FieldName.Title, dgvStyles.OnlyExcel);
-                                AnalyzeFields(drwg, dGVRow, FieldName.Scale, dgvStyles.OnlyExcel);
-                                AnalyzeFields(drwg, dGVRow, FieldName.Date, dgvStyles.OnlyExcel);
-                                AnalyzeFields(drwg, dGVRow, FieldName.Revision, dgvStyles.OnlyExcel);
-                                AnalyzeFields(drwg, dGVRow, FieldName.RevisionDate, dgvStyles.OnlyExcel);
-                            }
-                            break;
-                        case (Drwg.StateFlags)10386: //File and meta (obviously) missing, no scale
-                            {
-                                AnalyzeFields(drwg, dGVRow, FieldName.Number, dgvStyles.OnlyExcel);
-                                AnalyzeFields(drwg, dGVRow, FieldName.Title, dgvStyles.OnlyExcel);
-                                AnalyzeFields(drwg, dGVRow, FieldName.Date, dgvStyles.OnlyExcel);
-                                AnalyzeFields(drwg, dGVRow, FieldName.Revision, dgvStyles.OnlyExcel);
-                                AnalyzeFields(drwg, dGVRow, FieldName.RevisionDate, dgvStyles.OnlyExcel);
-                            }
-                            break;
-                        case (Drwg.StateFlags)7743: //All fields present, NO revision
-                            {
-                                AnalyzeFields(drwg, dGVRow, FieldName.Number, dgvStyles.AllOkay);
-                                AnalyzeFields(drwg, dGVRow, FieldName.Title, dgvStyles.AllOkay);
-                                AnalyzeFields(drwg, dGVRow, FieldName.Scale, dgvStyles.AllOkay);
-                                AnalyzeFields(drwg, dGVRow, FieldName.Date, dgvStyles.AllOkay);
-                            }
-                            break;
-                        default:
-                            break;
+                        AnalyzeFields(drwg, dGVRow, field);
                     }
                 }
             }
@@ -678,7 +685,7 @@ namespace MEPUtils.DrawingListManager
                 {
                     DataGridViewCell cell = dGVRow.Cells["State"];
                     Drwg.StateFlags sf = (Drwg.StateFlags)(cell.Value);
-                    cell.ToolTipText = sf.ToString().Replace(", ","\n");
+                    cell.ToolTipText = sf.ToString().Replace(", ", "\n");
                 }
             }
             #endregion
@@ -695,29 +702,79 @@ namespace MEPUtils.DrawingListManager
             }
             #endregion
 
-            void AnalyzeFields(Drwg drwg, DataGridViewRow dGVRow, FieldName fieldName, DataGridViewCellStyle style)
+            void AnalyzeFields(Drwg drwg, DataGridViewRow dGVRow, Field field)
             {
-                string fn = fieldName.ToString();
-                Field field = fs.GetPropertyValue(fn) as Field;
-                DataGridViewCell cell = dGVRow.Cells[field.ColumnName];
-                //Compare values
-                bool areEqual = drwg.CompareFieldValues(fieldName);
-                if (areEqual) cell.Style = style;
-                else cell.Style = dgvStyles.Warning;
-                cell.ToolTipText = drwg.BuildToolTip(fieldName);
+                //Retrieve cell for the data
+                DataGridViewCell cell;
+                try
+                {
+                    cell = dGVRow.Cells[field.ColumnName];
+                }
+                catch (Exception) { return; }
+                if (cell == null) return;
+                cell.ToolTipText = drwg.BuildToolTip(field.FieldName);
+
+                //1. Does Excel and File data exist?
+                if (field.IsFileAndExcelField)
+                {
+                    if (
+                        !((drwg.State.HasFlag(Drwg.StateFlags.NumberFromExcel) && drwg.State.HasFlag(Drwg.StateFlags.NumberFromFileName)) ||
+                        (drwg.State.HasFlag(Drwg.StateFlags.TitleFromExcel) && drwg.State.HasFlag(Drwg.StateFlags.TitleFromFileName)) ||
+                        (drwg.State.HasFlag(Drwg.StateFlags.RevFromExcel) && drwg.State.HasFlag(Drwg.StateFlags.RevFromFileName)))
+                        )
+                    {
+                        //1.1 Does Excel and File exist? -> No
+                        cell.Style = dgvStyles.Error;
+                        return;
+                    }
+                }
+                //1.2 Does Excel and File exist? -> Yes -> Fall through
+
+                //2. Does meta exist?
+                if (field.IsMetaDataField && !drwg.GetValue(Source.MetaData, field.FieldName).IsNullOrEmpty())
+                {
+                    //2.1 Does meta exist? -> Yes
+                    //3. Does data match?
+                    //3.1 Does data match? -> Yes
+                    if (drwg.CompareFieldValues(field.FieldName))
+                    {
+                        cell.Style = dgvStyles.AllOkay;
+                        return;
+                    }
+                    else
+                    {
+                        cell.Style = dgvStyles.Warning;
+                        return;
+                    }
+                } else
+                {
+                    //2.2 Does meta exist? -> No
+                    //2.2.1 Does data match?
+                    //2.2.1 Does data match? -> Yes
+                    if (drwg.CompareFieldValues(field.FieldName))
+                    {
+                        cell.Style = dgvStyles.OkayMetaMissing;
+                        return;
+                    } else
+                    {
+                        //Does data match -> No
+                        cell.Style = dgvStyles.Warning;
+                        return;
+                    }
+                }
             }
         }
 
         internal class DgvStyles
         {
-            internal DataGridViewCellStyle AllOkay = new DataGridViewCellStyle() 
-            { ForeColor = Color.Green, BackColor = Color.LightGray };
+            internal DataGridViewCellStyle AllOkay = new DataGridViewCellStyle()
+            { ForeColor = Color.Green, BackColor = Color.GreenYellow };
             internal DataGridViewCellStyle Warning = new DataGridViewCellStyle()
             { ForeColor = Color.Yellow, BackColor = Color.DeepSkyBlue };
-            internal DataGridViewCellStyle MetaMissing = new DataGridViewCellStyle()
-            { ForeColor = Color.Violet, BackColor = Color.Olive };
-            internal DataGridViewCellStyle OnlyExcel = new DataGridViewCellStyle()
-            { ForeColor = Color.Red, BackColor = Color.Black };
+            internal DataGridViewCellStyle OkayMetaMissing = new DataGridViewCellStyle()
+            { ForeColor = Color.Green, BackColor = Color.LemonChiffon };
+            internal DataGridViewCellStyle Error = new DataGridViewCellStyle()
+            { ForeColor = Color.DarkRed, BackColor = Color.Thistle };
         }
     }
 }
