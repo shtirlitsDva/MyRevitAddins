@@ -18,6 +18,7 @@ namespace MEPUtils.DrawingListManager
     {
         private string pathToDwgFolder = string.Empty;
         private string pathToDwgList = string.Empty;
+        private string pathToStagingFolder = string.Empty;
         private DrwgLstMan dlm = new DrwgLstMan();
 
         public DrawingListManagerForm()
@@ -25,7 +26,25 @@ namespace MEPUtils.DrawingListManager
             InitializeComponent();
             pathToDwgFolder = mySettings.Default.PathToDwgFolder;
             pathToDwgList = mySettings.Default.PathToDwgList;
+            pathToStagingFolder = mySettings.Default.PathToStagingFolder;
             dGV1.DefaultCellStyle.BackColor = DefaultBackColor;
+
+            //Staging found textbox and consolidate button visibility
+            textBox12.Visible = false;
+            button6.Visible = false;
+
+            //Cache reference to form
+            dlm.dlmF = this;
+
+            if (pathToDwgFolder.IsNotNoE() && Directory.Exists(pathToDwgFolder))
+                textBox3.Text =
+                    Directory.EnumerateFiles(
+                        pathToDwgFolder, "*.pdf", SearchOption.TopDirectoryOnly).Count().ToString();
+
+            if (pathToStagingFolder.IsNotNoE() && Directory.Exists(pathToStagingFolder))
+                textBox11.Text =
+                    Directory.EnumerateFiles(
+                        pathToStagingFolder, "*.pdf", SearchOption.TopDirectoryOnly).Count().ToString();
         }
 
         /// <summary>
@@ -42,8 +61,11 @@ namespace MEPUtils.DrawingListManager
                 pathToDwgFolder = dialog.FileName + "\\";
                 mySettings.Default.PathToDwgFolder = pathToDwgFolder;
                 textBox2.Text = pathToDwgFolder;
+                if (pathToDwgFolder.IsNotNoE() && Directory.Exists(pathToDwgFolder))
+                    textBox3.Text =
+                        Directory.EnumerateFiles(
+                            pathToDwgFolder, "*.pdf", SearchOption.TopDirectoryOnly).Count().ToString();
             }
-
         }
 
         /// <summary>
@@ -65,15 +87,6 @@ namespace MEPUtils.DrawingListManager
         private void DrawingListManagerForm_FormClosing(object sender, FormClosingEventArgs e)
         {
             mySettings.Default.Save();
-        }
-
-        /// <summary>
-        /// Enumerate pdf files in the selected folder
-        /// </summary>
-        private void button3_Click(object sender, EventArgs e)
-        {
-            dlm.EnumeratePdfFiles(pathToDwgFolder);
-            textBox3.Text = dlm.drwgFileNameList.Count.ToString();
         }
 
         private void button4_Click(object sender, EventArgs e)
@@ -117,6 +130,39 @@ namespace MEPUtils.DrawingListManager
                     dGV1.Rows[row].DefaultCellStyle.BackColor = defBackColor;
                 }
             }
+        }
+        /// <summary>
+        /// Select staging folder
+        /// </summary>
+        private void button5_Click(object sender, EventArgs e)
+        {
+            CommonOpenFileDialog dialog = new CommonOpenFileDialog(); //https://stackoverflow.com/a/41511598/6073998
+            if (string.IsNullOrEmpty(pathToStagingFolder)) dialog.InitialDirectory = Environment.ExpandEnvironmentVariables("%userprofile%");
+            else dialog.InitialDirectory = pathToStagingFolder;
+            dialog.IsFolderPicker = true;
+            if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
+            {
+                pathToStagingFolder = dialog.FileName + "\\";
+                mySettings.Default.PathToStagingFolder = pathToStagingFolder;
+                textBox5.Text = pathToStagingFolder;
+
+                if (pathToStagingFolder.IsNotNoE() && Directory.Exists(pathToStagingFolder))
+                    textBox11.Text =
+                        Directory.EnumerateFiles(
+                            pathToStagingFolder, "*.pdf", SearchOption.TopDirectoryOnly).Count().ToString();
+            }
+        }
+
+        private void button6_Click(object sender, EventArgs e)
+        {
+            ConsolidateSequence cs = new ConsolidateSequence();
+            cs.ExecuteConsolidate(dlm, pathToDwgFolder, pathToStagingFolder);
+            flipConsolidateButton();
+        }
+        public void flipConsolidateButton()
+        {
+            textBox12.Visible = textBox12.Visible ? false : true;
+            button6.Visible = button6.Visible ? false : true;
         }
     }
 }
