@@ -158,6 +158,7 @@ namespace MEPUtils.DrawingListManager
             ConsolidateSequence cs = new ConsolidateSequence();
             cs.ExecuteConsolidate(dlm, pathToDwgFolder, pathToStagingFolder);
             flipConsolidateButton();
+            button4_Click(null, null);
         }
         public void flipConsolidateButton()
         {
