@@ -50,7 +50,6 @@ namespace MEPUtils.DrawingListManager
         private DataTable MetadataDataTable;
         //internal DataTable FileNameDataTable;
         internal DataTable AggregateDataTable;
-        internal DataTable StagingDataTable;
         //DataGridViewStyles
         internal DgvStyles dgvStyles = new DgvStyles();
 

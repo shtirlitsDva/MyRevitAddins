@@ -95,7 +95,7 @@ namespace MEPUtils.DrawingListManager
             dGV1.DataSource = null;
             dGV1.Refresh();
             dlm.ResetDgv(); //Clear dataTables so they won't show double
-            ms.ExecuteMainSequence(dlm, dGV1, pathToDwgFolder, pathToDwgList);
+            ms.ExecuteMainSequence(dlm, dGV1, pathToDwgFolder, pathToDwgList, pathToStagingFolder);
 
             //this.Close();
             //TODO: implement case where drwg only exists in excel
