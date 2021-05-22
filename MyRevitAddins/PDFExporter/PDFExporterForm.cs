@@ -240,6 +240,9 @@ namespace PDFExporter
 
                     fileName.FileNameWithPath = pathToExport + fileName.FileName; //Used to copy files later
 
+                    fileName.DwfFileName = pathToExport + "DWF\\" + 
+                        (fileName.FileName.Remove(fileName.FileName.Length - 3)) + "dwf";
+
                     string printfilename = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "\\" + fileName.FileName; //Used to satisfy bluebeam
                     //fileNamesSource.Add(printfilename);
 
@@ -273,6 +276,8 @@ namespace PDFExporter
                     sheetCount++;
                     textBox8.Text = "Sending " + sheetCount;
 
+
+
                     pm.SubmitPrint(sheet);
 
                     //Also export to DWF
@@ -282,6 +287,8 @@ namespace PDFExporter
 
                     ViewSet vs = new ViewSet();
                     vs.Insert(sheet);
+
+                    if (File.Exists(fileName.DwfFileName)) File.Delete(fileName.DwfFileName);
 
                     doc.Export(dwfExportPath, fileName.FileName.Remove(fileName.FileName.Length - 4), vs, dwfOptions);
 
@@ -596,8 +603,6 @@ namespace PDFExporter
         /// <summary>
         /// Copy files
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void Button4_Click(object sender, EventArgs e)
         {
             foreach (FileNames fileName in fileNames)
@@ -638,6 +643,7 @@ namespace PDFExporter
         public string FileName { get; internal set; }
         public string FileNameWithPath { get; internal set; }
         public string DrawingListCategory { get; internal set; }
+        public string DwfFileName { get; internal set; }
         internal void GenerateFileName()
         {
             if (!Revision.IsNullOrEmpty())
