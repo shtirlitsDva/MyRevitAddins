@@ -15,8 +15,8 @@ namespace MEPUtils.SupportTools
 {
     public partial class SupportUpdater : Form
     {
-        private string pathToTypeTable = string.Empty;
-        private string pathToLoadTable = string.Empty;
+        public string pathToTypeTable = string.Empty;
+        public string pathToLoadTable = string.Empty;
         private string typeTableFileName = string.Empty;
         private string loadTableFileName = string.Empty;
         BindingList<FileToProcess> filesToProcessCollection = new BindingList<FileToProcess>();
