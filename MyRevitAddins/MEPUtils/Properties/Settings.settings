@@ -14,5 +14,17 @@
     <Setting Name="SetTags_pathToDataFile" Type="System.String" Scope="User">
       <Value Profile="(Default)">Left</Value>
     </Setting>
+    <Setting Name="SU_TypeTablePath" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="SU_LoadTablePath" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="SU_TypeTableFileName" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="SU_LoadTableFileName" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
   </Settings>
 </SettingsFile>

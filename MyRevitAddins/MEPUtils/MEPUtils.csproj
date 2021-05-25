@@ -126,6 +126,12 @@
     <Compile Include="08 SupportsTools\SupportTools.Designer.cs">
       <DependentUpon>SupportTools.cs</DependentUpon>
     </Compile>
+    <Compile Include="08 SupportsTools\SupportUpdater.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="08 SupportsTools\SupportUpdater.Designer.cs">
+      <DependentUpon>SupportUpdater.cs</DependentUpon>
+    </Compile>
     <Compile Include="10 MoveToDistance\InputBoxBasic.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -233,6 +239,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="08 SupportsTools\SupportTools.resx">
       <DependentUpon>SupportTools.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="08 SupportsTools\SupportUpdater.resx">
+      <DependentUpon>SupportUpdater.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="10 MoveToDistance\InputBoxBasic.resx">
       <DependentUpon>InputBoxBasic.cs</DependentUpon>
