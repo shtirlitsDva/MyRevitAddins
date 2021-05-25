@@ -33,12 +33,16 @@ namespace MEPUtils.DrawingListManager
 
     public class DrwgLstMan
     {
+        //Form caching
+        public DrawingListManagerForm dlmF;
         //Fields for filename analysis
         internal List<string> drwgFileNameList;
+        internal List<string> stagingFileNameList;
         internal List<Drwg> drwgListFiles = new List<Drwg>();
         internal List<Drwg> drwgListExcel = new List<Drwg>();
         internal List<Drwg> drwgListMeta = new List<Drwg>();
         internal List<Drwg> drwgListAggregated = new List<Drwg>();
+        internal List<Drwg> drwgListStaging = new List<Drwg>();
         internal Field.Fields fs = new Field.Fields();
         //Fields for Excel data analysis
         private DataSet ExcelDataSet;
@@ -48,22 +52,28 @@ namespace MEPUtils.DrawingListManager
         internal DataTable AggregateDataTable;
         //DataGridViewStyles
         internal DgvStyles dgvStyles = new DgvStyles();
+
         //Logger
         private static readonly NLog.Logger Log = NLog.LogManager.GetCurrentClassLogger();
-        internal void EnumeratePdfFiles(string path)
+        internal void ScanRescanFilesAndList(string pathToDrwgFolder, string pathToStagingFolder)
         {
-            drwgFileNameList = Directory.EnumerateFiles(path, "*.pdf", SearchOption.TopDirectoryOnly).ToList();
-        }
-        internal void ScanRescanFilesAndList(string path)
-        {
-            if (drwgFileNameList.Count < 1 || drwgFileNameList == null)
+            if (drwgFileNameList != null) drwgFileNameList.Clear();
+            if (drwgFileNameList == null || drwgFileNameList.Count < 1)
             {
-                drwgFileNameList = Directory.EnumerateFiles(path, "*.pdf", SearchOption.TopDirectoryOnly).ToList();
-                if (drwgFileNameList.Count < 1 || drwgFileNameList == null)
+                drwgFileNameList = Directory.EnumerateFiles(
+                    pathToDrwgFolder, "*.pdf", SearchOption.TopDirectoryOnly).ToList();
+                if (drwgFileNameList == null || drwgFileNameList.Count < 1)
                 {
                     MessageBoxButtons buttons = MessageBoxButtons.OK;
                     MessageBox.Show("No valid files found at specified location!", "Error!", buttons);
                 }
+            }
+
+            if (stagingFileNameList != null) stagingFileNameList.Clear();
+            if (stagingFileNameList == null || stagingFileNameList.Count < 1)
+            {
+                stagingFileNameList = Directory.EnumerateFiles(
+                    pathToStagingFolder, "*.pdf", SearchOption.TopDirectoryOnly).ToList();
             }
         }
         /// <summary>
@@ -75,6 +85,7 @@ namespace MEPUtils.DrawingListManager
             drwgListExcel = new List<Drwg>();
             drwgListMeta = new List<Drwg>();
             drwgListAggregated = new List<Drwg>();
+            drwgListStaging = new List<Drwg>();
         }
         internal void PopulateDrwgDataFromFileName()
         {
@@ -296,7 +307,7 @@ namespace MEPUtils.DrawingListManager
             {
                 exprlist.Add($"[{fs.Title.ColumnName}] = '{title}'");
             }
-            if (!rev.IsNullOrEmpty()) exprlist.Add($"[{fs.Revision.ColumnName}] = '{rev}'");
+            if (!rev.IsNoE()) exprlist.Add($"[{fs.Revision.ColumnName}] = '{rev}'");
             string expr = string.Join(" AND ", exprlist);
 
             if (Data is DataSet dataSet)
@@ -575,6 +586,15 @@ namespace MEPUtils.DrawingListManager
             }
             AggregateDataTable.AcceptChanges();
         }
+        internal void ReadStagingData()
+        {
+            foreach (string fileNameWithPath in stagingFileNameList)
+            {
+                Drwg drwg = new Drwg(fileNameWithPath);
+                drwgListStaging.Add(drwg);
+                drwg.ReadDrwgDataFromStaging();
+            }
+        }
         internal DataGridViewRow GetDgvRow(DataGridView dgv, DataRow drow)
         {
             foreach (DataGridViewRow row in dgv.Rows)
@@ -587,6 +607,7 @@ namespace MEPUtils.DrawingListManager
         }
         internal void AnalyzeDataAndUpdateGridView(DataGridView dGV)
         {
+            //Analyze existing data
             foreach (Drwg drwg in drwgListAggregated)
             {
                 DataGridViewRow dGVRow = GetDgvRow(dGV, drwg.dataRowGV);
@@ -615,8 +636,9 @@ namespace MEPUtils.DrawingListManager
                 //1. Does Excel and File data exist?
                 if (field.IsFileAndExcelField)
                 {
-                    if (drwg.GetValue(Source.Excel, field.FieldName).IsNullOrEmpty() ||
-                        drwg.GetValue(Source.FileName, field.FieldName).IsNullOrEmpty())
+                    if ((drwg.GetValue(Source.Excel, field.FieldName).IsNoE() ||
+                        drwg.GetValue(Source.FileName, field.FieldName).IsNoE()) &&
+                        field.FieldName != FieldName.Revision)
                     {
                         //1.1 Does Excel and File exist? -> No
                         cell.Style = dgvStyles.Error;
@@ -626,7 +648,7 @@ namespace MEPUtils.DrawingListManager
                 //1.2 Does Excel and File exist? -> Yes -> Fall through
 
                 //2. Does meta exist?
-                if (field.IsMetaDataField && !drwg.GetValue(Source.MetaData, field.FieldName).IsNullOrEmpty())
+                if (field.IsMetaDataField && !drwg.GetValue(Source.MetaData, field.FieldName).IsNoE())
                 {
                     //2.1 Does meta exist? -> Yes
                     //3. Does data match?
@@ -641,7 +663,8 @@ namespace MEPUtils.DrawingListManager
                         cell.Style = dgvStyles.Warning;
                         return;
                     }
-                } else
+                }
+                else
                 {
                     //2.2 Does meta exist? -> No
                     //2.2.1 Does data match?
@@ -650,7 +673,8 @@ namespace MEPUtils.DrawingListManager
                     {
                         cell.Style = dgvStyles.OkayMetaMissing;
                         return;
-                    } else
+                    }
+                    else
                     {
                         //Does data match -> No
                         cell.Style = dgvStyles.Warning;
@@ -659,7 +683,6 @@ namespace MEPUtils.DrawingListManager
                 }
             }
         }
-
         internal class DgvStyles
         {
             internal DataGridViewCellStyle AllOkay = new DataGridViewCellStyle()
@@ -670,6 +693,41 @@ namespace MEPUtils.DrawingListManager
             { ForeColor = Color.Green, BackColor = Color.LemonChiffon };
             internal DataGridViewCellStyle Error = new DataGridViewCellStyle()
             { ForeColor = Color.DarkRed, BackColor = Color.Thistle };
+        }
+        internal bool AnalyzeStagingDataAndUpdateGridView(DataGridView dGV)
+        {
+            bool stagingFound = false;
+
+            //Analyze staging data
+            foreach (Drwg drwg in drwgListAggregated)
+            {
+                Drwg stagingDrwg = drwgListStaging.Where(x => x.DataFromStaging.Number.Value ==
+                drwg.TryGetValueOfSpecificPropsField(FieldName.Number)).FirstOrDefault();
+                if (stagingDrwg == null) continue;
+
+                DataGridViewRow dGVRow = GetDgvRow(dGV, drwg.dataRowGV);
+                if (dGVRow == null) continue;
+
+                Field revField = new Field.Revision();
+
+                string curRev = drwg.TryGetValueOfSpecificPropsField(FieldName.Revision);
+                string newRev = stagingDrwg.GetValue(Source.Staging, FieldName.Revision);
+
+                if (curRev != newRev) stagingFound = true;
+
+                //Retrieve cell for the data
+                DataGridViewCell cell;
+                try
+                {
+                    cell = dGVRow.Cells[revField.ColumnName];
+                }
+                catch (Exception) { continue; }
+                if (cell == null) continue;
+                cell.ToolTipText = $"{curRev} -> {newRev}";
+                cell.Style = dgvStyles.Error;
+            }
+
+            return stagingFound;
         }
     }
 }

@@ -5,6 +5,8 @@ using MoreLinq;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Data;
+using PdfSharp.Pdf;
+using PdfSharp.Pdf.IO;
 
 namespace MEPUtils.DrawingListManager
 {
@@ -25,6 +27,7 @@ namespace MEPUtils.DrawingListManager
         internal DrwgProps.Source_FileName DataFromFileName;
         internal DrwgProps.Source_Excel DataFromExcel;
         internal DrwgProps.Source_Meta DataFromMetadata;
+        internal DrwgProps.Source_Staging DataFromStaging;
 
         //internal string Extension;
         #endregion
@@ -135,6 +138,9 @@ namespace MEPUtils.DrawingListManager
                 case Source.MetaData:
                     if (DataFromMetadata != null) return GetValue(DataFromMetadata, fieldName);
                     break;
+                case Source.Staging:
+                    if (DataFromStaging != null) return GetValue(DataFromStaging, fieldName);
+                    break;
                 default:
                     return "";
             }
@@ -194,6 +200,9 @@ namespace MEPUtils.DrawingListManager
                     break;
                 case Source.MetaData:
                     if (DataFromMetadata != null) return GetFieldRef(DataFromMetadata, fieldName);
+                    break;
+                case Source.Staging:
+                    if (DataFromStaging != null) return GetFieldRef(DataFromStaging, fieldName);
                     break;
                 default:
                     return new Field.Empty();
@@ -268,6 +277,67 @@ namespace MEPUtils.DrawingListManager
                                         (fLst[1].Value == fLst[2].Value);
             if (fLst.Count == 2) return (fLst[0].Value == fLst[1].Value);
             else return true;
+        }
+        internal void ReadDrwgDataFromStaging()
+        {
+            //Read data from filename
+            ReadDrwgDataFromFileName();
+            string number = DataFromFileName.Number.Value ?? "";
+            string title = DataFromFileName.Title.Value ?? "";
+            string revision = DataFromFileName.Revision.Value ?? "";
+            string extension = DataFromFileName.Extension.Value ?? "";
+
+            //Start reading data from metadata
+            DataFromMetadata = new DrwgProps.Source_Meta(true);
+            var lookup = DataFromMetadata.ToPropertyDictionary();
+
+            HashSet<Field> fields = new HashSet<Field>(
+                new Field.Fields().GetAllFields().Where(x => x.IsMetaDataField));
+
+            PdfDocument document = null;
+            bool metadataPresent = false;
+            try
+            {
+                if (0 != PdfReader.TestPdfFile(FileNameWithPath))
+                {
+                    document = PdfReader.Open(FileNameWithPath);
+                    metadataPresent = true;
+                }
+                else metadataPresent = false;
+            }
+            catch (Exception) { metadataPresent = false; }
+
+            if (metadataPresent)
+            {
+                var props = document.Info.Elements;
+
+                if (fields.Any(x => props.ContainsKey("/" + x.MetadataName)))
+                {
+                    foreach (Field field in fields)
+                    {
+                        if (props.ContainsKey("/" + field.MetadataName))
+                        {
+                            string s = props["/" + field.MetadataName].ToString();
+                            //Substring removes leading and closing parantheses
+                            ((Field)lookup[field.FieldName.ToString()])
+                                .SetValue(s.Substring(1, s.Length - 2), DataFromMetadata);
+                        }
+                    }
+                }
+                document.Close();
+
+                DataFromStaging = new DrwgProps.Source_Staging(
+                    DataFromMetadata.Number.Value, DataFromMetadata.Title.Value,
+                    DataFromMetadata.Revision.Value, DataFromFileName.Extension.Value,
+                    DataFromMetadata.Scale.Value, DataFromMetadata.Date.Value,
+                    DataFromMetadata.RevisionDate.Value, DataFromMetadata.DrawingListCategory.Value);
+            }
+            else
+            {
+                DataFromStaging = new DrwgProps.Source_Staging(
+                    DataFromFileName.Number.Value, DataFromFileName.Title.Value,
+                    DataFromFileName.Revision.Value, DataFromFileName.Extension.Value);
+            }
         }
     }
 }

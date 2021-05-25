@@ -59,7 +59,8 @@ namespace MEPUtils.FamilyTools.AddParameters
                         ("900 SCHEDULE", "DRI.Management.Schedule Type"),
                         ("900 SCHEDULE", "DRI.Management.Schedule Tryktrin"),
                         ("900 SCHEDULE", "DRI.Management.Schedule Fabrikat"),
-                        ("900 SCHEDULE", "DRI.Management.Schedule Produkt")
+                        ("900 SCHEDULE", "DRI.Management.Schedule Produkt"),
+                        ("100 MECHANICAL", "Component Name")
                     };
 
                     foreach (var pair in parNamesToAdd)
