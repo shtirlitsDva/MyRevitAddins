@@ -10,10 +10,12 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using Shared;
+using Autodesk.Revit.UI;
+using Autodesk.Revit.DB;
 
 namespace MEPUtils.SupportTools
 {
-    public partial class SupportUpdater : Form
+    public partial class SupportUpdater : System.Windows.Forms.Form
     {
         public string pathToTypeTable = string.Empty;
         public string pathToLoadTable = string.Empty;
@@ -22,10 +24,12 @@ namespace MEPUtils.SupportTools
         BindingList<FileToProcess> filesToProcessCollection = new BindingList<FileToProcess>();
         BindingSource bindingSource = new BindingSource();
         int linesToRemove = 0;
+        UIApplication UiApp;
 
-        public SupportUpdater()
+        public SupportUpdater(UIApplication uiApp)
         {
             InitializeComponent();
+            UiApp = uiApp;
             pathToTypeTable = Properties.Settings.Default.SU_TypeTablePath;
             pathToLoadTable = Properties.Settings.Default.SU_LoadTablePath;
             typeTableFileName = Properties.Settings.Default.SU_TypeTableFileName;
@@ -98,11 +102,25 @@ namespace MEPUtils.SupportTools
             comboBox1_SelectedIndexChanged(null, null);
         }
         /// <summary>
+        /// Compare data
+        /// </summary>
+        private void button4_Click_1(object sender, EventArgs e)
+        {
+            if (filesToProcessCollection.Any(x => x.Type == FileType.Type &&
+                filesToProcessCollection.Any(x => x.Type == FileType.Load)))
+            {
+                FileToProcess ftpType = filesToProcessCollection.First(x => x.Type == FileType.Type);
+                FileToProcess ftpLoad = filesToProcessCollection.First(x => x.Type == FileType.Load);
+                MEPUtils.SupportTools.CompareDataWithR2.Compare(
+                    UiApp, ftpType.Path, ftpLoad.Path);
+            }
+        }
+        /// <summary>
         /// Update load data
         /// </summary>
         private void button4_Click(object sender, EventArgs e)
         {
-
+            MEPUtils.SupportTools.UpdateDataWithR2.Update(UiApp, pathToTypeTable, pathToLoadTable);
         }
 
         private void SupportUpdater_FormClosing(object sender, FormClosingEventArgs e)

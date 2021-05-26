@@ -55,7 +55,7 @@ namespace MEPUtils.SupportTools
 
         private void radioButton5_CheckedChanged(object sender, EventArgs e)
         {
-            if (radioButton5.Checked) ToolToInvoke = UpdateLoadsFromR2.Update;
+            if (radioButton5.Checked) ToolToInvoke = UpdateLoadsFromR2Loader.Update;
         }
 
         private void button1_Click(object sender, EventArgs e)
