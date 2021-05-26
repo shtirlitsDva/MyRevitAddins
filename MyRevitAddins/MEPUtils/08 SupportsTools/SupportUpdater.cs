@@ -63,7 +63,8 @@ namespace MEPUtils.SupportTools
                 }
 
                 filesToProcessCollection.Add(new FileToProcess(dialog.FileName, FileType.Type));
-
+                //Update the richtextbox
+                comboBox1_SelectedIndexChanged(null, null);
             }
         }
         /// <summary>
@@ -84,6 +85,8 @@ namespace MEPUtils.SupportTools
                 }
 
                 filesToProcessCollection.Add(new FileToProcess(dialog.FileName, FileType.Load));
+                //Update the richtextbox
+                comboBox1_SelectedIndexChanged(null, null);
             }
         }
         /// <summary>
