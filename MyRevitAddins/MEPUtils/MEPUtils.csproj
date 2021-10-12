@@ -116,10 +116,18 @@
     <Compile Include="00 SharedStaging\01 SharedStaging.cs" />
     <Compile Include="01 InsulationHandler\CsvReader.cs" />
     <Compile Include="08 SupportsTools\00 SupportsToolsMain.cs" />
-    <Compile Include="08 SupportsTools\05 UpdateLoadsFromR2.cs" />
+    <Compile Include="08 SupportsTools\07 UpdateRevitUsingR2.cs" />
+    <Compile Include="08 SupportsTools\06 CompareDataWithR2.cs" />
+    <Compile Include="08 SupportsTools\05 UpdateLoadsFromR2Loader.cs" />
     <Compile Include="08 SupportsTools\04 CalcHeightBySteelOrLevel.cs" />
     <Compile Include="08 SupportsTools\03 DetermineCorrectLevel.cs" />
     <Compile Include="08 SupportsTools\02 CalcHeightBySteelSupport.cs" />
+    <Compile Include="08 SupportsTools\DataGridViewWindow.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="08 SupportsTools\DataGridViewWindow.Designer.cs">
+      <DependentUpon>DataGridViewWindow.cs</DependentUpon>
+    </Compile>
     <Compile Include="08 SupportsTools\SupportTools.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -236,6 +244,9 @@
     <EmbeddedResource Include="..\..\..\Revit-PCF-Exporter\revit-shared-utilities\01 Shared code\BaseFormTableLayoutPanel_BasicList.resx">
       <Link>BaseFormTableLayoutPanel_BasicList.resx</Link>
       <DependentUpon>BaseFormTableLayoutPanel_BasicList.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="08 SupportsTools\DataGridViewWindow.resx">
+      <DependentUpon>DataGridViewWindow.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="08 SupportsTools\SupportTools.resx">
       <DependentUpon>SupportTools.cs</DependentUpon>
