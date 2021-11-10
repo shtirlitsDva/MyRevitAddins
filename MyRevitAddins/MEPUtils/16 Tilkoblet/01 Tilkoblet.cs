@@ -71,39 +71,57 @@ namespace MEPUtils.Tilkoblet
                         if (refFirstCon != null)
                         {
                             firstSideOwner = refFirstCon.Owner;
-                            Parameter tag1par = firstSideOwner.LookupParameter("TAG 1");
-                            if (tag1par != null)
+
+                            if (firstSideOwner.MechFittingPartType() == PartType.SpudAdjustable)
                             {
-                                string tag1 = firstSideOwner.LookupParameter("TAG 1").AsString();
-                                string tag2 = firstSideOwner.LookupParameter("TAG 2").AsString();
-                                string tag3 = firstSideOwner.LookupParameter("TAG 3").AsString();
-                                string tag4 = firstSideOwner.LookupParameter("TAG 4").AsString();
+                                string oConOd = firstSideOwner.LookupParameter("Olet Connection DN").AsString();
+                                if (!oConOd.IsNullOrEmpty()) firstSideComments += oConOd;
+                            }
+                            else
+                            {
+                                Parameter tag1par = firstSideOwner.LookupParameter("TAG 1");
+                                if (tag1par != null)
+                                {
+                                    string tag1 = firstSideOwner.LookupParameter("TAG 1").AsString();
+                                    string tag2 = firstSideOwner.LookupParameter("TAG 2").AsString();
+                                    string tag3 = firstSideOwner.LookupParameter("TAG 3").AsString();
+                                    string tag4 = firstSideOwner.LookupParameter("TAG 4").AsString();
 
-                                firstSideComments = string.Empty;
+                                    firstSideComments = string.Empty;
 
-                                if (!string.IsNullOrEmpty(tag1)) firstSideComments += tag1;
-                                if (!string.IsNullOrEmpty(tag2)) firstSideComments += "_" + tag2;
-                                if (!string.IsNullOrEmpty(tag3)) firstSideComments += "_" + tag3;
-                                if (!string.IsNullOrEmpty(tag4)) firstSideComments += "_" + tag4;
+                                    if (!string.IsNullOrEmpty(tag1)) firstSideComments += tag1;
+                                    if (!string.IsNullOrEmpty(tag2)) firstSideComments += "_" + tag2;
+                                    if (!string.IsNullOrEmpty(tag3)) firstSideComments += "_" + tag3;
+                                    if (!string.IsNullOrEmpty(tag4)) firstSideComments += "_" + tag4;
+                                } 
                             }
                         }
                         if (refSecondCon != null)
                         {
                             secondSideOwner = refSecondCon.Owner;
-                            Parameter tag1par = secondSideOwner.LookupParameter("TAG 1");
-                            if (tag1par != null)
+
+                            if (secondSideOwner.MechFittingPartType() == PartType.SpudAdjustable)
                             {
-                                string tag1 = secondSideOwner.LookupParameter("TAG 1").AsString();
-                                string tag2 = secondSideOwner.LookupParameter("TAG 2").AsString();
-                                string tag3 = secondSideOwner.LookupParameter("TAG 3").AsString();
-                                string tag4 = secondSideOwner.LookupParameter("TAG 4").AsString();
+                                string oConOd = secondSideOwner.LookupParameter("Olet Connection DN").AsString();
+                                if (!oConOd.IsNullOrEmpty()) secondSideComments += oConOd;
+                            }
+                            else
+                            {
+                                Parameter tag1par = secondSideOwner.LookupParameter("TAG 1");
+                                if (tag1par != null)
+                                {
+                                    string tag1 = secondSideOwner.LookupParameter("TAG 1").AsString();
+                                    string tag2 = secondSideOwner.LookupParameter("TAG 2").AsString();
+                                    string tag3 = secondSideOwner.LookupParameter("TAG 3").AsString();
+                                    string tag4 = secondSideOwner.LookupParameter("TAG 4").AsString();
 
-                                secondSideComments = string.Empty;
+                                    secondSideComments = string.Empty;
 
-                                if (!string.IsNullOrEmpty(tag1)) secondSideComments += tag1;
-                                if (!string.IsNullOrEmpty(tag2)) secondSideComments += "_" + tag2;
-                                if (!string.IsNullOrEmpty(tag3)) secondSideComments += "_" + tag3;
-                                if (!string.IsNullOrEmpty(tag4)) secondSideComments += "_" + tag4;
+                                    if (!string.IsNullOrEmpty(tag1)) secondSideComments += tag1;
+                                    if (!string.IsNullOrEmpty(tag2)) secondSideComments += "_" + tag2;
+                                    if (!string.IsNullOrEmpty(tag3)) secondSideComments += "_" + tag3;
+                                    if (!string.IsNullOrEmpty(tag4)) secondSideComments += "_" + tag4;
+                                }
                             }
                         }
 
