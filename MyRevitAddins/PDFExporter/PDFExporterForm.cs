@@ -476,7 +476,9 @@ namespace PDFExporter
 
                     var paperSize = (from PaperSize psize in paperSizes where psize.Name.Equals(nameOfPaperSize) select psize).FirstOrDefault();
 
-                    pParams.PaperSize = paperSize ?? throw new Exception("Printer does not have specified paper size! Check paper size configuration.");
+                    pParams.PaperSize = paperSize ?? 
+                        throw new Exception($"Printer does not have specified paper size! Check paper size configuration.\n" +
+                                            $"{nameOfPaperSize}");
 
                     pm.Apply();
 
@@ -542,16 +544,16 @@ namespace PDFExporter
                 }},
                 {891, new Dictionary<int, string>
                 {
-                    { 210, "3x1_(893x210)_MM"},
-                    { 420, "3x2_(893x420)_MM"},
-                    { 630, "3x3_(893x630)_MM"},
-                    { 840, "3x4_(893x840)_MM"},
-                    { 1050, "3x5_(893x1050)_MM"},
-                    { 1260, "3x6_(893x1260)_MM"},
-                    { 1470, "3x7_(893x1470)_MM"},
-                    { 1680, "3x8_(893x1680)_MM"},
-                    { 1890, "3x9_(893x1890)_MM"},
-                    { 2100, "3x10_(893x2100)_MM"}
+                    { 210, "3x1_(891x210)_MM"},
+                    { 420, "3x2_(891x420)_MM"},
+                    { 630, "3x3_(891x630)_MM"},
+                    { 840, "3x4_(891x840)_MM"},
+                    { 1050, "3x5_(891x1050)_MM"},
+                    { 1260, "3x6_(891x1260)_MM"},
+                    { 1470, "3x7_(891x1470)_MM"},
+                    { 1680, "3x8_(891x1680)_MM"},
+                    { 1890, "3x9_(891x1890)_MM"},
+                    { 2100, "3x10_(891x2100)_MM"}
                 }},
                 {2339, new Dictionary<int, string>
                 {
