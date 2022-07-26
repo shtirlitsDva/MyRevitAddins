@@ -67,11 +67,11 @@
     </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="RevitAPI">
-      <HintPath>G:\Revit SDK\2023\RevitAPI.dll</HintPath>
+      <HintPath>G:\Revit SDK\2022\RevitAPI.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="RevitAPIUI">
-      <HintPath>G:\Revit SDK\2023\RevitAPIUI.dll</HintPath>
+      <HintPath>G:\Revit SDK\2022\RevitAPIUI.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="System" />
