@@ -113,7 +113,7 @@ namespace MEPUtils.SupportTools
                                 //Calculate the height of the intersection above the reference level
                                 ElementId refLvlId = hanger.LevelId;
                                 Level refLvl = (Level)doc.GetElement(refLvlId);
-                                double refLvlElevation = refLvl.Elevation;
+                                double refLvlElevation = refLvl.ProjectElevation;
                                 double profileHeight = intersection.Z - refLvlElevation;
 
                                 //Set the hanger value so it updates
@@ -156,22 +156,45 @@ namespace MEPUtils.SupportTools
                                 //Determine levels
                                 List<(Level lvl, double dist)> levelsWithDist = new List<(Level lvl, double dist)>(levels.Count);
 
-                                foreach (Level level in levels)
+                                //Normalize all level elevations based on the lowest
+                                var query = levels.MinBy(x => x.ProjectElevation);
+                                double lowestElevation = query.FirstOrDefault().ProjectElevation;
+
+                                List<(Level lvl, double normalizedElevation)> levelsNormalized = 
+                                    new List<(Level lvl, double normalizedElevation)>();
+
+                                foreach (Level l in levels)
                                 {
-                                    (Level, double) result = (level, ((LocationPoint)hanger.Location).Point.Z - level.Elevation);
-                                    if (result.Item2 < 1e-6) levelsWithDist.Add(result);
+                                    levelsNormalized.Add((l, l.ProjectElevation - lowestElevation));
                                 }
 
-                                var minimumLevel = levelsWithDist.MaxBy(x => x.dist).FirstOrDefault();
-                                if (minimumLevel.Equals(default))
+                                double normalizedP = ((LocationPoint)hanger.Location).Point.Z - lowestElevation;
+
+                                foreach (var nl in levelsNormalized)
                                 {
-                                    throw new Exception($"Element {hanger.Id.ToString()} is above all levels!");
+                                    (Level, double) result = (
+                                        nl.lvl, 
+                                        nl.normalizedElevation - normalizedP);
+                                    levelsWithDist.Add(result);
                                 }
+
+                                var sorted = levelsWithDist.OrderBy(x => x.dist).ToList();
+
+                                (Level lvl, double dist) minimumLvl = default;
+                                foreach (var item in sorted)
+                                {
+                                    if (item.dist > 0.4)
+                                    {
+                                        minimumLvl = item;
+                                        break;
+                                    }
+                                }
+                                if (minimumLvl == default) continue;
 
                                 ElementId refLvlId = hanger.LevelId;
                                 Level refLvl = (Level)doc.GetElement(refLvlId);
                                 double refLvlElevation = refLvl.Elevation;
-                                double lvlHeight = minimumLevel.lvl.Elevation - refLvlElevation;
+                                double lvlHeight = minimumLvl.lvl.Elevation - refLvlElevation;
                                 hanger.LookupParameter("LevelHeight").Set(lvlHeight);
 
                                 Parameter offsetPar = hanger.get_Parameter(BuiltInParameter.INSTANCE_FREE_HOST_OFFSET_PARAM);
