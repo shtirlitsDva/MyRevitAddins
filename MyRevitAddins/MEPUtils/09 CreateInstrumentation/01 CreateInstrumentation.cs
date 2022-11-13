@@ -338,7 +338,7 @@ namespace MEPUtils.CreateInstrumentation
 
             foreach (Level level in levels)
             {
-                (Level, double) result = (level, ((LocationPoint)prevElem.Location).Point.Z - level.Elevation);
+                (Level, double) result = (level, ((LocationPoint)prevElem.Location).Point.Z - level.ProjectElevation);
                 if (result.Item2 > -1e-6) levelsWithDist.Add(result);
             }
 
