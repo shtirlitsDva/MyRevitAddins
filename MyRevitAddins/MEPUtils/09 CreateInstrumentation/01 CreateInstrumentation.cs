@@ -391,14 +391,15 @@ namespace MEPUtils.CreateInstrumentation
 
             foreach (Level level in levels)
             {
-                (Level, double) result = (level, ((LocationPoint)prevElem.Location).Point.Z - level.Elevation);
+                (Level, double) result = (level, ((LocationPoint)prevElem.Location).Point.Z - level.ProjectElevation);
                 if (result.Item2 > -1e-6) levelsWithDist.Add(result);
             }
 
             var minimumLevel = levelsWithDist.MinBy(x => x.dist).FirstOrDefault();
             if (minimumLevel.Equals(default))
             {
-                throw new Exception($"Element {prevElem.Id.ToString()} is below all levels!");
+                minimumLevel = (levels.FirstOrDefault(), 0);
+                //throw new Exception($"Element {prevElem.Id.ToString()} is below all levels!");
             }
 
             Element elem = doc.Create.NewFamilyInstance(prevElemCons.Secondary.Origin, familySymbol, minimumLevel.lvl,
