@@ -21,11 +21,19 @@ using fi = Shared.Filter;
 using lad = MEPUtils.CreateInstrumentation.ListsAndDicts;
 using mp = Shared.MepUtils;
 using tr = Shared.Transformation;
+using System.Windows.Forms;
+using Autodesk.Revit.Attributes;
 
 namespace MEPUtils.PressureLossCalc
 {
-    public class PressureLossCalc
+    [Transaction(TransactionMode.Manual)]
+    public class PressureLossCalc : IExternalCommand
     {
+        public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
+        {
+            return PressureLossCalcMethod(commandData);
+        }
+
         public Result PressureLossCalcMethod(ExternalCommandData commandData)
         {
             UIApplication uiApp = commandData.Application;
@@ -38,8 +46,10 @@ namespace MEPUtils.PressureLossCalc
                 {
                     var allFittings = fi.GetElements<Element, BuiltInCategory>(doc, BuiltInCategory.OST_PipeFitting);
 
-                    tx.Start("");
-                    
+                    tx.Start("Pressure calc");
+
+                    PressureLossCalcForm plcf = new PressureLossCalcForm();
+                    plcf.ShowDialog();
 
                     tx.Commit();
                     return Result.Succeeded; 

@@ -218,6 +218,13 @@
       <DependentUpon>Treeview test.cs</DependentUpon>
     </Compile>
     <Compile Include="22 PressureLossCalc\01 PressureLossCalc.cs" />
+    <Compile Include="22 PressureLossCalc\02 PressureLossCalcMath.cs" />
+    <Compile Include="22 PressureLossCalc\03 PressureLossCalcForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="22 PressureLossCalc\03 PressureLossCalcForm.Designer.cs">
+      <DependentUpon>03 PressureLossCalcForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="MEPUtilsClass.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="MEPUtils.cs">
@@ -281,6 +288,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="18 Treeview test\Treeview test.resx">
       <DependentUpon>Treeview test.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="22 PressureLossCalc\03 PressureLossCalcForm.resx">
+      <DependentUpon>03 PressureLossCalcForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MEPUtils.resx">
       <DependentUpon>MEPUtils.cs</DependentUpon>
