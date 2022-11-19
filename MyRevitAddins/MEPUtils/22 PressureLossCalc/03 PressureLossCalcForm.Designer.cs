@@ -51,6 +51,7 @@
             this.button1.TabIndex = 4;
             this.button1.Text = "Select folder where to export";
             this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
             // textBox_LabelPowerInput
             // 
@@ -95,6 +96,7 @@
             this.textBox_InputTempReturn.Size = new System.Drawing.Size(113, 31);
             this.textBox_InputTempReturn.TabIndex = 3;
             this.textBox_InputTempReturn.Text = global::MEPUtils.Properties.Settings.Default.InputTempReturnText;
+            this.textBox_InputTempReturn.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             this.textBox_InputTempReturn.TextChanged += new System.EventHandler(this.textBox_InputTempReturn_TextChanged);
             // 
             // textBox_InputTempSupply
@@ -107,6 +109,7 @@
             this.textBox_InputTempSupply.Size = new System.Drawing.Size(113, 31);
             this.textBox_InputTempSupply.TabIndex = 2;
             this.textBox_InputTempSupply.Text = global::MEPUtils.Properties.Settings.Default.InputTempSupplyText;
+            this.textBox_InputTempSupply.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             this.textBox_InputTempSupply.TextChanged += new System.EventHandler(this.textBox_InputTempSupply_TextChanged);
             // 
             // textBox_InputPower
@@ -119,6 +122,7 @@
             this.textBox_InputPower.Size = new System.Drawing.Size(113, 31);
             this.textBox_InputPower.TabIndex = 1;
             this.textBox_InputPower.Text = global::MEPUtils.Properties.Settings.Default.InputPowerText;
+            this.textBox_InputPower.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             this.textBox_InputPower.TextChanged += new System.EventHandler(this.textBox_PowerInput_TextChanged);
             // 
             // textBox_DisplayPower
@@ -130,6 +134,7 @@
             this.textBox_DisplayPower.Size = new System.Drawing.Size(113, 24);
             this.textBox_DisplayPower.TabIndex = 5;
             this.textBox_DisplayPower.TabStop = false;
+            this.textBox_DisplayPower.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             // 
             // textBox_DisplayTempSupply
             // 
@@ -140,6 +145,7 @@
             this.textBox_DisplayTempSupply.Size = new System.Drawing.Size(113, 24);
             this.textBox_DisplayTempSupply.TabIndex = 5;
             this.textBox_DisplayTempSupply.TabStop = false;
+            this.textBox_DisplayTempSupply.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             // 
             // textBox_DisplayTempReturn
             // 
@@ -150,6 +156,7 @@
             this.textBox_DisplayTempReturn.Size = new System.Drawing.Size(113, 24);
             this.textBox_DisplayTempReturn.TabIndex = 5;
             this.textBox_DisplayTempReturn.TabStop = false;
+            this.textBox_DisplayTempReturn.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             // 
             // textBox_LabelFlow
             // 
@@ -171,6 +178,7 @@
             this.textBox_DisplayFlow.Size = new System.Drawing.Size(113, 24);
             this.textBox_DisplayFlow.TabIndex = 5;
             this.textBox_DisplayFlow.TabStop = false;
+            this.textBox_DisplayFlow.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             // 
             // PressureLossCalcForm
             // 

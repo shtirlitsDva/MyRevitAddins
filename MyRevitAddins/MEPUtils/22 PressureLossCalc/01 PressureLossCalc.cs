@@ -26,7 +26,8 @@ using Autodesk.Revit.Attributes;
 
 namespace MEPUtils.PressureLossCalc
 {
-    [Transaction(TransactionMode.Manual)]
+    [TransactionAttribute(TransactionMode.Manual)]
+    [RegenerationAttribute(RegenerationOption.Manual)]
     public class PressureLossCalc : IExternalCommand
     {
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
@@ -52,9 +53,9 @@ namespace MEPUtils.PressureLossCalc
                     plcf.ShowDialog();
 
                     tx.Commit();
-                    return Result.Succeeded; 
+                    return Result.Succeeded;
                 }
-                
+
             }
 
             catch (Autodesk.Revit.Exceptions.OperationCanceledException) { return Result.Cancelled; }

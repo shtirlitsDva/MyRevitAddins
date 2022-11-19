@@ -218,6 +218,7 @@
       <DependentUpon>Treeview test.cs</DependentUpon>
     </Compile>
     <Compile Include="22 PressureLossCalc\01 PressureLossCalc.cs" />
+    <Compile Include="22 PressureLossCalc\04 PressureLossCalcRevit.cs" />
     <Compile Include="22 PressureLossCalc\02 PressureLossCalcMath.cs" />
     <Compile Include="22 PressureLossCalc\03 PressureLossCalcForm.cs">
       <SubType>Form</SubType>

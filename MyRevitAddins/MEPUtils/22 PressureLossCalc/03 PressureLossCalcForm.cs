@@ -34,22 +34,35 @@ namespace MEPUtils.PressureLossCalc
             this.Power = parseNumber(textBox_InputPower.Text);
 
             textBox_DisplayPower.Text = this.Power.ToString();
+
+            calculateFlow(Power, TempSupply, TempReturn);
         }
 
         private void textBox_InputTempSupply_TextChanged(object sender, EventArgs e)
         {
-            this.Power = parseNumber(textBox_InputTempSupply.Text);
+            this.TempSupply = parseNumber(textBox_InputTempSupply.Text);
 
-            textBox_DisplayTempSupply.Text = this.Power.ToString();
+            textBox_DisplayTempSupply.Text = this.TempSupply.ToString();
+
+            calculateFlow(Power, TempSupply, TempReturn);
         }
 
         private void textBox_InputTempReturn_TextChanged(object sender, EventArgs e)
         {
-            this.Power = parseNumber(textBox_InputTempReturn.Text);
+            this.TempReturn = parseNumber(textBox_InputTempReturn.Text);
 
-            textBox_DisplayTempReturn.Text = this.Power.ToString();
+            textBox_DisplayTempReturn.Text = this.TempReturn.ToString();
+
+            calculateFlow(Power, TempSupply, TempReturn);
         }
-
+        private void calculateFlow(double power, double tF, double tR)
+        {
+            CalcPressureLoss.currentFlow = CalcFlow.calculateFlow(power, tF, tR);
+            textBox_DisplayFlow.Text = Math.Round(
+                    CalcPressureLoss.currentFlow, 2, MidpointRounding.AwayFromZero)
+                .ToString();
+                //.ToString("#,##");
+        }
         private double parseNumber(string input)
         {
             double power = 0;
@@ -63,6 +76,11 @@ namespace MEPUtils.PressureLossCalc
                 return power;
             }
             else return 0;
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }
