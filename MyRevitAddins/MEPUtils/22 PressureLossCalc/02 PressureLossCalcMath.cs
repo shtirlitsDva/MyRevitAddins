@@ -32,9 +32,9 @@ namespace MEPUtils.PressureLossCalc
         /// <returns>Pressure loss in Pa/m.</returns>
         public static double CalculatePressureLoss()
         {
-            double previousLHS;
+            double previousRHS;
             double LHS = 0.3;
-            double RHS;
+            double RHS = 1000.0;
 
             bool run = true;
 
@@ -42,7 +42,7 @@ namespace MEPUtils.PressureLossCalc
             while (run)
             {
                 count++;
-                previousLHS = LHS;
+                previousRHS = RHS;
 
                 RHS = -2 * Math.Log10(
                 (2.51 / (Reynolds * Math.Sqrt(LHS))) +
@@ -50,12 +50,12 @@ namespace MEPUtils.PressureLossCalc
 
                 LHS = Math.Pow(1 / RHS, 2.0);
 
-                if (Math.Abs(previousLHS - LHS) < 0.000001) run = false;
+                if (Math.Abs(previousRHS - RHS) < 0.000001) run = false;
                 if (count > 10000) run = false;
             }
 
-            //log($"Area: {area}, Flow: {currentFlow}, Hst.hd: {velocity},
-            //Re: {Reynolds}, Count: {count}, LHS: {LHS}, RHS: {RHS}");
+            //log($"Area: {area}, Flow: {currentFlow}, Hst.hd: {velocity}, Re: {Reynolds}," +
+            //    $" Count: {count}, LHS: {LHS}, RHS: {RHS}");
 
             return LHS * Math.Pow(velocity, 2) * waterDensity / (2 * currentInsideDiameter);
         }

@@ -63,15 +63,14 @@ namespace MEPUtils.PressureLossCalc
 
             StringBuilder sb = new StringBuilder();
 
-            var groups = col.GroupBy(
+            var systemGroups = col.GroupBy(
                 x => x.get_Parameter(
                     BuiltInParameter.RBS_DUCT_PIPE_SYSTEM_ABBREVIATION_PARAM)
                 .AsString());
 
-            foreach (var group in groups)
+            foreach (var systemGr in systemGroups)
             {
-                sb.AppendLine(group.Key);
-                var strGroups = group.GroupBy(
+                var strGroups = systemGr.GroupBy(
                     x => x.get_Parameter(parGuid).AsString())
                     .OrderBy(x => x.Key);
 
@@ -81,7 +80,7 @@ namespace MEPUtils.PressureLossCalc
                     el = strGroup.FirstOrDefault(x => x.IsType<Pipe>());
                     if (el == default)
                         throw new Exception(
-                            $"No pipe was found in {group.Key} {strGroup.Key}");
+                            $"No pipe was found in {systemGr.Key} {strGroup.Key}");
 
                     #region Read flow
                     Cons cons = new Cons(el);
@@ -106,9 +105,16 @@ namespace MEPUtils.PressureLossCalc
                         CalcPressureLoss.currentInsideDiameter = iDia;
                         double pLoss = CalcPressureLoss.CalculatePressureLoss();
 
+                        double length = pGroup.Cast<Pipe>().Sum(x => x.Length());
+                        pLoss = pLoss * length;
+
                         sb.AppendLine(
-                            $"{strGroup.Key} - {flow} - {pGroup.Key} - {pLoss}");
+                            $"{systemGr.Key};{strGroup.Key};{flow};{pGroup.Key};{length.ToString("0.00")};{pLoss}");
                     }
+                    #endregion
+
+                    #region Calculate fitings
+
                     #endregion
                 }
             }
