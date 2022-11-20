@@ -9,24 +9,31 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
+using Autodesk.Revit.UI;
+using Autodesk.Revit.DB;
+
 using mySettings = MEPUtils.Properties.Settings;
+using Form = System.Windows.Forms.Form;
 
 namespace MEPUtils.PressureLossCalc
 {
     public partial class PressureLossCalcForm : Form
     {
+        Document doc { get; set; }
         double TempSupply { get; set; }
         double TempReturn { get; set; }
         double Power { get; set; }
         private CultureInfo culture = CultureInfo.CreateSpecificCulture("da-DK");
 
-        public PressureLossCalcForm()
+        public PressureLossCalcForm(ExternalCommandData externalCommandData)
         {
             InitializeComponent();
 
             textBox_InputPower.Text = mySettings.Default.InputPowerText;
             textBox_InputTempSupply.Text = mySettings.Default.InputTempSupplyText;
             textBox_InputTempReturn.Text = mySettings.Default.InputTempReturnText;
+
+            this.doc = externalCommandData.Application.ActiveUIDocument.Document;
         }
 
         private void textBox_PowerInput_TextChanged(object sender, EventArgs e)
@@ -80,7 +87,7 @@ namespace MEPUtils.PressureLossCalc
 
         private void button1_Click(object sender, EventArgs e)
         {
-
+            RevitInteraction.PrintSegmentInfo(this.doc);
         }
     }
 }

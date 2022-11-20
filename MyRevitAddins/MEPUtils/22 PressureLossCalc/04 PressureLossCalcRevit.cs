@@ -1,29 +1,53 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using Autodesk.Revit.DB;
+﻿using Autodesk.Revit.DB;
+using Autodesk.Revit.DB.Plumbing;
+using Autodesk.Revit.DB.Structure;
+using Autodesk.Revit.DB.Mechanical;
 using Autodesk.Revit.UI;
 using Autodesk.Revit.UI.Selection;
-using static Shared.Filter;
+using MEPUtils.SharedStaging;
+using Microsoft.WindowsAPICodePack.Dialogs;
+using MoreLinq;
+using Shared;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Json;
+using System.Text;
+using System.Windows.Input;
+using dbg = Shared.Dbg;
+using fi = Shared.Filter;
+using lad = MEPUtils.CreateInstrumentation.ListsAndDicts;
+using mp = Shared.MepUtils;
+using tr = Shared.Transformation;
+using System.Globalization;
 
 namespace MEPUtils.PressureLossCalc
 {
     public static class RevitInteraction
     {
-        public static void PrintSegmentInfo(ExternalCommandData cData)
+        private static CultureInfo culture = CultureInfo.CreateSpecificCulture("da-DK");
+
+        public static void PrintSegmentInfo(Document doc)
         {
-            UIApplication uiApp = cData.Application;
-            Document doc = cData.Application.ActiveUIDocument.Document;
-            UIDocument uidoc = uiApp.ActiveUIDocument;
+            culture.NumberFormat.NumberDecimalDigits = 2;
 
             Guid parGuid = new Guid("6180df8e-5a26-41ce-94ca-4b1933f4a60e");
             SharedParameterElement spe = SharedParameterElement.Lookup(doc, parGuid);
 
-            FilterRule fr = ParameterFilterRuleFactory.CreateHasValueParameterRule(spe.Id);
-            ElementParameterFilter epf = new ElementParameterFilter(fr);
+            FilterRule frHasValue = ParameterFilterRuleFactory.CreateHasValueParameterRule(spe.Id);
+            //HasValueParameterRule only returns true if no value has ever been assigned
+            //to the element. If a value has been assigned once, but since
+            //changed to eg. "" then this flag will still be true.
+            //So we have to filter for ""
+            ElementParameterFilter epfHasValue = new ElementParameterFilter(frHasValue);
+
+            //Create rule for ""
+            FilterRule frEmptyString =
+                ParameterFilterRuleFactory.CreateEqualsRule(spe.Id, "");
+            ElementParameterFilter epfEmptyStringInverted =
+                new ElementParameterFilter(frEmptyString, true);
 
             FilteredElementCollector col = new FilteredElementCollector(doc);
             List<BuiltInCategory> cats = new List<BuiltInCategory>()
@@ -34,7 +58,8 @@ namespace MEPUtils.PressureLossCalc
             };
             var emf = new ElementMulticategoryFilter(cats);
 
-            col = col.WherePasses(emf).WherePasses(epf);
+            col = col.WherePasses(emf).WherePasses(epfHasValue)
+                .WherePasses(epfEmptyStringInverted);
 
             StringBuilder sb = new StringBuilder();
 
@@ -50,9 +75,46 @@ namespace MEPUtils.PressureLossCalc
                     x => x.get_Parameter(parGuid).AsString())
                     .OrderBy(x => x.Key);
 
+                foreach (var strGroup in strGroups)
+                {
+                    Element el = default;
+                    el = strGroup.FirstOrDefault(x => x.IsType<Pipe>());
+                    if (el == default)
+                        throw new Exception(
+                            $"No pipe was found in {group.Key} {strGroup.Key}");
 
+                    #region Read flow
+                    Cons cons = new Cons(el);
+
+                    double flow = cons.Primary.Flow
+                        .CubicFtPrSecToCubicMtrPrHour();
+                    CalcPressureLoss.currentFlow = flow;
+                    #endregion
+
+                    #region Calculate pipes
+                    var pipeQuery = strGroup
+                        .Where(x => x.IsType<Pipe>())
+                        .Cast<Pipe>()
+                        .GroupBy(x => (int)x.Diameter.FtToMm().Round());
+
+                    foreach (var pGroup in pipeQuery)
+                    {
+                        Pipe pipe = pGroup.FirstOrDefault();
+                        double iDia = pipe
+                            .get_Parameter(BuiltInParameter.RBS_PIPE_INNER_DIAM_PARAM)
+                            .AsDouble().FtToMtrs();
+                        CalcPressureLoss.currentInsideDiameter = iDia;
+                        double pLoss = CalcPressureLoss.CalculatePressureLoss();
+
+                        sb.AppendLine(
+                            $"{strGroup.Key} - {flow} - {pGroup.Key} - {pLoss}");
+                    }
+                    #endregion
+                }
             }
-
+            Output.WriteDebugFile(
+                @"X:\AutoCAD DRI - Revit\Addins\Pressure Loss\info.txt",
+                sb);
         }
     }
 }

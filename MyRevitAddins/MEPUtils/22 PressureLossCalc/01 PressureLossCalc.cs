@@ -49,7 +49,7 @@ namespace MEPUtils.PressureLossCalc
 
                     tx.Start("Pressure calc");
 
-                    PressureLossCalcForm plcf = new PressureLossCalcForm();
+                    PressureLossCalcForm plcf = new PressureLossCalcForm(commandData);
                     plcf.ShowDialog();
 
                     tx.Commit();
