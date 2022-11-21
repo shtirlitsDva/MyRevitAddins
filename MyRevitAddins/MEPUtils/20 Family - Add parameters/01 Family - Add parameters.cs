@@ -60,7 +60,10 @@ namespace MEPUtils.FamilyTools.AddParameters
                         ("900 SCHEDULE", "DRI.Management.Schedule Tryktrin"),
                         ("900 SCHEDULE", "DRI.Management.Schedule Fabrikat"),
                         ("900 SCHEDULE", "DRI.Management.Schedule Produkt"),
-                        ("100 MECHANICAL", "Component Name")
+                        ("100 MECHANICAL", "Component Name"),
+                        ("100 MECHANICAL", "Component Class1"),
+                        ("100 MECHANICAL", "Component Class2"),
+                        ("100 MECHANICAL", "Component Class3"),
                     };
 
                     foreach (var pair in parNamesToAdd)
@@ -70,11 +73,13 @@ namespace MEPUtils.FamilyTools.AddParameters
                         ExternalDefinition def = defs.get_Item(pair.ParName) as ExternalDefinition;
                         try
                         {
+                            var parameter = fm.get_Parameter(pair.ParName);
+                            if (parameter != null) continue;
                             fm.AddParameter(def, BuiltInParameterGroup.PG_IDENTITY_DATA, false);
                         }
-                        catch (Exception)
+                        catch (Exception ex)
                         {
-                            continue;
+                            throw new Exception(ex.Message);
                         }
                     }
 

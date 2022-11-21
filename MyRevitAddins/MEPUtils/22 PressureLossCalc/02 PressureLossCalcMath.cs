@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.UI.Selection;
 
-using static Shared.SimpleLogger;
+//using static Shared.SimpleLogger;
 
 using Shared;
 using System.Linq.Expressions;
