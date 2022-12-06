@@ -69,7 +69,7 @@ namespace MEPUtils
                     foreach (Connector c1 in firstCons) foreach (Connector c2 in secondCons)
                             listToCompare.Add((c1, c2, c1.Origin.DistanceTo(c2.Origin)));
 
-                    var (firstCon, secondCon, Distance) = listToCompare.MinBy(x => x.Distance).FirstOrDefault();
+                    var (firstCon, secondCon, Distance) = listToCompare.MinBy(x => x.Distance);
 
                     using (Transaction tx = new Transaction(doc))
                     {

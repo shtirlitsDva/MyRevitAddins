@@ -342,7 +342,7 @@ namespace MEPUtils.CreateInstrumentation
                 if (result.Item2 > -1e-6) levelsWithDist.Add(result);
             }
 
-            var minimumLevel = levelsWithDist.MinBy(x => x.dist).FirstOrDefault();
+            var minimumLevel = levelsWithDist.MinBy(x => x.dist);
             if (minimumLevel.Equals(default))
             {
                 throw new Exception($"Element {prevElem.Id.ToString()} is below all levels!");
@@ -395,7 +395,7 @@ namespace MEPUtils.CreateInstrumentation
                 if (result.Item2 > -1e-6) levelsWithDist.Add(result);
             }
 
-            var minimumLevel = levelsWithDist.MinBy(x => x.dist).FirstOrDefault();
+            var minimumLevel = levelsWithDist.MinBy(x => x.dist);
             if (minimumLevel.Equals(default))
             {
                 minimumLevel = (levels.FirstOrDefault(), 0);
