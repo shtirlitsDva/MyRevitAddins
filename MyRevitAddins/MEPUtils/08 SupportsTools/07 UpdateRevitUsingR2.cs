@@ -18,6 +18,7 @@ using fi = Shared.Filter;
 using op = Shared.Output;
 using tr = Shared.Transformation;
 using mp = Shared.MepUtils;
+using System.Globalization;
 
 namespace MEPUtils.SupportTools
 {
@@ -42,7 +43,7 @@ namespace MEPUtils.SupportTools
 
                 //Update load
                 List<string> allLoadTags = loadTable.AsEnumerable().Select(
-                                                    x => x[6].ToString()).ToList();
+                                                    x => x["Description"].ToString()).ToList();
 
                 using (Transaction tx = new Transaction(doc))
                 {
@@ -50,6 +51,7 @@ namespace MEPUtils.SupportTools
                     foreach (string tag in allLoadTags)
                     {
                         if (tag.IsNoE()) continue;
+                        if (!tag.Contains("_")) continue;
                         string[] tagParts = tag.Split('_');
 
                         #region Collect elements
@@ -91,10 +93,12 @@ namespace MEPUtils.SupportTools
                             continue;
                         }
                         string rawValue = DataHandler
-                            .ReadStringParameterFromDataTable(tag, loadTable, "HQ [N]", 6);
+                            .ReadStringParameterFromDataTable(
+                            tag, loadTable, "QZ [N]", loadTable.Columns["Description"].Ordinal);
                         if (rawValue.Contains(",")) rawValue = rawValue.Replace(",", ".");
                         //rawValue is in N
-                        double parsedValue = Math.Abs(double.Parse(rawValue)) / 1000;
+                        double parsedValue = Math.Abs(
+                            double.Parse(rawValue, CultureInfo.InvariantCulture)) / 1000;
                         double convertedValue = UnitUtils.ConvertToInternalUnits(
                             parsedValue, UnitTypeId.Kilonewtons);
                         log.Debug($"{tag} -> {rawValue} : {parsedValue} : {convertedValue}");
@@ -105,7 +109,8 @@ namespace MEPUtils.SupportTools
             }
             catch (Exception ex)
             {
-                throw new Exception(ex.Message);
+                log.Error(ex.ToString());
+                throw new Exception(ex.ToString());
                 //return Result.Failed;
             }
         }

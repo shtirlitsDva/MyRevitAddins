@@ -88,10 +88,12 @@ namespace MEPUtils.SupportTools
                     row[1] = tag;
                     row[2] = el.MultipleTypeParameterValuesAsString(doc, new[] { "SpringHanger_Type" });
                     row[3] = DataHandler.ReadStringParameterFromDataTable(
-                                         tag, typeTable, "Type", 4);
+                                         tag, typeTable, "Type",
+                                         typeTable.Columns["Description"].Ordinal);
                     row[4] = el.MultipleInstanceParameterValuesAsString(new[] { "Belastning" });
                     row[5] = DataHandler.ReadStringParameterFromDataTable(
-                                         tag, loadTable, "HQ [N]", 6);
+                                         tag, loadTable, "QZ [N]",
+                                         loadTable.Columns["Description"].Ordinal);
 
                     compareSupports.Rows.Add(row);
                 }
