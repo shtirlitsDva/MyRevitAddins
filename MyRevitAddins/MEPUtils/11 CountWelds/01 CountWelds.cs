@@ -5,8 +5,11 @@ using Autodesk.Revit.UI;
 using Autodesk.Revit.UI.Selection;
 using MEPUtils.SharedStaging;
 using Microsoft.WindowsAPICodePack.Dialogs;
-//using MoreLinq;
+
+using MoreLinq;
 using Shared;
+using Shared.BuildingCoder;
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -172,6 +175,14 @@ namespace MEPUtils.CountWelds
 
                 //Dictionary<string, int> grp = allids.GroupBy(x => x).ToDictionary(g => g.Key, g => g.Count());
 
+                StringBuilder debugSb = new StringBuilder();
+                var typeQuery = csgList.DistinctBy(x => x.connectionType).OrderBy(x => x.connectionType);
+                foreach (var item in typeQuery)
+                {
+                    debugSb.AppendLine(
+                        $"{item.connectionType} - {csgList.Where(x => x.connectionType == item.connectionType).Count()}");
+                }
+                Shared.Output.WriteDebugFile(pathToExport + "\\debugCountWelds.txt", debugSb);
                 #endregion
 
                 //Write serialized data
@@ -253,7 +264,7 @@ namespace MEPUtils.CountWelds
         public string Description = "Not initialized";
         public bool IncludeInCount = false;
         [DataMember]
-        ConnectionType connectionType = 0;
+        public ConnectionType connectionType = 0;
         [DataMember] //More of a debug property
         List<string> ListOfIds = null;
 
@@ -274,6 +285,16 @@ namespace MEPUtils.CountWelds
 
         public void Analyze()
         {
+            //Test to see if all DNs are the same
+            var dnQuery = Connectors.Select(x => (int)(x.Radius * 2).FtToMm().Round());
+            if (dnQuery.Distinct().Count() > 1)
+            {
+                BuildingCoderUtilities.ErrorMsg($"Elements {string.Join(" ,", ListOfIds)} do not have same DN!");
+                throw new Exception(
+                    $"Elements {string.Join(" ,", ListOfIds)} do not have same DN!"
+                    );
+            }
+
             //Determine DN of weld
             Connector sampleCon = Connectors.FirstOrDefault();
             DN = (sampleCon.Radius * 2).FtToMm().Round().ToString("000");

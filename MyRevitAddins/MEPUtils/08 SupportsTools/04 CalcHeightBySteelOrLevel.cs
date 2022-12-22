@@ -158,7 +158,7 @@ namespace MEPUtils.SupportTools
 
                                 //Normalize all level elevations based on the lowest
                                 var query = levels.MinBy(x => x.ProjectElevation);
-                                double lowestElevation = query.FirstOrDefault().ProjectElevation;
+                                double lowestElevation = query.ProjectElevation;
 
                                 List<(Level lvl, double normalizedElevation)> levelsNormalized = 
                                     new List<(Level lvl, double normalizedElevation)>();
