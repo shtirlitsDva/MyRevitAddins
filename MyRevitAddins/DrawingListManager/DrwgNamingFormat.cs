@@ -25,7 +25,25 @@ namespace MEPUtils.DrawingListManager
                 DrwgFileNameFormatDescription = "Andet";
             }
         }
+        public class VeksNyNoRevision : DrwgNamingFormat
+        {
+            public VeksNyNoRevision()
+            {
+                Format = FileNameFormat.VeksNyNoRevision;
+                Regex = new Regex(@"(?<number>\d{3}-\d{2}-\p{L}{3}-\d{3})\s-\s(?<title>.+?)(?<extension>\.[^.]*$)");
+                DrwgFileNameFormatDescription = "VEKS NY U. REV";
+            }
+        }
 
+        public class VeksNyWithRevision : DrwgNamingFormat
+        {
+            public VeksNyWithRevision()
+            {
+                Format = FileNameFormat.VeksNyWithRevision;
+                Regex = new Regex(@"(?<number>\d{3}-\d{2}-\p{L}{3}-\d{3})(?:-)(?<revision>[\p{L}0-9]+)\s-\s(?<title>.+?)(?<extension>\.[^.]*$)");
+                DrwgFileNameFormatDescription = "VEKS NY M. REV";
+            }
+        }
         public class VeksNoRevision : DrwgNamingFormat
         {
             public VeksNoRevision()
@@ -111,6 +129,8 @@ namespace MEPUtils.DrawingListManager
         Other,
         VeksNoRevision,
         VeksWithRevision,
+        VeksNyNoRevision,
+        VeksNyWithRevision,
         DRI_BygNoRevision,
         DRI_BygWithRevision,
         STD_NoRevision,
