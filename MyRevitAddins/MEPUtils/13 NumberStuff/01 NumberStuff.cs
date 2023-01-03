@@ -46,8 +46,11 @@ namespace MEPUtils.NumberStuff
 
             settings = GetNumberStuffSettings(doc);
 
+            ctrl = false;
             NumberStuffForm nsf = new NumberStuffForm(doc, settings);
             nsf.ShowDialog();
+
+            if ((int)Keyboard.Modifiers == 2) ctrl = true;
 
             //If Number button was pushed -- execute numbering
             if (nsf.Result == Result.Succeeded)
@@ -83,13 +86,30 @@ namespace MEPUtils.NumberStuff
 
                         //Number the sorted elements sequentially
                         int startNumber = 1;
+
+                        //TODO: Implement overwrite/keep existing!
+                        //Create a sequence of all TAGs and find missing in sequence.
+
                         foreach (Element e in sortedElements)
                         {
                             Parameter Tag1 = e.get_Parameter(new Guid("a93679f7-ca9e-4a1e-bb44-0d890a5b4ba1"));
                             Parameter Tag2 = e.get_Parameter(new Guid("3b2afba4-447f-422a-8280-fd394718ad4e"));
-                            Tag1.Set(group.Key);
-                            Tag2.Set(startNumber.ToString("D" + nrOfDigits.ToString()));
-                            startNumber++;
+
+                            string value1 = Tag1.AsString();
+                            string value2 = Tag2.AsString();
+
+                            if (!ctrl) //If CONTROL is not pressed, do not overwrite
+                            {
+                                throw new NotImplementedException("\"DO NOT OVERWRITE\" mode is not implemented!");
+                            }
+                            else //Else overwrite
+                            {
+                                Tag1.Set(group.Key);
+                                Tag2.Set(startNumber.ToString("D" + nrOfDigits.ToString()));
+                                startNumber++;
+                            }
+
+
                         }
                     }
                     tx.Commit();
