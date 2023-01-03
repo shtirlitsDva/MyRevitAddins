@@ -53,7 +53,8 @@ namespace MEPUtils.DrawingListManager
         private void button1_Click(object sender, EventArgs e)
         {
             CommonOpenFileDialog dialog = new CommonOpenFileDialog(); //https://stackoverflow.com/a/41511598/6073998
-            if (string.IsNullOrEmpty(pathToDwgFolder)) dialog.InitialDirectory = Environment.ExpandEnvironmentVariables("%userprofile%");
+            if (string.IsNullOrEmpty(pathToDwgFolder)) dialog.InitialDirectory = 
+                    Environment.ExpandEnvironmentVariables("%userprofile%");
             else dialog.InitialDirectory = pathToDwgFolder;
             dialog.IsFolderPicker = true;
             if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
@@ -137,7 +138,8 @@ namespace MEPUtils.DrawingListManager
         private void button5_Click(object sender, EventArgs e)
         {
             CommonOpenFileDialog dialog = new CommonOpenFileDialog(); //https://stackoverflow.com/a/41511598/6073998
-            if (string.IsNullOrEmpty(pathToStagingFolder)) dialog.InitialDirectory = Environment.ExpandEnvironmentVariables("%userprofile%");
+            if (string.IsNullOrEmpty(pathToStagingFolder)) dialog.InitialDirectory = 
+                    Environment.ExpandEnvironmentVariables("%userprofile%");
             else dialog.InitialDirectory = pathToStagingFolder;
             dialog.IsFolderPicker = true;
             if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
