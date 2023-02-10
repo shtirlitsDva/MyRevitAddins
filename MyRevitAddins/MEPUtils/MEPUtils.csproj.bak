@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -59,19 +59,16 @@
     <Reference Include="Microsoft.WindowsAPICodePack.ShellExtensions, Version=1.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\WindowsAPICodePack.1.1.2\lib\Microsoft.WindowsAPICodePack.ShellExtensions.dll</HintPath>
     </Reference>
-    <Reference Include="MoreLinq, Version=3.3.2.0, Culture=neutral, PublicKeyToken=384d532d7e88985d, processorArchitecture=MSIL">
-      <HintPath>..\packages\morelinq.3.3.2\lib\net451\MoreLinq.dll</HintPath>
-    </Reference>
     <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
       <HintPath>..\packages\NLog.4.7.11\lib\net45\NLog.dll</HintPath>
     </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="RevitAPI">
-      <HintPath>G:\Revit SDK\2022\RevitAPI.dll</HintPath>
+      <HintPath>X:\RevitApi\RevitAPI.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="RevitAPIUI">
-      <HintPath>G:\Revit SDK\2022\RevitAPIUI.dll</HintPath>
+      <HintPath>X:\RevitApi\RevitAPIUI.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="System" />
@@ -217,7 +214,18 @@
     <Compile Include="18 Treeview test\Treeview test.Designer.cs">
       <DependentUpon>Treeview test.cs</DependentUpon>
     </Compile>
+    <Compile Include="22 PressureLossCalc\01 PressureLossCalc.cs" />
+    <Compile Include="22 PressureLossCalc\04 PressureLossCalcRevit.cs" />
+    <Compile Include="22 PressureLossCalc\02 PressureLossCalcMath.cs" />
+    <Compile Include="22 PressureLossCalc\03 PressureLossCalcForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="22 PressureLossCalc\03 PressureLossCalcForm.Designer.cs">
+      <DependentUpon>03 PressureLossCalcForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="MEPUtilsClass.cs" />
+    <Compile Include="MoreLinq\MoreEnumerable.DistinctBy.cs" />
+    <Compile Include="MoreLinq\MoreEnumerable.MinBy.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="MEPUtils.cs">
       <SubType>Form</SubType>
@@ -280,6 +288,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="18 Treeview test\Treeview test.resx">
       <DependentUpon>Treeview test.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="22 PressureLossCalc\03 PressureLossCalcForm.resx">
+      <DependentUpon>03 PressureLossCalcForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MEPUtils.resx">
       <DependentUpon>MEPUtils.cs</DependentUpon>

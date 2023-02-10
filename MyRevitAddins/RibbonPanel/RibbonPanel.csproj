@@ -66,11 +66,11 @@
     </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="RevitAPI">
-      <HintPath>X:\RevitApi\RevitAPI.dll</HintPath>
+      <HintPath>..\..\..\..\..\RevitAPI\2023\RevitAPI.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="RevitAPIUI">
-      <HintPath>X:\RevitApi\RevitAPIUI.dll</HintPath>
+      <HintPath>..\..\..\..\..\RevitAPI\2023\RevitAPIUI.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="System" />
