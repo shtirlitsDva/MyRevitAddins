@@ -9,9 +9,9 @@
     <VendorDescription>app@mgtek.dk</VendorDescription>
   </AddIn>
   <AddIn Type="Application">
-    <Assembly>D:\GitHub\shtirlitsDva\MyRevitAddins\MyRevitAddins\SetTagsModeless\bin\Release\MEPUtils.SetTagsModeless.dll</Assembly>
+    <Assembly>D:\GitHub\shtirlitsDva\MyRevitAddins\MyRevitAddins\SetTagsModeless\bin\Release\ModelessForms.dll</Assembly>
     <ClientId>1A1D1ECF-9569-4F1C-81EF-52D560369FBE</ClientId>
-    <FullClassName>MEPUtils.SetTagsModeless.Application</FullClassName>
+    <FullClassName>ModelessForms.Application</FullClassName>
     <Name>SetTags</Name>
     <VendorId>MGTek</VendorId>
     <VendorDescription>app@mgtek.dk</VendorDescription>
