@@ -38,7 +38,8 @@ namespace MEPUtils
 
                 //Collect the family symbol of the flange
                 Element familySymbol = 
-                    fi.GetElements<FamilySymbol, BuiltInParameter>(doc, BuiltInParameter.SYMBOL_FAMILY_AND_TYPE_NAMES_PARAM, familyAndTypeName).First();
+                    fi.GetElements<FamilySymbol, BuiltInParameter>(
+                        doc, BuiltInParameter.SYMBOL_FAMILY_AND_TYPE_NAMES_PARAM, familyAndTypeName).First();
 
                 using (Transaction trans = new Transaction(doc))
                 {
@@ -138,7 +139,8 @@ namespace MEPUtils
                 var pipeType = fi.GetElements<PipeType, BuiltInParameter>(doc, BuiltInParameter.ALL_MODEL_TYPE_NAME, "Stålrør, sømløse").FirstOrDefault();
 
                 //Create new pipe
-                Pipe newPipe = Pipe.Create(doc, pipingSystemTypeId, pipeType.Id, element.LevelId, flangeCons.Secondary.Origin, modCon2.Origin);
+                Pipe newPipe = Pipe.Create(
+                    doc, pipingSystemTypeId, pipeType.Id, element.LevelId, flangeCons.Secondary.Origin, modCon2.Origin);
 
                 //Set pipe diameter
                 Parameter pipeDia = newPipe.get_Parameter(BuiltInParameter.RBS_PIPE_DIAMETER_PARAM);
@@ -162,7 +164,8 @@ namespace MEPUtils
                     if (start.IsConnectedTo(modCon1)) start.DisconnectFrom(modCon1);
 
                     //Move the element to the start of the new flange
-                    ElementTransformUtils.MoveElement(doc, modOwner.Id, flangeCons.Secondary.Origin - flangeCons.Primary.Origin);
+                    ElementTransformUtils.MoveElement(
+                        doc, modOwner.Id, flangeCons.Secondary.Origin - flangeCons.Primary.Origin);
                 }
             }
             else
