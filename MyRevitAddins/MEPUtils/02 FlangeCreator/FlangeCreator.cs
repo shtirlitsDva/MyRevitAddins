@@ -37,13 +37,16 @@ namespace MEPUtils
                 string familyAndTypeName = fcc.flangeName;
 
                 //Collect the family symbol of the flange
-                Element familySymbol = 
+                Element familySymbol =
                     fi.GetElements<FamilySymbol, BuiltInParameter>(
                         doc, BuiltInParameter.SYMBOL_FAMILY_AND_TYPE_NAMES_PARAM, familyAndTypeName).First();
 
                 using (Transaction trans = new Transaction(doc))
                 {
                     trans.Start("Create flanges");
+
+                    if (!((FamilySymbol)familySymbol).IsActive)
+                        ((FamilySymbol)familySymbol).Activate();
 
                     //Process the elements
                     foreach (var id in elemIds)
@@ -77,7 +80,10 @@ namespace MEPUtils
             //TODO: Set correct system type for the new elements
             //Gather the information about the connected elements
             var allRefs = start.AllRefs;
-            Connector modCon1 = (from Connector c in allRefs where !(c.Owner is PipeInsulation) select c).FirstOrDefault();
+            Connector modCon1 = (
+                from Connector c in allRefs
+                where !(c.Owner is PipeInsulation)
+                select c).FirstOrDefault();
 
             //Determine levels
             HashSet<Level> levels = fi.GetElements<Level, BuiltInCategory>(doc, BuiltInCategory.OST_Levels);
@@ -85,7 +91,7 @@ namespace MEPUtils
 
             foreach (Level level in levels)
             {
-                (Level, double) result = (level, start.Origin.Z - level.Elevation);
+                (Level, double) result = (level, start.Origin.Z - level.ProjectElevation);
                 if (result.Item2 > -1e-6) levelsWithDist.Add(result);
             }
 
@@ -96,7 +102,8 @@ namespace MEPUtils
             }
 
             //Create the flange (must be rotated AND moved in place)
-            Element flange = doc.Create.NewFamilyInstance(start.Origin, (FamilySymbol)familySymbol, minimumLevel.lvl,
+            Element flange = doc.Create.NewFamilyInstance(
+                start.Origin, (FamilySymbol)familySymbol, minimumLevel.lvl,
                 StructuralType.NonStructural);
 
             //Set the diameter of the flange
@@ -111,36 +118,38 @@ namespace MEPUtils
 
             //Transform the flange to align with the connector
             RotateElementInPosition(start.Origin, flangeCons.Primary, start, end, flange);
-            
+
             //Move flange to location
             ElementTransformUtils.MoveElement(doc, flange.Id, start.Origin - flangeCons.Primary.Origin);
 
             //Retrieve host element systemTypeId
             var pipingSystemTypeParameter = element.get_Parameter(BuiltInParameter.RBS_PIPING_SYSTEM_TYPE_PARAM);
             var pipingSystemTypeId = pipingSystemTypeParameter.AsElementId();
-            
+
             //Retrieve owner of the connected connector
             var modOwner = modCon1?.Owner;
             //If no connected elements, then return
             if (modOwner == null) return;
-            
+
             //Case: Connected to Pipe
-            if (modOwner is Pipe)
+            if (modOwner is Pipe pipe)
             {
                 Connector modCon2 =
-                (from Connector c in ((Pipe) modCon1.Owner).ConnectorManager.Connectors //End of the host/dummy pipe
-                    where c.Id != modCon1.Id && (int) c.ConnectorType == 1
-                    select c).FirstOrDefault();
+                (from Connector c in ((Pipe)modCon1.Owner).ConnectorManager.Connectors //End of the host/dummy pipe
+                 where c.Id != modCon1.Id && (int)c.ConnectorType == 1
+                 select c).FirstOrDefault();
 
                 //Get the typeId of most used pipeType
                 //var filter = fi.ParameterValueFilter("Stålrør, sømløse", BuiltInParameter.ALL_MODEL_TYPE_NAME);
                 //FilteredElementCollector col = new FilteredElementCollector(doc);
                 //var pipeType = col.OfClass(typeof(PipeType)).WherePasses(filter).FirstElement();
-                var pipeType = fi.GetElements<PipeType, BuiltInParameter>(doc, BuiltInParameter.ALL_MODEL_TYPE_NAME, "Stålrør, sømløse").FirstOrDefault();
+                //var pipeType = fi.GetElements<PipeType, BuiltInParameter>(
+                //    doc, BuiltInParameter.ALL_MODEL_TYPE_NAME, "Stålrør, sømløse").FirstOrDefault();
 
                 //Create new pipe
                 Pipe newPipe = Pipe.Create(
-                    doc, pipingSystemTypeId, pipeType.Id, element.LevelId, flangeCons.Secondary.Origin, modCon2.Origin);
+                    doc, pipingSystemTypeId, pipe.PipeType.Id, 
+                    element.LevelId, flangeCons.Secondary.Origin, modCon2.Origin);
 
                 //Set pipe diameter
                 Parameter pipeDia = newPipe.get_Parameter(BuiltInParameter.RBS_PIPE_DIAMETER_PARAM);
@@ -176,7 +185,7 @@ namespace MEPUtils
                 //this do nothing else is fixing the behaviour
                 //TODO: Find out why the piping system get assigned to modOwner
                 //ut.ErrorMsg(modOwner.Name);
-                
+
                 //2017.09.05
                 //Seems that allRefs contains now an additional connector with PipeInsulation as owner! Why??
                 //Maybe this was as expected, but I failed to notice it before.
