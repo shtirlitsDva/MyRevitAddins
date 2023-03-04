@@ -67,11 +67,11 @@
       <HintPath>..\packages\PDFsharp.1.50.5147\lib\net20\PdfSharp.Charting.dll</HintPath>
     </Reference>
     <Reference Include="RevitAPI">
-      <HintPath>..\..\..\..\..\RevitAPI\2023\RevitAPI.dll</HintPath>
+      <HintPath>X:\Revit SDK\2023\RevitAPI.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="RevitAPIUI">
-      <HintPath>..\..\..\..\..\RevitAPI\2023\RevitAPIUI.dll</HintPath>
+      <HintPath>X:\Revit SDK\2023\RevitAPIUI.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="System" />
