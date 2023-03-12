@@ -52,6 +52,8 @@ namespace ModelessForms
         private MEPUtilsChooser m_MepUtilsForm;
         // ModelessSearchAndSelect instance
         private SearchAndSelect.SnS m_SearchAndSelect;
+        // GeometryValidator instance
+        private GeometryValidator.GeometryValidatorForm m_GeometryValidatorForm;
         //Modeless payload
         public IAsyncCommand asyncCommand;
 
@@ -63,6 +65,9 @@ namespace ModelessForms
         public Result OnShutdown(UIControlledApplication application)
         {
             if (m_TagsForm != null && m_TagsForm.Visible) m_TagsForm.Close();
+            if (m_MepUtilsForm != null && m_MepUtilsForm.Visible) m_MepUtilsForm.Close();
+            if (m_SearchAndSelect != null && m_SearchAndSelect.Visible) m_SearchAndSelect.Close();
+            if (m_GeometryValidatorForm != null && m_GeometryValidatorForm.Visible) m_GeometryValidatorForm.Close();
             return Result.Succeeded;
         }
 
@@ -75,6 +80,9 @@ namespace ModelessForms
         {
             AddMenu(application);
             m_TagsForm = null;   // no dialog needed yet; the command will bring it
+            m_MepUtilsForm = null;
+            m_SearchAndSelect = null;
+            m_GeometryValidatorForm = null;
             thisApp = this;  // static access to this application instance
 
             return Result.Succeeded;
@@ -104,6 +112,13 @@ namespace ModelessForms
             data.Image = NewBitmapImage(exe, "ModelessForms.Resources.ImgSnS16.png");
             data.LargeImage = NewBitmapImage(exe, "ModelessForms.Resources.ImgSnS32.png");
             PushButton SnSButoon = rvtRibbonPanel.AddItem(data) as PushButton;
+
+            //ModelessForms.GeometryValidator
+            data = new PushButtonData("Validate Connectors", "VC", ExecutingAssemblyPath, "ModelessForms.VCLauncher");
+            data.ToolTip = "Modeless connector geometry validator";
+            data.Image = NewBitmapImage(exe, "ModelessForms.Resources.ImgGeometryValidator16.png");
+            data.LargeImage = NewBitmapImage(exe, "ModelessForms.Resources.ImgGeometryValidator32.png");
+            PushButton VCButton = rvtRibbonPanel.AddItem(data) as PushButton;
         }
 
         /// <summary>
@@ -173,6 +188,24 @@ namespace ModelessForms
                 m_SearchAndSelect.Show();
             }
         }
+
+        internal void ShowVCForm(UIApplication application)
+        {
+            // If we do not have a dialog yet, create and show it
+            if (m_GeometryValidatorForm  == null || m_GeometryValidatorForm.IsDisposed)
+            {
+                // A new handler to handle request posting by the dialog
+                ExternalEventHandler handler = new ExternalEventHandler(thisApp);
+
+                // External Event for the dialog to use (to post requests)
+                ExternalEvent exEvent = ExternalEvent.Create(handler);
+
+                // We give the objects to the new dialog;
+                // The dialog becomes the owner responsible fore disposing them, eventually.
+                m_GeometryValidatorForm = new GeometryValidator.GeometryValidatorForm(exEvent, handler, thisApp);
+                m_GeometryValidatorForm.Show();
+            }
+        }
     }
 
     [Autodesk.Revit.Attributes.Transaction(Autodesk.Revit.Attributes.TransactionMode.Manual)]
@@ -228,6 +261,27 @@ namespace ModelessForms
             try
             {
                 ModelessForms.Application.thisApp.ShowSnSForm(commandData.Application);
+                return Result.Succeeded;
+            }
+            catch (Exception ex)
+            {
+                message = ex.Message;
+                return Result.Failed;
+            }
+        }
+    }
+
+    [Autodesk.Revit.Attributes.Transaction(Autodesk.Revit.Attributes.TransactionMode.Manual)]
+    [Autodesk.Revit.Attributes.Regeneration(Autodesk.Revit.Attributes.RegenerationOption.Manual)]
+    public class VCLauncher : IExternalCommand
+    {
+
+        public virtual Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
+        {
+
+            try
+            {
+                ModelessForms.Application.thisApp.ShowVCForm(commandData.Application);
                 return Result.Succeeded;
             }
             catch (Exception ex)
