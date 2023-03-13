@@ -246,6 +246,11 @@ namespace ModelessForms
               WinForms.MessageBoxIcon.Error);
         }
 
+        private void SetTagsInterface_Shown(object sender, EventArgs e)
+        {
+            this.TopMost = true;
+        }
+
         ////private void textBox1_TextChanged(object sender, EventArgs e) => DistanceToKeep = textBox1.Text;
 
         //private void InputBoxBasic_FormClosing(object sender, FormClosingEventArgs e)
