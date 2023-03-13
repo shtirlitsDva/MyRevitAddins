@@ -44,7 +44,7 @@ namespace ModelessForms.GeometryValidator
             //Log
             LogManager.Configuration = 
                 new NLog.Config.XmlLoggingConfiguration(
-                    "G:\\Github\\shtirlitsDva\\MyRevitAddins\\MyRevitAddins\\SetTagsModeless\\NLog.config");
+                    "X:\\Github\\shtirlitsDva\\MyRevitAddins\\MyRevitAddins\\SetTagsModeless\\NLog.config");
 
             AsyncGetSystemAbbreviations agsas = new AsyncGetSystemAbbreviations();
             agsas.SysAbbrs = sysAbbrs;

@@ -40,7 +40,7 @@ namespace ModelessForms.GeometryValidator
                     Payload.SystemToValidate).ToHashSet();
 
             //Create collection with distinct connectors with a set tolerance
-            double Tol = 3.0.MmToFt();
+            double Tol = 7.0.MmToFt();
             var DistinctCons = AllCons.ToHashSet(new ConnectorXyzComparer(Tol));
 
             List<connectorSpatialGroup> csgList = new List<connectorSpatialGroup>();
