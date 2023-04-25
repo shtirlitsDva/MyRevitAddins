@@ -3,6 +3,7 @@ using Autodesk.Revit.UI;
 using Autodesk.Revit.UI.Selection;
 using NLog;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Windows.Forms;
@@ -145,6 +146,7 @@ namespace ModelessForms
 
             //Iterate over each column of dgw, only acting on filled out cells for parameter names
             //then filter collector by a elementparameterfilter
+            var dataList = new List<(ElementParameterFilter epf, bool match)>();
             int i = 0;
             foreach (DataGridViewColumn column in Dgw.Columns)
             {
@@ -167,7 +169,7 @@ namespace ModelessForms
                 var parValue = Dgw.Rows[0].Cells[i].Value;
                 if (parValue == null) { i++; log.Info($"parValue -> NULL -> skipping"); continue; }
                 string parValueString = parValue.ToString();
-                if (string.IsNullOrEmpty(parValueString)) { i++; log.Info($"parValueString -> NULL or Empty -> skipping"); continue; }
+                //if (string.IsNullOrEmpty(parValueString)) { i++; log.Info($"parValueString -> NULL or Empty -> skipping"); continue; }
                 log.Info($"Parameter value acquired: {parValueString}");
 
                 ElementParameterFilter epf = ParameterValueGenericFilter(doc, parValueString, parToTest.GUID);
