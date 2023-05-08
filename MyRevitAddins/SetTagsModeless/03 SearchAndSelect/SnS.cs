@@ -41,7 +41,8 @@ namespace ModelessForms.SearchAndSelect
             treeView1.PathSeparator = ".";
 
             //Log
-            LogManager.Configuration = new NLog.Config.XmlLoggingConfiguration("G:\\Github\\shtirlitsDva\\MyRevitAddins\\MyRevitAddins\\SetTagsModeless\\NLog.config");
+            LogManager.Configuration = new NLog.Config.XmlLoggingConfiguration(
+                "X:\\Github\\shtirlitsDva\\MyRevitAddins\\MyRevitAddins\\SetTagsModeless\\NLog.config");
 
             //Setup a rudimentary list with categories
             string[] cats = { "Pipes", "Pipe Fittings", "Pipe Accessories" };

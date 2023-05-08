@@ -32,7 +32,7 @@ namespace ModelessForms.SearchAndSelect
             //Nlog configuration
             var nlogConfig = new NLog.Config.LoggingConfiguration();
             //Targets
-            var logfile = new NLog.Targets.FileTarget("logfile") { FileName = "g:\\log.txt", DeleteOldFileOnStartup = true };
+            var logfile = new NLog.Targets.FileTarget("logfile") { FileName = "X:\\GitHub\\log.txt", DeleteOldFileOnStartup = true };
             //Rules
             nlogConfig.AddRule(LogLevel.Info, LogLevel.Fatal, logfile);
             //Apply config
@@ -60,12 +60,12 @@ namespace ModelessForms.SearchAndSelect
                 catFilter.Add(new ElementCategoryFilter(BuiltInCategory.OST_PipeCurves));
 
             col.WherePasses(new LogicalAndFilter(new List<ElementFilter>
-                                                    {new LogicalOrFilter(catFilter),
-                                                        new LogicalOrFilter(new List<ElementFilter>
-                                                        {
-                                                            new ElementClassFilter(typeof(Pipe)),
-                                                            new ElementClassFilter(typeof(FamilyInstance))
-                                                        })}));
+            {new LogicalOrFilter(catFilter),
+                new LogicalOrFilter(new List<ElementFilter>
+                {
+                    new ElementClassFilter(typeof(Pipe)),
+                    new ElementClassFilter(typeof(FamilyInstance))
+                })}));
 
             //selection.SetElementIds(col.ToElementIds());
 
@@ -116,7 +116,7 @@ namespace ModelessForms.SearchAndSelect
                                 setToAdd.Add(new ParameterImpression(p));
                             }
                         }
-                    } 
+                    }
                 }
 
                 //Local function to return correct category
