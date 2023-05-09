@@ -30,7 +30,7 @@ namespace ModelessForms.SearchAndSelect
 
             //Log
             LogManager.Configuration = new NLog.Config.XmlLoggingConfiguration(
-                "G:\\Github\\shtirlitsDva\\MyRevitAddins\\MyRevitAddins\\SetTagsModeless\\NLog.config");
+                "X:\\Github\\shtirlitsDva\\MyRevitAddins\\MyRevitAddins\\SetTagsModeless\\NLog.config");
 
             BindingList<ParameterImpression> BuiltInParameters = new BindingList<ParameterImpression>
                 (allParametersList.Where(x => x.IsBuiltIn == true).OrderBy(x => x.Name).ToList());
