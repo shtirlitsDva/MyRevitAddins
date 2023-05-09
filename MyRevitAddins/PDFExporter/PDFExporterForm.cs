@@ -168,15 +168,17 @@ namespace PDFExporter
                     foreach (ViewSheet vs in sheetSet.Views) viewSheetList.Add(vs);
                 }
 
-                FilteredElementCollector colPs = new FilteredElementCollector(doc);
-                var printSettings = colPs.OfClass(typeof(PrintSetting)).Cast<PrintSetting>().ToHashSet();
+                #region Old
+                //FilteredElementCollector colPs = new FilteredElementCollector(doc);
+                //var printSettings = colPs.OfClass(typeof(PrintSetting)).Cast<PrintSetting>().ToHashSet();
 
-                PrintManager pm = doc.PrintManager;
-                PrintSetup ps = pm.PrintSetup;
-                pm.SelectNewPrintDriver("Bluebeam PDF");
-                pm = doc.PrintManager;
-                ps = pm.PrintSetup;
-                var paperSizes = pm.PaperSizes;
+                //PrintManager pm = doc.PrintManager;
+                //PrintSetup ps = pm.PrintSetup;
+                //pm.SelectNewPrintDriver("Bluebeam PDF");
+                //pm = doc.PrintManager;
+                //ps = pm.PrintSetup;
+                //var paperSizes = pm.PaperSizes; 
+                #endregion
 
                 string title = doc.Title; //<- THIS CAN CAUSE PROBLEMS RECOGNISING THE ORIGINAL FILE NAME
 
@@ -230,11 +232,12 @@ namespace PDFExporter
                         else fileName.Scale = curScalePar.AsString().Replace(" ", "");
                     }
 
-                    Parameter sorting1Par = sheet.LookupParameter("RDK-COM-SHT-SORTING_1");
-                    string sorting1 = sorting1Par.AsString();
-                    Parameter sorting2Par = sheet.LookupParameter("RDK-COM-SHT-SORTING_2");
-                    string sorting2 = sorting2Par.AsString();
-                    fileName.DrawingListCategory = sorting1 + " - " + sorting2;
+                    //Look at this later
+                    //Parameter sorting1Par = sheet.LookupParameter("RDK-COM-SHT-SORTING_1");
+                    //string sorting1 = sorting1Par.AsString();
+                    //Parameter sorting2Par = sheet.LookupParameter("RDK-COM-SHT-SORTING_2");
+                    //string sorting2 = sorting2Par.AsString();
+                    //fileName.DrawingListCategory = sorting1 + " - " + sorting2;
 
                     fileName.GenerateFileName();
 
@@ -243,18 +246,20 @@ namespace PDFExporter
                     fileName.DwfFileName = pathToExport + "DWF\\" + 
                         (fileName.FileName.Remove(fileName.FileName.Length - 3)) + "dwf";
 
-                    string printfilename = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "\\" + fileName.FileName; //Used to satisfy bluebeam
+                    string printfilename = Environment.GetFolderPath(
+                        Environment.SpecialFolder.MyDocuments) + "\\" + fileName.FileName; //Used to satisfy bluebeam
                     //fileNamesSource.Add(printfilename);
 
                     //string defaultFileName = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)
                     //    + "\\" + title + " - Sheet - " + sheet.SheetNumber + " - " + sheet.Name + ".pdf";
                     //fileNamesDefault.Add(defaultFileName);
 
-                    pm.PrintToFileName = printfilename;
+                    //pm.PrintToFileName = printfilename;
                     #endregion
 
                     FamilyInstance titleBlock =
-                        fi.GetElements<FamilyInstance, BuiltInParameter>(doc, BuiltInParameter.SHEET_NUMBER, sheet.SheetNumber).FirstOrDefault();
+                        fi.GetElements<FamilyInstance, BuiltInParameter>(
+                            doc, BuiltInParameter.SHEET_NUMBER, sheet.SheetNumber).FirstOrDefault();
 
                     var widthPar = titleBlock.get_Parameter(BuiltInParameter.SHEET_WIDTH);
                     var width = Convert.ToInt32(widthPar.AsDouble().FtToMm().Round(0));
@@ -264,21 +269,30 @@ namespace PDFExporter
 
                     var nameOfPaperSize = paperSizeDict[height][width];
 
-                    var printSetting = (from PrintSetting pSetting in printSettings
-                                        where pSetting.Name == nameOfPaperSize
-                                        select pSetting).FirstOrDefault();
+                    PDFExportOptions options = new PDFExportOptions();
+                    options.PaperFormat = ExportPaperFormat.Default;
+                    options.ZoomType = ZoomType.Zoom;
+                    options.ZoomPercentage = 100;
+                    options.PaperPlacement = PaperPlacementType.Center;
+                    options.PaperOrientation = PageOrientationType.Landscape;
+                    options.Combine = true;
+                    options.FileName = fileName.FileName;
 
-                    ps.CurrentPrintSetting = printSetting ?? throw new Exception($"{sheet.Name} does not have a print setting!");
+                    doc.Export(pathToExport, new List<ElementId>() { sheet.Id }, options);
 
-                    pm.Apply();
+                    //var printSetting = (from PrintSetting pSetting in printSettings
+                    //                    where pSetting.Name == nameOfPaperSize
+                    //                    select pSetting).FirstOrDefault();
+
+                    //ps.CurrentPrintSetting = printSetting ?? throw new Exception($"{sheet.Name} does not have a print setting!");
+
+                    //pm.Apply();
 
                     //Feedback
                     sheetCount++;
                     textBox8.Text = "Sending " + sheetCount;
 
-
-
-                    pm.SubmitPrint(sheet);
+                    //pm.SubmitPrint(sheet);
 
                     //Also export to DWF
                     DWFExportOptions dwfOptions = new DWFExportOptions();
