@@ -30,7 +30,7 @@ namespace MEPUtils.DrawingListManager
             public VeksNyNoRevision()
             {
                 Format = FileNameFormat.VeksNyNoRevision;
-                Regex = new Regex(@"(?<number>\d{3}-\d{2}-\p{L}{3}-\d{3})\s-\s(?<title>.+?)(?<extension>\.[^.]{4,5}$)");
+                Regex = new Regex(@"(?<number>\d{3}-\d{2}-\p{L}{3}-\d{3})\s-\s(?<title>.+?)(?:\.)(?<extension>[^.]{2,5}$)");
                 DrwgFileNameFormatDescription = "VEKS NY U. REV";
             }
         }
@@ -40,7 +40,7 @@ namespace MEPUtils.DrawingListManager
             public VeksNyWithRevision()
             {
                 Format = FileNameFormat.VeksNyWithRevision;
-                Regex = new Regex(@"(?<number>\d{3}-\d{2}-\p{L}{3}-\d{3})(?:-)(?<revision>[\p{L}0-9]+)\s-\s(?<title>.+?)(?<extension>\.[^.]{4,5}$)");
+                Regex = new Regex(@"(?<number>\d{3}-\d{2}-\p{L}{3}-\d{3})(?:-)(?<revision>[\p{L}0-9]+)\s-\s(?<title>.+?)(?:\.)(?<extension>[^.]{2,5}$)");
                 DrwgFileNameFormatDescription = "VEKS NY M. REV";
             }
         }
