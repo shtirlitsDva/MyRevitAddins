@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29009.5
+# Visual Studio Version 17
+VisualStudioVersion = 17.6.33717.318
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RibbonPanel", "RibbonPanel\RibbonPanel.csproj", "{54CE8CFC-0BE2-40BF-8C60-E732FCF5A896}"
 EndProject
@@ -20,6 +20,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Data", "Data\Data.csproj", "{0E0A3BB8-97F4-4659-A681-E744DA2457E6}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestConsoleApp", "TestConsoleApp\TestConsoleApp.csproj", "{7DB20DAB-461D-4802-9B92-B6070F46925A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DrawingListManagerV2", "DrawingListManagerV2\DrawingListManagerV2.csproj", "{DE554497-5A0D-4F0E-A5DC-76E4F4C49651}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -140,6 +142,18 @@ Global
 		{7DB20DAB-461D-4802-9B92-B6070F46925A}.Release|Any CPU.Build.0 = Release|Any CPU
 		{7DB20DAB-461D-4802-9B92-B6070F46925A}.Release|x64.ActiveCfg = Release|Any CPU
 		{7DB20DAB-461D-4802-9B92-B6070F46925A}.Release|x64.Build.0 = Release|Any CPU
+		{DE554497-5A0D-4F0E-A5DC-76E4F4C49651}.Debug via Revit Add-In Manager|Any CPU.ActiveCfg = Debug|Any CPU
+		{DE554497-5A0D-4F0E-A5DC-76E4F4C49651}.Debug via Revit Add-In Manager|Any CPU.Build.0 = Debug|Any CPU
+		{DE554497-5A0D-4F0E-A5DC-76E4F4C49651}.Debug via Revit Add-In Manager|x64.ActiveCfg = Debug|Any CPU
+		{DE554497-5A0D-4F0E-A5DC-76E4F4C49651}.Debug via Revit Add-In Manager|x64.Build.0 = Debug|Any CPU
+		{DE554497-5A0D-4F0E-A5DC-76E4F4C49651}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DE554497-5A0D-4F0E-A5DC-76E4F4C49651}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DE554497-5A0D-4F0E-A5DC-76E4F4C49651}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{DE554497-5A0D-4F0E-A5DC-76E4F4C49651}.Debug|x64.Build.0 = Debug|Any CPU
+		{DE554497-5A0D-4F0E-A5DC-76E4F4C49651}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DE554497-5A0D-4F0E-A5DC-76E4F4C49651}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DE554497-5A0D-4F0E-A5DC-76E4F4C49651}.Release|x64.ActiveCfg = Release|Any CPU
+		{DE554497-5A0D-4F0E-A5DC-76E4F4C49651}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
