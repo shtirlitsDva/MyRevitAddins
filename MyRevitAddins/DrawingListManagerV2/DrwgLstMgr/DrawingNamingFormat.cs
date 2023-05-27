@@ -28,7 +28,7 @@ namespace MEPUtils.DrawingListManagerV2
         public Regex Regex { get; private set; }
         public string DrawingFileNameFormatDescription { get; private set; }
         public bool TestFormat(string fileName) => this.Regex.IsMatch(fileName);
-
+        
         /// <summary>
         /// "Other" is an exception and should be handled separately.
         /// </summary>

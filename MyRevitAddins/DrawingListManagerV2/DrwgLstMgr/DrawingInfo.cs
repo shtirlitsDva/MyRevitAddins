@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using MoreLinq;
+//using MoreLinq;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Data;
-using PdfSharp.Pdf;
-using PdfSharp.Pdf.IO;
+using PdfSharpCore.Pdf;
+using PdfSharpCore.Pdf.IO;
+using System.Net;
 
 namespace MEPUtils.DrawingListManagerV2
 {
@@ -43,6 +44,38 @@ namespace MEPUtils.DrawingListManagerV2
 
             Format = result.fnf;
             DrawingNamingFormat = result.dnf;
+
+            switch (drawingType)
+            {
+                case DrawingInfoTypeEnum.Unknown:
+                    throw new Exception(
+                        $"Unknown DrawingInfoTypeEnum encountered for {fileNameWithPath}");
+                case DrawingInfoTypeEnum.Released:
+                case DrawingInfoTypeEnum.Staging:
+                    {
+                        if (DrawingNamingFormat.Format == FileNameFormat.Other)
+                        {
+                            ReleasedData = new Dictionary<DrawingInfoPropsEnum, string>
+                            {
+                                { DrawingInfoPropsEnum.Title, FileName }
+                            };
+                        }
+                        else
+                        {
+                            ReleasedData = FileNameDataReaderService.ReadData(
+                                FileName, DrawingNamingFormat);
+                        }
+                        //Try to read pdf metadata
+
+
+                    }
+                
+                    break;
+                case DrawingInfoTypeEnum.DrawingList:
+                    break;
+                default:
+                    break;
+            }
         }
         private int TestFormatsForMultipleMatches(string fileName)
         {
@@ -59,20 +92,12 @@ namespace MEPUtils.DrawingListManagerV2
             .Where(x => x.TestFormat(fileName)).Select(x => (x.Format, x)).FirstOrDefault();
         internal void ReadDrwgDataFromFileName()
         {
-            if (Dnf.Format == FileNameFormat.Other)
+            if (DrawingNamingFormat.Format == FileNameFormat.Other)
             {
-                DataFromFileName = new DrwgProps.Source_FileName("", Path.GetFileNameWithoutExtension(FileNameWithPath),
-                    Dnf.DrwgFileNameFormatDescription, "", "");
             }
             else
             {
-                Match match = Dnf.Regex.Match(FileName);
-                string number = match.Groups[new Field.Number().RegexName].Value ?? "";
-                string title = match.Groups[new Field.Title().RegexName].Value ?? "";
-                string revision = match.Groups[new Field.Revision().RegexName].Value ?? "";
-                string extension = match.Groups[new Field.Extension().RegexName].Value ?? "";
-                DataFromFileName = new DrwgProps.Source_FileName(
-                    number, title, Dnf.DrwgFileNameFormatDescription, revision, extension);
+                
             }
         }
         
@@ -82,7 +107,7 @@ namespace MEPUtils.DrawingListManagerV2
     {
         Unknown,
         Number,
-        Name,
+        Title,
         Revision,
         Scale,
         Date,

@@ -18,6 +18,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="PdfSharpCoreSignature" Version="1.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Compile Update="DrawingListManagerForm.cs">
       <SubType>Form</SubType>
     </Compile>
