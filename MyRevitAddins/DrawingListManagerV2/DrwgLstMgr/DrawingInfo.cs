@@ -10,7 +10,7 @@ using PdfSharp.Pdf.IO;
 
 namespace MEPUtils.DrawingListManagerV2
 {
-    public class Drwg
+    public class DrawingInfo
     {
         #region Fields
         public string FileNameWithPath { get; set; }
@@ -34,11 +34,11 @@ namespace MEPUtils.DrawingListManagerV2
         #endregion
 
         internal List<DrwgNamingFormat> NamingFormats;
-        public Drwg()
+        public DrawingInfo()
         {
             Id = Guid.NewGuid(); //Fields = new Field.Fields();
         }
-        public Drwg(string fileNameWithPath) : this()
+        public DrawingInfo(string fileNameWithPath) : this()
         {
             NamingFormats = new DrwgNamingFormat().GetDrwgNamingFormatListExceptOther();
 
@@ -340,5 +340,16 @@ namespace MEPUtils.DrawingListManagerV2
                     DataFromFileName.Revision.Value, DataFromFileName.Extension.Value);
             }
         }
+    }
+
+    public enum DrawingPropsEnum
+    {
+        Unknown,
+        Number,
+        Name,
+        Revision,
+        Scale,
+        Date,
+        RevisionDate
     }
 }

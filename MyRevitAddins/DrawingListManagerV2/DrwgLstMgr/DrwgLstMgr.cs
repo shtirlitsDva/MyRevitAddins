@@ -8,7 +8,7 @@ namespace MEPUtils.DrawingListManagerV2
 {
     internal class DrwgLstMgr
     {
-        private HashSet<Drwg> drwgs;
+        private HashSet<DrawingInfo> drwgs;
 
         internal void Reset()
         {
