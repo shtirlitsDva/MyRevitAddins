@@ -16,15 +16,14 @@ namespace MEPUtils.DrawingListManagerV2
 {
     public partial class DrawingListManagerForm : Form
     {
-        private string pathToDwgFolder = string.Empty;
+        private string pathToReleasedFolder = string.Empty;
         private string pathToDwgList = string.Empty;
         private string pathToStagingFolder = string.Empty;
-        private DrwgLstMgr dlm;
         
         public DrawingListManagerForm()
         {
             InitializeComponent();
-            pathToDwgFolder = mySettings.Default.PathToDwgFolder;
+            pathToReleasedFolder = mySettings.Default.PathToDwgFolder;
             pathToDwgList = mySettings.Default.PathToDwgList;
             pathToStagingFolder = mySettings.Default.PathToStagingFolder;
             dGV1.DefaultCellStyle.BackColor = DefaultBackColor;
@@ -33,18 +32,15 @@ namespace MEPUtils.DrawingListManagerV2
             textBox12.Visible = false;
             button6.Visible = false;
 
-            if (pathToDwgFolder.IsNotNoE() && Directory.Exists(pathToDwgFolder))
+            if (pathToReleasedFolder.IsNotNoE() && Directory.Exists(pathToReleasedFolder))
                 textBox3.Text =
                     Directory.EnumerateFiles(
-                        pathToDwgFolder, "*.pdf", SearchOption.TopDirectoryOnly).Count().ToString();
+                        pathToReleasedFolder, "*.pdf", SearchOption.TopDirectoryOnly).Count().ToString();
 
             if (pathToStagingFolder.IsNotNoE() && Directory.Exists(pathToStagingFolder))
                 textBox11.Text =
                     Directory.EnumerateFiles(
                         pathToStagingFolder, "*.pdf", SearchOption.TopDirectoryOnly).Count().ToString();
-
-            //Init DrwgLstMgr
-            dlm = new DrwgLstMgr();
         }
 
         #region Buttons
@@ -54,18 +50,18 @@ namespace MEPUtils.DrawingListManagerV2
         private void button1_Click(object sender, EventArgs e)
         {
             FolderSelectDialog dialog = new FolderSelectDialog();
-            if (string.IsNullOrEmpty(pathToDwgFolder)) dialog.InitialDirectory =
+            if (string.IsNullOrEmpty(pathToReleasedFolder)) dialog.InitialDirectory =
                     Environment.ExpandEnvironmentVariables("%userprofile%");
-            else dialog.InitialDirectory = pathToDwgFolder;
+            else dialog.InitialDirectory = pathToReleasedFolder;
             if (dialog.ShowDialog(IntPtr.Zero))
             {
-                pathToDwgFolder = dialog.FileName + "\\";
-                mySettings.Default.PathToDwgFolder = pathToDwgFolder;
-                textBox2.Text = pathToDwgFolder;
-                if (pathToDwgFolder.IsNotNoE() && Directory.Exists(pathToDwgFolder))
+                pathToReleasedFolder = dialog.FileName + "\\";
+                mySettings.Default.PathToDwgFolder = pathToReleasedFolder;
+                textBox2.Text = pathToReleasedFolder;
+                if (pathToReleasedFolder.IsNotNoE() && Directory.Exists(pathToReleasedFolder))
                     textBox3.Text =
                         Directory.EnumerateFiles(
-                            pathToDwgFolder, "*.pdf", SearchOption.TopDirectoryOnly).Count().ToString();
+                            pathToReleasedFolder, "*.pdf", SearchOption.TopDirectoryOnly).Count().ToString();
             }
         }
 
@@ -122,13 +118,11 @@ namespace MEPUtils.DrawingListManagerV2
             dGV1.DataSource = null;
             dGV1.Refresh();
 
-            dlm.Reset();
+            var fileService = new FileService();
 
-            //dlm.ResetDgv(); //Clear dataTables so they won't show double
-            //ms.ExecuteMainSequence(dlm, dGV1, pathToDwgFolder, pathToDwgList, pathToStagingFolder);
-
-            //this.Close();
-            //TODO: implement case where drwg only exists in excel
+            List<DrawingInfo> releasedDrawings =
+                fileService.GetDrawingInfosFromDirectory(
+                    pathToReleasedFolder, DrawingInfoTypeEnum.Released);
         }
 
         /// <summary>
