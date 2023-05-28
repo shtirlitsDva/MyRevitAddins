@@ -21,11 +21,11 @@ namespace MEPUtils.DrawingListManagerV2
 
         FileNameFormat Format;
         DrawingNamingFormat DrawingNamingFormat;
-
-        private Dictionary<DrawingInfoPropsEnum, string> ReleasedData;
-        private Dictionary<DrawingInfoPropsEnum, string> StagingData;
-        private Dictionary<DrawingInfoPropsEnum, string> MetaData;
-        private Dictionary<DrawingInfoPropsEnum, string> ExcelData;
+        
+        private Dictionary<DrawingInfoPropsEnum, string> ReleasedData { get; }
+        private Dictionary<DrawingInfoPropsEnum, string> StagingData { get; }
+        private Dictionary<DrawingInfoPropsEnum, string> MetaData { get; }
+        private Dictionary<DrawingInfoPropsEnum, string> ExcelData { get; }
         #endregion
 
         public DrawingInfo(string fileNameWithPath, DrawingInfoTypeEnum drawingType)
@@ -47,11 +47,11 @@ namespace MEPUtils.DrawingListManagerV2
 
             switch (drawingType)
             {
+                default:
                 case DrawingInfoTypeEnum.Unknown:
                     throw new Exception(
                         $"Unknown DrawingInfoTypeEnum encountered for {fileNameWithPath}");
                 case DrawingInfoTypeEnum.Released:
-                case DrawingInfoTypeEnum.Staging:
                     {
                         if (DrawingNamingFormat.Format == FileNameFormat.Other)
                         {
@@ -66,17 +66,40 @@ namespace MEPUtils.DrawingListManagerV2
                                 FileName, DrawingNamingFormat);
                         }
                         //Try to read pdf metadata
-
-
+                        MetaData = MetadataReaderService.ReadData(fileNameWithPath);
                     }
-                
+                    break;
+                case DrawingInfoTypeEnum.Staging:
+                    {
+                        if (DrawingNamingFormat.Format == FileNameFormat.Other)
+                        {
+                            StagingData = new Dictionary<DrawingInfoPropsEnum, string>
+                            {
+                                { DrawingInfoPropsEnum.Title, FileName }
+                            };
+                        }
+                        else
+                        {
+                            StagingData = FileNameDataReaderService.ReadData(
+                                FileName, DrawingNamingFormat);
+                        }
+                        //Try to read pdf metadata
+                        MetaData = MetadataReaderService.ReadData(fileNameWithPath);
+                    }
                     break;
                 case DrawingInfoTypeEnum.DrawingList:
-                    break;
-                default:
-                    break;
+                    {
+                        throw new Exception("Wrong DrawingInfo constructor for Excel Data!");
+                    }
             }
         }
+
+        public DrawingInfo(Dictionary<DrawingInfoPropsEnum, string> dict, DrawingInfoTypeEnum drawingType)
+        {
+            ExcelData = dict;
+            DrawingType = drawingType;
+        }
+
         private int TestFormatsForMultipleMatches(string fileName)
         {
             int count = 0;
@@ -90,17 +113,6 @@ namespace MEPUtils.DrawingListManagerV2
         private (FileNameFormat fnf, DrawingNamingFormat dnf) DetermineFormat(string fileName)
             => DrawingNamingFormatService.GetDrawingNamingFormatsList()
             .Where(x => x.TestFormat(fileName)).Select(x => (x.Format, x)).FirstOrDefault();
-        internal void ReadDrwgDataFromFileName()
-        {
-            if (DrawingNamingFormat.Format == FileNameFormat.Other)
-            {
-            }
-            else
-            {
-                
-            }
-        }
-        
     }
 
     public enum DrawingInfoPropsEnum

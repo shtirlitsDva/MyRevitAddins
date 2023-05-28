@@ -118,11 +118,17 @@ namespace MEPUtils.DrawingListManagerV2
             dGV1.DataSource = null;
             dGV1.Refresh();
 
-            var fileService = new FileService();
-
-            List<DrawingInfo> releasedDrawings =
-                fileService.GetDrawingInfosFromDirectory(
+            var releasedDrawings =
+                FileService.GetDrawingInfosFromDirectory(
                     pathToReleasedFolder, DrawingInfoTypeEnum.Released);
+            var stagingDrawings =
+                FileService.GetDrawingInfosFromDirectory(
+                    pathToStagingFolder, DrawingInfoTypeEnum.Staging);
+            var excelDrawings =
+                ExcelService.GetDrawingInfosFromExcel(
+                    pathToDwgList);
+
+
         }
 
         /// <summary>

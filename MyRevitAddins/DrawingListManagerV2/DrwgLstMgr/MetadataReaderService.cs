@@ -2,35 +2,65 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
+
+using PdfSharpCore.Pdf.IO;
+using PdfSharpCore.Pdf;
 
 namespace MEPUtils.DrawingListManagerV2
 {
     internal static class MetadataReaderService
     {
-        public static Dictionary<DrawingInfoPropsEnum, string> ReadData(
-            string fileName, DrawingNamingFormat namingFormat)
+        public static Dictionary<DrawingInfoPropsEnum, string> ReadData(string fileNameWithPath)
         {
             Dictionary<DrawingInfoPropsEnum, string> dict =
                 new Dictionary<DrawingInfoPropsEnum, string>();
-            
 
+            PdfDocument document = null;
+            bool documentOpened = false;
+            try
+            {
+                if (0 != PdfReader.TestPdfFile(fileNameWithPath))
+                {
+                    document = PdfReader.Open(fileNameWithPath);
+                    documentOpened = true;
+                }
+                else documentOpened = false;
+            }
+            catch (Exception) { documentOpened = false; }
 
-            //Match match = namingFormat.Regex.Match(fileName);
-            //foreach (Group gr in match.Groups)
-            //{
-            //    if (gr.Name.IsNotNoE())
-            //    {
-            //        Field field = new Field.Fields()
-            //            .GetAllFields()
-            //            .Where(x => x.RegexName == gr.Name)
-            //            .FirstOrDefault();
-            //        if (field == default) continue;
+            if (document == null) return null;
 
-            //        dict.Add(field.PropertyName, gr.Value);
-            //    }
-            //}
+            if (documentOpened)
+            {
+                var props = document.Info.Elements;
+                var fields = new Field.Fields().GetAllFields();
+
+                foreach (var field in fields.Where(x => props.ContainsKey("/" + x.MetadataName)))
+                {
+                    string s = props["/"+field.MetadataName].ToString();
+
+                }
+
+                if (fields.Any(x => props.ContainsKey("/" + x.MetadataName)))
+                {
+                    foreach (Field field in fields)
+                    {
+                        if (props.ContainsKey("/" + field.MetadataName))
+                        {
+                            string s = props["/" + field.MetadataName].ToString();
+                            if (s.IsNoE()) continue;
+                            //Substring removes leading and closing parantheses
+                            dict.Add(field.PropertyName, s.Substring(1, s.Length - 2));
+                        }
+                    }
+                }
+                document.Close();
+            }
+            else
+            {
+                return null;
+            }
+            if (dict.Count == 0) return null;
             return dict;
         }
     }

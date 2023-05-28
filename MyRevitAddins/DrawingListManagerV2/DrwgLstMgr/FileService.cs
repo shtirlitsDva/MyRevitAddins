@@ -7,9 +7,9 @@ using System.IO;
 
 namespace MEPUtils.DrawingListManagerV2
 {
-    internal class FileService
+    internal static class FileService
     {
-        internal IEnumerable<DrawingInfo> GetDrawingInfosFromDirectory(string pathToFolder, DrawingInfoTypeEnum drawingType)
+        internal static IEnumerable<DrawingInfo> GetDrawingInfosFromDirectory(string pathToFolder, DrawingInfoTypeEnum drawingType)
         {
             if (Directory.Exists(pathToFolder))
                 throw new System.Exception(
