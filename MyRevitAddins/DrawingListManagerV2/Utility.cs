@@ -7,12 +7,18 @@ using System.Threading.Tasks;
 
 namespace MEPUtils.DrawingListManagerV2
 {
+    public static class Utils
+    {
+        public static IEnumerable<T> Concat<T>(params IEnumerable<T>[] lists)
+        {
+            return lists.SelectMany(x => x);
+        }
+    }
     public static class Extensions
     {
         private static bool IsNullOrEmpty(this string str) => string.IsNullOrEmpty(str);
         public static bool IsNoE(this string str) => str.IsNullOrEmpty();
         public static bool IsNotNoE(this string str) => !str.IsNullOrEmpty();
-
         public static object GetPropertyValue(this object T, string PropName)
         {
             return T.GetType().GetProperty(PropName) == null ? null : T.GetType().GetProperty(PropName).GetValue(T, null);

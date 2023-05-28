@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using MoreLinq;
 using System.Data;
 using System.Security;
 using System.Reflection;
@@ -10,7 +9,7 @@ namespace MEPUtils.DrawingListManagerV2
 {
     public class Field
     {
-        public DrawingInfoPropsEnum PropertyName { get; private set; } = DrawingInfoPropsEnum.Unknown;
+        public PropertiesEnum PropertyName { get; private set; } = PropertiesEnum.Unknown;
         public string RegexName { get; private set; } = "";
         public string MetadataName { get; private set; } = "";
         public string ColumnName { get; private set; } = "";
@@ -25,7 +24,7 @@ namespace MEPUtils.DrawingListManagerV2
         {
             public Number()
             {
-                this.PropertyName = DrawingInfoPropsEnum.Number; RegexName = "number"; MetadataName = "DWGNUMBER";
+                this.PropertyName = PropertiesEnum.Number; RegexName = "number"; MetadataName = "DWGNUMBER";
                 ColumnName = "Drwg Nr."; ExcelColumnIdx = 1; IsFileAndExcelField = true;
             }
         }
@@ -33,7 +32,7 @@ namespace MEPUtils.DrawingListManagerV2
         {
             public Title()
             {
-                this.PropertyName = DrawingInfoPropsEnum.Title;
+                this.PropertyName = PropertiesEnum.Title;
                 RegexName = "title"; MetadataName = "DWGTITLE";
                 ColumnName = "Drwg Title"; ExcelColumnIdx = 2; IsFileAndExcelField = true;
             }
@@ -42,7 +41,7 @@ namespace MEPUtils.DrawingListManagerV2
         {
             public Revision()
             {
-                this.PropertyName = DrawingInfoPropsEnum.Revision;
+                this.PropertyName = PropertiesEnum.Revision;
                 RegexName = "revision"; MetadataName = "DWGREVINDEX";
                 ColumnName = "Rev. idx"; ExcelColumnIdx = 5; IsFileAndExcelField = true;
             }
@@ -51,7 +50,7 @@ namespace MEPUtils.DrawingListManagerV2
         {
             public Scale()
             {
-                this.PropertyName = DrawingInfoPropsEnum.Scale;
+                this.PropertyName = PropertiesEnum.Scale;
                 MetadataName = "DWGSCALE"; ColumnName = "Scale"; ExcelColumnIdx = 3;
             }
         }
@@ -59,7 +58,7 @@ namespace MEPUtils.DrawingListManagerV2
         {
             public Date()
             {
-                this.PropertyName = DrawingInfoPropsEnum.Date;
+                this.PropertyName = PropertiesEnum.Date;
                 MetadataName = "DWGDATE"; ColumnName = "Date"; ExcelColumnIdx = 4;
             }
         }
@@ -67,7 +66,7 @@ namespace MEPUtils.DrawingListManagerV2
         {
             public RevisionDate()
             {
-                this.PropertyName = DrawingInfoPropsEnum.RevisionDate;
+                this.PropertyName = PropertiesEnum.RevisionDate;
                 MetadataName = "DWGREVDATE"; ColumnName = "Rev. date"; ExcelColumnIdx = 6;
             }
         }
@@ -97,7 +96,7 @@ namespace MEPUtils.DrawingListManagerV2
                 foreach (var field in subFieldTypes)
                     yield return (Field)Activator.CreateInstance(field);
             }
-            public Field GetField(DrawingInfoPropsEnum propertyName) =>
+            public Field GetField(PropertiesEnum propertyName) =>
                 GetAllFields().Where(x => x.PropertyName == propertyName).FirstOrDefault();
 
             /// <summary>

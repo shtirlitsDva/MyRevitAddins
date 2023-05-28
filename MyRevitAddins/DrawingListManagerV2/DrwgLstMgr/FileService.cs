@@ -17,7 +17,7 @@ namespace MEPUtils.DrawingListManagerV2
 
             var fileList = Directory.EnumerateFiles(
                     pathToFolder, "*.pdf", SearchOption.TopDirectoryOnly);
-            if (fileList == null || fileList.Count() < 1) yield return null;
+            if (fileList == null || fileList.Count() < 1) yield break;
 
             foreach (var file in fileList)
             {

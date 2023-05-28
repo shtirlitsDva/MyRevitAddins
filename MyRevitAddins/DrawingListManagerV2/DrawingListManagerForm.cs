@@ -128,7 +128,8 @@ namespace MEPUtils.DrawingListManagerV2
                 ExcelService.GetDrawingInfosFromExcel(
                     pathToDwgList);
 
-
+            var analysisResult = AnalysisService.AnalyseDrawings(
+                releasedDrawings, stagingDrawings, excelDrawings);
         }
 
         /// <summary>

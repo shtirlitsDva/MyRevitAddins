@@ -9,11 +9,11 @@ namespace MEPUtils.DrawingListManagerV2
 {
     public static class FileNameDataReaderService
     {
-        public static Dictionary<DrawingInfoPropsEnum, string> ReadData(
+        public static Dictionary<PropertiesEnum, string> ReadData(
             string fileName, DrawingNamingFormat namingFormat)
         {
-            Dictionary<DrawingInfoPropsEnum, string> dict =
-                new Dictionary<DrawingInfoPropsEnum, string>();
+            Dictionary<PropertiesEnum, string> dict =
+                new Dictionary<PropertiesEnum, string>();
             Match match = namingFormat.Regex.Match(fileName);
             foreach (Group gr in match.Groups)
             {

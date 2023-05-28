@@ -10,10 +10,10 @@ namespace MEPUtils.DrawingListManagerV2
 {
     internal static class MetadataReaderService
     {
-        public static Dictionary<DrawingInfoPropsEnum, string> ReadData(string fileNameWithPath)
+        public static Dictionary<PropertiesEnum, string> ReadData(string fileNameWithPath)
         {
-            Dictionary<DrawingInfoPropsEnum, string> dict =
-                new Dictionary<DrawingInfoPropsEnum, string>();
+            Dictionary<PropertiesEnum, string> dict =
+                new Dictionary<PropertiesEnum, string>();
 
             PdfDocument document = null;
             bool documentOpened = false;
@@ -28,7 +28,7 @@ namespace MEPUtils.DrawingListManagerV2
             }
             catch (Exception) { documentOpened = false; }
 
-            if (document == null) return null;
+            if (document == null) return dict;
 
             if (documentOpened)
             {
@@ -58,9 +58,8 @@ namespace MEPUtils.DrawingListManagerV2
             }
             else
             {
-                return null;
+                return dict;
             }
-            if (dict.Count == 0) return null;
             return dict;
         }
     }

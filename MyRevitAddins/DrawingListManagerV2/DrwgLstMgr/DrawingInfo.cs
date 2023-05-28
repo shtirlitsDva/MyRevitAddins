@@ -19,13 +19,11 @@ namespace MEPUtils.DrawingListManagerV2
         public string FileName { get; set; }
         public string Extension { get; set; }
 
-        FileNameFormat Format;
-        DrawingNamingFormat DrawingNamingFormat;
-        
-        private Dictionary<DrawingInfoPropsEnum, string> ReleasedData { get; }
-        private Dictionary<DrawingInfoPropsEnum, string> StagingData { get; }
-        private Dictionary<DrawingInfoPropsEnum, string> MetaData { get; }
-        private Dictionary<DrawingInfoPropsEnum, string> ExcelData { get; }
+        private FileNameFormat Format;
+        private DrawingNamingFormat DrawingNamingFormat;
+
+        private Dictionary<PropertiesEnum, string> PropertyData;
+        private Dictionary<PropertiesEnum, string> MetaData;
         #endregion
 
         public DrawingInfo(string fileNameWithPath, DrawingInfoTypeEnum drawingType)
@@ -52,35 +50,18 @@ namespace MEPUtils.DrawingListManagerV2
                     throw new Exception(
                         $"Unknown DrawingInfoTypeEnum encountered for {fileNameWithPath}");
                 case DrawingInfoTypeEnum.Released:
-                    {
-                        if (DrawingNamingFormat.Format == FileNameFormat.Other)
-                        {
-                            ReleasedData = new Dictionary<DrawingInfoPropsEnum, string>
-                            {
-                                { DrawingInfoPropsEnum.Title, FileName }
-                            };
-                        }
-                        else
-                        {
-                            ReleasedData = FileNameDataReaderService.ReadData(
-                                FileName, DrawingNamingFormat);
-                        }
-                        //Try to read pdf metadata
-                        MetaData = MetadataReaderService.ReadData(fileNameWithPath);
-                    }
-                    break;
                 case DrawingInfoTypeEnum.Staging:
                     {
                         if (DrawingNamingFormat.Format == FileNameFormat.Other)
                         {
-                            StagingData = new Dictionary<DrawingInfoPropsEnum, string>
+                            PropertyData = new Dictionary<PropertiesEnum, string>
                             {
-                                { DrawingInfoPropsEnum.Title, FileName }
+                                { PropertiesEnum.Title, FileName }
                             };
                         }
                         else
                         {
-                            StagingData = FileNameDataReaderService.ReadData(
+                            PropertyData = FileNameDataReaderService.ReadData(
                                 FileName, DrawingNamingFormat);
                         }
                         //Try to read pdf metadata
@@ -94,11 +75,16 @@ namespace MEPUtils.DrawingListManagerV2
             }
         }
 
-        public DrawingInfo(Dictionary<DrawingInfoPropsEnum, string> dict, DrawingInfoTypeEnum drawingType)
+        public DrawingInfo(Dictionary<PropertiesEnum, string> dict, DrawingInfoTypeEnum drawingType)
         {
-            ExcelData = dict;
+            PropertyData = dict;
             DrawingType = drawingType;
         }
+
+        public string GetPropertyValue(PropertiesEnum prop) =>
+            PropertyData.ContainsKey(prop) ? PropertyData[prop] : "";
+        public string GetMetadataValue(PropertiesEnum prop) =>
+            MetaData.ContainsKey(prop) ? MetaData[prop] : "";
 
         private int TestFormatsForMultipleMatches(string fileName)
         {
@@ -110,12 +96,13 @@ namespace MEPUtils.DrawingListManagerV2
             }
             return count;
         }
+
         private (FileNameFormat fnf, DrawingNamingFormat dnf) DetermineFormat(string fileName)
             => DrawingNamingFormatService.GetDrawingNamingFormatsList()
             .Where(x => x.TestFormat(fileName)).Select(x => (x.Format, x)).FirstOrDefault();
     }
 
-    public enum DrawingInfoPropsEnum
+    public enum PropertiesEnum
     {
         Unknown,
         Number,

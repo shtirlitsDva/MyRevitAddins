@@ -71,8 +71,8 @@ namespace MEPUtils.DrawingListManagerV2
                 }
                 else
                 {
-                    Dictionary<DrawingInfoPropsEnum, string> dict = 
-                        new Dictionary<DrawingInfoPropsEnum, string>();
+                    Dictionary<PropertiesEnum, string> dict = 
+                        new Dictionary<PropertiesEnum, string>();
 
                     for (int j = 1; j < usedCols + 1; j++)
                     {
