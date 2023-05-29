@@ -18,6 +18,7 @@ namespace MEPUtils.DrawingListManagerV2
         public string FileNameWithPath { get; set; }
         public string FileName { get; set; }
         public string Extension { get; set; }
+        public bool HasMetaData { get => MetaData.Count > 0; }
 
         private FileNameFormat Format;
         private DrawingNamingFormat DrawingNamingFormat;
@@ -35,7 +36,7 @@ namespace MEPUtils.DrawingListManagerV2
 
             //Test to see if there are multiple matches for filenames -> meaning multiple regex matches -> should be only one match
             if (TestFormatsForMultipleMatches(FileName) > 1) throw
-                      new Exception($"Filename {FileName} matched multiple Regex patterns! Must only match one!");
+                    new Exception($"Filename {FileName} matched multiple Regex patterns! Must only match one!");
 
             //Analyze file name and find the format
             var result = DetermineFormat(FileName);

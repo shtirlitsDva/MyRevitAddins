@@ -39,23 +39,24 @@ namespace MEPUtils.DrawingListManagerV2
                 if (infosDict.ContainsKey(DrawingInfoTypeEnum.DrawingList))
                     excel = infosDict[DrawingInfoTypeEnum.DrawingList];
 
-                if (released != default)
-                {//Case drawing is in released
-                    if (excel != default)
-                    {//Case drawing is in drawing list
-                        //Compare the data from file and from excel
-                        DrawingAttributeAnalysisResult daar = new DrawingAttributeAnalysisResult();
-                        daar.DisplayValue = group.Key;
-
-                    }
-                }
-                else
-                {//Case drawing has not been placed in released
-
-                }
+                
             }
 
             yield break;
+        }
+    }
+
+    internal class StrategyChains
+    {
+        public Dictionary<PropertiesEnum, AnalysisStrategy> Dict { get; }
+
+        public StrategyChains()
+        {
+            Dict = new Dictionary<PropertiesEnum, AnalysisStrategy>()
+            {
+                {PropertiesEnum.Number, new DrawingNumberAllSourcesOkay()
+                .SetNext()}
+            };
         }
     }
 }

@@ -10,7 +10,7 @@ namespace MEPUtils.DrawingListManagerV2
     {
         public string DisplayValue { get; set; }
         public string ToolTip { get; set; }
-
+        public DataGridViewCellStyle CellStyle { get; set; }
         public override string ToString()
         {
             return DisplayValue;

@@ -19,7 +19,7 @@ namespace MEPUtils.DrawingListManagerV2
         private string pathToReleasedFolder = string.Empty;
         private string pathToDwgList = string.Empty;
         private string pathToStagingFolder = string.Empty;
-        
+
         public DrawingListManagerForm()
         {
             InitializeComponent();
@@ -177,7 +177,7 @@ namespace MEPUtils.DrawingListManagerV2
         private void DrawingListManagerForm_FormClosing(object sender, FormClosingEventArgs e)
         {
             mySettings.Default.Save();
-        } 
+        }
         #endregion
 
         public void flipConsolidateButton()

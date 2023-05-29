@@ -28,365 +28,377 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.tabControl1 = new System.Windows.Forms.TabControl();
-            this.tabPage1 = new System.Windows.Forms.TabPage();
-            this.textBox6 = new System.Windows.Forms.TextBox();
-            this.textBox11 = new System.Windows.Forms.TextBox();
-            this.button5 = new System.Windows.Forms.Button();
-            this.textBox5 = new System.Windows.Forms.TextBox();
-            this.textBox9 = new System.Windows.Forms.TextBox();
-            this.button2 = new System.Windows.Forms.Button();
-            this.textBox1 = new System.Windows.Forms.TextBox();
-            this.button1 = new System.Windows.Forms.Button();
-            this.textBox3 = new System.Windows.Forms.TextBox();
-            this.textBox2 = new System.Windows.Forms.TextBox();
-            this.tabPage2 = new System.Windows.Forms.TabPage();
-            this.textBox7 = new System.Windows.Forms.TextBox();
-            this.textBox8 = new System.Windows.Forms.TextBox();
-            this.textBox10 = new System.Windows.Forms.TextBox();
-            this.textBox4 = new System.Windows.Forms.TextBox();
-            this.dGV1 = new System.Windows.Forms.DataGridView();
-            this.button4 = new System.Windows.Forms.Button();
-            this.button6 = new System.Windows.Forms.Button();
-            this.textBox12 = new System.Windows.Forms.TextBox();
-            this.tabControl1.SuspendLayout();
-            this.tabPage1.SuspendLayout();
-            this.tabPage2.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dGV1)).BeginInit();
-            this.SuspendLayout();
+            tabControl1 = new TabControl();
+            tabPage1 = new TabPage();
+            textBox6 = new TextBox();
+            textBox11 = new TextBox();
+            button5 = new Button();
+            textBox5 = new TextBox();
+            textBox9 = new TextBox();
+            button2 = new Button();
+            textBox1 = new TextBox();
+            button1 = new Button();
+            textBox3 = new TextBox();
+            textBox2 = new TextBox();
+            tabPage2 = new TabPage();
+            textBox12 = new TextBox();
+            textBox7 = new TextBox();
+            textBox8 = new TextBox();
+            textBox10 = new TextBox();
+            textBox4 = new TextBox();
+            dGV1 = new DataGridView();
+            button6 = new Button();
+            button4 = new Button();
+            textBox13 = new TextBox();
+            tabControl1.SuspendLayout();
+            tabPage1.SuspendLayout();
+            tabPage2.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)dGV1).BeginInit();
+            SuspendLayout();
             // 
             // tabControl1
             // 
-            this.tabControl1.CausesValidation = false;
-            this.tabControl1.Controls.Add(this.tabPage1);
-            this.tabControl1.Controls.Add(this.tabPage2);
-            this.tabControl1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tabControl1.Location = new System.Drawing.Point(0, 0);
-            this.tabControl1.Margin = new System.Windows.Forms.Padding(4);
-            this.tabControl1.Name = "tabControl1";
-            this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(2930, 1331);
-            this.tabControl1.TabIndex = 8;
+            tabControl1.CausesValidation = false;
+            tabControl1.Controls.Add(tabPage1);
+            tabControl1.Controls.Add(tabPage2);
+            tabControl1.Dock = DockStyle.Fill;
+            tabControl1.Location = new Point(0, 0);
+            tabControl1.Margin = new Padding(5, 6, 5, 6);
+            tabControl1.Name = "tabControl1";
+            tabControl1.SelectedIndex = 0;
+            tabControl1.Size = new Size(3662, 1970);
+            tabControl1.TabIndex = 8;
             // 
             // tabPage1
             // 
-            this.tabPage1.BackColor = System.Drawing.SystemColors.Control;
-            this.tabPage1.Controls.Add(this.textBox6);
-            this.tabPage1.Controls.Add(this.textBox11);
-            this.tabPage1.Controls.Add(this.button5);
-            this.tabPage1.Controls.Add(this.textBox5);
-            this.tabPage1.Controls.Add(this.textBox9);
-            this.tabPage1.Controls.Add(this.button2);
-            this.tabPage1.Controls.Add(this.textBox1);
-            this.tabPage1.Controls.Add(this.button1);
-            this.tabPage1.Controls.Add(this.textBox3);
-            this.tabPage1.Controls.Add(this.textBox2);
-            this.tabPage1.Location = new System.Drawing.Point(8, 39);
-            this.tabPage1.Margin = new System.Windows.Forms.Padding(4);
-            this.tabPage1.Name = "tabPage1";
-            this.tabPage1.Padding = new System.Windows.Forms.Padding(4);
-            this.tabPage1.Size = new System.Drawing.Size(2914, 1284);
-            this.tabPage1.TabIndex = 0;
-            this.tabPage1.Text = "Folder and file";
+            tabPage1.BackColor = SystemColors.Control;
+            tabPage1.Controls.Add(textBox6);
+            tabPage1.Controls.Add(textBox11);
+            tabPage1.Controls.Add(button5);
+            tabPage1.Controls.Add(textBox5);
+            tabPage1.Controls.Add(textBox9);
+            tabPage1.Controls.Add(button2);
+            tabPage1.Controls.Add(textBox1);
+            tabPage1.Controls.Add(button1);
+            tabPage1.Controls.Add(textBox3);
+            tabPage1.Controls.Add(textBox2);
+            tabPage1.Location = new Point(10, 55);
+            tabPage1.Margin = new Padding(5, 6, 5, 6);
+            tabPage1.Name = "tabPage1";
+            tabPage1.Padding = new Padding(5, 6, 5, 6);
+            tabPage1.Size = new Size(3642, 1905);
+            tabPage1.TabIndex = 0;
+            tabPage1.Text = "Folder and file";
             // 
             // textBox6
             // 
-            this.textBox6.BackColor = System.Drawing.SystemColors.Menu;
-            this.textBox6.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.textBox6.Location = new System.Drawing.Point(750, 34);
-            this.textBox6.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
-            this.textBox6.Name = "textBox6";
-            this.textBox6.ReadOnly = true;
-            this.textBox6.Size = new System.Drawing.Size(175, 24);
-            this.textBox6.TabIndex = 18;
-            this.textBox6.TabStop = false;
-            this.textBox6.Text = "Staging found:";
-            this.textBox6.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            textBox6.BackColor = SystemColors.Menu;
+            textBox6.BorderStyle = BorderStyle.None;
+            textBox6.Location = new Point(938, 50);
+            textBox6.Margin = new Padding(9, 9, 9, 9);
+            textBox6.Name = "textBox6";
+            textBox6.ReadOnly = true;
+            textBox6.Size = new Size(219, 36);
+            textBox6.TabIndex = 18;
+            textBox6.TabStop = false;
+            textBox6.Text = "Staging found:";
+            textBox6.TextAlign = HorizontalAlignment.Right;
             // 
             // textBox11
             // 
-            this.textBox11.BackColor = System.Drawing.SystemColors.Menu;
-            this.textBox11.Location = new System.Drawing.Point(936, 31);
-            this.textBox11.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
-            this.textBox11.Name = "textBox11";
-            this.textBox11.ReadOnly = true;
-            this.textBox11.Size = new System.Drawing.Size(72, 31);
-            this.textBox11.TabIndex = 17;
-            this.textBox11.TabStop = false;
-            this.textBox11.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            textBox11.BackColor = SystemColors.Menu;
+            textBox11.Location = new Point(1170, 46);
+            textBox11.Margin = new Padding(9, 9, 9, 9);
+            textBox11.Name = "textBox11";
+            textBox11.ReadOnly = true;
+            textBox11.Size = new Size(89, 43);
+            textBox11.TabIndex = 17;
+            textBox11.TabStop = false;
+            textBox11.TextAlign = HorizontalAlignment.Center;
             // 
             // button5
             // 
-            this.button5.Location = new System.Drawing.Point(7, 268);
-            this.button5.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
-            this.button5.Name = "button5";
-            this.button5.Size = new System.Drawing.Size(374, 75);
-            this.button5.TabIndex = 16;
-            this.button5.Text = "Select folder with STAGING drawings:";
-            this.button5.UseVisualStyleBackColor = true;
-            this.button5.Click += new System.EventHandler(this.button5_Click);
+            button5.Location = new Point(9, 397);
+            button5.Margin = new Padding(9, 9, 9, 9);
+            button5.Name = "button5";
+            button5.Size = new Size(468, 111);
+            button5.TabIndex = 16;
+            button5.Text = "Select folder with STAGING drawings:";
+            button5.UseVisualStyleBackColor = true;
+            button5.Click += button5_Click;
             // 
             // textBox5
             // 
-            this.textBox5.BackColor = System.Drawing.SystemColors.Menu;
-            this.textBox5.DataBindings.Add(new System.Windows.Forms.Binding("Text", global::MEPUtils.DrawingListManagerV2.Properties.Settings.Default, "PathToStagingFolder", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
-            this.textBox5.Location = new System.Drawing.Point(7, 354);
-            this.textBox5.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
-            this.textBox5.Name = "textBox5";
-            this.textBox5.ReadOnly = true;
-            this.textBox5.Size = new System.Drawing.Size(1428, 31);
-            this.textBox5.TabIndex = 15;
-            this.textBox5.TabStop = false;
-            this.textBox5.Text = global::MEPUtils.DrawingListManagerV2.Properties.Settings.Default.PathToStagingFolder;
+            textBox5.BackColor = SystemColors.Menu;
+            textBox5.Location = new Point(9, 524);
+            textBox5.Margin = new Padding(9, 9, 9, 9);
+            textBox5.Name = "textBox5";
+            textBox5.ReadOnly = true;
+            textBox5.Size = new Size(1784, 43);
+            textBox5.TabIndex = 15;
+            textBox5.TabStop = false;
             // 
             // textBox9
             // 
-            this.textBox9.BackColor = System.Drawing.SystemColors.Menu;
-            this.textBox9.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.textBox9.Location = new System.Drawing.Point(468, 34);
-            this.textBox9.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
-            this.textBox9.Name = "textBox9";
-            this.textBox9.ReadOnly = true;
-            this.textBox9.Size = new System.Drawing.Size(175, 24);
-            this.textBox9.TabIndex = 14;
-            this.textBox9.TabStop = false;
-            this.textBox9.Text = "Drawings found:";
-            this.textBox9.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            textBox9.BackColor = SystemColors.Menu;
+            textBox9.BorderStyle = BorderStyle.None;
+            textBox9.Location = new Point(585, 50);
+            textBox9.Margin = new Padding(9, 9, 9, 9);
+            textBox9.Name = "textBox9";
+            textBox9.ReadOnly = true;
+            textBox9.Size = new Size(219, 36);
+            textBox9.TabIndex = 14;
+            textBox9.TabStop = false;
+            textBox9.Text = "Drawings found:";
+            textBox9.TextAlign = HorizontalAlignment.Right;
             // 
             // button2
             // 
-            this.button2.Location = new System.Drawing.Point(7, 139);
-            this.button2.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(374, 75);
-            this.button2.TabIndex = 13;
-            this.button2.Text = "Select the drawing list Excel file:";
-            this.button2.UseVisualStyleBackColor = true;
-            this.button2.Click += new System.EventHandler(this.button2_Click);
+            button2.Location = new Point(9, 206);
+            button2.Margin = new Padding(9, 9, 9, 9);
+            button2.Name = "button2";
+            button2.Size = new Size(468, 111);
+            button2.TabIndex = 13;
+            button2.Text = "Select the drawing list Excel file:";
+            button2.UseVisualStyleBackColor = true;
+            button2.Click += button2_Click;
             // 
             // textBox1
             // 
-            this.textBox1.BackColor = System.Drawing.SystemColors.Menu;
-            this.textBox1.DataBindings.Add(new System.Windows.Forms.Binding("Text", global::MEPUtils.DrawingListManagerV2.Properties.Settings.Default, "PathToDwgList", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
-            this.textBox1.Location = new System.Drawing.Point(7, 225);
-            this.textBox1.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
-            this.textBox1.Name = "textBox1";
-            this.textBox1.ReadOnly = true;
-            this.textBox1.Size = new System.Drawing.Size(1428, 31);
-            this.textBox1.TabIndex = 12;
-            this.textBox1.TabStop = false;
-            this.textBox1.Text = global::MEPUtils.DrawingListManagerV2.Properties.Settings.Default.PathToDwgList;
+            textBox1.BackColor = SystemColors.Menu;
+            textBox1.Location = new Point(9, 333);
+            textBox1.Margin = new Padding(9, 9, 9, 9);
+            textBox1.Name = "textBox1";
+            textBox1.ReadOnly = true;
+            textBox1.Size = new Size(1784, 43);
+            textBox1.TabIndex = 12;
+            textBox1.TabStop = false;
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(7, 9);
-            this.button1.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(374, 75);
-            this.button1.TabIndex = 11;
-            this.button1.Text = "Select folder with RELEASED drawings:";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
+            button1.Location = new Point(9, 13);
+            button1.Margin = new Padding(9, 9, 9, 9);
+            button1.Name = "button1";
+            button1.Size = new Size(468, 111);
+            button1.TabIndex = 11;
+            button1.Text = "Select folder with RELEASED drawings:";
+            button1.UseVisualStyleBackColor = true;
+            button1.Click += button1_Click;
             // 
             // textBox3
             // 
-            this.textBox3.BackColor = System.Drawing.SystemColors.Menu;
-            this.textBox3.Location = new System.Drawing.Point(654, 31);
-            this.textBox3.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
-            this.textBox3.Name = "textBox3";
-            this.textBox3.ReadOnly = true;
-            this.textBox3.Size = new System.Drawing.Size(72, 31);
-            this.textBox3.TabIndex = 8;
-            this.textBox3.TabStop = false;
-            this.textBox3.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            textBox3.BackColor = SystemColors.Menu;
+            textBox3.Location = new Point(818, 46);
+            textBox3.Margin = new Padding(9, 9, 9, 9);
+            textBox3.Name = "textBox3";
+            textBox3.ReadOnly = true;
+            textBox3.Size = new Size(89, 43);
+            textBox3.TabIndex = 8;
+            textBox3.TabStop = false;
+            textBox3.TextAlign = HorizontalAlignment.Center;
             // 
             // textBox2
             // 
-            this.textBox2.BackColor = System.Drawing.SystemColors.Menu;
-            this.textBox2.DataBindings.Add(new System.Windows.Forms.Binding("Text", global::MEPUtils.DrawingListManagerV2.Properties.Settings.Default, "PathToDwgFolder", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
-            this.textBox2.Location = new System.Drawing.Point(7, 96);
-            this.textBox2.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
-            this.textBox2.Name = "textBox2";
-            this.textBox2.ReadOnly = true;
-            this.textBox2.Size = new System.Drawing.Size(1428, 31);
-            this.textBox2.TabIndex = 9;
-            this.textBox2.TabStop = false;
-            this.textBox2.Text = global::MEPUtils.DrawingListManagerV2.Properties.Settings.Default.PathToDwgFolder;
+            textBox2.BackColor = SystemColors.Menu;
+            textBox2.Location = new Point(9, 142);
+            textBox2.Margin = new Padding(9, 9, 9, 9);
+            textBox2.Name = "textBox2";
+            textBox2.ReadOnly = true;
+            textBox2.Size = new Size(1784, 43);
+            textBox2.TabIndex = 9;
+            textBox2.TabStop = false;
             // 
             // tabPage2
             // 
-            this.tabPage2.BackColor = System.Drawing.SystemColors.Control;
-            this.tabPage2.Controls.Add(this.textBox12);
-            this.tabPage2.Controls.Add(this.textBox7);
-            this.tabPage2.Controls.Add(this.textBox8);
-            this.tabPage2.Controls.Add(this.textBox10);
-            this.tabPage2.Controls.Add(this.textBox4);
-            this.tabPage2.Controls.Add(this.dGV1);
-            this.tabPage2.Controls.Add(this.button6);
-            this.tabPage2.Controls.Add(this.button4);
-            this.tabPage2.Location = new System.Drawing.Point(8, 39);
-            this.tabPage2.Margin = new System.Windows.Forms.Padding(4);
-            this.tabPage2.Name = "tabPage2";
-            this.tabPage2.Padding = new System.Windows.Forms.Padding(4);
-            this.tabPage2.Size = new System.Drawing.Size(2914, 1284);
-            this.tabPage2.TabIndex = 1;
-            this.tabPage2.Text = "Manage";
-            // 
-            // textBox7
-            // 
-            this.textBox7.BackColor = System.Drawing.Color.DeepSkyBlue;
-            this.textBox7.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.textBox7.Cursor = System.Windows.Forms.Cursors.IBeam;
-            this.textBox7.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.textBox7.ForeColor = System.Drawing.Color.Yellow;
-            this.textBox7.Location = new System.Drawing.Point(1356, 0);
-            this.textBox7.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
-            this.textBox7.Name = "textBox7";
-            this.textBox7.ReadOnly = true;
-            this.textBox7.Size = new System.Drawing.Size(376, 37);
-            this.textBox7.TabIndex = 18;
-            this.textBox7.TabStop = false;
-            this.textBox7.Text = "Warning (data mismatch)";
-            // 
-            // textBox8
-            // 
-            this.textBox8.BackColor = System.Drawing.Color.Thistle;
-            this.textBox8.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.textBox8.Cursor = System.Windows.Forms.Cursors.IBeam;
-            this.textBox8.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.textBox8.ForeColor = System.Drawing.Color.DarkRed;
-            this.textBox8.Location = new System.Drawing.Point(882, 39);
-            this.textBox8.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
-            this.textBox8.Name = "textBox8";
-            this.textBox8.ReadOnly = true;
-            this.textBox8.Size = new System.Drawing.Size(397, 37);
-            this.textBox8.TabIndex = 18;
-            this.textBox8.TabStop = false;
-            this.textBox8.Text = "Error (File or Excel missing)";
-            // 
-            // textBox10
-            // 
-            this.textBox10.BackColor = System.Drawing.Color.LemonChiffon;
-            this.textBox10.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.textBox10.Cursor = System.Windows.Forms.Cursors.IBeam;
-            this.textBox10.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.textBox10.ForeColor = System.Drawing.Color.Green;
-            this.textBox10.Location = new System.Drawing.Point(1009, 0);
-            this.textBox10.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
-            this.textBox10.Name = "textBox10";
-            this.textBox10.ReadOnly = true;
-            this.textBox10.Size = new System.Drawing.Size(335, 37);
-            this.textBox10.TabIndex = 18;
-            this.textBox10.TabStop = false;
-            this.textBox10.Text = "All okay (Meta missing)";
-            // 
-            // textBox4
-            // 
-            this.textBox4.BackColor = System.Drawing.Color.GreenYellow;
-            this.textBox4.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.textBox4.Cursor = System.Windows.Forms.Cursors.IBeam;
-            this.textBox4.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.textBox4.ForeColor = System.Drawing.Color.Green;
-            this.textBox4.Location = new System.Drawing.Point(882, 0);
-            this.textBox4.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
-            this.textBox4.Name = "textBox4";
-            this.textBox4.ReadOnly = true;
-            this.textBox4.Size = new System.Drawing.Size(115, 37);
-            this.textBox4.TabIndex = 18;
-            this.textBox4.TabStop = false;
-            this.textBox4.Text = "All okay";
-            // 
-            // dGV1
-            // 
-            this.dGV1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dGV1.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.dGV1.Location = new System.Drawing.Point(4, 82);
-            this.dGV1.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
-            this.dGV1.Name = "dGV1";
-            this.dGV1.RowHeadersWidth = 72;
-            this.dGV1.Size = new System.Drawing.Size(2906, 1198);
-            this.dGV1.TabIndex = 17;
-            this.dGV1.DataBindingComplete += new System.Windows.Forms.DataGridViewBindingCompleteEventHandler(this.dGV1_DataBindingComplete);
-            // 
-            // button4
-            // 
-            this.button4.Location = new System.Drawing.Point(7, 9);
-            this.button4.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
-            this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size(164, 44);
-            this.button4.TabIndex = 16;
-            this.button4.Text = "(Re-) Scan";
-            this.button4.UseVisualStyleBackColor = true;
-            this.button4.Click += new System.EventHandler(this.button4_Click);
-            // 
-            // button6
-            // 
-            this.button6.Location = new System.Drawing.Point(379, 9);
-            this.button6.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
-            this.button6.Name = "button6";
-            this.button6.Size = new System.Drawing.Size(164, 44);
-            this.button6.TabIndex = 16;
-            this.button6.Text = "Consolidate";
-            this.button6.UseVisualStyleBackColor = true;
-            this.button6.Click += new System.EventHandler(this.button6_Click);
+            tabPage2.BackColor = SystemColors.Control;
+            tabPage2.Controls.Add(textBox13);
+            tabPage2.Controls.Add(textBox12);
+            tabPage2.Controls.Add(textBox7);
+            tabPage2.Controls.Add(textBox8);
+            tabPage2.Controls.Add(textBox10);
+            tabPage2.Controls.Add(textBox4);
+            tabPage2.Controls.Add(dGV1);
+            tabPage2.Controls.Add(button6);
+            tabPage2.Controls.Add(button4);
+            tabPage2.Location = new Point(10, 55);
+            tabPage2.Margin = new Padding(5, 6, 5, 6);
+            tabPage2.Name = "tabPage2";
+            tabPage2.Padding = new Padding(5, 6, 5, 6);
+            tabPage2.Size = new Size(3642, 1905);
+            tabPage2.TabIndex = 1;
+            tabPage2.Text = "Manage";
             // 
             // textBox12
             // 
-            this.textBox12.BackColor = System.Drawing.SystemColors.Menu;
-            this.textBox12.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.textBox12.Location = new System.Drawing.Point(190, 19);
-            this.textBox12.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
-            this.textBox12.Name = "textBox12";
-            this.textBox12.ReadOnly = true;
-            this.textBox12.Size = new System.Drawing.Size(175, 24);
-            this.textBox12.TabIndex = 19;
-            this.textBox12.TabStop = false;
-            this.textBox12.Text = "Staging found:";
-            this.textBox12.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            textBox12.BackColor = SystemColors.Menu;
+            textBox12.BorderStyle = BorderStyle.None;
+            textBox12.Location = new Point(238, 28);
+            textBox12.Margin = new Padding(9, 9, 9, 9);
+            textBox12.Name = "textBox12";
+            textBox12.ReadOnly = true;
+            textBox12.Size = new Size(219, 36);
+            textBox12.TabIndex = 19;
+            textBox12.TabStop = false;
+            textBox12.Text = "Staging found:";
+            textBox12.TextAlign = HorizontalAlignment.Right;
+            // 
+            // textBox7
+            // 
+            textBox7.BackColor = Color.DeepSkyBlue;
+            textBox7.BorderStyle = BorderStyle.None;
+            textBox7.Cursor = Cursors.IBeam;
+            textBox7.Font = new Font("Microsoft Sans Serif", 12F, FontStyle.Regular, GraphicsUnit.Point);
+            textBox7.ForeColor = Color.Yellow;
+            textBox7.Location = new Point(1695, 0);
+            textBox7.Margin = new Padding(9, 9, 9, 9);
+            textBox7.Name = "textBox7";
+            textBox7.ReadOnly = true;
+            textBox7.Size = new Size(470, 41);
+            textBox7.TabIndex = 18;
+            textBox7.TabStop = false;
+            textBox7.Text = "Warning (data mismatch)";
+            // 
+            // textBox8
+            // 
+            textBox8.BackColor = Color.Thistle;
+            textBox8.BorderStyle = BorderStyle.None;
+            textBox8.Cursor = Cursors.IBeam;
+            textBox8.Font = new Font("Microsoft Sans Serif", 12F, FontStyle.Regular, GraphicsUnit.Point);
+            textBox8.ForeColor = Color.DarkRed;
+            textBox8.Location = new Point(1102, 58);
+            textBox8.Margin = new Padding(9, 9, 9, 9);
+            textBox8.Name = "textBox8";
+            textBox8.ReadOnly = true;
+            textBox8.Size = new Size(496, 41);
+            textBox8.TabIndex = 18;
+            textBox8.TabStop = false;
+            textBox8.Text = "Error (File or Excel missing)";
+            // 
+            // textBox10
+            // 
+            textBox10.BackColor = Color.LemonChiffon;
+            textBox10.BorderStyle = BorderStyle.None;
+            textBox10.Cursor = Cursors.IBeam;
+            textBox10.Font = new Font("Microsoft Sans Serif", 12F, FontStyle.Regular, GraphicsUnit.Point);
+            textBox10.ForeColor = Color.Green;
+            textBox10.Location = new Point(1261, 0);
+            textBox10.Margin = new Padding(9, 9, 9, 9);
+            textBox10.Name = "textBox10";
+            textBox10.ReadOnly = true;
+            textBox10.Size = new Size(419, 41);
+            textBox10.TabIndex = 18;
+            textBox10.TabStop = false;
+            textBox10.Text = "Revision Pending";
+            // 
+            // textBox4
+            // 
+            textBox4.BackColor = Color.GreenYellow;
+            textBox4.BorderStyle = BorderStyle.None;
+            textBox4.Cursor = Cursors.IBeam;
+            textBox4.Font = new Font("Microsoft Sans Serif", 12F, FontStyle.Regular, GraphicsUnit.Point);
+            textBox4.ForeColor = Color.Green;
+            textBox4.Location = new Point(1102, 0);
+            textBox4.Margin = new Padding(9, 9, 9, 9);
+            textBox4.Name = "textBox4";
+            textBox4.ReadOnly = true;
+            textBox4.Size = new Size(144, 41);
+            textBox4.TabIndex = 18;
+            textBox4.TabStop = false;
+            textBox4.Text = "All okay";
+            // 
+            // dGV1
+            // 
+            dGV1.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            dGV1.Dock = DockStyle.Bottom;
+            dGV1.Location = new Point(5, 126);
+            dGV1.Margin = new Padding(9, 9, 9, 9);
+            dGV1.Name = "dGV1";
+            dGV1.RowHeadersWidth = 72;
+            dGV1.Size = new Size(3632, 1773);
+            dGV1.TabIndex = 17;
+            dGV1.DataBindingComplete += dGV1_DataBindingComplete;
+            // 
+            // button6
+            // 
+            button6.Location = new Point(474, 13);
+            button6.Margin = new Padding(9, 9, 9, 9);
+            button6.Name = "button6";
+            button6.Size = new Size(205, 65);
+            button6.TabIndex = 16;
+            button6.Text = "Consolidate";
+            button6.UseVisualStyleBackColor = true;
+            button6.Click += button6_Click;
+            // 
+            // button4
+            // 
+            button4.Location = new Point(9, 13);
+            button4.Margin = new Padding(9, 9, 9, 9);
+            button4.Name = "button4";
+            button4.Size = new Size(205, 65);
+            button4.TabIndex = 16;
+            button4.Text = "(Re-) Scan";
+            button4.UseVisualStyleBackColor = true;
+            button4.Click += button4_Click;
+            // 
+            // textBox13
+            // 
+            textBox13.BackColor = Color.SpringGreen;
+            textBox13.BorderStyle = BorderStyle.None;
+            textBox13.Cursor = Cursors.IBeam;
+            textBox13.Font = new Font("Microsoft Sans Serif", 12F, FontStyle.Regular, GraphicsUnit.Point);
+            textBox13.ForeColor = Color.Green;
+            textBox13.Location = new Point(1616, 58);
+            textBox13.Margin = new Padding(9);
+            textBox13.Name = "textBox13";
+            textBox13.ReadOnly = true;
+            textBox13.Size = new Size(272, 41);
+            textBox13.TabIndex = 20;
+            textBox13.TabStop = false;
+            textBox13.Text = "Only excel data";
             // 
             // DrawingListManagerForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(12F, 25F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(2930, 1331);
-            this.Controls.Add(this.tabControl1);
-            this.Margin = new System.Windows.Forms.Padding(4);
-            this.Name = "DrawingListManagerForm";
-            this.Text = "Drawing List Manager";
-            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.DrawingListManagerForm_FormClosing);
-            this.tabControl1.ResumeLayout(false);
-            this.tabPage1.ResumeLayout(false);
-            this.tabPage1.PerformLayout();
-            this.tabPage2.ResumeLayout(false);
-            this.tabPage2.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dGV1)).EndInit();
-            this.ResumeLayout(false);
-
+            AutoScaleDimensions = new SizeF(15F, 37F);
+            AutoScaleMode = AutoScaleMode.Font;
+            ClientSize = new Size(3662, 1970);
+            Controls.Add(tabControl1);
+            Margin = new Padding(5, 6, 5, 6);
+            Name = "DrawingListManagerForm";
+            Text = "Drawing List Manager";
+            FormClosing += DrawingListManagerForm_FormClosing;
+            tabControl1.ResumeLayout(false);
+            tabPage1.ResumeLayout(false);
+            tabPage1.PerformLayout();
+            tabPage2.ResumeLayout(false);
+            tabPage2.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)dGV1).EndInit();
+            ResumeLayout(false);
         }
 
         #endregion
 
-        private System.Windows.Forms.TabControl tabControl1;
-        private System.Windows.Forms.TabPage tabPage1;
-        private System.Windows.Forms.TextBox textBox9;
-        private System.Windows.Forms.Button button2;
-        private System.Windows.Forms.TextBox textBox1;
-        private System.Windows.Forms.Button button1;
-        private System.Windows.Forms.TextBox textBox3;
-        private System.Windows.Forms.TextBox textBox2;
-        private System.Windows.Forms.TabPage tabPage2;
-        private System.Windows.Forms.Button button4;
-        private System.Windows.Forms.DataGridView dGV1;
-        private System.Windows.Forms.TextBox textBox4;
-        private System.Windows.Forms.TextBox textBox7;
-        private System.Windows.Forms.TextBox textBox8;
-        private System.Windows.Forms.TextBox textBox10;
-        private System.Windows.Forms.Button button5;
-        private System.Windows.Forms.TextBox textBox5;
-        private System.Windows.Forms.TextBox textBox6;
-        private System.Windows.Forms.TextBox textBox11;
-        private System.Windows.Forms.TextBox textBox12;
-        private System.Windows.Forms.Button button6;
+        private TabControl tabControl1;
+        private TabPage tabPage1;
+        private TextBox textBox9;
+        private Button button2;
+        private TextBox textBox1;
+        private Button button1;
+        private TextBox textBox3;
+        private TextBox textBox2;
+        private TabPage tabPage2;
+        private Button button4;
+        private DataGridView dGV1;
+        private TextBox textBox4;
+        private TextBox textBox7;
+        private TextBox textBox8;
+        private TextBox textBox10;
+        private Button button5;
+        private TextBox textBox5;
+        private TextBox textBox6;
+        private TextBox textBox11;
+        private TextBox textBox12;
+        private Button button6;
+        private TextBox textBox13;
     }
 }
 
