@@ -27,19 +27,32 @@ namespace MEPUtils.DrawingListManagerV2
 
                 var analysisResult = new DrawingAnalysisResult();
 
-                DrawingInfo released = default;
+                DrawingInfo? released = default;
                 if (infosDict.ContainsKey(DrawingInfoTypeEnum.Released))
                     released = infosDict[DrawingInfoTypeEnum.Released];
 
-                DrawingInfo staging = default;
+                DrawingInfo? staging = default;
                 if (infosDict.ContainsKey(DrawingInfoTypeEnum.Staging))
                     staging = infosDict[DrawingInfoTypeEnum.Staging];
 
-                DrawingInfo excel = default;
+                DrawingInfo? excel = default;
                 if (infosDict.ContainsKey(DrawingInfoTypeEnum.DrawingList))
                     excel = infosDict[DrawingInfoTypeEnum.DrawingList];
 
-                
+                //Define cases
+                //1. Released and excel present, staging is absent
+                //released and excel data must match else warning
+                if (released != default && excel != default && staging == default)
+                {
+
+                }
+                //2. Released present, excel and staging are absent
+                //Error about missing excel, staging is not important
+                else if (released != default && excel == default && staging == default)
+                {
+
+                }
+
             }
 
             yield break;
