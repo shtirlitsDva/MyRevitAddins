@@ -40,6 +40,7 @@ namespace MEPUtils.DrawingListManagerV2
                     excel = infosDict[DrawingInfoTypeEnum.DrawingList];
 
                 //Define cases
+                //0. Case where all three are absent is not possible
                 //1. Released and excel present, staging is absent
                 //released and excel data must match else warning
                 if (released != default && excel != default && staging == default)
@@ -52,6 +53,29 @@ namespace MEPUtils.DrawingListManagerV2
                 {
 
                 }
+                //3. Excel present, released and staging are absent
+                //Error about missing released, staging is not important
+                else if (released == default && excel != default && staging == default)
+                {
+
+                }
+                //4. Released and staging present, excel is absent
+                //somehow the released went missing from excel
+                //while already a revision is issued
+                //Error about missing excel
+                else if (released != default && excel == default && staging != default)
+                {
+
+                }
+                //5. Released and excel absent, staging is present
+                //A new drawing is issued, but not yet in excel list
+                //Issue a warning about missing excel
+                else if (released == default && excel == default && staging != default)
+                {
+
+                }
+                //6. Excel and staging present, released is absent
+                //A drawing is issued -> mark it as new drawing
 
             }
 
