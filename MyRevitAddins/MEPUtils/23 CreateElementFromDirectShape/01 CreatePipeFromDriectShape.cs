@@ -49,10 +49,10 @@ namespace MEPUtils.CreateElementFromDS
                 //With the origin of the two faces as start and end points                //With the origin of the two faces as start and end points
                 //Otherwise, show a message
 
-                var ops = new Options() 
+                var ops = new Options()
                 {
-                    View = doc.ActiveView,
-                    ComputeReferences = true,
+                    //View = doc.ActiveView,
+                    //ComputeReferences = true,
                     DetailLevel = ViewDetailLevel.Fine
                 };
                 GeometryElement geometry = ds.get_Geometry(ops);
@@ -62,18 +62,14 @@ namespace MEPUtils.CreateElementFromDS
 
                 foreach (GeometryObject geoObj in geometry)
                 {
-                    if (geoObj is GeometryInstance instance)
+                    if (geoObj is Solid solid)
                     {
-                        foreach (GeometryObject instObj in instance.GetInstanceGeometry())
+                        if (null == solid || 0 == solid.Faces.Size || 0 == solid.Edges.Size) { continue; }
+                        // Get the faces
+                        foreach (Face face in solid.Faces)
                         {
-                            Solid solid = instObj as Solid;
-                            if (null == solid || 0 == solid.Faces.Size || 0 == solid.Edges.Size) { continue; }
-                            // Get the faces
-                            foreach (Face face in solid.Faces)
-                            {
-                                if (!(face is PlanarFace pFace)) { continue; }
-                                origins.Add(pFace.Origin);
-                            }
+                            if (!(face is PlanarFace pFace)) { continue; }
+                            origins.Add(pFace.Origin);
                         }
                     }
                 }
