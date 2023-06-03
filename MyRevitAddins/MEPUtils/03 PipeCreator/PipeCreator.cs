@@ -215,7 +215,73 @@ namespace MEPUtils
                         //Create the pipe
                         Pipe.Create(doc, pipeType.Id, levelId, con, pointInSpace);
                         tx.Commit();
-                    } 
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+
+            return Result.Succeeded;
+        }
+
+        public static Result CreatePipeFromTwoPoints(UIApplication uiApp, List<XYZ> endPoints)
+        {
+            if (endPoints.Count != 2) throw new Exception("Only works with two points!");
+
+            Document doc = uiApp.ActiveUIDocument.Document;
+
+            string pipeTypeName = MEPUtils.Properties.Settings.Default.PipeCreator_SelectedPipeTypeName;
+
+            bool ctrl = false;
+            if ((int)Keyboard.Modifiers == 2) ctrl = true;
+            //If the name of pipeType is null or empty for some reason -- reinitialize
+            if (string.IsNullOrEmpty(pipeTypeName)) ctrl = true;
+
+            if (ctrl)
+            {
+                FilteredElementCollector colPipeTypes = new FilteredElementCollector(doc);
+                var pipeTypes = colPipeTypes.OfClass(typeof(PipeType)).ToElements();
+
+                var pipeTypeNames = colPipeTypes.Select(x => x.Name).ToList();
+
+                int count = pipeTypeNames.Count;
+
+                var pc = new PipeTypeSelector(uiApp, pipeTypeNames);
+                pc.ShowDialog();
+
+                pipeTypeName = pc.pipeTypeName;
+            }
+
+            try
+            {
+                //One element selected, creates pipe at random connector
+                //Or an elbow for pipe
+                //Two elements selected: Creates pipe between them
+                //NOTE: the connectors must be aligned
+                using (Transaction tx = new Transaction(doc))
+                {
+                    //Get the typeId of the selected or read PipeType
+                    var filter = fi.ParameterValueGenericFilter(doc, pipeTypeName, BuiltInParameter.ALL_MODEL_TYPE_NAME);
+                    FilteredElementCollector col = new FilteredElementCollector(doc);
+                    var pipeType = col.OfClass(typeof(PipeType)).WherePasses(filter).ToElements().FirstOrDefault();
+                    if (pipeType == null) throw new Exception("Collection of PipeType failed!");
+
+                    //LevelId can be null -> work around
+                    ElementId levelId;
+                    FilteredElementCollector lcol = new FilteredElementCollector(doc);
+                    var randomLvl = lcol.OfClass(typeof(Level)).ToElements().LastOrDefault(); //Select random levelid
+                    levelId = randomLvl.Id;
+
+                    FilteredElementCollector scol = new FilteredElementCollector(doc);
+                    var randomPipingSystemTypeId = scol.OfClass(
+                        typeof(PipingSystemType)).ToElements().LastOrDefault(); //Select random pipingsystemtypeid
+                    ElementId systemTypeId = randomPipingSystemTypeId.Id;
+
+                    tx.Start("Create pipe!");
+                    Pipe.Create(doc, systemTypeId, pipeType.Id, levelId, endPoints[0], endPoints[1]);
+                    tx.Commit();
                 }
             }
             catch (Exception e)
