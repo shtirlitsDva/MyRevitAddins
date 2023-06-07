@@ -233,7 +233,7 @@ namespace PDFExporter
                         options.PaperPlacement = PaperPlacementType.Center;
                         options.PaperOrientation = PageOrientationType.Landscape;
                         options.Combine = true;
-                        options.FileName = fileName.FileName;
+                        options.FileName = Path.GetFileNameWithoutExtension(fileName.FileName);
 
                         doc.Export(pathToExport, new List<ElementId>() { sheet.Id }, options);
 
