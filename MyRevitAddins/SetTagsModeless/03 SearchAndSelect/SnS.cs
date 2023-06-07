@@ -45,7 +45,7 @@ namespace ModelessForms.SearchAndSelect
                 "X:\\Github\\shtirlitsDva\\MyRevitAddins\\MyRevitAddins\\SetTagsModeless\\NLog.config");
 
             //Setup a rudimentary list with categories
-            string[] cats = { "Pipes", "Pipe Fittings", "Pipe Accessories" };
+            string[] cats = { "Pipes", "Pipe Fittings", "Pipe Accessories", "Generic Models" };
             checkedListBox2.Items.Clear();
             checkedListBox2.Items.AddRange(cats);
 
