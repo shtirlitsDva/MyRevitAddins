@@ -257,17 +257,17 @@ namespace PDFExporter
                     //pm.PrintToFileName = printfilename;
                     #endregion
 
-                    FamilyInstance titleBlock =
-                        fi.GetElements<FamilyInstance, BuiltInParameter>(
-                            doc, BuiltInParameter.SHEET_NUMBER, sheet.SheetNumber).FirstOrDefault();
+                    //FamilyInstance titleBlock =
+                    //    fi.GetElements<FamilyInstance, BuiltInParameter>(
+                    //        doc, BuiltInParameter.SHEET_NUMBER, sheet.SheetNumber).FirstOrDefault();
 
-                    var widthPar = titleBlock.get_Parameter(BuiltInParameter.SHEET_WIDTH);
-                    var width = Convert.ToInt32(widthPar.AsDouble().FtToMm().Round(0));
+                    //var widthPar = titleBlock.get_Parameter(BuiltInParameter.SHEET_WIDTH);
+                    //var width = Convert.ToInt32(widthPar.AsDouble().FtToMm().Round(0));
 
-                    var heightPar = titleBlock.get_Parameter(BuiltInParameter.SHEET_HEIGHT);
-                    var height = Convert.ToInt32(heightPar.AsDouble().FtToMm().Round(0));
+                    //var heightPar = titleBlock.get_Parameter(BuiltInParameter.SHEET_HEIGHT);
+                    //var height = Convert.ToInt32(heightPar.AsDouble().FtToMm().Round(0));
 
-                    var nameOfPaperSize = paperSizeDict[height][width];
+                    //var nameOfPaperSize = paperSizeDict[height][width];
 
                     PDFExportOptions options = new PDFExportOptions();
                     options.PaperFormat = ExportPaperFormat.Default;
