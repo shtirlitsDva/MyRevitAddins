@@ -230,6 +230,13 @@
       <DependentUpon>03 PressureLossCalcForm.cs</DependentUpon>
     </Compile>
     <Compile Include="23 CreateElementFromDirectShape\01 CreatePipeFromDriectShape.cs" />
+    <Compile Include="24 SelectByGuid\01 SelectByGuid.cs" />
+    <Compile Include="24 SelectByGuid\InputBox.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="24 SelectByGuid\InputBox.Designer.cs">
+      <DependentUpon>InputBox.cs</DependentUpon>
+    </Compile>
     <Compile Include="MEPUtilsClass.cs" />
     <Compile Include="MoreLinq\MoreEnumerable.DistinctBy.cs" />
     <Compile Include="MoreLinq\MoreEnumerable.MinBy.cs" />
@@ -298,6 +305,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="22 PressureLossCalc\03 PressureLossCalcForm.resx">
       <DependentUpon>03 PressureLossCalcForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="24 SelectByGuid\InputBox.resx">
+      <DependentUpon>InputBox.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MEPUtils.resx">
       <DependentUpon>MEPUtils.cs</DependentUpon>
