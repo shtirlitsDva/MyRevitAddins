@@ -39,8 +39,41 @@ namespace MEPUtils.DrawingListManagerV2
                 if (infosDict.ContainsKey(DrawingInfoTypeEnum.DrawingList))
                     excel = infosDict[DrawingInfoTypeEnum.DrawingList];
 
-                //First analyze data between released and excel
-                if (released != default )
+                //1. First analyze data between released and excel
+                //1.1. Released and excel are both present
+                if (released != default && excel != default)
+                {
+
+                }
+                //1.2. Released is present and excel is missing
+                else if (released != default && excel == default)
+                {
+
+
+                    //1.2.1. If staging is present
+                    if (staging != default)
+                    {
+                        //
+                    }
+                }
+                //1.3. Released is missing and excel is present
+                else if (released == default && excel != default)
+                {
+                    //1.3.1. If staging is present
+                    if (staging != default)
+                    {
+                        //
+                    }
+                }
+                //1.4. Released and excel are both missing
+                else if (released == default && excel == default)
+                {
+                    //1.4.1. If staging is present
+                    if (staging != default)
+                    {
+                        //
+                    }
+                }
             }
 
             yield break;
