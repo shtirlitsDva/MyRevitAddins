@@ -19,7 +19,7 @@ namespace MEPUtils.DrawingListManagerV2
             {
                 if (gr.Name.IsNotNoE())
                 {
-                    Field field = new Field.Fields()
+                    Field? field = new Field.Fields()
                         .GetAllFields()
                         .Where(x => x.RegexName == gr.Name)
                         .FirstOrDefault();

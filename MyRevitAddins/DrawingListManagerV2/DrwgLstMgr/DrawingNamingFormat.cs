@@ -25,8 +25,8 @@ namespace MEPUtils.DrawingListManagerV2
     public class DrawingNamingFormat
     {
         public FileNameFormat Format { get; private set; }
-        public Regex Regex { get; private set; }
-        public string DrawingFileNameFormatDescription { get; private set; }
+        public Regex? Regex { get; private set; }
+        public string? DrawingFileNameFormatDescription { get; private set; }
         public bool TestFormat(string fileName) => this.Regex.IsMatch(fileName);
         
         /// <summary>
@@ -65,8 +65,8 @@ namespace MEPUtils.DrawingListManagerV2
             public VeksNoRevision()
             {
                 Format = FileNameFormat.VeksNoRevision;
-                Regex = new Regex(@"(?<number>\d{3}-\d{2}-\p{L}{3}\d-\d{3})\s-\s(?<title>.+?)(?<extension>\.[^.]{4,5}$)");
-                DrawingFileNameFormatDescription = "VEKS U. REV";
+                Regex = new Regex(@"(?<number>\d{3}-\d{2}-\p{L}{3}\d-\d{3})\s-\s(?<title>.+?)(?:\.)(?<extension>[^.]{3,5}$)");
+                DrawingFileNameFormatDescription = "VEKS GL U. REV";
             }
         }
 
@@ -75,8 +75,8 @@ namespace MEPUtils.DrawingListManagerV2
             public VeksWithRevision()
             {
                 Format = FileNameFormat.VeksWithRevision;
-                Regex = new Regex(@"(?<number>\d{3}-\d{2}-\p{L}{3}\d-\d{3})(?:-)(?<revision>[\p{L}0-9]+)\s-\s(?<title>.+?)(?<extension>\.[^.]{4,5}$)");
-                DrawingFileNameFormatDescription = "VEKS M. REV";
+                Regex = new Regex(@"(?<number>\d{3}-\d{2}-\p{L}{3}\d-\d{3})(?:-)(?<revision>[\p{L}0-9]+)\s-\s(?<title>.+?)(?:\.)(?<extension>[^.]{3,5}$)");
+                DrawingFileNameFormatDescription = "VEKS GL M. REV";
             }
         }
 
@@ -85,7 +85,7 @@ namespace MEPUtils.DrawingListManagerV2
             public DRI_BygNoRevision()
             {
                 Format = FileNameFormat.DRI_BygNoRevision;
-                Regex = new Regex(@"(?<number>\d{3}-\d{4}-BYG\d{2})\s-\s(?<title>.+?)(?<extension>\.[^.]{4,5}$)");
+                Regex = new Regex(@"(?<number>\d{3}-\d{4}-BYG\d{2})\s-\s(?<title>.+?)(?<extension>\.[^.]{3,5}$)");
                 DrawingFileNameFormatDescription = "DRI BYG U. REV";
             }
         }
@@ -95,7 +95,7 @@ namespace MEPUtils.DrawingListManagerV2
             public DRI_BygWithRevision()
             {
                 Format = FileNameFormat.DRI_BygWithRevision;
-                Regex = new Regex(@"(?<number>\d{3}-\d{4}-BYG\d{2})(?:-)(?<revision>[\p{L}0-9]+)\s-\s(?<title>.+?)(?<extension>\.[^.]{4,5}$)");
+                Regex = new Regex(@"(?<number>\d{3}-\d{4}-BYG\d{2})(?:-)(?<revision>[\p{L}0-9]+)\s-\s(?<title>.+?)(?<extension>\.[^.]{3,5}$)");
                 DrawingFileNameFormatDescription = "DRI BYG M. REV";
             }
         }
@@ -105,7 +105,7 @@ namespace MEPUtils.DrawingListManagerV2
             public STD_NoRevision()
             {
                 Format = FileNameFormat.STD_NoRevision;
-                Regex = new Regex(@"(?<number>STD-\d{3}-\d{3})\s-\s(?<title>.+?)(?<extension>\.[^.]{4,5}$)");
+                Regex = new Regex(@"(?<number>STD-\d{3}-\d{3})\s-\s(?<title>.+?)(?<extension>\.[^.]{3,5}$)");
                 DrawingFileNameFormatDescription = "DRI STD U. REV";
             }
         }
@@ -115,7 +115,7 @@ namespace MEPUtils.DrawingListManagerV2
             public STD_WithRevision()
             {
                 Format = FileNameFormat.STD_WithRevision;
-                Regex = new Regex(@"(?<number>STD-\d{3}-\d{3})(?:-)(?<revision>[\p{L}0-9]+)\s-\s(?<title>.+?)(?<extension>\.[^.]{4,5}$)");
+                Regex = new Regex(@"(?<number>STD-\d{3}-\d{3})(?:-)(?<revision>[\p{L}0-9]+)\s-\s(?<title>.+?)(?<extension>\.[^.]{3,5}$)");
                 DrawingFileNameFormatDescription = "DRI STD M. REV";
             }
         }
