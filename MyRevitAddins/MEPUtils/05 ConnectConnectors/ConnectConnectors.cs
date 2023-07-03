@@ -80,7 +80,7 @@ namespace MEPUtils
                         Connector c2 = (from Connector c in allConnectors where c.Equalz(c1, Extensions._1mmTol) select c).FirstOrDefault();
                         try
                         {
-                            if (c1?.Owner.Id.IntegerValue == c2?.Owner.Id.IntegerValue) continue;
+                            if (c1?.Owner.Id == c2?.Owner.Id) continue;
                             c2?.ConnectTo(c1);
                         }
                         catch (Exception)
@@ -211,7 +211,7 @@ namespace MEPUtils
                         Connector c2 = (from Connector c in connectors where c.Equalz(c1, Extensions._1mmTol) select c).FirstOrDefault();
                         if (c2 != null)
                         {
-                            if (c1.Owner.Id.IntegerValue == c2.Owner.Id.IntegerValue) continue;
+                            if (c1.Owner.Id == c2.Owner.Id) continue;
                             if (c1.IsConnected) c2.DisconnectFrom(c1);
                             else c2.ConnectTo(c1);
                         }
