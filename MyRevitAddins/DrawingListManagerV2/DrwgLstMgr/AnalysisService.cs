@@ -48,12 +48,13 @@ namespace MEPUtils.DrawingListManagerV2
                     if (staging != default)
                     {
                         //Enter code here
-                    }
+                }
                 }
                 //1.2. Released is present and excel is missing
                 else if (released != default && excel == default)
                 {
                     //Enter code here
+
 
                     //1.2.1. If staging is present
                     if (staging != default)

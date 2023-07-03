@@ -27,11 +27,17 @@ namespace MEPUtils
             Document doc = uiApp.ActiveUIDocument.Document;
 
             FilteredElementCollector collector = new FilteredElementCollector(doc);
-            var family = collector.OfClass(typeof(Family)).Where(e => e.Name == "Flange weld collar").Cast<Family>().FirstOrDefault();
-            if (family == null) throw new Exception("No Flange Weld collar family in project!");
-            var famSymbolList = family.GetFamilySymbolIds();
-            var query = famSymbolList.Select(t => doc.GetElement(t)).ToHashSet();
-            var list = query.Select(e => $"{family.Name}: {e.Name}").ToList();
+            var families = collector.OfClass(typeof(Family))
+                .Where(e => e.Name.Contains("Flange weld collar")).Cast<Family>();
+            //if (family == null) throw new Exception("No Flange Weld collar family in project!");
+            if (families.Count() == 0) throw new Exception("No Flange Weld collar family in project!");
+            List<string> list = new List<string>();
+            foreach (Family family in families)
+            {
+                var famSymbolList = family.GetFamilySymbolIds();
+                var query = famSymbolList.Select(t => doc.GetElement(t));
+                list.AddRange(query.Select(e => $"{family.Name}: {e.Name}"));
+            }
             list.Sort();
 
             //From here: http://stackoverflow.com/questions/34426888/dynamic-button-creation-placing-them-in-a-predefined-order-using-c-sharp
