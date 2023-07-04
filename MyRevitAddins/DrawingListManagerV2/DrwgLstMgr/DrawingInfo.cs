@@ -42,6 +42,8 @@ namespace MEPUtils.DrawingListManagerV2
             var result = DetermineFormat(FileName);
 
             Format = result.fnf;
+            if (result.fnf == FileNameFormat.Other)
+                result.dnf = new DrawingNamingFormat.Other();
             DrawingNamingFormat = result.dnf;
 
             switch (drawingType)
@@ -57,7 +59,7 @@ namespace MEPUtils.DrawingListManagerV2
                         {
                             PropertyData = new Dictionary<PropertiesEnum, string>
                             {
-                                { PropertiesEnum.Title, FileName }
+                                { PropertiesEnum.Number, FileName }
                             };
                         }
                         else
@@ -69,7 +71,7 @@ namespace MEPUtils.DrawingListManagerV2
                         MetaData = MetadataReaderService.ReadData(fileNameWithPath);
                     }
                     break;
-                case DrawingInfoTypeEnum.DrawingList:
+                case DrawingInfoTypeEnum.Excel:
                     {
                         throw new Exception("Wrong DrawingInfo constructor for Excel Data!");
                     }
@@ -82,15 +84,36 @@ namespace MEPUtils.DrawingListManagerV2
             DrawingType = drawingType;
         }
 
-        public string GetPropertyValue(PropertiesEnum prop) =>
-            PropertyData.ContainsKey(prop) ? PropertyData[prop] : "";
+        public string GetPropertyValue(PropertiesEnum property)
+        {
+            if (this.DrawingType == DrawingInfoTypeEnum.Excel)
+                return PropertyData.ContainsKey(property) ? PropertyData[property] : "";
+
+            else if (
+                property == PropertiesEnum.Number ||
+                property == PropertiesEnum.Title ||
+                property == PropertiesEnum.Revision)
+            {
+                return PropertyData.ContainsKey(property) ? PropertyData[property] : "";
+            }
+            else
+            {
+                if (this.HasMetaData)
+                {
+                    return GetMetadataValue(property);
+                }
+
+                return "";
+            }
+        }
+
         public string GetMetadataValue(PropertiesEnum prop) =>
             MetaData.ContainsKey(prop) ? MetaData[prop] : "";
 
         private int TestFormatsForMultipleMatches(string fileName)
         {
             int count = 0;
-            foreach (DrawingNamingFormat dnf in 
+            foreach (DrawingNamingFormat dnf in
                 DrawingNamingFormatService.GetDrawingNamingFormatsList())
             {
                 if (dnf.TestFormat(fileName)) count++;
@@ -118,6 +141,6 @@ namespace MEPUtils.DrawingListManagerV2
         Unknown,
         Released,
         Staging,
-        DrawingList
+        Excel
     }
 }

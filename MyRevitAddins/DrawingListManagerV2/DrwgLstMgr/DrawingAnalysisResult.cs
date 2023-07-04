@@ -8,16 +8,32 @@ namespace MEPUtils.DrawingListManagerV2
 {
     internal class DrawingAnalysisResult
     {
-        public DrawingAttributeAnalysisResult DrawingNumber { get; set; }
-        public DrawingAttributeAnalysisResult Title { get; set; }
-        public DrawingAttributeAnalysisResult Scale { get; set; }
-        public DrawingAttributeAnalysisResult ReleaseDate { get; set; }
-        public DrawingAttributeAnalysisResult RevisionLetter { get; set; }
-        public DrawingAttributeAnalysisResult RevisionDate { get; set; }
+        public DrawingAnalysisResult(IGrouping<string, DrawingInfo> data)
+        {
+            DrawingNumber = new DrawingAttributeAnalysisResult(
+                PropertiesEnum.Number, data);
+            Title = new DrawingAttributeAnalysisResult(
+                PropertiesEnum.Title, data);
+            Scale = new DrawingAttributeAnalysisResult(
+                PropertiesEnum.Scale, data);
+            ReleaseDate = new DrawingAttributeAnalysisResult(
+                PropertiesEnum.Date, data);
+            RevisionLetter = new DrawingAttributeAnalysisResult(
+                PropertiesEnum.Revision, data);
+            RevisionDate = new DrawingAttributeAnalysisResult(
+                PropertiesEnum.RevisionDate, data);
+        }
+        public DrawingAttributeAnalysisResult DrawingNumber { get; }
+        public DrawingAttributeAnalysisResult Title { get; }
+        public DrawingAttributeAnalysisResult Scale { get; }
+        public DrawingAttributeAnalysisResult ReleaseDate { get; }
+        public DrawingAttributeAnalysisResult RevisionLetter { get; }
+        public DrawingAttributeAnalysisResult RevisionDate { get; }
+        public bool IsValid() => DrawingNumber.IsValid();
 
         // Additional properties to keep track of the status
-        public bool IsConsistentWithDrawingList { get; set; }
-        public bool HasPendingRevision { get; set; }
-        public bool HasMetadata { get; set; }
+        private bool IsConsistentWithDrawingList { get; set; }
+        private bool HasPendingRevision { get; set; }
+        private bool HasMetadata { get; set; }
     }
 }

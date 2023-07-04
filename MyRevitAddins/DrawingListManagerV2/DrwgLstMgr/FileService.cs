@@ -9,9 +9,10 @@ namespace MEPUtils.DrawingListManagerV2
 {
     internal static class FileService
     {
-        internal static IEnumerable<DrawingInfo> GetDrawingInfosFromDirectory(string pathToFolder, DrawingInfoTypeEnum drawingType)
+        internal static IEnumerable<DrawingInfo> GetDrawingInfosFromDirectory(
+            string pathToFolder, DrawingInfoTypeEnum drawingType)
         {
-            if (Directory.Exists(pathToFolder))
+            if (!Directory.Exists(pathToFolder))
                 throw new System.Exception(
                     $"Drawing folder type {drawingType} does not exist!");
 
@@ -22,6 +23,7 @@ namespace MEPUtils.DrawingListManagerV2
             foreach (var file in fileList)
             {
                 DrawingInfo drawingInfo = new DrawingInfo(file, drawingType);
+
                 yield return drawingInfo;
             }
         }

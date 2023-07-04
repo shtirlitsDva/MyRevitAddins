@@ -16,7 +16,7 @@ namespace MEPUtils.DrawingListManagerV2
             //var otherType = typeof(DrawingNamingFormat.Other);
 
             var subFieldTypes = dnfType.Assembly.DefinedTypes
-                .Where(x => dnfType.IsAssignableFrom(x) && x != dnfType); //&& x != otherType)
+                .Where(x => dnfType.IsAssignableFrom(x) && x != dnfType);// && x != otherType);
 
             foreach (var field in subFieldTypes)
                 yield return (DrawingNamingFormat)Activator.CreateInstance(field);
@@ -37,7 +37,7 @@ namespace MEPUtils.DrawingListManagerV2
             public Other()
             {
                 Format = FileNameFormat.Other;
-                Regex = null;
+                Regex = new Regex("Andet");
                 DrawingFileNameFormatDescription = "Andet";
             }
         }

@@ -13,7 +13,7 @@ namespace MEPUtils.DrawingListManagerV2
     {
         internal static IEnumerable<DrawingInfo> GetDrawingInfosFromExcel(string pathToExcel)
         {
-            DrawingInfoTypeEnum drawingType = DrawingInfoTypeEnum.DrawingList;
+            DrawingInfoTypeEnum drawingType = DrawingInfoTypeEnum.Excel;
 
             //Fields for Excel Interop
             Microsoft.Office.Interop.Excel.Workbook wb;

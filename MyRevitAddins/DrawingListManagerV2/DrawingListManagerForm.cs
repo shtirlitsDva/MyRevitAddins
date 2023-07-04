@@ -10,7 +10,6 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using mySettings = MEPUtils.DrawingListManagerV2.Properties.Settings;
 using Color = System.Drawing.Color;
-using FolderSelect;
 
 namespace MEPUtils.DrawingListManagerV2
 {
@@ -27,6 +26,9 @@ namespace MEPUtils.DrawingListManagerV2
             pathToDwgList = mySettings.Default.PathToDwgList;
             pathToStagingFolder = mySettings.Default.PathToStagingFolder;
             dGV1.DefaultCellStyle.BackColor = DefaultBackColor;
+            textBox2.Text = pathToReleasedFolder;
+            textBox1.Text = pathToDwgList;
+            textBox5.Text = pathToStagingFolder;
 
             //Staging found textbox and consolidate button visibility
             textBox12.Visible = false;
@@ -49,13 +51,13 @@ namespace MEPUtils.DrawingListManagerV2
         /// </summary>
         private void button1_Click(object sender, EventArgs e)
         {
-            FolderSelectDialog dialog = new FolderSelectDialog();
+            FolderBrowserDialog dialog = new FolderBrowserDialog();
             if (string.IsNullOrEmpty(pathToReleasedFolder)) dialog.InitialDirectory =
                     Environment.ExpandEnvironmentVariables("%userprofile%");
             else dialog.InitialDirectory = pathToReleasedFolder;
-            if (dialog.ShowDialog(IntPtr.Zero))
+            if (dialog.ShowDialog() == DialogResult.OK)
             {
-                pathToReleasedFolder = dialog.FileName + "\\";
+                pathToReleasedFolder = dialog.SelectedPath + "\\";
                 mySettings.Default.PathToDwgFolder = pathToReleasedFolder;
                 textBox2.Text = pathToReleasedFolder;
                 if (pathToReleasedFolder.IsNotNoE() && Directory.Exists(pathToReleasedFolder))
@@ -93,13 +95,13 @@ namespace MEPUtils.DrawingListManagerV2
         /// </summary>
         private void button5_Click(object sender, EventArgs e)
         {
-            FolderSelectDialog dialog = new FolderSelectDialog();
+            FolderBrowserDialog dialog = new FolderBrowserDialog();
             if (string.IsNullOrEmpty(pathToStagingFolder)) dialog.InitialDirectory =
                     Environment.ExpandEnvironmentVariables("%userprofile%");
             else dialog.InitialDirectory = pathToStagingFolder;
-            if (dialog.ShowDialog(IntPtr.Zero))
+            if (dialog.ShowDialog() == DialogResult.OK)
             {
-                pathToStagingFolder = dialog.FileName + "\\";
+                pathToStagingFolder = dialog.SelectedPath + "\\";
                 mySettings.Default.PathToStagingFolder = pathToStagingFolder;
                 textBox5.Text = pathToStagingFolder;
 
@@ -130,6 +132,9 @@ namespace MEPUtils.DrawingListManagerV2
 
             var analysisResult = AnalysisService.AnalyseDrawings(
                 releasedDrawings, stagingDrawings, excelDrawings);
+
+            dGV1.DataSource = analysisResult
+                .OrderBy(x => x.DrawingNumber.ToString()).ToList();
         }
 
         /// <summary>
@@ -150,7 +155,7 @@ namespace MEPUtils.DrawingListManagerV2
         {
             if (!subscribedToCellValueChanged)
             {
-                dGV1.CellValueChanged += DGV1_CellValueChanged;
+                dGV1.CellValueChanged += DGV1_CellValueChanged!;
                 subscribedToCellValueChanged = true;
             }
         }
@@ -176,6 +181,9 @@ namespace MEPUtils.DrawingListManagerV2
         }
         private void DrawingListManagerForm_FormClosing(object sender, FormClosingEventArgs e)
         {
+            mySettings.Default.PathToDwgFolder = pathToReleasedFolder;
+            mySettings.Default.PathToDwgList = pathToDwgList;
+            mySettings.Default.PathToStagingFolder = pathToStagingFolder;
             mySettings.Default.Save();
         }
         #endregion
