@@ -14,6 +14,8 @@ namespace MEPUtils.DrawingListManagerV2
         { ForeColor = Color.Yellow, BackColor = Color.DeepSkyBlue };
         internal static DataGridViewCellStyle RevisionPending { get; } = new DataGridViewCellStyle()
         { ForeColor = Color.Green, BackColor = Color.LemonChiffon };
+        internal static DataGridViewCellStyle NewDrawing { get; } = new DataGridViewCellStyle()
+        { ForeColor = Color.Cyan, BackColor = Color.Magenta};
         internal static DataGridViewCellStyle Error { get; } = new DataGridViewCellStyle()
         { ForeColor = Color.DarkRed, BackColor = Color.Thistle };
         internal static DataGridViewCellStyle OnlyExcelData { get; } = new DataGridViewCellStyle()

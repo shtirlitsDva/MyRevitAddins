@@ -8,6 +8,7 @@ namespace MEPUtils.DrawingListManagerV2
 {
     internal class DrawingAttributeAnalysisResult
     {
+        private DrawingAttributeAnalysisResult() { }
         public DrawingAttributeAnalysisResult(PropertiesEnum property,
             IGrouping<string, DrawingInfo> group)
         {
@@ -19,29 +20,21 @@ namespace MEPUtils.DrawingListManagerV2
                 //    throw new Exception("There are more than three " +
                 //        $"DrawingInfos for drawing number {group.Key}!");
 
-                SetData(info.GetPropertyValue(property), info.DrawingType);
+                Data.SetData(info.GetPropertyValue(property), info.DrawingType);
             }
         }
 
-        private string[] data = new string[4];
+        private PropertyDataService Data = new PropertyDataService();
         public string ToolTip { get => GetToolTip(); }
-        private void SetData(string value, DrawingInfoTypeEnum drawingType)
-        {
-            data[(int)drawingType] = value;
-        }
-        public string GetData(DrawingInfoTypeEnum drawingType)
-        {
-            return data[(int)drawingType];
-        }
         private string GetToolTip()
         {
             List<string> toolTip = new List<string>();
             for (int i = 1; i < 4; i++)
             {
-                if (data[i].IsNotNoE())
+                if (Data[i].IsNotNoE())
                     toolTip.Add(
                         Enum.GetName(typeof(DrawingInfoTypeEnum), i) + ": "
-                        + data[i]);
+                        + Data[i]);
             }
 
             return string.Join("\n", toolTip);
@@ -49,13 +42,24 @@ namespace MEPUtils.DrawingListManagerV2
         private string _displayValue { get => _getDisplayValue(); }
         private string _getDisplayValue()
         {
-            if (data[1].IsNotNoE()) return data[1];
-            else if (data[2].IsNotNoE()) return data[2];
-            else if (data[3].IsNotNoE()) return data[3];
-            else return "";
+            if (Data.HasExcel) return Data.Excel;
+            else if (Data.HasReleased) return Data.Released;
+            else if (Data.HasStaging) return Data.Staging;
+            else return "WRN0001:Empty property!";
         }
         public override string ToString() => _displayValue;
         public bool IsValid() => _displayValue.IsNotNoE();
+        private DataGridViewCellStyle _getCellStyle()
+        {
+            //Cases:
+            //1. The excel and released data are the same and there's no staging data
+            //-> All okay
+            if (Data.HasExcel && Data.HasReleased)
+            {
+                if 
+            }
+            //2. The excel and released data are the same and there's staging data
+        }
         public DataGridViewCellStyle? CellStyle { get; set; }
     }
 }

@@ -139,8 +139,8 @@ namespace MEPUtils.DrawingListManagerV2
     public enum DrawingInfoTypeEnum
     {
         Unknown,
+        Excel,
         Released,
         Staging,
-        Excel
     }
 }
