@@ -33,7 +33,7 @@ namespace MEPUtils.DrawingListManagerV2
         private static Graphics g = Graphics.FromImage(bmp);
         private static Font font = SystemFonts.DefaultFont;
         private static string[] enumNames = Enum.GetNames(typeof(DrawingInfoTypeEnum));
-        private static string _getKey(int i) => enumNames[i].Substring(0, 1) + "; ";
+        private static string _getKey(int i) => enumNames[i].Substring(0, 1) + ": ";
         private string _getToolTip()
         {
             List<string> toolTip = new List<string>();
@@ -45,7 +45,7 @@ namespace MEPUtils.DrawingListManagerV2
                 if (Data[i].IsNotNoE())
                 {
                     var key = _getKey(i);
-                    var keySize = g.MeasureString(key + ": ", font);
+                    var keySize = g.MeasureString(key, font);
                     maxWidth = Math.Max(maxWidth, keySize.Width);
                 }
             }
@@ -56,10 +56,10 @@ namespace MEPUtils.DrawingListManagerV2
                 if (Data[i].IsNotNoE())
                 {
                     var key = _getKey(i);
-                    var keySize = g.MeasureString(key + ": ", font);
-                    int numSpaces = (int)((maxWidth - keySize.Width) / g.MeasureString(" ", font).Width);
-                    var paddedKey = key + ": " + new string(' ', numSpaces);
-                    toolTip.Add($"{paddedKey}{Data[i]}");
+                    //var keySize = g.MeasureString(key, font);
+                    //int numSpaces = (int)((maxWidth - keySize.Width) / g.MeasureString(" ", font).Width);
+                    //var paddedKey = key + new string(' ', numSpaces);
+                    toolTip.Add($"{key}{Data[i]}");
                 }
             }
 
