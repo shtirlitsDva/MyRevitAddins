@@ -15,6 +15,7 @@ namespace MEPUtils.DrawingListManagerV2
         public DrawingAttributeAnalysisResult(PropertiesEnum property,
             IGrouping<string, DrawingInfo> group)
         {
+            this._property = property;
             //int count = 0;
             foreach (DrawingInfo info in group)
             {
@@ -52,6 +53,7 @@ namespace MEPUtils.DrawingListManagerV2
         }
         public override string ToString() => _displayValue;
         public bool IsValid() => _displayValue.IsNotNoE();
+        private PropertiesEnum _property;
         private DataGridViewCellStyle _getCellStyle()
         {
             DataGridViewCellStyle? style = default;
@@ -82,6 +84,11 @@ namespace MEPUtils.DrawingListManagerV2
             }
             else throw new Exception("This should never happen!");
             
+            if (_property == PropertiesEnum.Number)
+                style.Alignment = DataGridViewContentAlignment.MiddleRight;
+            else if (_property == PropertiesEnum.Title)
+                style.Alignment = DataGridViewContentAlignment.MiddleLeft;
+
             return style;
         }
         public DataGridViewCellStyle CellStyle { get => _getCellStyle(); }
