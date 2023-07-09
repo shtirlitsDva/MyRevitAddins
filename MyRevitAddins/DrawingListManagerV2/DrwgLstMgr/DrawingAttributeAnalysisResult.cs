@@ -29,39 +29,16 @@ namespace MEPUtils.DrawingListManagerV2
 
         private PropertyDataService Data = new PropertyDataService();
         public string ToolTip { get => _getToolTip(); }
-        private static Bitmap bmp = new Bitmap(1, 1);
-        private static Graphics g = Graphics.FromImage(bmp);
-        private static Font font = SystemFonts.DefaultFont;
         private static string[] enumNames = Enum.GetNames(typeof(DrawingInfoTypeEnum));
         private static string _getKey(int i) => enumNames[i].Substring(0, 1) + ": ";
         private string _getToolTip()
         {
             List<string> toolTip = new List<string>();
-            float maxWidth = 0;
-
-            // Find the maximum string width
-            for (int i = 1; i < numberOfEnumValues; i++)
-            {
-                if (Data[i].IsNotNoE())
-                {
-                    var key = _getKey(i);
-                    var keySize = g.MeasureString(key, font);
-                    maxWidth = Math.Max(maxWidth, keySize.Width);
-                }
-            }
 
             // Create the tooltips with padding for alignment
             for (int i = 1; i < numberOfEnumValues; i++)
-            {
                 if (Data[i].IsNotNoE())
-                {
-                    var key = _getKey(i);
-                    //var keySize = g.MeasureString(key, font);
-                    //int numSpaces = (int)((maxWidth - keySize.Width) / g.MeasureString(" ", font).Width);
-                    //var paddedKey = key + new string(' ', numSpaces);
-                    toolTip.Add($"{key}{Data[i]}");
-                }
-            }
+                    toolTip.Add($"{_getKey(i)}{Data[i]}");
 
             return string.Join("\n", toolTip);
         }
