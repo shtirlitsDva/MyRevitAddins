@@ -197,7 +197,18 @@ namespace MEPUtils.DrawingListManagerV2
             var daar = (DrawingAttributeAnalysisResult)
                 dataGridView[e.ColumnIndex, e.RowIndex].Value;
             if (daar != null)
-                e.CellStyle = daar.CellStyle;  // Set the style of the cell
+            {
+                if (daar.CellStyle == null)
+                    e.CellStyle = dataGridView.DefaultCellStyle;
+                else
+                {
+                    if (daar.CellStyle.Font == null)
+                        daar.CellStyle.Font = dataGridView.DefaultCellStyle.Font;
+
+                    e.CellStyle = daar.CellStyle;
+                }
+
+            } else e.CellStyle = dataGridView.DefaultCellStyle;
         }
         private void dGV1_CellToolTipTextNeeded(object sender, DataGridViewCellToolTipTextNeededEventArgs e)
         {
