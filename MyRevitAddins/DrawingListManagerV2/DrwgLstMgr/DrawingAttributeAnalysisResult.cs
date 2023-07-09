@@ -25,8 +25,8 @@ namespace MEPUtils.DrawingListManagerV2
         }
 
         private PropertyDataService Data = new PropertyDataService();
-        public string ToolTip { get => GetToolTip(); }
-        private string GetToolTip()
+        public string ToolTip { get => _getToolTip(); }
+        private string _getToolTip()
         {
             List<string> toolTip = new List<string>();
             for (int i = 1; i < 4; i++)
@@ -51,15 +51,36 @@ namespace MEPUtils.DrawingListManagerV2
         public bool IsValid() => _displayValue.IsNotNoE();
         private DataGridViewCellStyle _getCellStyle()
         {
+            DataGridViewCellStyle style = default;
             //Cases:
-            //1. The excel and released data are the same and there's no staging data
-            //-> All okay
             if (Data.HasExcel && Data.HasReleased)
             {
-                if 
+                if (!Data.HasStaging)
+                {
+                    if (Data.Excel == Data.Released) style = DgvStyles.AllOkay;
+                    else style = DgvStyles.Warning;
+                }
+                else style = DgvStyles.RevisionPending;
             }
-            //2. The excel and released data are the same and there's staging data
+            else if (Data.HasExcel && !Data.HasReleased)
+            {
+                if (!Data.HasStaging) style = DgvStyles.Error;
+                else style = DgvStyles.NewDrawing;
+            }
+            else if (!Data.HasExcel && Data.HasReleased)
+            {
+                if (!Data.HasStaging) style = DgvStyles.OnlyExcelData;
+                else style = DgvStyles.OnlyExcelData;
+            }
+            else if (!Data.HasExcel && !Data.HasReleased)
+            {
+                if (!Data.HasStaging) style = DgvStyles.Error;
+                else style = DgvStyles.Error;
+            }
+            else throw new Exception("This should never happen!");
+            
+            return style ?? new DataGridViewCellStyle();
         }
-        public DataGridViewCellStyle? CellStyle { get; set; }
+        public DataGridViewCellStyle CellStyle { get => _getCellStyle(); }
     }
 }

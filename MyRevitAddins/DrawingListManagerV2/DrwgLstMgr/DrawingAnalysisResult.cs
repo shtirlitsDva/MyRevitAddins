@@ -30,10 +30,5 @@ namespace MEPUtils.DrawingListManagerV2
         public DrawingAttributeAnalysisResult RevisionLetter { get; }
         public DrawingAttributeAnalysisResult RevisionDate { get; }
         public bool IsValid() => DrawingNumber.IsValid();
-
-        // Additional properties to keep track of the status
-        private bool IsConsistentWithDrawingList { get; set; }
-        private bool HasPendingRevision { get; set; }
-        private bool HasMetadata { get; set; }
     }
 }

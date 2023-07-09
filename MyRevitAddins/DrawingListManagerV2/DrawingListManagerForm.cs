@@ -43,6 +43,10 @@ namespace MEPUtils.DrawingListManagerV2
                 textBox11.Text =
                     Directory.EnumerateFiles(
                         pathToStagingFolder, "*.pdf", SearchOption.TopDirectoryOnly).Count().ToString();
+
+            //Init dgv
+            dGV1.CellFormatting += dGV1_CellFormatting!;
+            dGV1.CellToolTipTextNeeded += dGV1_CellToolTipTextNeeded!;
         }
 
         #region Buttons
@@ -185,6 +189,24 @@ namespace MEPUtils.DrawingListManagerV2
             mySettings.Default.PathToDwgList = pathToDwgList;
             mySettings.Default.PathToStagingFolder = pathToStagingFolder;
             mySettings.Default.Save();
+        }
+        private void dGV1_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
+        {
+            if (e.ColumnIndex < 0 || e.RowIndex < 0) return;
+            var dataGridView = (DataGridView)sender;
+            var daar = (DrawingAttributeAnalysisResult)
+                dataGridView[e.ColumnIndex, e.RowIndex].Value;
+            if (daar != null)
+                e.CellStyle = daar.CellStyle;  // Set the style of the cell
+        }
+        private void dGV1_CellToolTipTextNeeded(object sender, DataGridViewCellToolTipTextNeededEventArgs e)
+        {
+            if (e.ColumnIndex < 0 || e.RowIndex < 0) return;
+            var dataGridView = (DataGridView)sender;
+            var daar = (DrawingAttributeAnalysisResult)
+                dataGridView[e.ColumnIndex, e.RowIndex].Value;
+            if (daar != null)
+                e.ToolTipText = daar.ToolTip;  // Set the tool tip of the cell
         }
         #endregion
 
