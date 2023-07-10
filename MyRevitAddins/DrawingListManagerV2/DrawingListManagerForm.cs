@@ -119,7 +119,7 @@ namespace MEPUtils.DrawingListManagerV2
         /// <summary>
         /// (Re-) Scan button
         /// </summary>
-        private void button4_Click(object sender, EventArgs e)
+        private void Scan_Rescan_Click(object sender, EventArgs e)
         {
             dGV1.DataSource = null;
             dGV1.Refresh();
@@ -139,6 +139,9 @@ namespace MEPUtils.DrawingListManagerV2
 
             dGV1.DataSource = analysisResult
                 .OrderBy(x => x.DrawingNumber.ToString()).ToList();
+
+            foreach (DataGridViewColumn column in dGV1.Columns)
+                column.AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
         }
 
         /// <summary>
@@ -196,7 +199,7 @@ namespace MEPUtils.DrawingListManagerV2
             var dataGridView = (DataGridView)sender;
             var daar = (DrawingAttributeAnalysisResult)
                 dataGridView[e.ColumnIndex, e.RowIndex].Value;
-            if (daar != null || daar.CellStyle != null)
+            if (daar != null && daar.CellStyle != null)
             {
                 if (daar.CellStyle.Font == null)
                     daar.CellStyle.Font = dataGridView.DefaultCellStyle.Font;

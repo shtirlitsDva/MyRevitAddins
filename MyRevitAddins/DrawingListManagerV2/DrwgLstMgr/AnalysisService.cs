@@ -19,8 +19,6 @@ namespace MEPUtils.DrawingListManagerV2
 
             foreach (IGrouping<string, DrawingInfo> group in groups)
                 yield return new DrawingAnalysisResult(group);
-
-            yield break;
         }
     }
 }

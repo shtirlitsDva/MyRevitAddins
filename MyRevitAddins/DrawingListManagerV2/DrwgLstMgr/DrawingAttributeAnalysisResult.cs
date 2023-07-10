@@ -16,18 +16,14 @@ namespace MEPUtils.DrawingListManagerV2
             IGrouping<string, DrawingInfo> group)
         {
             this._property = property;
-            //int count = 0;
             foreach (DrawingInfo info in group)
             {
-                //count++;
-                //if (count > 3)
-                //    throw new Exception("There are more than three " +
-                //        $"DrawingInfos for drawing number {group.Key}!");
-
                 Data.SetData(info.GetPropertyValue(property), info.DrawingType);
+                if (property == PropertiesEnum.Number) fileNames.Add(info.FileNameWithPath);
             }
+                
         }
-
+        private List<string> fileNames = new List<string>();
         private PropertyDataService Data = new PropertyDataService();
         public string ToolTip { get => _getToolTip(); }
         private static string[] enumNames = Enum.GetNames(typeof(DrawingInfoTypeEnum));
@@ -49,7 +45,8 @@ namespace MEPUtils.DrawingListManagerV2
             if (Data.HasExcel) return Data.Excel;
             else if (Data.HasReleased) return Data.Released;
             else if (Data.HasStaging) return Data.Staging;
-            else return "WRN0001:Empty property!";
+            else return string.Join("\n", fileNames);
+            //else return "¯\\_(ツ)_/¯";
         }
         public override string ToString() => _displayValue;
         public bool IsValid() => _displayValue.IsNotNoE();
@@ -88,6 +85,7 @@ namespace MEPUtils.DrawingListManagerV2
                 style.Alignment = DataGridViewContentAlignment.MiddleRight;
             else if (_property == PropertiesEnum.Title)
                 style.Alignment = DataGridViewContentAlignment.MiddleLeft;
+            else style.Alignment = DataGridViewContentAlignment.MiddleCenter;
 
             return style;
         }

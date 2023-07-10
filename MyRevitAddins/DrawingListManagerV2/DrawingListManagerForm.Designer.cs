@@ -336,7 +336,7 @@
             button4.TabIndex = 16;
             button4.Text = "(Re-) Scan";
             button4.UseVisualStyleBackColor = true;
-            button4.Click += button4_Click;
+            button4.Click += Scan_Rescan_Click;
             // 
             // panel1
             // 
