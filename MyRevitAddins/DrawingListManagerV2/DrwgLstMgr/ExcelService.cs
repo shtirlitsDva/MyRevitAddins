@@ -85,6 +85,7 @@ namespace MEPUtils.DrawingListManagerV2
                         dict.Add(fields[j].PropertyName, value);
                     }
 
+                    if (dict.All(x => x.Value.IsNoE())) continue;
                     yield return new DrawingInfo(dict, drawingType);
                 }
             }

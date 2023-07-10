@@ -121,8 +121,9 @@ namespace MEPUtils.DrawingListManagerV2
         /// </summary>
         private void Scan_Rescan_Click(object sender, EventArgs e)
         {
+            dGV1.SuspendLayout();
             dGV1.DataSource = null;
-            dGV1.Refresh();
+            //dGV1.Refresh();
 
             var releasedDrawings =
                 FileService.GetDrawingInfosFromDirectory(
@@ -142,6 +143,8 @@ namespace MEPUtils.DrawingListManagerV2
 
             foreach (DataGridViewColumn column in dGV1.Columns)
                 column.AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
+            dGV1.Focus();
+            dGV1.ResumeLayout();
         }
 
         /// <summary>
@@ -157,35 +160,6 @@ namespace MEPUtils.DrawingListManagerV2
         #endregion
 
         #region Events
-        private bool subscribedToCellValueChanged = false;
-        private void dGV1_DataBindingComplete(object sender, DataGridViewBindingCompleteEventArgs e)
-        {
-            if (!subscribedToCellValueChanged)
-            {
-                dGV1.CellValueChanged += DGV1_CellValueChanged!;
-                subscribedToCellValueChanged = true;
-            }
-        }
-        Color defBackColor;
-        private void DGV1_CellValueChanged(object sender, DataGridViewCellEventArgs e)
-        {
-            //int col = e.ColumnIndex; int row = e.RowIndex;
-
-            ////The section where we handle changes to "Select" column
-            //if (dGV1.Columns[col].HeaderText == dlm.fs.Select.ColumnName)
-            //{
-            //    bool value = bool.Parse(dGV1.Rows[row].Cells[col].Value.ToString());
-            //    if (value)
-            //    {
-            //        defBackColor = dGV1.Rows[row].DefaultCellStyle.BackColor;
-            //        dGV1.Rows[row].DefaultCellStyle.BackColor = Color.DarkGray;
-            //    }
-            //    else
-            //    {
-            //        dGV1.Rows[row].DefaultCellStyle.BackColor = defBackColor;
-            //    }
-            //}
-        }
         private void DrawingListManagerForm_FormClosing(object sender, FormClosingEventArgs e)
         {
             mySettings.Default.PathToDwgFolder = pathToReleasedFolder;
@@ -196,6 +170,7 @@ namespace MEPUtils.DrawingListManagerV2
         private void dGV1_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
         {
             if (e.ColumnIndex < 0 || e.RowIndex < 0) return;
+            e.CellStyle = dGV1.DefaultCellStyle;
             var dataGridView = (DataGridView)sender;
             var daar = (DrawingAttributeAnalysisResult)
                 dataGridView[e.ColumnIndex, e.RowIndex].Value;
@@ -206,6 +181,13 @@ namespace MEPUtils.DrawingListManagerV2
 
                 e.CellStyle = daar.CellStyle;
 
+                if (dGV1.Rows[e.RowIndex].Cells[e.ColumnIndex].Selected)
+                {
+                    e.CellStyle.SelectionForeColor = Color.FromArgb(
+                        Math.Max(e.CellStyle.ForeColor.R - 50, 0),
+                        Math.Max(e.CellStyle.ForeColor.G - 50, 0),
+                        Math.Max(e.CellStyle.ForeColor.B - 50, 0));
+                }
             }
             else e.CellStyle = dataGridView.DefaultCellStyle;
         }

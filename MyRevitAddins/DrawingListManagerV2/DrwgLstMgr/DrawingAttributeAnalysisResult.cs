@@ -19,11 +19,11 @@ namespace MEPUtils.DrawingListManagerV2
             foreach (DrawingInfo info in group)
             {
                 Data.SetData(info.GetPropertyValue(property), info.DrawingType);
-                if (property == PropertiesEnum.Number) fileNames.Add(info.FileNameWithPath);
+                //if (property == PropertiesEnum.Number) fileNames.Add(info.FileNameWithPath);
             }
                 
         }
-        private List<string> fileNames = new List<string>();
+        //private List<string> fileNames = new List<string>();
         private PropertyDataService Data = new PropertyDataService();
         public string ToolTip { get => _getToolTip(); }
         private static string[] enumNames = Enum.GetNames(typeof(DrawingInfoTypeEnum));
@@ -45,8 +45,7 @@ namespace MEPUtils.DrawingListManagerV2
             if (Data.HasExcel) return Data.Excel;
             else if (Data.HasReleased) return Data.Released;
             else if (Data.HasStaging) return Data.Staging;
-            else return string.Join("\n", fileNames);
-            //else return "¯\\_(ツ)_/¯";
+            else return "¯\\_(ツ)_/¯";
         }
         public override string ToString() => _displayValue;
         public bool IsValid() => _displayValue.IsNotNoE();
@@ -66,7 +65,12 @@ namespace MEPUtils.DrawingListManagerV2
             }
             else if (Data.HasExcel && !Data.HasReleased)
             {
-                if (!Data.HasStaging) style = DgvStyles.Error;
+                if (!Data.HasStaging) 
+                {
+                    if (_property == PropertiesEnum.Number || _property == PropertiesEnum.Title)
+                        style = DgvStyles.Error;
+                    else style = DgvStyles.OnlyExcelData;
+                }
                 else style = DgvStyles.NewDrawing;
             }
             else if (!Data.HasExcel && Data.HasReleased)
