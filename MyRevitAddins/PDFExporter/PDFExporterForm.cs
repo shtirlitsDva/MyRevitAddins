@@ -199,7 +199,9 @@ namespace PDFExporter
                     if (curScalePar != null)
                     {
                         //Check to see if manual scale is on
-                        if (tb != null && tb.LookupParameter("Manual Skala Tændt").AsInteger() == 1)
+                        if (tb != null && 
+                            tb.LookupParameter("Manual Skala Tændt") != null && 
+                            tb.LookupParameter("Manual Skala Tændt").AsInteger() == 1)
                         {
                             Parameter curScaleManualPar = sheet.LookupParameter("Manual skala");
                             if (curScaleManualPar != null)
