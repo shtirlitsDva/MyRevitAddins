@@ -237,6 +237,8 @@
     <Compile Include="24 SelectByGuid\InputBox.Designer.cs">
       <DependentUpon>InputBox.cs</DependentUpon>
     </Compile>
+    <Compile Include="25 PipeSystemFilters\01 CheckOrCreatePipingSystemFilters.cs" />
+    <Compile Include="25 PipeSystemFilters\02 AddAllPipingSystemTypesFiltersToView.cs" />
     <Compile Include="MEPUtilsClass.cs" />
     <Compile Include="MoreLinq\MoreEnumerable.DistinctBy.cs" />
     <Compile Include="MoreLinq\MoreEnumerable.MinBy.cs" />
