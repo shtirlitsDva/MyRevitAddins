@@ -85,6 +85,7 @@ namespace MEPUtils
                 where !(c.Owner is PipeInsulation)
                 select c).FirstOrDefault();
 
+            #region Determine level
             //Determine levels
             HashSet<Level> levels = fi.GetElements<Level, BuiltInCategory>(doc, BuiltInCategory.OST_Levels);
             List<(Level lvl, double dist)> levelsWithDist = new List<(Level lvl, double dist)>(levels.Count);
@@ -99,7 +100,8 @@ namespace MEPUtils
             if (minimumLevel.Equals(default))
             {
                 throw new Exception($"Element {element.Id.ToString()} is below all levels!");
-            }
+            } 
+            #endregion
 
             //Create the flange (must be rotated AND moved in place)
             Element flange = doc.Create.NewFamilyInstance(
@@ -193,7 +195,9 @@ namespace MEPUtils
 
         }
 
-        private static void RotateElementInPosition(XYZ placementPoint, Connector conOnFamilyToConnect, Connector start, Connector end, Element element)
+        private static void RotateElementInPosition(
+            XYZ placementPoint, Connector conOnFamilyToConnect, 
+            Connector start, Connector end, Element element)
         {
             #region Geometric manipulation
 
