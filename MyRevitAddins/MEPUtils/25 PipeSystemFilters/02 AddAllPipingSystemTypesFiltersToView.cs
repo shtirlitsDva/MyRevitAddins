@@ -26,14 +26,12 @@ using System.Diagnostics;
 
 namespace MEPUtils.PipingSystemsAndFilters
 {
-    [Transaction(TransactionMode.Manual)]
-    class AddAllPipingSystemTypesFiltersToView : IExternalCommand
+    class AddAllPipingSystemTypesFiltersToView
     {
-        public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
+        public static string filterNamePrefix = "MECH_SYS_TYPE_";
+        public Result Execute(UIApplication uiApp)
         {
-            UIApplication uiApp = commandData.Application;
-            Document doc = commandData.Application.ActiveUIDocument.Document;
-            UIDocument uidoc = uiApp.ActiveUIDocument;
+            Document doc = uiApp.ActiveUIDocument.Document;
 
             using (Transaction tr = new Transaction(doc, "Add filters to view!"))
             {
@@ -67,7 +65,10 @@ namespace MEPUtils.PipingSystemsAndFilters
 
                     foreach (var pst in pipingSystemTypes.OrderBy(x => x.Key))
                     {
-                        if (!existingFilters.ContainsKey(pst.Key))
+                        //Name of the filter
+                        string filterName = filterNamePrefix + pst.Key;
+
+                        if (!existingFilters.ContainsKey(filterName))
                         {
                             Debug.WriteLine($"Filter for system type {pst.Key} not found! Creating...");
 
@@ -84,13 +85,17 @@ namespace MEPUtils.PipingSystemsAndFilters
 
                             var epf = new ElementParameterFilter(rules);
 
-                            var viewFilter = ParameterFilterElement.Create(doc, pst.Key, cats, epf);
+                            var viewFilter = ParameterFilterElement.Create(doc, filterName, cats, epf);
 
                             Debug.WriteLine($"Created FilterRule {viewFilter.Name}!");
 
                             view.AddFilter(viewFilter.Id);
                         }
-                        else view.AddFilter(existingFilters[pst.Key].Id);
+                        else
+                        {
+                            if (!view.IsFilterApplied(existingFilters[filterName].Id))
+                                view.AddFilter(existingFilters[filterName].Id);
+                        }
                     }
                 }
                 catch (Exception ex)

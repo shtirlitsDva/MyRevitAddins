@@ -14,6 +14,7 @@ using fi = Shared.Filter;
 using op = Shared.Output;
 using tr = Shared.Transformation;
 using mp = Shared.MepUtils;
+using MEPUtils.PipingSystemsAndFilters;
 
 namespace MEPUtils
 {
@@ -63,7 +64,8 @@ namespace MEPUtils
                 {7, SupportTools.SupportToolsMain.CallForm },
                 {8, MoveToDistance.MoveToDistance.Move },
                 {9, new CountWelds.CountWelds().CountWeldsMethod },
-                {10, new NumberStuff.NumberStuff().NumberStuffMethod }
+                {10, new NumberStuff.NumberStuff().NumberStuffMethod },
+                {11, new AddAllPipingSystemTypesFiltersToView().Execute }
             };
 
             //Place names for methods in this dict
@@ -79,7 +81,8 @@ namespace MEPUtils
                 {7, "Support tools menu" },
                 {8, "Move e to distance" },
                 {9, "(ctrl) Count welds" },
-                {10, "(ctrl) (Re-)Number" }
+                {10, "(ctrl) (Re-)Number" },
+                {11, "ViewFilters for PS" },
             };
 
             for (int i = 0; i < methodDict.Count; i++)
