@@ -239,6 +239,7 @@
     </Compile>
     <Compile Include="25 PipeSystemFilters\01 CheckOrCreatePipingSystemFilters.cs" />
     <Compile Include="25 PipeSystemFilters\02 AddAllPipingSystemTypesFiltersToView.cs" />
+    <Compile Include="26 CopyElementsToAnotherDoc\01 CopyElementsToAnotherDoc.cs" />
     <Compile Include="MEPUtilsClass.cs" />
     <Compile Include="MoreLinq\MoreEnumerable.DistinctBy.cs" />
     <Compile Include="MoreLinq\MoreEnumerable.MinBy.cs" />
