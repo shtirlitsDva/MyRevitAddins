@@ -237,7 +237,9 @@
     <Compile Include="24 SelectByGuid\InputBox.Designer.cs">
       <DependentUpon>InputBox.cs</DependentUpon>
     </Compile>
+    <Compile Include="25 PipeSystemFilters\00 StaticVariables.cs" />
     <Compile Include="25 PipeSystemFilters\01 CheckOrCreatePipingSystemFilters.cs" />
+    <Compile Include="25 PipeSystemFilters\03 IsolateSelectedPipingSystems.cs" />
     <Compile Include="25 PipeSystemFilters\02 AddAllPipingSystemTypesFiltersToView.cs" />
     <Compile Include="26 CopyElementsToAnotherDoc\01 CopyElementsToAnotherDoc.cs" />
     <Compile Include="MEPUtilsClass.cs" />

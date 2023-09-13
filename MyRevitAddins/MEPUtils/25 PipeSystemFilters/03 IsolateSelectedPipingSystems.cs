@@ -23,78 +23,77 @@ using mp = Shared.MepUtils;
 using tr = Shared.Transformation;
 using Autodesk.Revit.Attributes;
 using System.Diagnostics;
+using Shared.BuildingCoder;
 
 namespace MEPUtils.PipingSystemsAndFilters
 {
-    class AddAllPipingSystemTypesFiltersToView
+    class IsolatePipingSystemsOfSelectedElements
     {
         public Result Execute(UIApplication uiApp)
         {
             Document doc = uiApp.ActiveUIDocument.Document;
+            string prefix = StaticVariables.filterNamePrefix;
 
-            using (Transaction tr = new Transaction(doc, "Add filters to view!"))
+            //Apply filters to current view
+            new AddAllPipingSystemTypesFiltersToView().Execute(uiApp);
+
+            using (Transaction tr = new Transaction(doc, "Isolate piping systems!"))
             {
                 tr.Start();
                 try
                 {
                     View view = doc.ActiveView;
 
-                    var elsInView = fi.GetElementsWithConnectors(doc, view.Id);
-
                     var pipingSystemTypes =
-                        elsInView.Select(x => (PipingSystemType)doc.GetElement(
-                            x.get_Parameter(BuiltInParameter.RBS_PIPING_SYSTEM_TYPE_PARAM)
-                            .AsElementId()))
-                        .Where(x => x != null)
-                        .DistinctBy(x => x.Name)
+                        new FilteredElementCollector(doc)
+                        .OfClass(typeof(PipingSystemType))
                         .ToDictionary(x => x.Name);
-                    
+
                     var existingFilters =
                         new FilteredElementCollector(doc)
                         .OfClass(typeof(ParameterFilterElement))
                         .ToDictionary(x => x.Name);
 
-                    IList<ElementId> cats = new List<ElementId>()
+                    #region Get PSTs from selection
+                    Selection selection = uiApp.ActiveUIDocument.Selection;
+                    var elemIds = selection.GetElementIds();
+                    if (elemIds.Count < 1)
                     {
-                        new ElementId(BuiltInCategory.OST_PipeCurves),
-                        new ElementId(BuiltInCategory.OST_PipeAccessory),
-                        new ElementId(BuiltInCategory.OST_PipeFitting),
-                        //new ElementId(BuiltInCategory.OST_MechanicalEquipment) -> Cannot use RBS_PIPING_SYSTEM_TYPE_PARAM
-                    };
+                        BuildingCoderUtilities.ErrorMsg("No elements selected!");
+                        tr.RollBack();
+                        return Result.Failed;
+                    }
 
-                    foreach (var pst in pipingSystemTypes.OrderBy(x => x.Key))
+                    var elems = elemIds.Select(x => doc.GetElement(x));
+
+                    var selectedSystemTypes =
+                        elems.Select(x => (PipingSystemType)doc.GetElement(
+                            x.get_Parameter(BuiltInParameter.RBS_PIPING_SYSTEM_TYPE_PARAM)
+                            .AsElementId()))
+                        .Where(x => x != null);
+
+                    if (selectedSystemTypes.Count() < 1)
                     {
-                        //Name of the filter
-                        string filterName = StaticVariables.filterNamePrefix + pst.Key;
+                        BuildingCoderUtilities.ErrorMsg("No Piping System Types found!");
+                        tr.RollBack();
+                        return Result.Failed;
+                    }
 
-                        if (!existingFilters.ContainsKey(filterName))
-                        {
-                            Debug.WriteLine($"Filter for system type {pst.Key} not found! Creating...");
+                    var selectedPSDict = selectedSystemTypes
+                    .DistinctBy(x => x.Name)
+                    .ToDictionary(x => x.Name);
+                    #endregion
 
-                            IList<FilterRule> rules = new List<FilterRule>();
+                    var viewFilters = view.GetFilters()
+                        .Select(doc.GetElement)
+                        .Cast<ParameterFilterElement>()
+                        .ToDictionary(x => x.Name);
 
-                            Parameter par = new FilteredElementCollector(doc)
-                                .OfClass(typeof(FamilyInstance))
-                                .OfCategory(BuiltInCategory.OST_PipeAccessory)
-                                .FirstElement()
-                                .get_Parameter(BuiltInParameter.RBS_PIPING_SYSTEM_TYPE_PARAM);
-
-                            rules.Add(ParameterFilterRuleFactory.CreateEqualsRule(
-                                par.Id, pst.Value.Id));
-
-                            var epf = new ElementParameterFilter(rules);
-
-                            var viewFilter = ParameterFilterElement.Create(doc, filterName, cats, epf);
-
-                            Debug.WriteLine($"Created FilterRule {viewFilter.Name}!");
-
-                            view.AddFilter(viewFilter.Id);
-                        }
-                        else
-                        {
-                            if (!view.IsFilterApplied(existingFilters[filterName].Id))
-                                view.AddFilter(existingFilters[filterName].Id);
-                        }
+                    foreach (var filter in viewFilters)
+                    {
+                        if (selectedPSDict.ContainsKey(filter.Key.Replace(prefix, "")))
+                            view.SetFilterVisibility(filter.Value.Id, true);
+                        else view.SetFilterVisibility(filter.Value.Id, false);
                     }
                 }
                 catch (Exception ex)
