@@ -93,7 +93,11 @@ namespace MEPUtils.PipingSystemsAndFilters
                     {
                         if (selectedPSDict.ContainsKey(filter.Key.Replace(prefix, "")))
                             view.SetFilterVisibility(filter.Value.Id, true);
-                        else view.SetFilterVisibility(filter.Value.Id, false);
+                        else
+                        {
+                            if (filter.Value.Name.StartsWith(prefix))
+                                view.SetFilterVisibility(filter.Value.Id, false);
+                        }
                     }
                 }
                 catch (Exception ex)
