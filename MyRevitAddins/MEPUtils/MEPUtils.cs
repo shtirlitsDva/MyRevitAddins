@@ -118,6 +118,24 @@ namespace MEPUtils
 
         private void MEPUtilsChooser_Load(object sender, EventArgs e)
         {
+            // Get screen dimensions where the cursor is located
+            Screen screen = Screen.FromPoint(
+                new System.Drawing.Point(
+                    desiredStartLocationX, desiredStartLocationY));
+            System.Drawing.Rectangle screenArea = screen.WorkingArea;
+
+            // Adjust X position
+            if (desiredStartLocationX + Width > screenArea.Right)
+                desiredStartLocationX = screenArea.Right - Width;
+            if (desiredStartLocationX < screenArea.Left)
+                desiredStartLocationX = screenArea.Left;
+
+            // Adjust Y position
+            if (desiredStartLocationY + Height > screenArea.Bottom)
+                desiredStartLocationY = screenArea.Bottom - Height;
+            if (desiredStartLocationY < screenArea.Top)
+                desiredStartLocationY = screenArea.Top;
+
             SetDesktopLocation(desiredStartLocationX, desiredStartLocationY);
         }
 
