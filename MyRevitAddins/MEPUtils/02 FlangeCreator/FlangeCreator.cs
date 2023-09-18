@@ -37,7 +37,7 @@ namespace MEPUtils
                 string familyAndTypeName = fcc.flangeName;
 
                 //Collect the family symbol of the flange
-                Element familySymbol =
+                Element flangeFamilySymbol =
                     fi.GetElements<FamilySymbol, BuiltInParameter>(
                         doc, BuiltInParameter.SYMBOL_FAMILY_AND_TYPE_NAMES_PARAM, familyAndTypeName).First();
 
@@ -45,22 +45,22 @@ namespace MEPUtils
                 {
                     trans.Start("Create flanges");
 
-                    if (!((FamilySymbol)familySymbol).IsActive)
-                        ((FamilySymbol)familySymbol).Activate();
+                    if (!((FamilySymbol)flangeFamilySymbol).IsActive)
+                        ((FamilySymbol)flangeFamilySymbol).Activate();
 
                     //Process the elements
                     foreach (var id in elemIds)
                     {
-                        Element element = doc.GetElement(id);
-                        if (element is Pipe) throw new Exception("This method does not work on pipes!");
-                        var origCons = mp.GetConnectors(element);
+                        Element pipeaccessory = doc.GetElement(id);
+                        if (pipeaccessory is Pipe) throw new Exception("This method does not work on pipes!");
+                        var pipeaccessoryCons = mp.GetConnectors(pipeaccessory);
 
                         #region Primary flange
-                        CreateFlange(doc, origCons.Primary, origCons.Secondary, familySymbol, element);
+                        CreateFlange(doc, pipeaccessoryCons.Primary, flangeFamilySymbol, pipeaccessory);
                         #endregion
 
                         #region Secondary flange
-                        CreateFlange(doc, origCons.Secondary, origCons.Primary, familySymbol, element);
+                        CreateFlange(doc, pipeaccessoryCons.Secondary, flangeFamilySymbol, pipeaccessory);
                         #endregion
                     }
                     trans.Commit();
@@ -74,13 +74,13 @@ namespace MEPUtils
             }
         }
 
-        private static void CreateFlange(Document doc, Connector start, Connector end, Element familySymbol, Element element)
+        private static void CreateFlange(
+            Document doc, Connector placementConOnPipeAccessory,
+            Element flangeFamilySymbol, Element pipeaccessory)
         {
-            //TODO: Handle case with reducers at ends
-            //TODO: Set correct system type for the new elements
             //Gather the information about the connected elements
-            var allRefs = start.AllRefs;
-            Connector modCon1 = (
+            var allRefs = placementConOnPipeAccessory.AllRefs;
+            Connector modConOnPipeAccessoryConnector = (
                 from Connector c in allRefs
                 where !(c.Owner is PipeInsulation)
                 select c).FirstOrDefault();
@@ -92,24 +92,24 @@ namespace MEPUtils
 
             foreach (Level level in levels)
             {
-                (Level, double) result = (level, start.Origin.Z - level.ProjectElevation);
+                (Level, double) result = (level, placementConOnPipeAccessory.Origin.Z - level.ProjectElevation);
                 if (result.Item2 > -1e-6) levelsWithDist.Add(result);
             }
 
             var minimumLevel = levelsWithDist.MinBy(x => x.dist);
             if (minimumLevel.Equals(default))
             {
-                throw new Exception($"Element {element.Id.ToString()} is below all levels!");
-            } 
+                throw new Exception($"Element {pipeaccessory.Id.ToString()} is below all levels!");
+            }
             #endregion
 
             //Create the flange (must be rotated AND moved in place)
             Element flange = doc.Create.NewFamilyInstance(
-                start.Origin, (FamilySymbol)familySymbol, minimumLevel.lvl,
+                placementConOnPipeAccessory.Origin, (FamilySymbol)flangeFamilySymbol, minimumLevel.lvl,
                 StructuralType.NonStructural);
 
             //Set the diameter of the flange
-            double diaValue = start.Radius * 2;
+            double diaValue = placementConOnPipeAccessory.Radius * 2;
             Parameter dia = flange.LookupParameter("Nominal Diameter 1");
             dia.Set(diaValue);
 
@@ -117,19 +117,22 @@ namespace MEPUtils
 
             //Access the newly created flange's connectors
             var flangeCons = mp.GetConnectors(flange);
+            
+            //Move the element into position, as it spawns somewhere unpredictable
+            ElementTransformUtils.MoveElement(doc, flange.Id, placementConOnPipeAccessory.Origin - flangeCons.Primary.Origin);
 
-            //Transform the flange to align with the connector
-            RotateElementInPosition(start.Origin, flangeCons.Primary, start, end, flange);
+            //Dbg.PlaceAdaptiveFamilyInstance(doc, "Marker Line: Red", flangeCons.Primary.Origin, placementConOnPipeAccessory.Origin);
 
-            //Move flange to location
-            ElementTransformUtils.MoveElement(doc, flange.Id, start.Origin - flangeCons.Primary.Origin);
+            //Rotate the flange to align with the connector
+            ////RotateElementInPosition(start.Origin, flangeCons.Primary, start, end, flange); <-- Old method
+            RotateElementInPosition(placementConOnPipeAccessory.Origin, flangeCons.Primary, placementConOnPipeAccessory, flange);
 
             //Retrieve host element systemTypeId
-            var pipingSystemTypeParameter = element.get_Parameter(BuiltInParameter.RBS_PIPING_SYSTEM_TYPE_PARAM);
+            var pipingSystemTypeParameter = pipeaccessory.get_Parameter(BuiltInParameter.RBS_PIPING_SYSTEM_TYPE_PARAM);
             var pipingSystemTypeId = pipingSystemTypeParameter.AsElementId();
 
             //Retrieve owner of the connected connector
-            var modOwner = modCon1?.Owner;
+            var modOwner = modConOnPipeAccessoryConnector?.Owner;
             //If no connected elements, then return
             if (modOwner == null) return;
 
@@ -137,28 +140,21 @@ namespace MEPUtils
             if (modOwner is Pipe pipe)
             {
                 Connector modCon2 =
-                (from Connector c in ((Pipe)modCon1.Owner).ConnectorManager.Connectors //End of the host/dummy pipe
-                 where c.Id != modCon1.Id && (int)c.ConnectorType == 1
+                (from Connector c in ((Pipe)modConOnPipeAccessoryConnector.Owner).ConnectorManager.Connectors //End of the host/dummy pipe
+                 where c.Id != modConOnPipeAccessoryConnector.Id && (int)c.ConnectorType == 1
                  select c).FirstOrDefault();
-
-                //Get the typeId of most used pipeType
-                //var filter = fi.ParameterValueFilter("Stålrør, sømløse", BuiltInParameter.ALL_MODEL_TYPE_NAME);
-                //FilteredElementCollector col = new FilteredElementCollector(doc);
-                //var pipeType = col.OfClass(typeof(PipeType)).WherePasses(filter).FirstElement();
-                //var pipeType = fi.GetElements<PipeType, BuiltInParameter>(
-                //    doc, BuiltInParameter.ALL_MODEL_TYPE_NAME, "Stålrør, sømløse").FirstOrDefault();
 
                 //Create new pipe
                 Pipe newPipe = Pipe.Create(
-                    doc, pipingSystemTypeId, pipe.PipeType.Id, 
-                    element.LevelId, flangeCons.Secondary.Origin, modCon2.Origin);
+                    doc, pipingSystemTypeId, pipe.PipeType.Id,
+                    pipeaccessory.LevelId, flangeCons.Secondary.Origin, modCon2.Origin);
 
                 //Set pipe diameter
                 Parameter pipeDia = newPipe.get_Parameter(BuiltInParameter.RBS_PIPE_DIAMETER_PARAM);
                 pipeDia.Set(diaValue);
 
                 //Delete the original pipe
-                doc.Delete(modCon1.Owner.Id);
+                doc.Delete(modConOnPipeAccessoryConnector.Owner.Id);
 
                 //Connect the new flange to element
                 //start.ConnectTo(flangeCons.Primary);
@@ -172,7 +168,7 @@ namespace MEPUtils
                 if (mf.PartType.ToString() == "Transition")
                 {
                     //Disconnect the flange con from the connected element con
-                    if (start.IsConnectedTo(modCon1)) start.DisconnectFrom(modCon1);
+                    if (placementConOnPipeAccessory.IsConnectedTo(modConOnPipeAccessoryConnector)) placementConOnPipeAccessory.DisconnectFrom(modConOnPipeAccessoryConnector);
 
                     //Move the element to the start of the new flange
                     ElementTransformUtils.MoveElement(
@@ -192,87 +188,145 @@ namespace MEPUtils
                 //Seems that allRefs contains now an additional connector with PipeInsulation as owner! Why??
                 //Maybe this was as expected, but I failed to notice it before.
             }
-
         }
 
+        #region Old rotation method
+        //private static void RotateElementInPosition(
+        //    XYZ placementPoint, Connector conOnFamilyToConnect, 
+        //    Connector start, Connector end, Element element)
+        //{
+        //    #region Geometric manipulation
+        //    //http://thebuildingcoder.typepad.com/blog/2012/05/create-a-pipe-cap.html
+
+        //    XYZ dir = (start.Origin - end.Origin);
+
+        //    // rotate the cap if necessary
+        //    // rotate about Z first
+
+        //    XYZ pipeHorizontalDirection = new XYZ(dir.X, dir.Y, 0.0).Normalize();
+        //    //XYZ pipeHorizontalDirection = new XYZ(dir.X, dir.Y, 0.0);
+
+        //    XYZ connectorDirection = -conOnFamilyToConnect.CoordinateSystem.BasisZ;
+
+        //    double zRotationAngle = pipeHorizontalDirection.AngleTo(connectorDirection);
+
+        //    Transform trf = Transform.CreateRotationAtPoint(XYZ.BasisZ, zRotationAngle, placementPoint);
+
+        //    XYZ testRotation = trf.OfVector(connectorDirection).Normalize();
+
+        //    if (Math.Abs(testRotation.DotProduct(pipeHorizontalDirection) - 1) > 0.00001) zRotationAngle = -zRotationAngle;
+
+        //    Line axis = Line.CreateBound(placementPoint, placementPoint + XYZ.BasisZ);
+
+        //    ElementTransformUtils.RotateElement(element.Document, element.Id, axis, zRotationAngle);
+
+        //    //Parameter comments = element.get_Parameter(BuiltInParameter.ALL_MODEL_INSTANCE_COMMENTS);
+        //    //comments.Set("Horizontal only");
+
+        //    // Need to rotate vertically?
+
+        //    if (Math.Abs(dir.DotProduct(XYZ.BasisZ)) > 0.000001)
+        //    {
+        //        // if pipe is straight up and down, 
+        //        // kludge it my way else
+
+        //        if (dir.X.Round(3) == 0 && dir.Y.Round(3) == 0 && dir.Z.Round(3) != 0)
+        //        {
+        //            XYZ yaxis = new XYZ(0.0, 1.0, 0.0);
+
+        //            double rotationAngle = dir.AngleTo(yaxis); //<-- value in radians
+
+        //            if (dir.Z > 0) rotationAngle = -rotationAngle; //<-- Here is the culprit: Equals(1) was wrong!
+
+        //            axis = Line.CreateBound(placementPoint, new XYZ(placementPoint.X, placementPoint.Y + 5, placementPoint.Z));
+
+        //            ElementTransformUtils.RotateElement(element.Document, element.Id, axis, rotationAngle);
+
+        //            //comments.Set("Vertical!");
+        //        }
+        //        else
+        //        {
+        //            #region sloped pipes
+
+        //            double rotationAngle = dir.AngleTo(pipeHorizontalDirection);
+
+        //            XYZ normal = pipeHorizontalDirection.CrossProduct(XYZ.BasisZ);
+
+        //            trf = Transform.CreateRotationAtPoint(normal, rotationAngle, placementPoint);
+
+        //            testRotation = trf.OfVector(dir).Normalize();
+
+        //            if (Math.Abs(testRotation.DotProduct(pipeHorizontalDirection) - 1) < 0.00001)
+        //                rotationAngle = -rotationAngle;
+
+        //            axis = Line.CreateBound(placementPoint, placementPoint + normal);
+
+        //            ElementTransformUtils.RotateElement(element.Document, element.Id, axis, rotationAngle);
+
+        //            //comments.Set("Sloped");
+
+        //            #endregion
+        //        }
+        //    }
+        //    #endregion
+        //} 
+        #endregion
+
+        /// <summary>
+        /// Rotates the element based only on the direction of the placement connector.
+        /// </summary>
         private static void RotateElementInPosition(
-            XYZ placementPoint, Connector conOnFamilyToConnect, 
-            Connector start, Connector end, Element element)
+            XYZ placementPoint, Connector conOnFamilyToConnect,
+            Connector startCon, Element element)
         {
             #region Geometric manipulation
-
             //http://thebuildingcoder.typepad.com/blog/2012/05/create-a-pipe-cap.html
 
-            XYZ dir = (start.Origin - end.Origin);
+            XYZ start = startCon.Origin;
 
-            // rotate the cap if necessary
-            // rotate about Z first
+            XYZ end = start - startCon.CoordinateSystem.BasisZ * 2;
 
-            XYZ pipeHorizontalDirection = new XYZ(dir.X, dir.Y, 0.0).Normalize();
-            //XYZ pipeHorizontalDirection = new XYZ(dir.X, dir.Y, 0.0);
+            //Dbg.PlaceAdaptiveFamilyInstance(element.Document, "Marker Line: Red", start, end);
 
-            XYZ connectorDirection = -conOnFamilyToConnect.CoordinateSystem.BasisZ;
+            XYZ dirToAlignTo = (start - end);
 
-            double zRotationAngle = pipeHorizontalDirection.AngleTo(connectorDirection);
+            XYZ dirToRotate = -conOnFamilyToConnect.CoordinateSystem.BasisZ;
 
-            Transform trf = Transform.CreateRotationAtPoint(XYZ.BasisZ, zRotationAngle, placementPoint);
+            double rotationAngle = dirToAlignTo.AngleTo(dirToRotate);
 
-            XYZ testRotation = trf.OfVector(connectorDirection).Normalize();
+            XYZ normal = dirToAlignTo.CrossProduct(dirToRotate);
 
-            if (Math.Abs(testRotation.DotProduct(pipeHorizontalDirection) - 1) > 0.00001) zRotationAngle = -zRotationAngle;
-
-            Line axis = Line.CreateBound(placementPoint, placementPoint + XYZ.BasisZ);
-
-            ElementTransformUtils.RotateElement(element.Document, element.Id, axis, zRotationAngle);
-
-            //Parameter comments = element.get_Parameter(BuiltInParameter.ALL_MODEL_INSTANCE_COMMENTS);
-            //comments.Set("Horizontal only");
-
-            // Need to rotate vertically?
-
-            if (Math.Abs(dir.DotProduct(XYZ.BasisZ)) > 0.000001)
+            //Case: Normal is 0 vector -> directions are already aligned, but may need flipping
+            if (normal.Equalz(new XYZ(), 1.0e-6))
             {
-                // if pipe is straight up and down, 
-                // kludge it my way else
-
-                if (dir.X.Round(3) == 0 && dir.Y.Round(3) == 0 && dir.Z.Round(3) != 0)
+                //Subcase: Element needs flipping
+                if (rotationAngle > 0)
                 {
-                    XYZ yaxis = new XYZ(0.0, 1.0, 0.0);
+                    Line axis2;
+                    if (dirToRotate.X.Equalz(1, 1.0e-6) || dirToRotate.Y.Equalz(1, 1.0e-6))
+                    {
+                        axis2 = Line.CreateBound(placementPoint, placementPoint + new XYZ(0, 0, 1));
+                    }
+                    else axis2 = Line.CreateBound(placementPoint, placementPoint + new XYZ(1, 0, 0));
 
-                    double rotationAngle = dir.AngleTo(yaxis); //<-- value in radians
-
-                    if (dir.Z > 0) rotationAngle = -rotationAngle; //<-- Here is the culprit: Equals(1) was wrong!
-
-                    axis = Line.CreateBound(placementPoint, new XYZ(placementPoint.X, placementPoint.Y + 5, placementPoint.Z));
-
-                    ElementTransformUtils.RotateElement(element.Document, element.Id, axis, rotationAngle);
-
-                    //comments.Set("Vertical!");
+                    ElementTransformUtils.RotateElement(element.Document, element.Id, axis2, rotationAngle);
+                    return;
                 }
-                else
-                {
-                    #region sloped pipes
-
-                    double rotationAngle = dir.AngleTo(pipeHorizontalDirection);
-
-                    XYZ normal = pipeHorizontalDirection.CrossProduct(XYZ.BasisZ);
-
-                    trf = Transform.CreateRotationAtPoint(normal, rotationAngle, placementPoint);
-
-                    testRotation = trf.OfVector(dir).Normalize();
-
-                    if (Math.Abs(testRotation.DotProduct(pipeHorizontalDirection) - 1) < 0.00001)
-                        rotationAngle = -rotationAngle;
-
-                    axis = Line.CreateBound(placementPoint, placementPoint + normal);
-
-                    ElementTransformUtils.RotateElement(element.Document, element.Id, axis, rotationAngle);
-
-                    //comments.Set("Sloped");
-
-                    #endregion
-                }
+                //Subcase: Element already in correct alignment
+                return;
             }
+
+            Transform trf = Transform.CreateRotationAtPoint(normal, rotationAngle, placementPoint);
+
+            XYZ testRotation = trf.OfVector(dirToAlignTo).Normalize();
+
+            if (testRotation.DotProduct(dirToAlignTo) < 0.00001)
+                rotationAngle = -rotationAngle;
+
+            Line axis = Line.CreateBound(placementPoint, placementPoint + normal);
+
+            ElementTransformUtils.RotateElement(element.Document, element.Id, axis, rotationAngle);
+
             #endregion
         }
     }
